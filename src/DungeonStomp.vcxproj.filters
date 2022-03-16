@@ -186,10 +186,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Shaders\Default.hlsl">
+    <Text Include="..\Shaders\Default.hlsl">
       <Filter>Shaders</Filter>
     </Text>
-    <Text Include="Shaders\LightingUtil.hlsl">
+    <Text Include="..\Shaders\LightingUtil.hlsl">
       <Filter>Shaders</Filter>
     </Text>
   </ItemGroup>
