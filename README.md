@@ -1,4 +1,4 @@
-# Dungeon Stomp
+# Dungeon Stomp DirectX12
 
 ![Dungeon Stomp](../main/Textures/screenshot.jpg)
 
