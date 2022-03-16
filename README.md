@@ -23,6 +23,7 @@ Happy Dungeon Stomping - Breeyark!
 * SPACE to open doors.
 * Q/Z to cycle weapons/spells
 * MOUSE Left button = attack, MOUSE Right button move forward
+* Maximize screen then press ALT+ENTER to enter FULLSCREEN mode
 
 ## Debug Controls
 
