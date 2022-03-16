@@ -1,8 +1,5 @@
 //***************************************************************************************
-// LitWavesApp.cpp by Frank Luna (C) 2015 All Rights Reserved.
-//
-// Use arrow keys to move light positions.
-//
+// DungeonStompApp.cpp by Mark Longo (C) 2022 All Rights Reserved.
 //***************************************************************************************
 
 #include "../Common/d3dApp.h"
@@ -75,13 +72,13 @@ enum class RenderLayer : int
 };
 
 
-class LitWavesApp : public D3DApp
+class DungeonStompApp : public D3DApp
 {
 public:
-    LitWavesApp(HINSTANCE hInstance);
-    LitWavesApp(const LitWavesApp& rhs) = delete;
-    LitWavesApp& operator=(const LitWavesApp& rhs) = delete;
-    ~LitWavesApp();
+    DungeonStompApp(HINSTANCE hInstance);
+    DungeonStompApp(const DungeonStompApp& rhs) = delete;
+    DungeonStompApp& operator=(const DungeonStompApp& rhs) = delete;
+    ~DungeonStompApp();
 
     virtual bool Initialize()override;
 
@@ -177,7 +174,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
     try
     {
-        LitWavesApp theApp(hInstance);
+        DungeonStompApp theApp(hInstance);
         if(!theApp.Initialize())
             return 0;
 
@@ -190,18 +187,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
     }
 }
 
-LitWavesApp::LitWavesApp(HINSTANCE hInstance)
+DungeonStompApp::DungeonStompApp(HINSTANCE hInstance)
     : D3DApp(hInstance)
 {
 }
 
-LitWavesApp::~LitWavesApp()
+DungeonStompApp::~DungeonStompApp()
 {
     if(md3dDevice != nullptr)
         FlushCommandQueue();
 }
 
-bool LitWavesApp::Initialize()
+bool DungeonStompApp::Initialize()
 {
     if(!D3DApp::Initialize())
         return false;
@@ -243,7 +240,7 @@ bool LitWavesApp::Initialize()
     return true;
 }
  
-void LitWavesApp::OnResize()
+void DungeonStompApp::OnResize()
 {
     D3DApp::OnResize();
 
@@ -257,7 +254,7 @@ VOID UpdateControls();
 HRESULT FrameMove(double fTime, FLOAT fTimeKey);
 void UpdateWorld(float fElapsedTime);
 
-void LitWavesApp::Update(const GameTimer& gt)
+void DungeonStompApp::Update(const GameTimer& gt)
 {
 	float t = gt.DeltaTime();
 	UpdateControls();
@@ -287,7 +284,7 @@ void LitWavesApp::Update(const GameTimer& gt)
 	UpdateWaves(gt);
 }
 
-void LitWavesApp::Draw(const GameTimer& gt)
+void DungeonStompApp::Draw(const GameTimer& gt)
 {
 	auto cmdListAlloc = mCurrFrameResource->CmdListAlloc;
 
@@ -358,7 +355,7 @@ void LitWavesApp::Draw(const GameTimer& gt)
 	mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 }
 
-void LitWavesApp::OnMouseDown(WPARAM btnState, int x, int y)
+void DungeonStompApp::OnMouseDown(WPARAM btnState, int x, int y)
 {
    /* mLastMousePos.x = x;
     mLastMousePos.y = y;
@@ -366,12 +363,12 @@ void LitWavesApp::OnMouseDown(WPARAM btnState, int x, int y)
     SetCapture(mhMainWnd);*/
 }
 
-void LitWavesApp::OnMouseUp(WPARAM btnState, int x, int y)
+void DungeonStompApp::OnMouseUp(WPARAM btnState, int x, int y)
 {
     //ReleaseCapture();
 }
 
-void LitWavesApp::OnMouseMove(WPARAM btnState, int x, int y)
+void DungeonStompApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
     //if((btnState & MK_LBUTTON) != 0)
     //{
@@ -403,7 +400,7 @@ void LitWavesApp::OnMouseMove(WPARAM btnState, int x, int y)
     //mLastMousePos.y = y;ssssss
 }
 
-void LitWavesApp::OnKeyboardInput(const GameTimer& gt)
+void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 {
 	const float dt = gt.DeltaTime();
 
@@ -422,7 +419,7 @@ void LitWavesApp::OnKeyboardInput(const GameTimer& gt)
 	mSunPhi = MathHelper::Clamp(mSunPhi, 0.1f, XM_PIDIV2);
 }
 
-void LitWavesApp::UpdateCamera(const GameTimer& gt)
+void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 {
 	// Convert Spherical to Cartesian coordinates.
 	//mEyePos.x = mRadius * sinf(mPhi) * cosf(mTheta);
@@ -463,7 +460,7 @@ void LitWavesApp::UpdateCamera(const GameTimer& gt)
 
 }
 //
-//void LitWavesApp::UpdateObjectCBs(const GameTimer& gt)
+//void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
 //{
 //	auto currObjectCB = mCurrFrameResource->ObjectCB.get();
 //	for(auto& e : mAllRitems)
@@ -487,7 +484,7 @@ void LitWavesApp::UpdateCamera(const GameTimer& gt)
 //}
 
 
-void LitWavesApp::UpdateObjectCBs(const GameTimer& gt)
+void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
 {
 	auto currObjectCB = mCurrFrameResource->ObjectCB.get();
 	for (auto& e : mAllRitems)
@@ -512,7 +509,7 @@ void LitWavesApp::UpdateObjectCBs(const GameTimer& gt)
 }
 
 
-void LitWavesApp::UpdateMaterialCBs(const GameTimer& gt)
+void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
 {
 	auto currMaterialCB = mCurrFrameResource->MaterialCB.get();
 	for(auto& e : mMaterials)
@@ -540,7 +537,7 @@ void LitWavesApp::UpdateMaterialCBs(const GameTimer& gt)
 
 
 
-void LitWavesApp::UpdateMainPassCB(const GameTimer& gt)
+void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 {
 	XMMATRIX view = XMLoadFloat4x4(&mView);
 	XMMATRIX proj = XMLoadFloat4x4(&mProj);
@@ -590,7 +587,7 @@ void LitWavesApp::UpdateMainPassCB(const GameTimer& gt)
 extern int cnt;
 extern D3DVERTEX* src_v;
 
-void LitWavesApp::UpdateWaves(const GameTimer& gt)
+void DungeonStompApp::UpdateWaves(const GameTimer& gt)
 {
 	// Every quarter second, generate a random wave.
 	static float t_base = 0.0f;
@@ -650,7 +647,7 @@ void LitWavesApp::UpdateWaves(const GameTimer& gt)
 	mWavesRitem->Geo->VertexBufferGPU = currWavesVB->Resource();
 }
 
-void LitWavesApp::BuildRootSignature()
+void DungeonStompApp::BuildRootSignature()
 {
 
 	CD3DX12_DESCRIPTOR_RANGE texTable;
@@ -695,7 +692,7 @@ void LitWavesApp::BuildRootSignature()
 }
 
 
-std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> LitWavesApp::GetStaticSamplers()
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> DungeonStompApp::GetStaticSamplers()
 {
 	// Applications usually only need a handful of samplers.  So just define them all up front
 	// and keep them available as part of the root signature.  
@@ -754,7 +751,7 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> LitWavesApp::GetStaticSamplers(
 
 
 
-void LitWavesApp::BuildShadersAndInputLayout()
+void DungeonStompApp::BuildShadersAndInputLayout()
 {
 	const D3D_SHADER_MACRO defines[] =
 	{
@@ -791,7 +788,7 @@ void LitWavesApp::BuildShadersAndInputLayout()
 
 }
 
-void LitWavesApp::BuildLandGeometry()
+void DungeonStompApp::BuildLandGeometry()
 {
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData grid = geoGen.CreateGrid(160.0f, 160.0f, 50, 50);
@@ -846,7 +843,7 @@ void LitWavesApp::BuildLandGeometry()
 	mGeometries["landGeo"] = std::move(geo);
 }
 
-void LitWavesApp::BuildWavesGeometryBuffers()
+void DungeonStompApp::BuildWavesGeometryBuffers()
 {
 	std::vector<std::uint16_t> indices(3 * mWaves->TriangleCount()); // 3 indices per face
 	assert(mWaves->VertexCount() < 0x0000ffff);
@@ -902,7 +899,7 @@ void LitWavesApp::BuildWavesGeometryBuffers()
 	mGeometries["waterGeo"] = std::move(geo);
 }
 /*
-void LitWavesApp::BuildPSOs()
+void DungeonStompApp::BuildPSOs()
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
 
@@ -936,7 +933,7 @@ void LitWavesApp::BuildPSOs()
 }
 */
 
-void LitWavesApp::BuildPSOs()
+void DungeonStompApp::BuildPSOs()
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
 
@@ -1038,7 +1035,7 @@ void LitWavesApp::BuildPSOs()
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&torchPsoDesc, IID_PPV_ARGS(&mPSOs["torchTested"])));
 }
 
-void LitWavesApp::BuildFrameResources()
+void DungeonStompApp::BuildFrameResources()
 {
     for(int i = 0; i < gNumFrameResources; ++i)
     {
@@ -1047,7 +1044,7 @@ void LitWavesApp::BuildFrameResources()
     }
 }
 
-void LitWavesApp::BuildMaterials()
+void DungeonStompApp::BuildMaterials()
 {
 	auto grass = std::make_unique<Material>();
 	grass->Name = "grass";
@@ -1071,7 +1068,7 @@ void LitWavesApp::BuildMaterials()
 	mMaterials["water"] = std::move(water);
 }
 
-void LitWavesApp::BuildRenderItems()
+void DungeonStompApp::BuildRenderItems()
 {
 	auto wavesRitem = std::make_unique<RenderItem>();
 	wavesRitem->World = MathHelper::Identity4x4();
@@ -1105,7 +1102,7 @@ void LitWavesApp::BuildRenderItems()
 
 int FindTextureAlias(char* alias);
 
-void LitWavesApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
+void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
 	ScanMod();
 
@@ -1316,12 +1313,12 @@ void LitWavesApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std:
 
 }
 
-float LitWavesApp::GetHillsHeight(float x, float z)const
+float DungeonStompApp::GetHillsHeight(float x, float z)const
 {
     return 0.3f*(z*sinf(0.1f*x) + x*cosf(0.1f*z));
 }
 
-XMFLOAT3 LitWavesApp::GetHillsNormal(float x, float z)const
+XMFLOAT3 DungeonStompApp::GetHillsNormal(float x, float z)const
 {
     // n = (-df/dx, 1, -df/dz)
     XMFLOAT3 n(
@@ -1343,7 +1340,7 @@ extern BOOL* dp_command_index_mode;
 
 
 
-void LitWavesApp::LoadTextures()
+void DungeonStompApp::LoadTextures()
 {
 	auto woodCrateTex = std::make_unique<Texture>();
 	woodCrateTex->Name = "woodCrateTex";
@@ -1373,7 +1370,7 @@ void LitWavesApp::LoadTextures()
 }
 
 
-void LitWavesApp::BuildDescriptorHeaps()
+void DungeonStompApp::BuildDescriptorHeaps()
 {
 	//
 	// Create the SRV heap.
@@ -1412,7 +1409,7 @@ void LitWavesApp::BuildDescriptorHeaps()
 }
 
 
-BOOL LitWavesApp::LoadRRTextures11(char* filename)
+BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 {
 	FILE* fp;
 	char s[256];
@@ -1699,7 +1696,7 @@ static wchar_t* charToWChar(const char* text)
 }
 
 
-void LitWavesApp::ProcessLights11()
+void DungeonStompApp::ProcessLights11()
 {
 	int sort[200];
 	float dist[200];

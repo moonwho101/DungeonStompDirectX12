@@ -21,7 +21,7 @@
     <ClCompile Include="FrameResource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LitWavesApp.cpp">
+    <ClCompile Include="DungeonStompApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Waves.cpp">

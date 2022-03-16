@@ -923,7 +923,7 @@ void CheckMidiMusic()
         //DMusic_Play(raction);
         //currentmidi = raction;
 
-        //PlaySong();
+        PlaySong();
         //}
     }
 

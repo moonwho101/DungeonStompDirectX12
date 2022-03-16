@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{2D456930-7EE8-4CE4-965A-A85A744F8515}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>LitWaves</RootNamespace>
+    <RootNamespace>Dungeon Stomp</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>DungeonStomp</ProjectName>
   </PropertyGroup>
@@ -162,7 +162,7 @@
     <ClCompile Include="GameLogic.cpp" />
     <ClCompile Include="Import3DS.cpp" />
     <ClCompile Include="ImportMD2.cpp" />
-    <ClCompile Include="LitWavesApp.cpp" />
+    <ClCompile Include="DungeonStompApp.cpp" />
     <ClCompile Include="LoadWorld.cpp" />
     <ClCompile Include="Missle.cpp" />
     <ClCompile Include="ProcessModel.cpp" />
