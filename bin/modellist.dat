@@ -1,0 +1,131 @@
+
+FILENAME modellist.dat
+PLAYER		0 MD2  MODEL_ID 0  ..\models\players\knight\knight.md2		TEX knight  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monster1.snd	AC 7	HD 10	d 1d10 THACO 18 KNIGHT	20	BATTLEAXE
+PLAYER		1 3DS  MODEL_ID 1  ..\models\3ds\pillar.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	pillar	10	NONE
+YOURGUN		0 MD2 	MODEL_ID 2 ..\models\players\knight\axe.md2		TEX axe  POS 0 0 0	   ANGLE 0		SCALE 2.00	D 1d4	A 0	D 0	AXE	0
+PLAYER		2 MD2  MODEL_ID 3  ..\models\players\goblin\goblin.md2	TEX goblin  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monstergoblin.snd	AC 9	HD 1	d 1d4 THACO 19	GOBLIN	18	GOBLINAXE
+PLAYER		3 MD2  MODEL_ID 4  ..\models\players\bauul\bauul.md2		TEX bauul  POS 635 13 720  ANGLE 0	SCALE 3.00   NO_EXTERNAL_WEP	monsterbaull.snd	AC 4	HD 8	d 1d8 THACO 12	BAUUL	25	WEAPONBAUUL
+PLAYER		4 MD2  MODEL_ID 5  ..\models\players\corpse\corpse.md2	TEX corpse  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monstercorpse.snd	AC 9	HD 3	d 1d6 THACO 16	CORPSE	15	NONE
+PLAYER		5 3DS  MODEL_ID 6  ..\models\3ds\potion.3ds			TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 18	POTION	10	NONE
+YOURGUN		1 MD2 	MODEL_ID 7 ..\models\players\knight\flamesword.md2	TEX flamesword  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d4	A 1	D 1	FLAMESWORD	0
+YOURGUN		2 MD2 	MODEL_ID 8 ..\models\players\knight\bastard_sword.md2	TEX bastard_sword  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d6	A 0	D 0	BASTARDSWORD	0
+YOURGUN		3 MD2 	MODEL_ID 9 ..\models\players\knight\battleaxe.md2	TEX battleaxe  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d8	A 1	D 1	BATTLEAXE	0
+YOURGUN		4 MD2 	MODEL_ID 10 ..\models\players\knight\icesword.md2	TEX icesword  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d8	A 2	D 2	ICESWORD	0
+YOURGUN		5 MD2 	MODEL_ID 11 ..\models\players\knight\lightning_sword.md2	TEX lightning_sword  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d8	A 3	D 3	LIGHTNINGSWORD	0
+YOURGUN		6 MD2 	MODEL_ID 12 ..\models\players\knight\morning_star.md2	TEX morning_star  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d10	A 2	D 4	MORNINGSTAR	0
+YOURGUN		7 MD2 	MODEL_ID 13 ..\models\players\knight\spiked_flail.md2	TEX spiked_flail  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d12	A 2	D 6	SPIKEDFLAIL	0
+YOURGUN		8 MD2 	MODEL_ID 14 ..\models\players\knight\split_sword.md2	TEX split_sword  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d10	A 4	D 4	SPLITSWORD	0
+YOURGUN		9 MD2 	MODEL_ID 15 ..\models\players\knight\super_flamesword.md2	TEX super_flamesword  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d12	A 5	D 5	SUPERFLAMESWORD	0
+PLAYER		6 MD2  MODEL_ID 16  ..\models\players\magicuser\sorcerer.md2	TEX sorcerer  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monstersorcerer.snd	AC 5	HD 13	d 1d8 THACO 7	SORCERER	20	weaponsorcerer
+PLAYER		7 MD2  MODEL_ID 17  ..\models\players\tentacle\tentacle.md2	TEX tentacle  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monstertentacle.snd	AC 8	HD 1	d 1d4 THACO 19	TENTACLE	17	NONE
+PLAYER		8 3DS  MODEL_ID 18  ..\models\3ds\chest.3ds			TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 18	CHEST	10	NONE
+PLAYER		9 MD2  MODEL_ID 19  ..\models\players\wraith\wraith.md2		TEX wraith  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterwraith.snd	AC 4	HD 6	d 1d8 THACO 14	WRAITH	28	weaponwraith
+PLAYER		10 MD2  MODEL_ID 20  ..\models\players\ogre\ogre.md2		TEX ogre  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterogre.snd	AC 7	HD 3	d 1d6 THACO 16	OGRE	25	NONE
+PLAYER		11 3DS  MODEL_ID 21  ..\models\3ds\coin.3ds			TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 18	COIN	10	NONE
+PLAYER		12 3DS  MODEL_ID 22  ..\models\3ds\bed.3ds			TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 18	BED	10	NONE
+PLAYER		13 3DS  MODEL_ID 23  ..\models\3ds\table.3ds			TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 18	TABLE	10	NONE
+YOURGUN		10 MD2 	MODEL_ID 24 ..\models\players\goblin\weapon.md2	TEX weapongoblin  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d12	A 5	D 5	GOBLINAXE	0
+PLAYER		14 3DS  MODEL_ID 25	..\models\3ds\eye.3ds			TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 18	EYE	10	NONE
+YOURGUN		11 MD2 	MODEL_ID 26 ..\models\players\bauul\weaponbauul.md2	TEX weaponbauul  POS 0 0 0	   ANGLE 0	SCALE 3.00	D 1d12	A 5	D 5	WEAPONBAUUL	0
+PLAYER		15 MD2  MODEL_ID 27  ..\models\players\phantom\phantom.md2		TEX phantom  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterphantom.snd	AC 6	HD 10	d 1d8 THACO 10 PHANTOM	20	PHANTOMW
+YOURGUN		12 MD2 	MODEL_ID 28 ..\models\players\phantom\phantomw.md2	TEX phantomw  POS 0 0 0	   ANGLE 0	SCALE 3.00	D 1d12	A 5	D 5	PHANTOMW	0
+PLAYER		16 3DS  MODEL_ID 29  ..\models\3ds\alter.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	alter	10	NONE
+PLAYER		17 3DS  MODEL_ID 30  ..\models\3ds\stool.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	stool	10	NONE
+PLAYER		18 3DS  MODEL_ID 31  ..\models\3ds\spiral.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	spiral	10	NONE
+PLAYER		19 3DS  MODEL_ID 32  ..\models\3ds\land.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	land	10	NONE
+PLAYER		20 3DS  MODEL_ID 33  ..\models\3ds\diamond.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	diamond	10	NONE
+PLAYER		21 3DS  MODEL_ID 34  ..\models\3ds\gem-ct.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	gem-ct	10	NONE
+PLAYER		22 3DS  MODEL_ID 35  ..\models\3ds\cdooropen.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	cdooropen	10	NONE
+PLAYER		23 3DS  MODEL_ID 36  ..\models\3ds\cdoorclosed.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	cdoorclosed	10	NONE
+PLAYER		24 3DS  MODEL_ID 37  ..\models\3ds\curve.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	curve	10	NONE
+PLAYER		25 3DS  MODEL_ID 38  ..\models\3ds\door4.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	door4	10	NONE
+PLAYER		26 3DS  MODEL_ID 39  ..\models\3ds\armour.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	armour	10	NONE
+PLAYER		27 3DS  MODEL_ID 40  ..\models\3ds\tube.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	tube	10	NONE
+PLAYER		28 3DS  MODEL_ID 41  ..\models\3ds\tubecurve.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	tubecurve	10	NONE
+PLAYER		29 3DS  MODEL_ID 42  ..\models\3ds\landscape.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	landscape	10	NONE
+YOURGUN		13 MD2 	MODEL_ID 43 ..\models\players\wraith\weaponwraith.md2	TEX weaponwraith  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d12	A 5	D 5	weaponwraith	0
+YOURGUN		14 MD2 	MODEL_ID 44 ..\models\players\magicuser\weaponsorcerer.md2	TEX weaponsorcerer  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d12	A 5	D 5	weaponsorcerer	0
+PLAYER		30 MD2  MODEL_ID 45  ..\models\players\ogro\ogro.md2	TEX ogro  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterogre.snd	AC 5	HD 3	d 1d6 THACO 17	OGRO	20	NONE
+PLAYER		31 MD2  MODEL_ID 46  ..\models\players\skeleton2\skeleton2.md2	TEX skeleton2  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterskeleton.snd	AC 7	HD 2	d 1d4 THACO 18	SKELETON2	15	NONE
+PLAYER		32 MD2  MODEL_ID 47  ..\models\players\demoness\demoness.md2	TEX demoness  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterdemoness.snd	AC 3	HD 14	d 1d12 THACO 6	DEMONESS	35	weapondemoness
+PLAYER		33 MD2  MODEL_ID 48  ..\models\players\faerie\faerie.md2	TEX Faerie  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterfaerie.snd	AC 6	HD 12	d 1d8 THACO 8	FAERIE	30	NONE
+YOURGUN		15 MD2 	MODEL_ID 49 ..\models\players\demoness\weapondemoness.md2	TEX weapondemoness  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d12	A 5	D 5	weapondemoness	0
+PLAYER		34 3DS  MODEL_ID 50  ..\models\3ds\tubecover.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	tubecover	10	NONE
+PLAYER		35 3DS  MODEL_ID 51  ..\models\3ds\pillarlarge.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	pillarlarge	10	NONE
+PLAYER		36 3DS  MODEL_ID 52  ..\models\3ds\pew.3ds			TEX 0  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	pew	10	NONE
+PLAYER		37 3DS  MODEL_ID 53  ..\models\3ds\key2.3ds			TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	KEY2	10	NONE
+PLAYER		38 MD2  MODEL_ID 54  ..\models\players\slave\slave.md2	TEX Slave  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterskeleton.snd	AC 8	HD 1	d 1d6 THACO 19	SLAVE	5	NONE
+PLAYER		39 MD2  MODEL_ID 55  ..\models\players\wolf\wolf.md2	TEX Wolf  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterwolf.snd	AC 7	HD 8	d 1d6 THACO 12	WOLF	20	NONE
+PLAYER		40 3DS  MODEL_ID 56  ..\models\3ds\logs\logs.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	LOGS	10	NONE
+PLAYER		41 3DS  MODEL_ID 57  ..\models\3ds\OrnateBox\OrnateBox.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	ORNATEBOX	10	NONE
+PLAYER		42 3DS  MODEL_ID 58  ..\models\3ds\Goblet\Goblet.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	GOBLET	10	NONE
+PLAYER		43 3DS  MODEL_ID 59  ..\models\3ds\bucket\Bucket.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	BUCKET	10	NONE
+PLAYER		44 3DS  MODEL_ID 60  ..\models\3ds\blanket\Blanket.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	BLANKET	10	NONE
+PLAYER		45 3DS  MODEL_ID 61  ..\models\3ds\trough\trough.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	TROUGH	10	NONE
+PLAYER		46 3DS  MODEL_ID 62  ..\models\3ds\broom\broom.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	BROOM	10	NONE
+PLAYER		47 3DS  MODEL_ID 63  ..\models\3ds\bread\bread.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	BREAD	10	NONE
+PLAYER		48 3DS  MODEL_ID 64  ..\models\3ds\basket1\basket1.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	BASKET1	10	NONE
+PLAYER		49 3DS  MODEL_ID 65  ..\models\3ds\basket2\basket2.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	BASKET2	10	NONE
+PLAYER		50 3DS  MODEL_ID 66  ..\models\3ds\basket3\basket3.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	BASKET3	10	NONE
+PLAYER		51 3DS  MODEL_ID 67  ..\models\3ds\woodenbox\cdooropenwoodbox.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	cdooropenwoodbox	10	NONE
+PLAYER		52 3DS  MODEL_ID 68  ..\models\3ds\woodenbox\cdoorclosedwoodbox.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	cdoorclosedwoodbox	10	NONE
+PLAYER		53 3DS  MODEL_ID 69  ..\models\3ds\metalbox\cdooropenmetalbox.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	cdooropenmetalbox	10	NONE
+PLAYER		54 3DS  MODEL_ID 70  ..\models\3ds\metalbox\cdoorclosedmetalbox.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	cdoorclosedmetalbox	10	NONE
+PLAYER		55 3DS  MODEL_ID 71  ..\models\3ds\eat\cup.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	CUP	10	NONE
+PLAYER		56 3DS  MODEL_ID 72  ..\models\3ds\eat\mug.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	MUG	10	NONE
+PLAYER		57 3DS  MODEL_ID 73  ..\models\3ds\crock\crock1.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	CROCK1	10	NONE
+PLAYER		58 3DS  MODEL_ID 74  ..\models\3ds\crock\crock2.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	CROCK2	10	NONE
+PLAYER		59 3DS  MODEL_ID 75  ..\models\3ds\crock\crock3.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	CROCK3	10	NONE
+PLAYER		60 3DS  MODEL_ID 76  ..\models\3ds\crock\crock4.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	CROCK4	10	NONE
+PLAYER		61 3DS  MODEL_ID 77  ..\models\3ds\bread\bread1.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	bread1	10	NONE
+PLAYER		62 3DS  MODEL_ID 78  ..\models\3ds\bread\cheese1.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	cheese1	10	NONE
+PLAYER		63 3DS  MODEL_ID 79  ..\models\3ds\banner\banner1.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	banner1	10	NONE
+PLAYER		64 3DS  MODEL_ID 80  ..\models\3ds\banner\banner2.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	banner2	10	NONE
+PLAYER		65 3DS  MODEL_ID 81  ..\models\3ds\circle\circle.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	circle	10	NONE
+PLAYER		66 3DS  MODEL_ID 82  ..\models\3ds\stone\stones1.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	stones1	10	NONE
+PLAYER		67 3DS  MODEL_ID 83  ..\models\3ds\stone\stones3.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	stones3	10	NONE
+PLAYER		68 3DS  MODEL_ID 84  ..\models\3ds\stone\stones2.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	stones2	10	NONE
+PLAYER		69 3DS  MODEL_ID 85  ..\models\3ds\switch1.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	switch1	10	NONE
+PLAYER		70 3DS  MODEL_ID 86  ..\models\3ds\portcullis.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	portcullis	10	NONE
+PLAYER		71 MD2  MODEL_ID 87  ..\models\players\insect\insect.md2	TEX Insect  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterskeleton.snd	AC 8	HD 7	d 1d6 THACO 13	INSECT	20	NONE
+PLAYER		72 MD2  MODEL_ID 88  ..\models\players\oluve\oluve.md2	TEX oluve  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterskeleton.snd	AC 9	HD 1	d 1d4 THACO 17	OLUVE	17	NONE
+PLAYER		73 MD2  MODEL_ID 89  ..\models\players\mummy\mummy.md2	TEX mummy  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monstermummy.snd	AC 6	HD 3	d 1d6 THACO 16	MUMMY	18	weaponmummy
+YOURGUN		16 MD2 	MODEL_ID 90 ..\models\players\mummy\weaponmummy.md2	TEX weaponmummy  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d12	A 5	D 5	weaponmummy	0
+PLAYER		74 MD2  MODEL_ID 91  ..\models\players\hydra\hydra.md2	TEX hydra  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterhydra.snd	AC 6	HD 7	d 1d6 THACO 13	HYDRA	20	weaponhydra
+YOURGUN		17 MD2 	MODEL_ID 92 ..\models\players\hydra\weaponhydra.md2	TEX weaponhydra  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d12	A 5	D 5	weaponhydra	0
+PLAYER		75 MD2  MODEL_ID 93  ..\models\players\necromancer\necromancer.md2	TEX necromancer  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsternecro.snd	AC 2	HD 13	d 1d8 THACO 7	NECROMANCER	35	NONE
+PLAYER		76 MD2  MODEL_ID 94  ..\models\players\imp\imp.md2	TEX imp  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterimp.snd	AC 7	HD 8	d 1d6 THACO 12	IMP	20	NONE
+PLAYER		77 MD2  MODEL_ID 95  ..\models\players\demon\demon.md2	TEX demon  POS 635 13 720  ANGLE 0	SCALE 3.00   NO_EXTERNAL_WEP	monsterdemon.snd	AC 2	HD 9	d 1d10 THACO 11	DEMON	25	NONE
+PLAYER		78 3DS  MODEL_ID 96  ..\models\3ds\arena\arenaceiling.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	arenaceiling	10	NONE
+PLAYER		79 3DS  MODEL_ID 97  ..\models\3ds\portcullis2.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	portcullis2	10	NONE
+PLAYER		80 MD2  MODEL_ID 98  ..\models\players\fulimo\filimo.md2	TEX fulimo  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterfulimo.snd	AC 5	HD 11	d 1d8 THACO 9	FULIMO	25	NONE
+PLAYER		81 3DS  MODEL_ID 99  ..\models\3ds\crate1.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	CRATE1	10	NONE
+PLAYER		82 3DS  MODEL_ID 100  ..\models\3ds\explode.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	EXPLODE	10	NONE
+PLAYER		83 3DS  MODEL_ID 101  ..\models\3ds\missle1.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	MISSLE1	10	NONE
+PLAYER		84 3DS  MODEL_ID 102  ..\models\3ds\missle2.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	MISSLE2	10	NONE
+YOURGUN		18 3DS 	MODEL_ID 103 ..\models\3ds\missle1.3ds	TEX -1  POS 0 0 0	   ANGLE 0	SCALE 0.50	D 1d4	A 0	D 0	SCROLL-MAGICMISSLE	0
+YOURGUN		19 3DS 	MODEL_ID 104 ..\models\3ds\missle2.3ds	TEX -1  POS 0 0 0	   ANGLE 0	SCALE 0.50	D 1d6	A 0	D 0	SCROLL-FIREBALL	0
+YOURGUN		20 3ds 	MODEL_ID 105 ..\models\3ds\missle3.3ds	TEX -1  POS 0 0 0	   ANGLE 0	SCALE 0.50	D 1d8	A 0	D 0	SCROLL-LIGHTNING	0
+YOURGUN		21 3ds 	MODEL_ID 106 ..\models\3ds\missle4.3ds	TEX -1  POS 0 0 0	   ANGLE 0	SCALE 0.50	D 1d8	A 0	D 0	SCROLL-HEALING 0
+PLAYER		85 3DS  MODEL_ID 107  ..\models\3ds\scroll\scroll1.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	SCROLL-MAGICMISSLE-	10	NONE
+PLAYER		86 3DS  MODEL_ID 108  ..\models\3ds\scroll\scroll2.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	SCROLL-FIREBALL-	10	NONE
+PLAYER		87 3DS  MODEL_ID 109  ..\models\3ds\scroll\scroll3.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	SCROLL-LIGHTNING-	10	NONE
+PLAYER		88 3DS  MODEL_ID 110  ..\models\3ds\scroll\scroll4.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	SCROLL-HEALING-	10	NONE
+PLAYER		89 3DS  MODEL_ID 111  ..\models\3ds\barrel\cdooropenbarrel.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	cdooropenbarrel	10	NONE
+PLAYER		90 3DS  MODEL_ID 112  ..\models\3ds\barrel\cdoorclosedbarrel.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	cdoorclosedbarrel	10	NONE
+PLAYER		91 3DS  MODEL_ID 113  ..\models\3ds\bookcase\bookcase.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.00   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	BOOKCASE	10	NONE
+PLAYER		92 MD2  MODEL_ID 114  ..\models\players\cobra\cobra.md2	TEX cobra  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monstersnake.snd	AC 7	HD 6	d 1d8 THACO 14	COBRA	30	NONE
+YOURGUN		22 MD2 	MODEL_ID 115 ..\models\players\dragon\weapondragon.md2	TEX weapondragon  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d12	A 5	D 5	weapondragon	0
+PLAYER		93 MD2  MODEL_ID 116  ..\models\players\dragon\dragon.md2	TEX dragon  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterfulimo.snd	AC 4	HD 12	d 1d8 THACO 8	DRAGON	30	weapondragon
+PLAYER		94 MD2  MODEL_ID 117  ..\models\players\centaur\centaur.md2	TEX centaur  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterfulimo.snd	AC 8	HD 5	d 1d8 THACO 17	CENTAUR	16	NONE
+YOURGUN		23 MD2 	MODEL_ID 118 ..\models\players\craz\weaponcraz.md2	TEX weaponcraz  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d10	A 5	D 5	weaponcraz	0
+PLAYER		95 MD2  MODEL_ID 119  ..\models\players\craz\craz.md2	TEX craz  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterorc.snd	AC 8	HD 5	d 1d8 THACO 15	CRAZ	20	weaponcraz
+PLAYER		96 MD2  MODEL_ID 120  ..\models\players\rider\rider.md2	TEX rider  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterfulimo.snd	AC 6	HD 12	d 1d8 THACO 8	RIDER	26	NONE
+PLAYER		97 MD2  MODEL_ID 121  ..\models\players\okta\okta.md2	TEX okta  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monsterfulimo.snd	AC 7	HD 11	d 1d8 THACO 9	OKTA	25	NONE
+YOURGUN		24 MD2 	MODEL_ID 122 ..\models\players\sorb\weaponsorb.md2	TEX weaponsorb  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d12	A 5	D 5	weaponsorb	0
+PLAYER		98 MD2  MODEL_ID 123  ..\models\players\sorb\sorb.md2	TEX sorb  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monstersorb.snd	AC 2	HD 11	d 1d10 THACO 9	SORB	29	weaponsorb
+PLAYER		99 3DS  MODEL_ID 124  ..\models\3ds\explode.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.50   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	EXPLODE2	10	NONE
+END_FILE
+
+
+** EVERYTHING BELOW "END_FILE" IS IGNORED **
