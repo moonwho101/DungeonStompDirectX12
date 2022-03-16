@@ -7,13 +7,11 @@ Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 * Dungeon Stomp is a DirectX12 3D dungeon game that uses Direct3D, DirectInput and XAudio2.
 * It is a complete game with level advancement and 19 levels.
 * Lighting uses blinn-phong pixel shaders with help from Frank Luna's DirectX12 book.
+* DDS Texture mipmaps
+* Fog, Alpha transparency and Alpha testing
 * XBOX game controller is supported.
 
 It will compile using Microsoft Visual Studio 2022 community edition.
-
-## Compile Notes
-* Confirm VC++ INCLUDE directory has .\Include
-* Confirm VC++ LIB directory has .\Lib\x64
 
 ## Contact
 If you have any questions email me at mlongo@aptisense.com or visit www.aptisense.com to download game installer.
