@@ -119,13 +119,8 @@ WAV	snakedie	..\sounds\snakedie.wav
 WAV	sorb	..\sounds\sorb.wav
 WAV	sorbdie	..\sounds\sorbdie.wav
 MID	badbad		..\midi\badbad.wav
-MID	cinderella		..\midi\cinderella.wav
-MID	madrigal		..\midi\madrigal.wav
-MID	kobold		..\midi\kobold.wav
 MID	momo		..\midi\momo.wav
-MID	xanadu3		..\midi\xanadu3.wav
 MID	forest		..\midi\forest.wav
-MID	ocean2		..\midi\ocean2.wav
 MID	human		..\midi\human.wav
 MID	home		..\midi\home.wav
 END_FILE
