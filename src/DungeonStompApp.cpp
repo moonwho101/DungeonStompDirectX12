@@ -75,21 +75,21 @@ enum class RenderLayer : int
 class DungeonStompApp : public D3DApp
 {
 public:
-    DungeonStompApp(HINSTANCE hInstance);
-    DungeonStompApp(const DungeonStompApp& rhs) = delete;
-    DungeonStompApp& operator=(const DungeonStompApp& rhs) = delete;
-    ~DungeonStompApp();
+	DungeonStompApp(HINSTANCE hInstance);
+	DungeonStompApp(const DungeonStompApp& rhs) = delete;
+	DungeonStompApp& operator=(const DungeonStompApp& rhs) = delete;
+	~DungeonStompApp();
 
-    virtual bool Initialize()override;
+	virtual bool Initialize()override;
 
 private:
-    virtual void OnResize()override;
-    virtual void Update(const GameTimer& gt)override;
-    virtual void Draw(const GameTimer& gt)override;
+	virtual void OnResize()override;
+	virtual void Update(const GameTimer& gt)override;
+	virtual void Draw(const GameTimer& gt)override;
 
-    virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
-    virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
+	virtual void OnMouseDown(WPARAM btnState, int x, int y)override;
+	virtual void OnMouseUp(WPARAM btnState, int x, int y)override;
+	virtual void OnMouseMove(WPARAM btnState, int x, int y)override;
 
 	void OnKeyboardInput(const GameTimer& gt);
 	void UpdateCamera(const GameTimer& gt);
@@ -98,14 +98,14 @@ private:
 	void UpdateMainPassCB(const GameTimer& gt);
 	void UpdateWaves(const GameTimer& gt);
 
-    void BuildRootSignature();
-    void BuildShadersAndInputLayout();
-    void BuildLandGeometry();
-    void BuildWavesGeometryBuffers();
-    void BuildPSOs();
-    void BuildFrameResources();
-    void BuildMaterials();
-    void BuildRenderItems();
+	void BuildRootSignature();
+	void BuildShadersAndInputLayout();
+	void BuildLandGeometry();
+	void BuildWavesGeometryBuffers();
+	void BuildPSOs();
+	void BuildFrameResources();
+	void BuildMaterials();
+	void BuildRenderItems();
 	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 
 	void LoadTextures();
@@ -115,18 +115,18 @@ private:
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
-    float GetHillsHeight(float x, float z)const;
-    XMFLOAT3 GetHillsNormal(float x, float z)const;
+	float GetHillsHeight(float x, float z)const;
+	XMFLOAT3 GetHillsNormal(float x, float z)const;
 
 private:
 
-    std::vector<std::unique_ptr<FrameResource>> mFrameResources;
-    FrameResource* mCurrFrameResource = nullptr;
-    int mCurrFrameResourceIndex = 0;
+	std::vector<std::unique_ptr<FrameResource>> mFrameResources;
+	FrameResource* mCurrFrameResource = nullptr;
+	int mCurrFrameResourceIndex = 0;
 
-    UINT mCbvSrvDescriptorSize = 0;
+	UINT mCbvSrvDescriptorSize = 0;
 
-    ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
+	ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
 
 	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
 	std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
@@ -146,7 +146,7 @@ private:
 
 	std::unique_ptr<Waves> mWaves;
 
-    PassConstants mMainPassCB;
+	PassConstants mMainPassCB;
 
 	Light LightContainer[MaxLights];
 
@@ -154,100 +154,100 @@ private:
 	XMFLOAT4X4 mView = MathHelper::Identity4x4();
 	XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 
-    float mTheta = 1.5f*XM_PI;
-    float mPhi = XM_PIDIV2 - 0.1f;
-    float mRadius = 50.0f;
+	float mTheta = 1.5f * XM_PI;
+	float mPhi = XM_PIDIV2 - 0.1f;
+	float mRadius = 50.0f;
 
-	float mSunTheta = 1.25f*XM_PI;
+	float mSunTheta = 1.25f * XM_PI;
 	float mSunPhi = XM_PIDIV4;
 
-    POINT mLastMousePos;
+	POINT mLastMousePos;
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
-    PSTR cmdLine, int showCmd)
+	PSTR cmdLine, int showCmd)
 {
-    // Enable run-time memory check for debug builds.
+	// Enable run-time memory check for debug builds.
 #if defined(DEBUG) | defined(_DEBUG)
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-    try
-    {
-        DungeonStompApp theApp(hInstance);
-        if(!theApp.Initialize())
-            return 0;
+	try
+	{
+		DungeonStompApp theApp(hInstance);
+		if (!theApp.Initialize())
+			return 0;
 
-        return theApp.Run();
-    }
-    catch(DxException& e)
-    {
-        MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);
-        return 0;
-    }
+		return theApp.Run();
+	}
+	catch (DxException& e)
+	{
+		MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);
+		return 0;
+	}
 }
 
 DungeonStompApp::DungeonStompApp(HINSTANCE hInstance)
-    : D3DApp(hInstance)
+	: D3DApp(hInstance)
 {
 }
 
 DungeonStompApp::~DungeonStompApp()
 {
-    if(md3dDevice != nullptr)
-        FlushCommandQueue();
+	if (md3dDevice != nullptr)
+		FlushCommandQueue();
 }
 
 bool DungeonStompApp::Initialize()
 {
-    if(!D3DApp::Initialize())
-        return false;
+	if (!D3DApp::Initialize())
+		return false;
 
-    // Reset the command list to prep for initialization commands.
-    ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
+	// Reset the command list to prep for initialization commands.
+	ThrowIfFailed(mCommandList->Reset(mDirectCmdListAlloc.Get(), nullptr));
 
-    // Get the increment size of a descriptor in this heap type.  This is hardware specific, so we have
-    // to query this information.
-    mCbvSrvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	// Get the increment size of a descriptor in this heap type.  This is hardware specific, so we have
+	// to query this information.
+	mCbvSrvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	mWaves = std::make_unique<Waves>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
 
 	LoadTextures();
-    BuildRootSignature();
+	BuildRootSignature();
 	BuildDescriptorHeaps();
-    BuildShadersAndInputLayout();
+	BuildShadersAndInputLayout();
 	BuildLandGeometry();
-    BuildWavesGeometryBuffers();
+	BuildWavesGeometryBuffers();
 	BuildMaterials();
-    BuildRenderItems();
 	BuildRenderItems();
-    BuildFrameResources();
+	BuildRenderItems();
+	BuildFrameResources();
 	BuildPSOs();
 
 	LoadRRTextures11("textures.dat");
-	
+
 	InitDS();
 
 
-    // Execute the initialization commands.
-    ThrowIfFailed(mCommandList->Close());
-    ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
-    mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	// Execute the initialization commands.
+	ThrowIfFailed(mCommandList->Close());
+	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
+	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-    // Wait until initialization is complete.
-    FlushCommandQueue();
+	// Wait until initialization is complete.
+	FlushCommandQueue();
 
-    return true;
+	return true;
 }
- 
+
 void DungeonStompApp::OnResize()
 {
-    D3DApp::OnResize();
+	D3DApp::OnResize();
 
-    // The window resized, so update the aspect ratio and recompute the projection matrix.
-    //XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
+	// The window resized, so update the aspect ratio and recompute the projection matrix.
+	//XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
 	XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 100000.0f);
-    XMStoreFloat4x4(&mProj, P);
+	XMStoreFloat4x4(&mProj, P);
 }
 
 VOID UpdateControls();
@@ -270,7 +270,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 
 	// Has the GPU finished processing the commands of the current frame resource?
 	// If not, wait until the GPU has completed commands up to this fence point.
-	if(mCurrFrameResource->Fence != 0 && mFence->GetCompletedValue() < mCurrFrameResource->Fence)
+	if (mCurrFrameResource->Fence != 0 && mFence->GetCompletedValue() < mCurrFrameResource->Fence)
 	{
 		HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
 		ThrowIfFailed(mFence->SetEventOnCompletion(mCurrFrameResource->Fence, eventHandle));
@@ -350,71 +350,71 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	mCurrFrameResource->Fence = ++mCurrentFence;
 
 	// Add an instruction to the command queue to set a new fence point. 
-    // Because we are on the GPU timeline, the new fence point won't be 
-    // set until the GPU finishes processing all the commands prior to this Signal().
+	// Because we are on the GPU timeline, the new fence point won't be 
+	// set until the GPU finishes processing all the commands prior to this Signal().
 	mCommandQueue->Signal(mFence.Get(), mCurrentFence);
 }
 
 void DungeonStompApp::OnMouseDown(WPARAM btnState, int x, int y)
 {
-   /* mLastMousePos.x = x;
-    mLastMousePos.y = y;
+	/* mLastMousePos.x = x;
+	 mLastMousePos.y = y;
 
-    SetCapture(mhMainWnd);*/
+	 SetCapture(mhMainWnd);*/
 }
 
 void DungeonStompApp::OnMouseUp(WPARAM btnState, int x, int y)
 {
-    //ReleaseCapture();
+	//ReleaseCapture();
 }
 
 void DungeonStompApp::OnMouseMove(WPARAM btnState, int x, int y)
 {
-    //if((btnState & MK_LBUTTON) != 0)
-    //{
-    //    // Make each pixel correspond to a quarter of a degree.
-    //    float dx = XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
-    //    float dy = XMConvertToRadians(0.25f*static_cast<float>(y - mLastMousePos.y));
+	//if((btnState & MK_LBUTTON) != 0)
+	//{
+	//    // Make each pixel correspond to a quarter of a degree.
+	//    float dx = XMConvertToRadians(0.25f*static_cast<float>(x - mLastMousePos.x));
+	//    float dy = XMConvertToRadians(0.25f*static_cast<float>(y - mLastMousePos.y));
 
-    //    // Update angles based on input to orbit camera around box.
-    //    mTheta += dx;
-    //    mPhi += dy;
+	//    // Update angles based on input to orbit camera around box.
+	//    mTheta += dx;
+	//    mPhi += dy;
 
-    //    // Restrict the angle mPhi.
-    //    mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
-    //}
-    //else if((btnState & MK_RBUTTON) != 0)
-    //{
-    //    // Make each pixel correspond to 0.2 unit in the scene.
-    //    float dx = 0.2f*static_cast<float>(x - mLastMousePos.x);
-    //    float dy = 0.2f*static_cast<float>(y - mLastMousePos.y);
+	//    // Restrict the angle mPhi.
+	//    mPhi = MathHelper::Clamp(mPhi, 0.1f, MathHelper::Pi - 0.1f);
+	//}
+	//else if((btnState & MK_RBUTTON) != 0)
+	//{
+	//    // Make each pixel correspond to 0.2 unit in the scene.
+	//    float dx = 0.2f*static_cast<float>(x - mLastMousePos.x);
+	//    float dy = 0.2f*static_cast<float>(y - mLastMousePos.y);
 
-    //    // Update the camera radius based on input.
-    //    mRadius += dx - dy;
+	//    // Update the camera radius based on input.
+	//    mRadius += dx - dy;
 
-    //    // Restrict the radius.
-    //    mRadius = MathHelper::Clamp(mRadius, 5.0f, 150.0f);
-    //}
+	//    // Restrict the radius.
+	//    mRadius = MathHelper::Clamp(mRadius, 5.0f, 150.0f);
+	//}
 
-    //mLastMousePos.x = x;
-    //mLastMousePos.y = y;ssssss
+	//mLastMousePos.x = x;
+	//mLastMousePos.y = y;ssssss
 }
 
 void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 {
 	const float dt = gt.DeltaTime();
 
-	if(GetAsyncKeyState(VK_LEFT) & 0x8000)
-		mSunTheta -= 1.0f*dt;
+	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+		mSunTheta -= 1.0f * dt;
 
-	if(GetAsyncKeyState(VK_RIGHT) & 0x8000)
-		mSunTheta += 1.0f*dt;
+	if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+		mSunTheta += 1.0f * dt;
 
-	if(GetAsyncKeyState(VK_UP) & 0x8000)
-		mSunPhi -= 1.0f*dt;
+	if (GetAsyncKeyState(VK_UP) & 0x8000)
+		mSunPhi -= 1.0f * dt;
 
-	if(GetAsyncKeyState(VK_DOWN) & 0x8000)
-		mSunPhi += 1.0f*dt;
+	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		mSunPhi += 1.0f * dt;
 
 	mSunPhi = MathHelper::Clamp(mSunPhi, 0.1f, XM_PIDIV2);
 }
@@ -425,7 +425,7 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	//mEyePos.x = mRadius * sinf(mPhi) * cosf(mTheta);
 	//mEyePos.z = mRadius * sinf(mPhi) * sinf(mTheta);
 	//mEyePos.y = mRadius * cosf(mPhi);
-	
+
 	float adjust = 50.0f;
 
 	mEyePos.x = m_vEyePt.x;
@@ -441,7 +441,7 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	// Build the view matrix.
 	XMVECTOR pos = XMVectorSet(mEyePos.x, mEyePos.y, mEyePos.z, 1.0f);
 	//XMVECTOR target = XMVectorZero();
-	XMVECTOR target =  XMVectorSet(m_vLookatPt.x, m_vLookatPt.y + adjust, m_vLookatPt.z, 1.0f);
+	XMVECTOR target = XMVectorSet(m_vLookatPt.x, m_vLookatPt.y + adjust, m_vLookatPt.z, 1.0f);
 
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -512,12 +512,12 @@ void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
 void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
 {
 	auto currMaterialCB = mCurrFrameResource->MaterialCB.get();
-	for(auto& e : mMaterials)
+	for (auto& e : mMaterials)
 	{
 		// Only update the cbuffer data if the constants have changed.  If the cbuffer
 		// data changes, it needs to be updated for each FrameResource.
 		Material* mat = e.second.get();
-		if(mat->NumFramesDirty > 0)
+		if (mat->NumFramesDirty > 0)
 		{
 			XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
 
@@ -591,7 +591,7 @@ void DungeonStompApp::UpdateWaves(const GameTimer& gt)
 {
 	// Every quarter second, generate a random wave.
 	static float t_base = 0.0f;
-	if((mTimer.TotalTime() - t_base) >= 0.25f)
+	if ((mTimer.TotalTime() - t_base) >= 0.25f)
 	{
 		t_base += 0.25f;
 
@@ -608,7 +608,7 @@ void DungeonStompApp::UpdateWaves(const GameTimer& gt)
 
 	// Update the wave vertex buffer with the new solution.
 	auto currWavesVB = mCurrFrameResource->WavesVB.get();
-	for(int i = 0; i < mWaves->VertexCount(); ++i)
+	for (int i = 0; i < mWaves->VertexCount(); ++i)
 	{
 		Vertex v;
 
@@ -651,15 +651,15 @@ void DungeonStompApp::BuildRootSignature()
 {
 
 	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,1, 0);
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
-    // Root parameter can be a table, root descriptor or root constants.
-    CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+	// Root parameter can be a table, root descriptor or root constants.
+	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
 
-    // Create root CBV.
-    slotRootParameter[0].InitAsConstantBufferView(0);
-    slotRootParameter[1].InitAsConstantBufferView(1);
-    slotRootParameter[2].InitAsConstantBufferView(2);
+	// Create root CBV.
+	slotRootParameter[0].InitAsConstantBufferView(0);
+	slotRootParameter[1].InitAsConstantBufferView(1);
+	slotRootParameter[2].InitAsConstantBufferView(2);
 	slotRootParameter[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	auto staticSamplers = GetStaticSamplers();
@@ -669,26 +669,26 @@ void DungeonStompApp::BuildRootSignature()
 		(UINT)staticSamplers.size(), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-    // A root signature is an array of root parameters.
+	// A root signature is an array of root parameters.
 	//CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
-    // create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
-    ComPtr<ID3DBlob> serializedRootSig = nullptr;
-    ComPtr<ID3DBlob> errorBlob = nullptr;
-    HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-        serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+	ComPtr<ID3DBlob> serializedRootSig = nullptr;
+	ComPtr<ID3DBlob> errorBlob = nullptr;
+	HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
 
-    if(errorBlob != nullptr)
-    {
-        ::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-    }
-    ThrowIfFailed(hr);
+	if (errorBlob != nullptr)
+	{
+		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+	}
+	ThrowIfFailed(hr);
 
-    ThrowIfFailed(md3dDevice->CreateRootSignature(
+	ThrowIfFailed(md3dDevice->CreateRootSignature(
 		0,
-        serializedRootSig->GetBufferPointer(),
-        serializedRootSig->GetBufferSize(),
-        IID_PPV_ARGS(mRootSignature.GetAddressOf())));
+		serializedRootSig->GetBufferPointer(),
+		serializedRootSig->GetBufferSize(),
+		IID_PPV_ARGS(mRootSignature.GetAddressOf())));
 }
 
 
@@ -800,7 +800,7 @@ void DungeonStompApp::BuildLandGeometry()
 	//
 
 	std::vector<Vertex> vertices(grid.Vertices.size());
-	for(size_t i = 0; i < grid.Vertices.size(); ++i)
+	for (size_t i = 0; i < grid.Vertices.size(); ++i)
 	{
 		auto& p = grid.Vertices[i].Position;
 		vertices[i].Pos = p;
@@ -852,24 +852,24 @@ void DungeonStompApp::BuildWavesGeometryBuffers()
 	int m = mWaves->RowCount();
 	int n = mWaves->ColumnCount();
 	int k = 0;
-	for(int i = 0; i < m - 1; ++i)
+	for (int i = 0; i < m - 1; ++i)
 	{
-		for(int j = 0; j < n - 1; ++j)
+		for (int j = 0; j < n - 1; ++j)
 		{
-			indices[k] = i*n + j;
-			indices[k + 1] = i*n + j + 1;
-			indices[k + 2] = (i + 1)*n + j;
+			indices[k] = i * n + j;
+			indices[k + 1] = i * n + j + 1;
+			indices[k + 2] = (i + 1) * n + j;
 
-			indices[k + 3] = (i + 1)*n + j;
-			indices[k + 4] = i*n + j + 1;
-			indices[k + 5] = (i + 1)*n + j + 1;
+			indices[k + 3] = (i + 1) * n + j;
+			indices[k + 4] = i * n + j + 1;
+			indices[k + 5] = (i + 1) * n + j + 1;
 
 			k += 6; // next quad
 		}
 	}
 
-	UINT vbByteSize = mWaves->VertexCount()*sizeof(Vertex);
-	UINT ibByteSize = (UINT)indices.size()*sizeof(std::uint16_t);
+	UINT vbByteSize = mWaves->VertexCount() * sizeof(Vertex);
+	UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
 	auto geo = std::make_unique<MeshGeometry>();
 	geo->Name = "waterGeo";
@@ -1012,7 +1012,7 @@ void DungeonStompApp::BuildPSOs()
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC torchPsoDesc = opaquePsoDesc;
-	
+
 	transparencyBlendDesc.BlendEnable = true;
 	transparencyBlendDesc.LogicOpEnable = false;
 	transparencyBlendDesc.SrcBlend = D3D12_BLEND_SRC_COLOR;
@@ -1037,11 +1037,11 @@ void DungeonStompApp::BuildPSOs()
 
 void DungeonStompApp::BuildFrameResources()
 {
-    for(int i = 0; i < gNumFrameResources; ++i)
-    {
-        mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(),
-            1, (UINT)mAllRitems.size(), (UINT)mMaterials.size(), mWaves->VertexCount()));
-    }
+	for (int i = 0; i < gNumFrameResources; ++i)
+	{
+		mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(),
+			1, (UINT)mAllRitems.size(), (UINT)mMaterials.size(), mWaves->VertexCount()));
+	}
 }
 
 void DungeonStompApp::BuildMaterials()
@@ -1053,16 +1053,16 @@ void DungeonStompApp::BuildMaterials()
 	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	grass->Roughness = 0.125f;
 
-    // This is not a good water material definition, but we do not have all the rendering
-    // tools we need (transparency, environment reflection), so we fake it for now.
+	// This is not a good water material definition, but we do not have all the rendering
+	// tools we need (transparency, environment reflection), so we fake it for now.
 	auto water = std::make_unique<Material>();
 	water->Name = "water";
 	water->MatCBIndex = 1;
 	water->DiffuseSrvHeapIndex = 0;
-    water->DiffuseAlbedo = XMFLOAT4(2.0f, 2.0f, 2.0f, 2.0f);
-    water->FresnelR0 = XMFLOAT3(0.3f, 0.3f, 0.3f);
+	water->DiffuseAlbedo = XMFLOAT4(2.0f, 2.0f, 2.0f, 2.0f);
+	water->FresnelR0 = XMFLOAT3(0.3f, 0.3f, 0.3f);
 
-    water->Roughness = 0.5f;
+	water->Roughness = 0.5f;
 
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
@@ -1198,7 +1198,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		}
 	}
 
-	
+
 	bool draw = false;
 	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
 	//mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
@@ -1280,7 +1280,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		}
 
 
-		
+
 		if (draw) {
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 			tex.Offset(texture_number, mCbvSrvDescriptorSize);
@@ -1315,21 +1315,21 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 float DungeonStompApp::GetHillsHeight(float x, float z)const
 {
-    return 0.3f*(z*sinf(0.1f*x) + x*cosf(0.1f*z));
+	return 0.3f * (z * sinf(0.1f * x) + x * cosf(0.1f * z));
 }
 
 XMFLOAT3 DungeonStompApp::GetHillsNormal(float x, float z)const
 {
-    // n = (-df/dx, 1, -df/dz)
-    XMFLOAT3 n(
-        -0.03f*z*cosf(0.1f*x) - 0.3f*cosf(0.1f*z),
-        1.0f,
-        -0.3f*sinf(0.1f*x) + 0.03f*x*sinf(0.1f*z));
+	// n = (-df/dx, 1, -df/dz)
+	XMFLOAT3 n(
+		-0.03f * z * cosf(0.1f * x) - 0.3f * cosf(0.1f * z),
+		1.0f,
+		-0.3f * sinf(0.1f * x) + 0.03f * x * sinf(0.1f * z));
 
-    XMVECTOR unitNormal = XMVector3Normalize(XMLoadFloat3(&n));
-    XMStoreFloat3(&n, unitNormal);
+	XMVECTOR unitNormal = XMVector3Normalize(XMLoadFloat3(&n));
+	XMStoreFloat3(&n, unitNormal);
 
-    return n;
+	return n;
 }
 
 extern int number_of_polys_per_frame;
@@ -1399,7 +1399,7 @@ void DungeonStompApp::BuildDescriptorHeaps()
 
 	md3dDevice->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
 
-	
+
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
 	srvDesc.Format = grassTex->GetDesc().Format;
@@ -1457,12 +1457,12 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 			//remember the file
 			strcpy(f, p);
 
-		/*	if (hr == S_OK)
-			{
-				textures[tex_counter] = save_out_srv;
-				tex_counter++;
-				found = TRUE;
-			}*/
+			/*	if (hr == S_OK)
+				{
+					textures[tex_counter] = save_out_srv;
+					tex_counter++;
+					found = TRUE;
+				}*/
 
 			tex_counter++;
 		}
@@ -1476,7 +1476,7 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 			strcpy_s((char*)TexMap[tex_alias_counter].tex_alias_name, 100, (char*)&p);
 
 			TexMap[tex_alias_counter].texture = tex_counter - 1;
-			
+
 			bool exists = true;
 			FILE* fp4 = NULL;
 			fopen_s(&fp4, f, "rb");
@@ -1494,7 +1494,8 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 
 			if (exists) {
 				woodCrateTex->Filename = charToWChar(f);
-			}else{
+			}
+			else {
 				woodCrateTex->Filename = charToWChar("../Textures2/WoodCrate01.dds");
 				//woodCrateTex->Filename = charToWChar("./Textures/goblin.dds");
 			}
@@ -1517,7 +1518,7 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 			//}
 
 			//woodCrateTex->Filename = charToWChar(f);
-			
+
 			ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
 				mCommandList.Get(), woodCrateTex->Filename.c_str(),
 				woodCrateTex->Resource, woodCrateTex->UploadHeap));
@@ -1538,7 +1539,7 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 
 			// next descriptor
 			hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-			
+
 
 			fscanf_s(fp, "%s", &p, 256);
 			if (strcmp(p, "AlphaTransparent") == 0)
@@ -1804,7 +1805,7 @@ void DungeonStompApp::ProcessLights11()
 		flamesword = true;
 	}
 
-	
+
 	if (flamesword) {
 
 		int spot = 15;
