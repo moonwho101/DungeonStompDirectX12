@@ -132,7 +132,7 @@ int maxNumTextCharacters = 1024; // the maximum number of characters you can ren
 
 Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight); // load a font
 
-void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+//void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 
 
 
@@ -227,6 +227,7 @@ private:
 	//void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
 	void display_message3(float x, float y, char text[2048], int r, int g, int b, float fontx, float fonty, int fonttype);
+	void SetDungeonText();
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
@@ -1567,7 +1568,8 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	//sprintf_s(junk, "Dungeon Stomp 1.90 %llu " , gametimer);
 	sprintf_s(junk, "Dungeon Stomp 1.90");
 	//display_message(5.0f, (FLOAT)wHeight - adjust - 14.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.30f, 0.30f));
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.30f, 0.30f)); //, XMFLOAT2(0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f));
+
 
 	//sprintf_s(junk, "Area: ");
 	//display_message(0.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 255, 255, 0, 12.5, 16, 0);
@@ -1578,13 +1580,13 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	//statusbardisplay((float)player_list[trueplayernum].hp, (float)player_list[trueplayernum].hp, 1);
 
-	sprintf_s(junk, "Health  : ");
+	sprintf_s(junk, "Health");
 	//display_message(0.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 0, 12.5, 16, 0);
 	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.82f), XMFLOAT2(0.30f, 0.30f));
 
 	sprintf_s(junk, "%d/%d", player_list[trueplayernum].health, player_list[trueplayernum].hp);
 	//display_message(0.0f + 110.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 255, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.10f, 0.82f), XMFLOAT2(0.30f, 0.30f));
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.82f), XMFLOAT2(0.30f, 0.30f));
 
 	sprintf_s(junk, "WPN : ");
 	//display_message(0.0f, (FLOAT)wHeight - adjust + 38.0f, junk, 255, 255, 0, 12.5, 16, 0);
@@ -1712,7 +1714,7 @@ while (flag)
 		flag = 0;
 }
 
-
+	SetDungeonText();
 
 	return;
 
@@ -1720,13 +1722,65 @@ while (flag)
 
 }
 
-void DungeonStompApp::display_message3(float x, float y, char text[2048], int r, int g, int b, float fontx, float fonty, int fonttype) 
+void DungeonStompApp::display_message3(float x, float y, char text[2048], int r, int g, int b, float fontx, float fonty, int fonttype)
 {
 	
 
 	//RenderText(arialFont, std::wstring(text), XMFLOAT2(0.01f, 0.0f), XMFLOAT2(0.30f, 0.30f));
 
 }
+
+struct gametext
+{
+
+	int textnum;
+	int type;
+	char text[2048];
+	int shown;
+};
+
+
+extern int textcounter;
+extern gametext gtext[200];
+
+void DungeonStompApp::SetDungeonText()
+{
+
+	for (int q = 0; q < oblist_length; q++)
+	{
+		int angle = (int)oblist[q].rot_angle;
+		int ob_type = oblist[q].type;
+		if (ob_type == 120)
+		{
+			float	qdist = FastDistance(m_vEyePt.x - oblist[q].x, m_vEyePt.y - oblist[q].y, m_vEyePt.z - oblist[q].z);
+			if (qdist < 500.0f) {
+				if (strstr(oblist[q].name, "text") != NULL)
+				{
+					for (int il = 0; il < textcounter; il++)
+					{
+						if (gtext[il].textnum == q)
+						{
+							if (gtext[il].type == 0)
+							{
+								strcpy_s(gfinaltext, gtext[il].text);
+							}
+							else if (gtext[il].type == 1 || gtext[il].type == 2)
+							{
+								if (qdist < 200.0f)
+								{
+
+									//DisplayDialogText(gtext[il].text, 0.0f);
+									RenderText(arialFont, charToWChar(gtext[il].text), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(0.20f, 0.20f));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 
 
 
