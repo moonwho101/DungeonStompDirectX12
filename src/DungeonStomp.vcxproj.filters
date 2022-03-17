@@ -192,5 +192,11 @@
     <Text Include="..\Shaders\LightingUtil.hlsl">
       <Filter>Shaders</Filter>
     </Text>
+    <Text Include="..\Shaders\TextPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </Text>
+    <Text Include="..\Shaders\TextVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </Text>
   </ItemGroup>
 </Project>
