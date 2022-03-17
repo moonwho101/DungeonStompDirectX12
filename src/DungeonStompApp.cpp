@@ -228,6 +228,7 @@ private:
 	void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
 	void display_message3(float x, float y, char text[2048], int r, int g, int b, float fontx, float fonty, int fonttype);
 	void SetDungeonText();
+	void ScanMod();
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
@@ -1340,7 +1341,7 @@ extern SCROLLLISTING scrolllist1[50];
 
 void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
-	ScanMod();
+	
 
 	ProcessLights11();
 
@@ -1716,6 +1717,9 @@ while (flag)
 
 	SetDungeonText();
 
+
+	ScanMod();
+
 	return;
 
 
@@ -1773,9 +1777,7 @@ void DungeonStompApp::SetDungeonText()
 									//XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
 
 									int len = strlen(gtext[il].text);
-									len = len /  2;
-
-
+									len = len / 2;
 									RenderText(arialFont, charToWChar(gtext[il].text), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 								}
 							}
@@ -2824,3 +2826,289 @@ void DisplayHud() {
 
 }
 
+extern FLOAT LevelModTime;
+extern int totalmod;
+extern LEVELMOD* levelmodify;
+void AddTreasureDrop(float x, float y, float z, int raction);
+void ScanModJump(int jump);
+extern int countmodtime;
+extern FLOAT LevelModLastTime;
+extern int countswitches;
+extern SWITCHMOD* switchmodify;
+
+
+void DungeonStompApp::ScanMod()
+{
+	int i = 0;
+	int j = 0;
+	int gotone = 0;
+
+	int counter = 0;
+	float qdist = 0;
+	LevelModTime = timeGetTime() * 0.001f;
+
+	for (i = 0; i < totalmod; i++)
+	{
+
+		for (j = 0; j < num_monsters; j++)
+		{
+			if (monster_list[j].monsterid == levelmodify[counter].objectid &&
+				levelmodify[counter].active == 1)
+			{
+				//DropTreasure
+				if (strstr(levelmodify[counter].Function, "DropTreasure") != NULL &&
+					levelmodify[counter].active == 1)
+				{
+					if (monster_list[j].bIsPlayerAlive == FALSE)
+					{
+						levelmodify[counter].active = 2;
+						AddTreasureDrop(monster_list[j].x, monster_list[j].y, monster_list[j].z, atoi(levelmodify[counter].Text1));
+					}
+				}
+				//MonsterActive
+				if (strstr(levelmodify[counter].Function, "MonsterActive") != NULL &&
+					levelmodify[counter].active == 1)
+				{
+					if (monster_list[j].ability == 0)
+					{
+						if (gotone == 0)
+						{
+							//DisplayDialogText(levelmodify[counter].Text1, -20.0f);
+							int len = strlen(levelmodify[counter].Text1);
+							len = len / 2;
+							RenderText(arialFont, charToWChar(levelmodify[counter].Text1), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+
+						}
+						gotone = 1;
+
+						ScanModJump(levelmodify[counter].jump);
+						if (countmodtime == 0)
+						{
+							LevelModLastTime = timeGetTime() * 0.001f;
+							countmodtime = 1;
+						}
+
+						if (LevelModTime - LevelModLastTime >= 5.0f)
+						{
+							levelmodify[counter].active = 0;
+							countmodtime = 0;
+						}
+					}
+				}
+				//XP
+				if (strstr(levelmodify[counter].Function, "XPPoints") != NULL &&
+					levelmodify[counter].active == 1)
+				{
+					if (monster_list[j].bIsPlayerAlive == FALSE)
+					{
+						levelmodify[counter].active = 0;
+						int xp = atoi(levelmodify[counter].Text1);
+						sprintf_s(gActionMessage, "You got %d XP!.", xp);
+						UpdateScrollList(0, 245, 255);
+						player_list[trueplayernum].xp += xp;
+						//LevelUp(player_list[trueplayernum].xp);
+					}
+				}
+
+				//SetHitPoints
+
+				if (strstr(levelmodify[counter].Function, "SetHitPoints") != NULL &&
+					levelmodify[counter].active == 1)
+				{
+
+					levelmodify[counter].active = 0;
+					monster_list[j].health = atoi(levelmodify[counter].Text1);
+					monster_list[j].hp = atoi(levelmodify[counter].Text1);
+				}
+
+				//IsDeadText
+				if (strstr(levelmodify[counter].Function, "IsDeadText") != NULL &&
+					levelmodify[counter].active == 1)
+				{
+					if (monster_list[j].bIsPlayerAlive == FALSE)
+					{
+						if (gotone == 0)
+						{
+							//DisplayDialogText(levelmodify[counter].Text1, -20.0f);
+							int len = strlen(levelmodify[counter].Text1);
+							len = len / 2;
+							RenderText(arialFont, charToWChar(levelmodify[counter].Text1), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+						}
+						gotone = 1;
+
+						ScanModJump(levelmodify[counter].jump);
+						if (countmodtime == 0)
+						{
+							LevelModLastTime = timeGetTime() * 0.001f;
+							countmodtime = 1;
+						}
+
+						if (LevelModTime - LevelModLastTime >= 5.0f)
+						{
+							levelmodify[counter].active = 0;
+							countmodtime = 0;
+						}
+					}
+				}
+				//isNear
+				if (strstr(levelmodify[counter].Function, "IsNear") != NULL &&
+					levelmodify[counter].active == 1)
+				{
+					qdist = FastDistance(
+						player_list[trueplayernum].x - monster_list[j].x,
+						player_list[trueplayernum].y - monster_list[j].y,
+						player_list[trueplayernum].z - monster_list[j].z);
+
+					if (qdist < 300.0f)
+					{
+						if (gotone == 0)
+						{
+							//DisplayDialogText(levelmodify[counter].Text1, -20.0f);
+							int len = strlen(levelmodify[counter].Text1);
+							len = len / 2;
+							RenderText(arialFont, charToWChar(levelmodify[counter].Text1), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+
+						}
+						gotone = 1;
+
+						ScanModJump(levelmodify[counter].jump);
+						if (countmodtime == 0)
+						{
+							LevelModLastTime = timeGetTime() * 0.001f;
+							countmodtime = 1;
+						}
+
+						if (LevelModTime - LevelModLastTime >= 5.0f)
+						{
+							levelmodify[counter].active = 0;
+							countmodtime = 0;
+						}
+					}
+				}
+			}
+			// 	break;
+		}
+
+		for (j = 0; j < num_players2; j++)
+		{
+			if (player_list2[j].monsterid == levelmodify[counter].objectid &&
+				levelmodify[counter].active == 1)
+			{
+				//Moveup
+				if (strstr(levelmodify[counter].Function, "MoveUp") != NULL &&
+					levelmodify[counter].active == 1)
+				{
+
+					if (levelmodify[counter].currentheight == -9999)
+						levelmodify[counter].currentheight = player_list2[j].y;
+
+					ScanModJump(levelmodify[counter].jump);
+					if (player_list2[j].y - levelmodify[counter].currentheight <= atoi(levelmodify[counter].Text1))
+					{
+						player_list2[j].y++;
+						qdist = FastDistance(
+							player_list[trueplayernum].x - player_list2[j].x,
+							player_list[trueplayernum].y - player_list2[j].y,
+							player_list[trueplayernum].z - player_list2[j].z);
+						//closesoundid[3] = qdist;
+					}
+					else
+					{
+						levelmodify[counter].active = 0;
+					}
+				}
+				//isswitch
+				if (strstr(levelmodify[counter].Function, "IsSwitch") != NULL)
+				{
+					for (int t = 0; t < countswitches; t++)
+					{
+						if (j == switchmodify[t].num)
+						{
+							if (switchmodify[t].active == 2)
+							{
+								levelmodify[levelmodify[counter].jump - 1].active = 1;
+							}
+						}
+					}
+				}
+
+				//isNear
+				if (strstr(levelmodify[counter].Function, "IsNear") != NULL &&
+					levelmodify[counter].active == 1)
+				{
+					qdist = FastDistance(
+						player_list[trueplayernum].x - player_list2[j].x,
+						player_list[trueplayernum].y - player_list2[j].y,
+						player_list[trueplayernum].z - player_list2[j].z);
+
+					if (qdist < 300.0f)
+					{
+						if (gotone == 0)
+						{
+							//DisplayDialogText(levelmodify[counter].Text1, -20.0f);
+							int len = strlen(levelmodify[counter].Text1);
+							len = len / 2;
+							RenderText(arialFont, charToWChar(levelmodify[counter].Text1), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+
+						}
+						gotone = 1;
+
+						ScanModJump(levelmodify[counter].jump);
+						if (countmodtime == 0)
+						{
+							LevelModLastTime = timeGetTime() * 0.001f;
+							countmodtime = 1;
+						}
+
+						if (LevelModTime - LevelModLastTime >= 5.0f)
+						{
+							levelmodify[counter].active = 0;
+							countmodtime = 0;
+						}
+					}
+				}
+			}
+		}
+
+		for (j = 0; j < itemlistcount; j++)
+		{
+			if (item_list[j].monsterid == levelmodify[counter].objectid &&
+				levelmodify[counter].active == 1)
+			{
+				//Moveup
+				if (strstr(levelmodify[counter].Function, "MoveUp") != NULL &&
+					levelmodify[counter].active == 1)
+				{
+
+					if (levelmodify[counter].currentheight == -9999)
+						levelmodify[counter].currentheight = item_list[j].y;
+
+					ScanModJump(levelmodify[counter].jump);
+					if (item_list[j].y - levelmodify[counter].currentheight <= atoi(levelmodify[counter].Text1))
+					{
+						item_list[j].y++;
+						qdist = FastDistance(
+							player_list[trueplayernum].x - item_list[j].x,
+							player_list[trueplayernum].y - item_list[j].y,
+							player_list[trueplayernum].z - item_list[j].z);
+						//closesoundid[3] = qdist;
+					}
+					else
+					{
+						levelmodify[counter].active = 0;
+					}
+				}
+
+				//TreasueAmount
+				if (strstr(levelmodify[counter].Function, "TreasureAmount") != NULL &&
+					levelmodify[counter].active == 1)
+				{
+					levelmodify[counter].active = 0;
+
+					item_list[j].gold = atoi(levelmodify[counter].Text1);
+				}
+			}
+		}
+		counter++;
+	}
+}

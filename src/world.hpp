@@ -527,7 +527,7 @@ void display_message(float x, float y, char text[2048], int r, int g, int b, flo
 void SetPlayerAnimationSequence(int player_number, int sequence_number);
 //void FlashLight(IDirect3DDevice9* pd3dDevice);
 void ActivateSwitch();
-void ScanMod();
+//void ScanMod();
 void PlayWaveFile(char* filename);
 void GetItem();
 void PlayWavSound(int id, int volume);
