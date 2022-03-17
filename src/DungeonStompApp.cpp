@@ -12,6 +12,7 @@
 #include "world.hpp"
 #include "GlobalSettings.hpp"
 #include "Missle.hpp"
+#include "GameLogic.hpp"
 
 
 using Microsoft::WRL::ComPtr;
@@ -1333,6 +1334,8 @@ int FindTextureAlias(char* alias);
 int itest = 1;
 extern LONGLONG gametimer;
 
+extern SCROLLLISTING scrolllist1[50];
+
 void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
 	ScanMod();
@@ -1546,7 +1549,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	
 
 
-	RenderText(arialFont, std::wstring(L"Dungeon Stomp Direct12 by Mark Longo"), XMFLOAT2(0.01f, 0.0f), XMFLOAT2(0.30f, 0.30f));
+	//RenderText(arialFont, std::wstring(L"Dungeon Stomp Direct12 by Mark Longo"), XMFLOAT2(0.01f, 0.0f), XMFLOAT2(0.30f, 0.30f));
 	//RenderText(arialFont, std::wstring(L"12345"), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(1.0f, 1.0f));
 
 	char junk[255];
@@ -1560,7 +1563,8 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 
 
-	sprintf_s(junk, "Dungeon Stomp 1.90 %llu " , gametimer);
+	//sprintf_s(junk, "Dungeon Stomp 1.90 %llu " , gametimer);
+	sprintf_s(junk, "Dungeon Stomp 1.90");
 	//display_message(5.0f, (FLOAT)wHeight - adjust - 14.0f, junk, 255, 255, 0, 12.5, 16, 0);
 	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.30f, 0.30f));
 
@@ -1614,51 +1618,98 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.10f, 0.84f), XMFLOAT2(0.30f, 0.30f));
 
 	sprintf_s(junk, "DMG :");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 52.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 52.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.86f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%dD%d", player_list[trueplayernum].damage1, player_list[trueplayernum].damage2);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 52.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 52.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.10f, 0.86f), XMFLOAT2(0.30f, 0.30f));
 
 	int attackbonus = your_gun[current_gun].sattack;
 	int damagebonus = your_gun[current_gun].sdamage;
 
 	sprintf_s(junk, "BNS : ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 66.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 66.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.88f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "+%d/%+d", attackbonus, damagebonus);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 66.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 66.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.10f, 0.88f), XMFLOAT2(0.30f, 0.30f));
 
 	int nextlevelxp = LevelUpXPNeeded(player_list[trueplayernum].xp) + 1;
 
 	sprintf_s(junk, "XP  : ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 80.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 80.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.90f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%d", player_list[trueplayernum].xp);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 80.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 80.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.10f, 0.90f), XMFLOAT2(0.30f, 0.30f));
 
 	sprintf_s(junk, "LVL : ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 94.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 94.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.92f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%d (%d)", player_list[trueplayernum].hd, nextlevelxp);
 	//sprintf_s(junk, "%d (%d)", player_list[trueplayernum].hd, 0);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 94.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 94.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.10f, 0.92f), XMFLOAT2(0.30f, 0.30f));
 
 	sprintf_s(junk, "ARMR: ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 108.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 108.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.94f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%d", player_list[trueplayernum].ac);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 108.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 108.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.10f, 0.94f), XMFLOAT2(0.30f, 0.30f));
 
-	sprintf_s(junk, "THAC: ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 122.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	sprintf_s(junk, "%d", player_list[trueplayernum].thaco);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 122.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//sprintf_s(junk, "THAC: ");
+	////display_message(0.0f, (FLOAT)wHeight - adjust + 122.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.96f), XMFLOAT2(0.30f, 0.30f));
+	//sprintf_s(junk, "%d", player_list[trueplayernum].thaco);
+	////display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 122.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.10f, 0.96f), XMFLOAT2(0.30f, 0.30f));
 
 	sprintf_s(junk, "GOLD: ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 136.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 136.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.96f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%d", player_list[trueplayernum].gold);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 136.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 136.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.10f, 0.96f), XMFLOAT2(0.30f, 0.30f));
 
 	sprintf_s(junk, "KEYS: ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 150.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 150.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.98f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%d", player_list[trueplayernum].keys);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 150.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 150.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.10f, 0.98f), XMFLOAT2(0.30f, 0.30f));
 
+	
+int flag = 1;
+float scrollmessage1 = 60;
+int count = 0;
+int scount = 0;
+char junk2[2048];
+int scrolllistnum = 6;
+
+scount = sliststart;
+//scrollmessage1 = 14.0f * (scrolllistnum + 2);
+scrollmessage1 = 0;
+
+while (flag)
+{
+	sprintf_s(junk2, "%s", scrolllist1[scount].text);
+	//display_message(0.0f, scrollmessage1, junk2, scrolllist1[scount].r, scrolllist1[scount].g, scrolllist1[scount].b, 12.5, 16, 0);
+
+	RenderText(arialFont, charToWChar(junk2), XMFLOAT2(0.0f, 0.1f + scrollmessage1), XMFLOAT2(0.30f, 0.30f));
+
+
+	scrollmessage1 -= 0.02f;
+
+	count++;
+	scount--;
+
+	if (scount < 0)
+		scount = scrolllistnum - 1;
+
+	if (count >= scrolllistnum)
+		flag = 0;
+}
 
 
 
