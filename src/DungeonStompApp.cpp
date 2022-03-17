@@ -2308,11 +2308,11 @@ void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMF
 	//mCommandList->ClearDepthStencilView(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	// set the text pipeline state object
-	//mCommandList->SetPipelineState(textPSO);
+	mCommandList->SetPipelineState(textPSO);
 
 	// this way we only need 4 vertices per quad rather than 6 if we were to use a triangle list topology
-	//mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	//mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	
 
 	// set the text vertex buffer
@@ -2322,7 +2322,7 @@ void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMF
 	//mCommandList->SetGraphicsRootDescriptorTable(3, font.srvHandle);
 
 	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-	tex.Offset(111, mCbvSrvDescriptorSize);
+	tex.Offset(103, mCbvSrvDescriptorSize);
 	mCommandList->SetGraphicsRootDescriptorTable(3, tex);
 
 
