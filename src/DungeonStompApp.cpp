@@ -220,7 +220,7 @@ private:
 	void BuildDescriptorHeaps();
 	BOOL LoadRRTextures11(char* filename);
 	void ProcessLights11();
-	void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color);
+	void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
@@ -897,8 +897,8 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_0");
 	mShaders["torchPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", torchTestDefines, "PS", "ps_5_0");
 
-	//mShaders["textVS"] = d3dUtil::CompileShader(L"..\\Shaders\\TextVertexShader.hlsl", nullptr, "VS", "vs_5_0");
-	//mShaders["textPS"] = d3dUtil::CompileShader(L"..\\Shaders\\TextPixelShader.hlsl", nullptr, "PS", "ps_5_0");
+	//mShaders["textVS"] = d3dUtil::CompileShader(L"..\\Shaders\\test.hlsl", nullptr, "VS", "vs_5_0");
+	//mShaders["textPS"] = d3dUtil::CompileShader(L"..\\Shaders\\test.hlsl", nullptr, "PS", "ps_5_0");
 
 // Text PSO
 	ID3DBlob* errorBuff; // a buffer holding the error data if any
@@ -944,6 +944,71 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
+
+	D3D12_INPUT_ELEMENT_DESC textInputLayout[] =
+	{
+		//{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		//{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		//{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 }
+	};
+
+	// fill out an input layout description structure
+	D3D12_INPUT_LAYOUT_DESC textInputLayoutDesc = {};
+
+	// we can get the number of elements in an array by "sizeof(array) / sizeof(arrayElementType)"
+	textInputLayoutDesc.NumElements = sizeof(textInputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+	textInputLayoutDesc.pInputElementDescs = textInputLayout;
+
+	// create the text pipeline state object (PSO)
+
+	DXGI_SAMPLE_DESC sampleDesc = {};
+	sampleDesc.Count = 1; // multisample count (no multisampling, so we just put 1, since we still need 1 sample)
+
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC textpsoDesc = {};
+	textpsoDesc.InputLayout = textInputLayoutDesc;
+	textpsoDesc.pRootSignature = mRootSignature.Get();
+	textpsoDesc.VS = textVertexShaderBytecode;
+	textpsoDesc.PS = textPixelShaderBytecode;
+	textpsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	textpsoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	textpsoDesc.SampleDesc = sampleDesc;
+	textpsoDesc.SampleMask = 0xffffffff;
+	textpsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+
+	D3D12_BLEND_DESC textBlendStateDesc = {};
+	textBlendStateDesc.AlphaToCoverageEnable = FALSE;
+	textBlendStateDesc.IndependentBlendEnable = FALSE;
+	textBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
+
+	textBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	textBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+	textBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+
+	textBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+	textBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
+	textBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+
+	textBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	textpsoDesc.BlendState = textBlendStateDesc;
+	textpsoDesc.NumRenderTargets = 1;
+	D3D12_DEPTH_STENCIL_DESC textDepthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	textDepthStencilDesc.DepthEnable = false;
+	textpsoDesc.DepthStencilState = textDepthStencilDesc;
+
+	// create the text pso
+	hr = md3dDevice->CreateGraphicsPipelineState(&textpsoDesc, IID_PPV_ARGS(&textPSO));
+	if (FAILED(hr))
+	{
+		int a = 1;
+	//	Running = false;
+	//	return false;
+	}
+
 
 }
 
@@ -1468,6 +1533,10 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 			}
 		}
 	}
+
+	
+	RenderText(arialFont, std::wstring(L"12345"), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(1.0f, 1.0f));
+
 
 
 }
@@ -2236,19 +2305,27 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
 {
 	// clear the depth buffer so we can draw over everything
-	mCommandList->ClearDepthStencilView(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	//mCommandList->ClearDepthStencilView(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	// set the text pipeline state object
-	mCommandList->SetPipelineState(textPSO);
+	//mCommandList->SetPipelineState(textPSO);
 
 	// this way we only need 4 vertices per quad rather than 6 if we were to use a triangle list topology
-	mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	//mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	
 
 	// set the text vertex buffer
 	mCommandList->IASetVertexBuffers(0, 1, &textVertexBufferView);
 
 	// bind the text srv. We will assume the correct descriptor heap and table are currently bound and set
-	mCommandList->SetGraphicsRootDescriptorTable(1, font.srvHandle);
+	//mCommandList->SetGraphicsRootDescriptorTable(3, font.srvHandle);
+
+	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	tex.Offset(111, mCbvSrvDescriptorSize);
+	mCommandList->SetGraphicsRootDescriptorTable(3, tex);
+
+
 
 	//int numCharacters = 0;
 
