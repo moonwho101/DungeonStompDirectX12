@@ -791,7 +791,7 @@ VOID WalkMode(CONTROLS* Controls)
 	if (Controls->bNextSong && !nextsong)
 	{
 		nextsong = 1;
-		strcpy_s(gActionMessage, "Next Song.");
+		strcpy_s(gActionMessage, "Random Song.");
 		UpdateScrollList(0, 245, 255);
 		PlaySong();
 	}

@@ -443,7 +443,7 @@ void InitDS()
 
 	MakeDice();
 
-	strcpy_s(gActionMessage, "Dungeon Stomp 1.90. Copyright 2021 Aptisense.");
+	strcpy_s(gActionMessage, "Dungeon Stomp 1.90. Copyright 2022 Aptisense.com");
 	UpdateScrollList(0, 245, 255);
 	strcpy_s(gActionMessage, "Press SPACE to open things. Press E to jump.");
 	UpdateScrollList(0, 245, 255);
@@ -454,9 +454,11 @@ void InitDS()
 	strcpy_s(gActionMessage, "Give K=Weapons X=Experience P=Music G=Gravity (use + -).");
 	UpdateScrollList(0, 245, 255);
 
-	strcpy_s(gActionMessage, "F5=Load F6=Save. Created by Mark Longo. Good luck!");
+	strcpy_s(gActionMessage, "] = Next Level [ = Previous Level I=Music Off");
 	UpdateScrollList(0, 245, 255);
 
+	strcpy_s(gActionMessage, "F5=Load F6=Save. Created by Mark Longo. Good luck!");
+	UpdateScrollList(0, 245, 255);
 }
 
 
