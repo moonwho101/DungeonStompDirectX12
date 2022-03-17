@@ -228,7 +228,6 @@ private:
 	XMFLOAT3 GetHillsNormal(float x, float z)const;
 
 private:
-
 	std::vector<std::unique_ptr<FrameResource>> mFrameResources;
 	FrameResource* mCurrFrameResource = nullptr;
 	int mCurrFrameResourceIndex = 0;
@@ -271,6 +270,11 @@ private:
 	float mSunPhi = XM_PIDIV4;
 
 	POINT mLastMousePos;
+
+	ID3D12Resource* textVertexBuffer;
+	UINT8* textVBGPUAddress;
+	D3D12_VERTEX_BUFFER_VIEW textVertexBufferView; // a view for our text vertex buffer
+	
 };
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -337,11 +341,18 @@ bool DungeonStompApp::Initialize()
 
 	InitDS();
 
+	arialFont = LoadFont(L"Arial.fnt", 800,600);
 
 	// Execute the initialization commands.
 	ThrowIfFailed(mCommandList->Close());
 	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
 	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+
+	textVertexBufferView.BufferLocation = textVertexBuffer->GetGPUVirtualAddress();
+	textVertexBufferView.StrideInBytes = sizeof(TextVertex);
+	textVertexBufferView.SizeInBytes = maxNumTextCharacters * sizeof(TextVertex);
+
 
 	// Wait until initialization is complete.
 	FlushCommandQueue();
@@ -1554,6 +1565,28 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	md3dDevice->CreateShaderResourceView(grassTex.Get(), &srvDesc, hDescriptor);
 
 
+	// create upload heap. We will fill this with data for our text
+	ID3D12Resource* vBufferUploadHeap;
+	HRESULT hr = md3dDevice->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
+		D3D12_HEAP_FLAG_NONE, // no flags
+		&CD3DX12_RESOURCE_DESC::Buffer(maxNumTextCharacters * sizeof(TextVertex)), // resource description for a buffer
+		D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
+		nullptr,
+		IID_PPV_ARGS(&textVertexBuffer));
+	//if (FAILED(hr))
+	//{
+	//	Running = false;
+	//	return false;
+	//}
+	textVertexBuffer->SetName(L"Text Vertex Buffer Upload Resource Heap");
+
+	CD3DX12_RANGE readRange(0, 0);	// We do not intend to read from this resource on the CPU. (so end is less than or equal to begin)
+
+	// map the resource heap to get a gpu virtual address to the beginning of the heap
+	hr = textVertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&textVBGPUAddress));
+
+
 }
 
 
@@ -2212,7 +2245,7 @@ void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMF
 	mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	// set the text vertex buffer
-	mCommandList->IASetVertexBuffers(0, 1, &textVertexBufferView[frameIndex]);
+	mCommandList->IASetVertexBuffers(0, 1, &textVertexBufferView);
 
 	// bind the text srv. We will assume the correct descriptor heap and table are currently bound and set
 	mCommandList->SetGraphicsRootDescriptorTable(1, font.srvHandle);
@@ -2229,7 +2262,7 @@ void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMF
 	float verticalPadding = (font.toppadding + font.bottompadding) * padding.y;
 
 	// cast the gpu virtual address to a textvertex, so we can directly store our vertices there
-	TextVertex* vert = (TextVertex*)textVBGPUAddress[frameIndex];
+	TextVertex* vert = (TextVertex*)textVBGPUAddress;
 
 	wchar_t lastChar = -1; // no last character to start with
 
