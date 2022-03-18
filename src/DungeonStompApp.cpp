@@ -15,7 +15,6 @@
 #include "GameLogic.hpp"
 #include "DungeonStomp.hpp"
 
-
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -23,17 +22,19 @@ using namespace DirectX::PackedVector;
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
 
-const int gNumFrameResources = 3;
-extern int numCharacters;
 Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight);
 
-void Draw(int currentObject, ID3D11DeviceContext* pd3dImmediateContext, int vert_index);
-
-void DisplayHud();
+const int gNumFrameResources = 3;
+extern int numCharacters;
 extern char gfinaltext[2048];
 int LevelUpXPNeeded(int xp);
 extern Font arialFont; // this will store our arial font information
 extern int maxNumTextCharacters;
+extern POLY_SORT ObjectsToDraw[200000];
+extern BOOL* dp_command_index_mode;
+extern int cnt;
+extern D3DVERTEX* src_v;
+extern int number_of_polys_per_frame;
 
 std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
 extern int number_of_tex_aliases;
@@ -112,11 +113,10 @@ bool DungeonStompApp::Initialize()
 	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
 	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-
+	//Set the Text Buffer
 	textVertexBufferView.BufferLocation = textVertexBuffer->GetGPUVirtualAddress();
 	textVertexBufferView.StrideInBytes = sizeof(TextVertex);
 	textVertexBufferView.SizeInBytes = maxNumTextCharacters * sizeof(TextVertex);
-
 
 	// Wait until initialization is complete.
 	FlushCommandQueue();
@@ -343,29 +343,6 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 
 
 }
-//
-//void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
-//{
-//	auto currObjectCB = mCurrFrameResource->ObjectCB.get();
-//	for(auto& e : mAllRitems)
-//	{
-//		// Only update the cbuffer data if the constants have changed.  
-//		// This needs to be tracked per frame resource.
-//		if(e->NumFramesDirty > 0)
-//		{
-//			XMMATRIX world = XMLoadFloat4x4(&e->World);
-//			XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
-//
-//			ObjectConstants objConstants;
-//			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
-//
-//			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
-//
-//			// Next FrameResource need to be updated too.
-//			e->NumFramesDirty--;
-//		}
-//	}
-//}
 
 
 void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
@@ -420,7 +397,6 @@ void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
 }
 
 
-
 void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 {
 	XMMATRIX view = XMLoadFloat4x4(&mView);
@@ -463,13 +439,10 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 		mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
 	}
 
-
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
 }
 
-extern int cnt;
-extern D3DVERTEX* src_v;
 
 void DungeonStompApp::UpdateWaves(const GameTimer& gt)
 {
@@ -886,40 +859,6 @@ void DungeonStompApp::BuildWavesGeometryBuffers()
 
 	mGeometries["waterGeo"] = std::move(geo);
 }
-/*
-void DungeonStompApp::BuildPSOs()
-{
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
-
-	//
-	// PSO for opaque objects.
-	//
-	ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-	opaquePsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
-	opaquePsoDesc.pRootSignature = mRootSignature.Get();
-	opaquePsoDesc.VS =
-	{
-		reinterpret_cast<BYTE*>(mShaders["standardVS"]->GetBufferPointer()),
-		mShaders["standardVS"]->GetBufferSize()
-	};
-	opaquePsoDesc.PS =
-	{
-		reinterpret_cast<BYTE*>(mShaders["opaquePS"]->GetBufferPointer()),
-		mShaders["opaquePS"]->GetBufferSize()
-	};
-	opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	opaquePsoDesc.SampleMask = UINT_MAX;
-	opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	opaquePsoDesc.NumRenderTargets = 1;
-	opaquePsoDesc.RTVFormats[0] = mBackBufferFormat;
-	opaquePsoDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
-	opaquePsoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
-	opaquePsoDesc.DSVFormat = mDepthStencilFormat;
-	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
-}
-*/
 
 void DungeonStompApp::BuildPSOs()
 {
@@ -1303,250 +1242,11 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		}
 	}
 
-
-	numCharacters = 0;
-	
-
-
-	//RenderText(arialFont, std::wstring(L"Dungeon Stomp Direct12 by Mark Longo"), XMFLOAT2(0.01f, 0.0f), XMFLOAT2(0.30f, 0.30f));
-	//RenderText(arialFont, std::wstring(L"12345"), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(1.0f, 1.0f));
-
-	char junk[255];
-
-	float adjust = 170.0f;
-
-	//DisplayHud();
-
-	//sprintf_s(junk, "Dungeon Stomp 1.90");
-	//display_message(5.0f, (FLOAT)wHeight - adjust - 14.0f, junk, 255, 255, 0, 12.5, 16, 0);
-
-
-
-	//sprintf_s(junk, "Dungeon Stomp 1.90 %llu " , gametimer);
-	sprintf_s(junk, "J");
-	//display_message(5.0f, (FLOAT)wHeight - adjust - 14.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.30f, 0.30f)); //, XMFLOAT2(0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f));
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(-0.45f, 0.35f), XMFLOAT2(34.00f, 34.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
-
-	//sprintf_s(junk, "Area: ");
-	//display_message(0.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.82f), XMFLOAT2(0.30f, 0.30f));
-	//sprintf_s(junk, "%s", gfinaltext);
-	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.05f, 0.82f), XMFLOAT2(0.30f, 0.30f));
-	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 0, 245, 255, 12.5, 16, 0);
-
-	//statusbardisplay((float)player_list[trueplayernum].hp, (float)player_list[trueplayernum].hp, 1);
-
-	sprintf_s(junk, "Health");
-	//display_message(0.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.82f), XMFLOAT2(0.30f, 0.30f));
-
-	sprintf_s(junk, "%d/%d", player_list[trueplayernum].health, player_list[trueplayernum].hp);
-	//display_message(0.0f + 110.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 255, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.82f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-
-	sprintf_s(junk, "Weapon");
-	//display_message(0.0f, (FLOAT)wHeight - adjust + 38.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.84f), XMFLOAT2(0.30f, 0.30f));
-
-	char junk3[255];
-	if (strstr(your_gun[current_gun].gunname, "SCROLL-MAGICMISSLE") != NULL)
-	{
-		strcpy_s(junk3, "MAGIC MISSLE");
-		sprintf_s(junk, "%s: %d", junk3, (int)your_gun[current_gun].x_offset);
-	}
-	else if (strstr(your_gun[current_gun].gunname, "SCROLL-FIREBALL") != NULL)
-	{
-		strcpy_s(junk3, "FIREBALL");
-		sprintf_s(junk, "%s: %d", junk3, (int)your_gun[current_gun].x_offset);
-	}
-	else if (strstr(your_gun[current_gun].gunname, "SCROLL-LIGHTNING") != NULL)
-	{
-		strcpy_s(junk3, "LIGHTNING");
-		sprintf_s(junk, "%s: %d", junk3, (int)your_gun[current_gun].x_offset);
-	}
-	else if (strstr(your_gun[current_gun].gunname, "SCROLL-HEALING") != NULL)
-	{
-		strcpy_s(junk3, "HEALING");
-		sprintf_s(junk, "%s: %d", junk3, (int)your_gun[current_gun].x_offset);
-	}
-	else
-	{
-		sprintf_s(junk, "%s", your_gun[current_gun].gunname);
-	}
-	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 38.0f, junk, 0, 245, 255, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.84f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-
-	sprintf_s(junk, "Damage");
-	//display_message(0.0f, (FLOAT)wHeight - adjust + 52.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.86f), XMFLOAT2(0.30f, 0.30f));
-	sprintf_s(junk, "%dD%d", player_list[trueplayernum].damage1, player_list[trueplayernum].damage2);
-	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 52.0f, junk, 0, 245, 255, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.86f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-
-	int attackbonus = your_gun[current_gun].sattack;
-	int damagebonus = your_gun[current_gun].sdamage;
-
-	sprintf_s(junk, "Bonus");
-	//display_message(0.0f, (FLOAT)wHeight - adjust + 66.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.88f), XMFLOAT2(0.30f, 0.30f));
-	sprintf_s(junk, "+%d/%+d", attackbonus, damagebonus);
-	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 66.0f, junk, 0, 245, 255, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.88f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-
-	int nextlevelxp = LevelUpXPNeeded(player_list[trueplayernum].xp) + 1;
-
-	sprintf_s(junk, "XP");
-	//display_message(0.0f, (FLOAT)wHeight - adjust + 80.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.90f), XMFLOAT2(0.30f, 0.30f));
-	sprintf_s(junk, "%d", player_list[trueplayernum].xp);
-	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 80.0f, junk, 0, 245, 255, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.90f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-
-	sprintf_s(junk, "Level");
-	//display_message(0.0f, (FLOAT)wHeight - adjust + 94.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.92f), XMFLOAT2(0.30f, 0.30f));
-	sprintf_s(junk, "%d (%d)", player_list[trueplayernum].hd, nextlevelxp);
-	//sprintf_s(junk, "%d (%d)", player_list[trueplayernum].hd, 0);
-	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 94.0f, junk, 0, 245, 255, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.92f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-
-	sprintf_s(junk, "Armour");
-	//display_message(0.0f, (FLOAT)wHeight - adjust + 108.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.94f), XMFLOAT2(0.30f, 0.30f));
-	sprintf_s(junk, "%d", player_list[trueplayernum].ac);
-	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 108.0f, junk, 0, 245, 255, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.94f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-
-	//sprintf_s(junk, "THAC: ");
-	////display_message(0.0f, (FLOAT)wHeight - adjust + 122.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.96f), XMFLOAT2(0.30f, 0.30f));
-	//sprintf_s(junk, "%d", player_list[trueplayernum].thaco);
-	////display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 122.0f, junk, 0, 245, 255, 12.5, 16, 0);
-	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.96f), XMFLOAT2(0.30f, 0.30f));
-
-	sprintf_s(junk, "Gold");
-	//display_message(0.0f, (FLOAT)wHeight - adjust + 136.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.96f), XMFLOAT2(0.30f, 0.30f));
-	sprintf_s(junk, "%d", player_list[trueplayernum].gold);
-	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 136.0f, junk, 0, 245, 255, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.96f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-
-	sprintf_s(junk, "Keys");
-	//display_message(0.0f, (FLOAT)wHeight - adjust + 150.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.98f), XMFLOAT2(0.30f, 0.30f));
-	sprintf_s(junk, "%d", player_list[trueplayernum].keys);
-	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 150.0f, junk, 0, 245, 255, 12.5, 16, 0);
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.98f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-
-	
-int flag = 1;
-float scrollmessage1 = 60;
-int count = 0;
-int scount = 0;
-char junk2[2048];
-int scrolllistnum = 6;
-
-scount = sliststart;
-//scrollmessage1 = 14.0f * (scrolllistnum + 2);
-scrollmessage1 = 0;
-
-while (flag)
-{
-	sprintf_s(junk2, "%s", scrolllist1[scount].text);
-	//display_message(0.0f, scrollmessage1, junk2, scrolllist1[scount].r, scrolllist1[scount].g, scrolllist1[scount].b, 12.5, 16, 0);
-
-	RenderText(arialFont, charToWChar(junk2), XMFLOAT2(0.0f, 0.1f + scrollmessage1), XMFLOAT2(0.30f, 0.30f));
-
-
-	scrollmessage1 -= 0.02f;
-
-	count++;
-	scount--;
-
-	if (scount < 0)
-		scount = scrolllistnum - 1;
-
-	if (count >= scrolllistnum)
-		flag = 0;
-}
-
+	DisplayHud();
 	SetDungeonText();
-
-
 	ScanMod();
-
 	return;
-
-
-
 }
-
-void DungeonStompApp::display_message3(float x, float y, char text[2048], int r, int g, int b, float fontx, float fonty, int fonttype)
-{
-	
-
-	//RenderText(arialFont, std::wstring(text), XMFLOAT2(0.01f, 0.0f), XMFLOAT2(0.30f, 0.30f));
-
-}
-
-struct gametext
-{
-
-	int textnum;
-	int type;
-	char text[2048];
-	int shown;
-};
-
-
-extern int textcounter;
-extern gametext gtext[200];
-
-void DungeonStompApp::SetDungeonText()
-{
-
-	for (int q = 0; q < oblist_length; q++)
-	{
-		int angle = (int)oblist[q].rot_angle;
-		int ob_type = oblist[q].type;
-		if (ob_type == 120)
-		{
-			float	qdist = FastDistance(m_vEyePt.x - oblist[q].x, m_vEyePt.y - oblist[q].y, m_vEyePt.z - oblist[q].z);
-			if (qdist < 500.0f) {
-				if (strstr(oblist[q].name, "text") != NULL)
-				{
-					for (int il = 0; il < textcounter; il++)
-					{
-						if (gtext[il].textnum == q)
-						{
-							if (gtext[il].type == 0)
-							{
-								strcpy_s(gfinaltext, gtext[il].text);
-							}
-							else if (gtext[il].type == 1 || gtext[il].type == 2)
-							{
-								if (qdist < 200.0f)
-								{
-
-									//DisplayDialogText(gtext[il].text, 0.0f);
-									//XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
-
-									int len = strlen(gtext[il].text);
-									len = len / 2;
-									RenderText(arialFont, charToWChar(gtext[il].text), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-
-
 
 float DungeonStompApp::GetHillsHeight(float x, float z)const
 {
@@ -1566,14 +1266,6 @@ XMFLOAT3 DungeonStompApp::GetHillsNormal(float x, float z)const
 
 	return n;
 }
-
-extern int number_of_polys_per_frame;
-extern POLY_SORT ObjectsToDraw[200000];
-extern BOOL* dp_command_index_mode;
-
-
-
-
 
 void DungeonStompApp::LoadTextures()
 {

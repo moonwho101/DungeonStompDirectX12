@@ -11,12 +11,12 @@
 #include "GameLogic.hpp"
 #include "DungeonStomp.hpp"
 
-
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
-
+extern int textcounter;
+extern char gfinaltext[2048];
 int numCharacters = 0;
 extern ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap;
 ID3D12PipelineState* textPSO; // pso containing a pipeline state
@@ -24,20 +24,27 @@ ID3D12PipelineState* textPSO; // pso containing a pipeline state
 Font arialFont; // this will store our arial font information
 static wchar_t* charToWChar(const char* text);
 
+struct gametext
+{
+	int textnum;
+	int type;
+	char text[2048];
+	int shown;
+};
+
+extern gametext gtext[200];
 int maxNumTextCharacters = 1024; // the maximum number of characters you can render during a frame. This is just used to make sure
 								// there is enough memory allocated for the text vertex buffer each frame
 
-//ID3D12Resource* textVertexBuffer[frameBufferCount];
-//D3D12_VERTEX_BUFFER_VIEW textVertexBufferView[frameBufferCount]; // a view for our text vertex buffer
-//UINT8* textVBGPUAddress[frameBufferCount]; // this is a pointer to each of the text constant buffers
-
-// create an instance of timer
-//Timer timer;
-
-
-
-//void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-
+extern FLOAT LevelModTime;
+extern int totalmod;
+extern LEVELMOD* levelmodify;
+void AddTreasureDrop(float x, float y, float z, int raction);
+void ScanModJump(int jump);
+extern int countmodtime;
+extern FLOAT LevelModLastTime;
+extern int countswitches;
+extern SWITCHMOD* switchmodify;
 
 
 Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
@@ -207,8 +214,6 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 }
 
 
-
-
 void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
 {
 	// clear the depth buffer so we can draw over everything
@@ -233,10 +238,6 @@ void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMF
 	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	tex.Offset(103, mCbvSrvDescriptorSize);
 	mCommandList->SetGraphicsRootDescriptorTable(3, tex);
-
-
-
-	//int numCharacters = 0;
 
 	float topLeftScreenX = (pos.x * 2.0f) - 1.0f;
 	float topLeftScreenY = ((1.0f - pos.y) * 2.0f) - 1.0f;
@@ -308,75 +309,51 @@ void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMF
 }
 
 
+void DungeonStompApp::DisplayHud() {
 
 
-void DisplayHud() {
+	numCharacters = 0;
+
+	//RenderText(arialFont, std::wstring(L"Dungeon Stomp Direct12 by Mark Longo"), XMFLOAT2(0.01f, 0.0f), XMFLOAT2(0.30f, 0.30f));
+	//RenderText(arialFont, std::wstring(L"12345"), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(1.0f, 1.0f));
 
 	char junk[255];
 
 	float adjust = 170.0f;
 
-	sprintf_s(junk, "Dungeon Stomp 1.90");
-	display_message(5.0f, (FLOAT)wHeight - adjust - 14.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//DisplayHud();
+
+	//sprintf_s(junk, "Dungeon Stomp 1.90");
+	//display_message(5.0f, (FLOAT)wHeight - adjust - 14.0f, junk, 255, 255, 0, 12.5, 16, 0);
 
 
-	return;
 
-	sprintf_s(junk, "AREA: ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//sprintf_s(junk, "Dungeon Stomp 1.90 %llu " , gametimer);
+	sprintf_s(junk, "J");
+	//display_message(5.0f, (FLOAT)wHeight - adjust - 14.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.30f, 0.30f)); //, XMFLOAT2(0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f));
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(-0.45f, 0.35f), XMFLOAT2(34.00f, 34.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+
+	//sprintf_s(junk, "Area: ");
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.82f), XMFLOAT2(0.30f, 0.30f));
 	//sprintf_s(junk, "%s", gfinaltext);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.05f, 0.82f), XMFLOAT2(0.30f, 0.30f));
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 0, 245, 255, 12.5, 16, 0);
 
 	//statusbardisplay((float)player_list[trueplayernum].hp, (float)player_list[trueplayernum].hp, 1);
 
-	sprintf_s(junk, "HP  : ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	sprintf_s(junk, "Health");
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.82f), XMFLOAT2(0.30f, 0.30f));
 
 	sprintf_s(junk, "%d/%d", player_list[trueplayernum].health, player_list[trueplayernum].hp);
-	display_message(0.0f + 110.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 255, 12.5, 16, 0);
+	//display_message(0.0f + 110.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.82f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
-
-	//sprintf_s(junk, "%s %d/%d", statusbar, player_list[trueplayernum].health, player_list[trueplayernum].hp);
-	//display_message(0.0f + 65.0f, (FLOAT)vp.dwHeight - adjust + 24.0f, junk, vp, 255, 255, 255, 12.5, 16, 0);
-
-	//statusbardisplay((float)player_list[trueplayernum].health, (float)player_list[trueplayernum].hp, 0);
-	//sprintf_s(junk, "%s", statusbar);
-
-	//for (int i = 0;i < strlen(junk);i++) {
-		//if (junk[i] == '|')
-			//junk[i] = char(260);
-	//}
-
-	//display_message(0.0f + 61.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 0, 0, 12.5, 16, 0);
-
-	//if (strlen(junk) < 8) {
-	//	int i = 0;
-	//	int c = 8 - strlen(junk);
-
-	//	for (i = 0;i < c;i++) {
-	//		junk[i] = char(260);
-	//	}
-	//	junk[i] = '\0';
-
-	//	display_message(0.0f + 94.0f - ((FLOAT) c * 5.0f), (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 255, 12.5, 16, 0);
-	//}
-
-	int c = strlen(junk);
-	char jj[255];
-	sprintf(jj, "%c", char(260));
-
-	for (int i = 0; i < 8; i++) {
-
-		if (i < c) {
-			display_message(0.0f + 58.0f + ((FLOAT)i * 5.0f), (FLOAT)wHeight - adjust + 24.0f, jj, 255, 0, 0, 12.5, 16, 0);
-		}
-		else {
-			display_message(0.0f + 58.0f + ((FLOAT)i * 5.0f), (FLOAT)wHeight - adjust + 24.0f, jj, 255, 255, 255, 12.5, 16, 0);
-		}
-	}
-
-	sprintf_s(junk, "WPN : ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 38.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	sprintf_s(junk, "Weapon");
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 38.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.84f), XMFLOAT2(0.30f, 0.30f));
 
 	char junk3[255];
 	if (strstr(your_gun[current_gun].gunname, "SCROLL-MAGICMISSLE") != NULL)
@@ -403,71 +380,92 @@ void DisplayHud() {
 	{
 		sprintf_s(junk, "%s", your_gun[current_gun].gunname);
 	}
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 38.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 38.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.84f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
-	sprintf_s(junk, "DMG :");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 52.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	sprintf_s(junk, "Damage");
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 52.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.86f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%dD%d", player_list[trueplayernum].damage1, player_list[trueplayernum].damage2);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 52.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 52.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.86f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
 	int attackbonus = your_gun[current_gun].sattack;
 	int damagebonus = your_gun[current_gun].sdamage;
 
-	sprintf_s(junk, "BNS : ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 66.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	sprintf_s(junk, "Bonus");
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 66.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.88f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "+%d/%+d", attackbonus, damagebonus);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 66.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 66.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.88f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
 	int nextlevelxp = LevelUpXPNeeded(player_list[trueplayernum].xp) + 1;
 
-	sprintf_s(junk, "XP  : ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 80.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	sprintf_s(junk, "XP");
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 80.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.90f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%d", player_list[trueplayernum].xp);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 80.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 80.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.90f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
-	sprintf_s(junk, "LVL : ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 94.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	sprintf_s(junk, "Level");
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 94.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.92f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%d (%d)", player_list[trueplayernum].hd, nextlevelxp);
 	//sprintf_s(junk, "%d (%d)", player_list[trueplayernum].hd, 0);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 94.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 94.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.92f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
-	sprintf_s(junk, "ARMR: ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 108.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	sprintf_s(junk, "Armour");
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 108.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.94f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%d", player_list[trueplayernum].ac);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 108.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 108.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.94f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
-	sprintf_s(junk, "THAC: ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 122.0f, junk, 255, 255, 0, 12.5, 16, 0);
-	sprintf_s(junk, "%d", player_list[trueplayernum].thaco);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 122.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//sprintf_s(junk, "THAC: ");
+	////display_message(0.0f, (FLOAT)wHeight - adjust + 122.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.96f), XMFLOAT2(0.30f, 0.30f));
+	//sprintf_s(junk, "%d", player_list[trueplayernum].thaco);
+	////display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 122.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.96f), XMFLOAT2(0.30f, 0.30f));
 
-	sprintf_s(junk, "GOLD: ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 136.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	sprintf_s(junk, "Gold");
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 136.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.96f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%d", player_list[trueplayernum].gold);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 136.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 136.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.96f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
-	sprintf_s(junk, "KEYS: ");
-	display_message(0.0f, (FLOAT)wHeight - adjust + 150.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	sprintf_s(junk, "Keys");
+	//display_message(0.0f, (FLOAT)wHeight - adjust + 150.0f, junk, 255, 255, 0, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.00f, 0.98f), XMFLOAT2(0.30f, 0.30f));
 	sprintf_s(junk, "%d", player_list[trueplayernum].keys);
-	display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 150.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 150.0f, junk, 0, 245, 255, 12.5, 16, 0);
+	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.08f, 0.98f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
 
-	/*
 	int flag = 1;
 	float scrollmessage1 = 60;
 	int count = 0;
 	int scount = 0;
 	char junk2[2048];
-	scrolllistnum = 6;
+	int scrolllistnum = 6;
 
 	scount = sliststart;
-	scrollmessage1 = 14.0f * (scrolllistnum + 2);
+	//scrollmessage1 = 14.0f * (scrolllistnum + 2);
+	scrollmessage1 = 0;
 
 	while (flag)
 	{
 		sprintf_s(junk2, "%s", scrolllist1[scount].text);
-		display_message(0.0f, scrollmessage1, junk2, scrolllist1[scount].r, scrolllist1[scount].g, scrolllist1[scount].b, 12.5, 16, 0);
-		scrollmessage1 -= 14.0f;
+		//display_message(0.0f, scrollmessage1, junk2, scrolllist1[scount].r, scrolllist1[scount].g, scrolllist1[scount].b, 12.5, 16, 0);
+
+		RenderText(arialFont, charToWChar(junk2), XMFLOAT2(0.0f, 0.1f + scrollmessage1), XMFLOAT2(0.30f, 0.30f));
+
+
+		scrollmessage1 -= 0.02f;
 
 		count++;
 		scount--;
@@ -478,20 +476,8 @@ void DisplayHud() {
 		if (count >= scrolllistnum)
 			flag = 0;
 	}
-	*/
 
 }
-
-extern FLOAT LevelModTime;
-extern int totalmod;
-extern LEVELMOD* levelmodify;
-void AddTreasureDrop(float x, float y, float z, int raction);
-void ScanModJump(int jump);
-extern int countmodtime;
-extern FLOAT LevelModLastTime;
-extern int countswitches;
-extern SWITCHMOD* switchmodify;
-
 
 void DungeonStompApp::ScanMod()
 {
@@ -769,7 +755,6 @@ void DungeonStompApp::ScanMod()
 	}
 }
 
-
 static wchar_t* charToWChar(const char* text)
 {
 	const size_t size = strlen(text) + 1;
@@ -780,4 +765,46 @@ static wchar_t* charToWChar(const char* text)
 	return wText;
 }
 
+
+void DungeonStompApp::SetDungeonText()
+{
+
+	for (int q = 0; q < oblist_length; q++)
+	{
+		int angle = (int)oblist[q].rot_angle;
+		int ob_type = oblist[q].type;
+		if (ob_type == 120)
+		{
+			float	qdist = FastDistance(m_vEyePt.x - oblist[q].x, m_vEyePt.y - oblist[q].y, m_vEyePt.z - oblist[q].z);
+			if (qdist < 500.0f) {
+				if (strstr(oblist[q].name, "text") != NULL)
+				{
+					for (int il = 0; il < textcounter; il++)
+					{
+						if (gtext[il].textnum == q)
+						{
+							if (gtext[il].type == 0)
+							{
+								strcpy_s(gfinaltext, gtext[il].text);
+							}
+							else if (gtext[il].type == 1 || gtext[il].type == 2)
+							{
+								if (qdist < 200.0f)
+								{
+
+									//DisplayDialogText(gtext[il].text, 0.0f);
+									//XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
+
+									int len = strlen(gtext[il].text);
+									len = len / 2;
+									RenderText(arialFont, charToWChar(gtext[il].text), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
 

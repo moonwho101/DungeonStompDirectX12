@@ -95,6 +95,7 @@ private:
 	void display_message3(float x, float y, char text[2048], int r, int g, int b, float fontx, float fonty, int fonttype);
 	void SetDungeonText();
 	void ScanMod();
+	void DisplayHud();
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 
