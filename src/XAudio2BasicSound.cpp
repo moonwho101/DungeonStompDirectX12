@@ -536,15 +536,7 @@ void MakeWave(char* file, std::unique_ptr<uint8_t[]> waveFile) {
 
 }
 
-static wchar_t* charToWChar(const char* text)
-{
-    const size_t size = strlen(text) + 1;
-    wchar_t* wText = new wchar_t[size];
 
-    //TODO: Fix this
-    mbstowcs(wText, text, size);
-    return wText;
-}
 
 BOOL LoadSoundFiles(char* filename)
 {
@@ -1096,4 +1088,16 @@ int ResetSound()
     numsounds = numcoresounds;
 
     return 1;
+}
+
+
+
+static wchar_t* charToWChar(const char* text)
+{
+    const size_t size = strlen(text) + 1;
+    wchar_t* wText = new wchar_t[size];
+
+    //TODO: Fix this
+    mbstowcs(wText, text, size);
+    return wText;
 }

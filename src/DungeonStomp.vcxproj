@@ -157,6 +157,7 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="Dice.cpp" />
     <ClCompile Include="DirectInput.cpp" />
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="FrameMove.cpp" />
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="GameLogic.cpp" />
@@ -186,6 +187,8 @@
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="Dice.hpp" />
     <ClInclude Include="DirectInput.hpp" />
+    <ClInclude Include="DungeonStomp.hpp" />
+    <ClInclude Include="Font.hpp" />
     <ClInclude Include="FrameMove.hpp" />
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="GameLogic.hpp" />

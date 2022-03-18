@@ -93,6 +93,9 @@
     <ClCompile Include="..\Common\MathHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameResource.h">
@@ -177,6 +180,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\UploadBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DungeonStomp.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Font.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
