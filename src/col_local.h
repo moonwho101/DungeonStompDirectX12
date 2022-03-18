@@ -1,9 +1,7 @@
-//Collision local header
 #include "col_global.h"
 #include "D3DUtil.h"
 #include <DirectXMath.h>
 using namespace DirectX;
-
 
 class VECTOR
 {
@@ -62,7 +60,3 @@ struct CollisionPacket
 	VECTOR sourcePoint;
 	XMFLOAT3 realpos;
 };
-/*
-extern "C" __declspec(dllexport) void checkTriangle(CollisionPacket* colPackage,VECTOR p1,VECTOR p2,VECTOR p3); //Can be imported form the DLL if neccesary
-
-*/

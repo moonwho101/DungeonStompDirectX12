@@ -11,17 +11,9 @@
 #include "XAudio2Versions.h"
 #include "dice.hpp"
 
-
-
-
-//extern ID3DXSprite* g_pSprite9;
-//extern ID3DXSprite* g_pDice9;
-//extern ID3DXSprite* g_pHud9;
 struct diceroll dice[50];
 int numdice;
-//extern LPDIRECT3DTEXTURE9      g_pTextureList[MAX_NUM_TEXTURESLIST];
 D3DVERTEX MakeVertex(float x, float y, float z);
-//void SetMaterialBright(IDirect3DDevice9* pd3dDevice);
 int showsavingthrow = 0;
 extern int d20roll;
 extern int damageroll;
@@ -39,7 +31,6 @@ D3DVERTEX MakeVertex(float x, float y, float z) {
 
 int MakeDice()
 {
-
 	float x1, x2, y1, y2;
 	float scale = 16.0f;
 	float adjust = 100.0f;

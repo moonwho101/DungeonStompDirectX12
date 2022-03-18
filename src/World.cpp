@@ -1,4 +1,3 @@
-
 #include "resource.h"
 #include "d3dtypes.h"
 #include "LoadWorld.hpp"
@@ -8,7 +7,6 @@
 #include "DirectInput.hpp"
 #include "GameLogic.hpp"
 #include "Missle.hpp"
-
 
 
 //TODO: fix

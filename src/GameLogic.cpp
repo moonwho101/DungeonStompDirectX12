@@ -14,7 +14,6 @@ using namespace DirectX;
 
 #pragma comment( lib, "Winmm.lib" )
 
-
 //Monster
 int monsterenable = 1;
 int monstercount = 0;

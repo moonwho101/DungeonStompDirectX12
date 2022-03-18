@@ -1,4 +1,3 @@
-#define DIRECTINPUT_VERSION 0x0700
 //-----------------------------------------------------------------------------
 // File: LoadWorld.cpp
 //
@@ -6,7 +5,6 @@
 //
 // Copyright (c) 2001, Mark Longo, All rights reserved
 //-----------------------------------------------------------------------------
-
 
 #include <math.h>
 #include <time.h>

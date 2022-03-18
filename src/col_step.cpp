@@ -1,16 +1,11 @@
-
 #include "col_local.h"
-//#include <dsound.h>
 #include "D3DUtil.h"
 #include "world.hpp"
 #include "ImportMD2.hpp"
 #include "Import3DS.hpp"
 #include "LoadWorld.hpp"
 
-
-
 extern int foundcollisiontrue;
-//extern CMyD3DApplication* pCMyApp;
 
 bool getLowestRoot(float a, float b, float c, float maxR, float* root)
 {

@@ -20,14 +20,6 @@ using namespace DirectX;
 #define USE_DEFAULT_MODEL_TEX	0
 #define USE_PLAYERS_SKIN		1
 
-
-
-
-
-
-
-
-
 // A structure for our custom vertex type. We added texture coordinates
 typedef struct CUSTOMVERTEXTEST
 {
@@ -535,9 +527,6 @@ int SoundID(char* name);
 int FreeSlave();
 void CheckMidiMusic();
 int MakeDice();
-
-
-
 
 
 #endif // __WORLD_H__

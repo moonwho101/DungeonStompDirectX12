@@ -6,31 +6,7 @@
 //#include "SDKmisc.h"
 //#include "SDKmesh.h"
 
-#include "resource.h"
-#include "d3dtypes.h"
-#include "LoadWorld.hpp"
-#include "world.hpp"
-#include "GlobalSettings.hpp"
-#include <string.h>
 
-#include "col_local.h"
-
-
-//Collision
-extern CollisionPacket colPack2;
-CollisionPacket collisionPackage;
-int collisionRecursionDepth = 0;
-int lastcollide = 0;
-int collisioncode = 1;
-int objectcollide = 0;
-int foundcollisiontrue = 0;
-int currentmonstercollisionid = -1;
-extern float collisiondist;
-extern BOOL foundcollision;
-
-
-extern CollisionPacket collisionPackage; //Stores all the parameters and returnvalues
-extern int collisionRecursionDepth;		 //Internal variable tracking the recursion depth
 
 //float** triangle_pool; //Stores the pointers to the traingles used for collision detection
 //int numtriangle;	   //Number of traingles in pool

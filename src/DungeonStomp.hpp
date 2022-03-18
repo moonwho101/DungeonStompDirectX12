@@ -3,7 +3,6 @@ using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
-
 // Lightweight structure stores parameters to draw a shape.  This will
 // vary from app-to-app.
 typedef struct RenderItem
@@ -45,10 +44,6 @@ enum class RenderLayer : int
 	AlphaTested,
 	Count
 };
-
-
-
-
 
 class DungeonStompApp : public D3DApp
 {

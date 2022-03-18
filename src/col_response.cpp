@@ -1,11 +1,25 @@
-
-
-
 #include "col_local.h"
 #include "World.hpp"
 #include "GlobalSettings.hpp"
 #include <DirectXMath.h>
+
 using namespace DirectX;
+
+//Collision
+extern CollisionPacket colPack2;
+CollisionPacket collisionPackage;
+int collisionRecursionDepth = 0;
+int lastcollide = 0;
+int collisioncode = 1;
+int objectcollide = 0;
+int foundcollisiontrue = 0;
+int currentmonstercollisionid = -1;
+extern float collisiondist;
+extern BOOL foundcollision;
+
+
+extern CollisionPacket collisionPackage; //Stores all the parameters and returnvalues
+extern int collisionRecursionDepth;		 //Internal variable tracking the recursion depth
 
 extern CollisionPacket collisionPackage; //Stores all the parameters and returnvalues
 extern int collisionRecursionDepth;		 //Internal variable tracking the recursion depth
@@ -26,8 +40,6 @@ extern int g_ob_vert_count;
 float collisiondist = 4190.0f;
 
 float mxc[100], myc[100], mzc[100], mwc[100];
-
-//D3DVECTOR calculatemisslelength(D3DVECTOR velocity);
 
 CollisionTrace trace; //Output structure telling the application everything about the collision
 

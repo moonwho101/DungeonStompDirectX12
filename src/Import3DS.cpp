@@ -1,4 +1,3 @@
-//#define DIRECTINPUT_VERSION 0x0700
 //-----------------------------------------------------------------------------
 // File: Import3DS.cpp
 //
@@ -6,14 +5,12 @@
 // Copyright (c) 1999 William Chin. All rights reserved.
 //-----------------------------------------------------------------------------
 
-
 #include <windows.h>
 #include <stdio.h>
 #include <math.h>
 #include "world.hpp"
 #include "Import3DS.hpp"
 #include "LoadWorld.hpp"
-
 
 OBJECT3DS oblistitem[MAX_NUM_3DS_OBJECTS];
 

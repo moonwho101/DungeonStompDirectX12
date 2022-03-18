@@ -10,7 +10,6 @@
 #include "XAudio2Versions.h"
 #include "Dice.hpp"
 
-
 GUNLIST* your_missle;
 int firemissle = 0;
 XMFLOAT3 MissleSave;

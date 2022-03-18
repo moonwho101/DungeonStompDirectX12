@@ -7,7 +7,6 @@
 #include "GameLogic.hpp"
 #include "Missle.hpp"
 
-
 int itemlistcount = 0;
 
 void ConvertTraingleStrip(int fan_cnt);

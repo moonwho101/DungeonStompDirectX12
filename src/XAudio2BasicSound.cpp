@@ -8,7 +8,6 @@
 //--------------------------------------------------------------------------------------
 #define WIN32_LEAN_AND_MEAN
 
-
 #include <xaudio2.h>
 #include <Windows.h>
 #include <cstdio>
@@ -19,8 +18,6 @@
 
 #include <timeapi.h>
 #pragma comment( lib, "Winmm.lib" )
-
-
 
 // Uncomment to enable the volume limiter on the master voice.
 //#define MASTERING_LIMITER
@@ -194,99 +191,9 @@ int main2()
     }
 #endif // MASTERING_LIMITER
 
-
-
     sound_buffer = new SOUNDBUFFER[250];
     sound_list = new SOUNDLIST[1250];
     LoadSoundFiles("sounds.dat");
-
-    /*
-    PlayWavSound(SoundID("potion"), 100);
-
-    //
-    // Play a PCM wave file
-    //
-    wprintf(L"Playing mono WAV PCM file...");
-    if (FAILED(hr = PlayWave(L"Media\\Wavs\\MusicMono.wav")))
-    {
-        wprintf(L"Failed creating source voice: %#X\n", hr);
-        pXAudio2.Reset();
-        CoUninitialize();
-        return 0;
-    }
-    */
-
-    /*
-    //
-    // Play an ADPCM wave file
-    //
-    wprintf( L"\nPlaying mono WAV ADPCM file (loops twice)..." );
-    if( FAILED( hr = PlayWave( pXAudio2.Get(), L"Media\\Wavs\\MusicMono_adpcm.wav" ) ) )
-    {
-        wprintf( L"Failed creating source voice: %#X\n", hr );
-        pXAudio2.Reset();
-        CoUninitialize();
-        return 0;
-    }
-
-    //
-    // Play a 5.1 PCM wave extensible file
-    //
-    wprintf( L"\nPlaying 5.1 WAV PCM file..." );
-    if( FAILED( hr = PlayWave( pXAudio2.Get(), L"Media\\Wavs\\MusicSurround.wav" ) ) )
-    {
-        wprintf( L"Failed creating source voice: %#X\n", hr );
-        pXAudio2.Reset();
-        CoUninitialize();
-        return 0;
-    }
-
-#if defined(USING_XAUDIO2_7_DIRECTX) || defined(USING_XAUDIO2_9)
-
-    //
-    // Play a mono xWMA wave file
-    //
-    wprintf( L"\nPlaying mono xWMA file..." );
-    if( FAILED( hr = PlayWave( pXAudio2.Get(), L"Media\\Wavs\\MusicMono_xwma.wav" ) ) )
-    {
-        wprintf( L"Failed creating source voice: %#X\n", hr );
-        pXAudio2.Reset();
-        CoUninitialize();
-        return 0;
-    }
-
-    //
-    // Play a 5.1 xWMA wave file
-    //
-    wprintf( L"\nPlaying 5.1 xWMA file..." );
-    if( FAILED( hr = PlayWave( pXAudio2.Get(), L"Media\\Wavs\\MusicSurround_xwma.wav" ) ) )
-    {
-        wprintf( L"Failed creating source voice: %#X\n", hr );
-        pXAudio2.Reset();
-        CoUninitialize();
-        return 0;
-    }
-
-#endif
-
-    //
-    // Cleanup XAudio2
-    //
-    wprintf( L"\nFinished playing\n" );
-
-    // All XAudio2 interfaces are released when the engine is destroyed, but being tidy
-    pMasteringVoice->DestroyVoice();
-
-    pXAudio2.Reset();
-
-#ifdef USING_XAUDIO2_7_DIRECTX
-    if (mXAudioDLL)
-        FreeLibrary(mXAudioDLL);
-#endif
-
-    CoUninitialize();
-
-    */
 }
 
 void ShutDownSound() {
@@ -415,30 +322,6 @@ HRESULT PlayWave(LPCWSTR szFilename)
 
     hr = pSourceVoice->Start(0);
 
-
-    /*
-    // Let the sound play
-    BOOL isRunning = TRUE;
-    while( SUCCEEDED( hr ) && isRunning )
-    {
-        XAUDIO2_VOICE_STATE state;
-        pSourceVoice->GetState( &state );
-        isRunning = ( state.BuffersQueued > 0 ) != 0;
-
-        // Wait till the escape key is pressed
-        if( GetAsyncKeyState( VK_ESCAPE ) )
-            break;
-
-        Sleep( 10 );
-    }
-
-    // Wait till the escape key is released
-    while( GetAsyncKeyState( VK_ESCAPE ) )
-        Sleep( 10 );
-
-    pSourceVoice->DestroyVoice();
-    */
-
     return hr;
 }
 
@@ -532,11 +415,7 @@ void MakeWave(char* file, std::unique_ptr<uint8_t[]> waveFile) {
         //wprintf(L"Failed reading WAV file: %#X (%s)\n", hr, strFilePath);
         //return;
    // }
-
-
 }
-
-
 
 BOOL LoadSoundFiles(char* filename)
 {
@@ -618,37 +497,6 @@ BOOL LoadSoundFiles(char* filename)
 
             numsounds++;
         }
-        //if (strcmp(type, "MID") == 0)
-        //{
-        //    strcpy_s(midi_list[nummidi].file, file);
-        //    strcpy_s(midi_list[nummidi].name, name);
-
-        //    soundid = DMusic_Load_MIDI(file);
-        //    if (soundid == -1)
-        //        MessageBox(hwnd, "sounds.dat midi file not found", "sounds.dat midi file not found", MB_OK);
-
-        //    midi_list[nummidi].id = soundid;
-        //    midi_list[nummidi].type = 1;
-        //    sound_list[numsounds].playing = 0;
-        //    nummidi++;
-        //}
-
-        //if (strcmp(type, "LOP") == 0)
-        //{
-        //    strcpy_s(sound_list[numsounds].file, file);
-        //    strcpy_s(sound_list[numsounds].name, name);
-
-        //    soundid = DSound_Load_WAV(file);
-
-        //    if (soundid == -1)
-        //    {
-        //        MessageBox(hwnd, "sounds.dat wave file not found", "sounds.dat wave file not found", MB_OK);
-        //    }
-        //    sound_list[numsounds].id = soundid;
-        //    sound_list[numsounds].type = 2;
-        //    sound_list[numsounds].playing = 0;
-        //    numsounds++;
-        //}
 
         if (strcmp(type, "END_FILE") == 0)
         {
@@ -899,166 +747,12 @@ void CheckMidiMusic()
 
     if (playingsong == 0 && skipmusic == 0 && musicon == 1)
     {
-
-
-
         raction = random_num(2);
-
-        //if (raction == 0)
-        //{
-          //  skipmusic = 1;
-        //}
-        //else
-        //{
         skipmusic = 0;
-        //raction = random_num(8);
-        //DMusic_Play(raction);
-        //currentmidi = raction;
 
         PlaySong();
-        //}
     }
-
-    //if (closesoundid[0] < 9000.0f)
-    //{
-    //    for (i = 0; i < numsounds; i++)
-    //    {
-    //        if (strcmp("water", sound_list[i].name) == 0)
-    //        {
-
-    //            if (sound_list[i].playing == 0)
-    //                sound_list[i].playing = 1;
-
-    //            break;
-    //        }
-    //    }
-    //}
-
-    //if (closesoundid[1] < 9000.0f)
-    //{
-    //    for (i = 0; i < numsounds; i++)
-    //    {
-    //        if (strcmp("fire", sound_list[i].name) == 0)
-    //        {
-
-    //            if (sound_list[i].playing == 0)
-    //                sound_list[i].playing = 1;
-
-    //            break;
-    //        }
-    //    }
-    //}
-
-    //if (closesoundid[2] < 9000.0f)
-    //{
-    //    for (i = 0; i < numsounds; i++)
-    //    {
-    //        if (strcmp("lava", sound_list[i].name) == 0)
-    //        {
-
-    //            if (sound_list[i].playing == 0)
-    //                sound_list[i].playing = 1;
-
-    //            break;
-    //        }
-    //    }
-    //}
-
-    //if (closesoundid[3] < 9000.0f)
-    //{
-    //    for (i = 0; i < numsounds; i++)
-    //    {
-    //        if (strcmp("stone", sound_list[i].name) == 0)
-    //        {
-
-    //            if (sound_list[i].playing == 0)
-    //                sound_list[i].playing = 1;
-
-    //            break;
-    //        }
-    //    }
-    //}
-
-    //if (closesoundid[4] < 9000.0f)
-    //{
-    //    for (i = 0; i < numsounds; i++)
-    //    {
-    //        if (strcmp("teleport", sound_list[i].name) == 0)
-    //        {
-
-    //            if (sound_list[i].playing == 0)
-    //                sound_list[i].playing = 1;
-
-    //            break;
-    //        }
-    //    }
-    //}
-
-   /* for (i = 0; i < numsounds; i++)
-    {
-        if (sound_list[i].playing > 0)
-        {
-            if (sound_list[i].playing == 1)
-            {
-                if (strcmp("water", sound_list[i].name) == 0)
-                {
-                    PlayWavSound(SoundID(sound_list[i].name), 100 - (int)((100 * closesoundid[0]) / ((400))));
-                }
-                if (strcmp("fire", sound_list[i].name) == 0)
-                {
-                    PlayWavSound(SoundID(sound_list[i].name), 100 - (int)((100 * closesoundid[1]) / ((400))));
-                }
-                if (strcmp("lava", sound_list[i].name) == 0)
-                {
-                    PlayWavSound(SoundID(sound_list[i].name), 100 - (int)((100 * closesoundid[2]) / ((400))));
-                }
-                if (strcmp("stone", sound_list[i].name) == 0)
-                {
-                    PlayWavSound(SoundID(sound_list[i].name), 100 - (int)((100 * closesoundid[3]) / ((1400))));
-                }
-
-                if (strcmp("teleport", sound_list[i].name) == 0)
-                {
-                    PlayWavSound(SoundID(sound_list[i].name), 100 - (int)((100 * closesoundid[4]) / ((1400))));
-                }
-
-                sound_list[i].playing = 2;
-            }
-            else if (sound_list[i].playing == 2)
-            {
-                if (DSound_Status_Sound(SoundID(sound_list[i].name)))
-                {
-
-                    if (strcmp("water", sound_list[i].name) == 0)
-                    {
-                        DSound_Set_Volume(SoundID(sound_list[i].name), 100 - (int)((100 * closesoundid[0]) / ((400))));
-                    }
-                    if (strcmp("fire", sound_list[i].name) == 0)
-                    {
-                        DSound_Set_Volume(SoundID(sound_list[i].name), 100 - (int)((100 * closesoundid[1]) / ((400))));
-                    }
-                    if (strcmp("lava", sound_list[i].name) == 0)
-                    {
-                        DSound_Set_Volume(SoundID(sound_list[i].name), 100 - (int)((100 * closesoundid[2]) / ((400))));
-                    }
-                    if (strcmp("stone", sound_list[i].name) == 0)
-                    {
-                        DSound_Set_Volume(SoundID(sound_list[i].name), 100 - (int)((100 * closesoundid[3]) / ((1400))));
-                    }
-                    if (strcmp("teleport", sound_list[i].name) == 0)
-                    {
-                        DSound_Set_Volume(SoundID(sound_list[i].name), 100 - (int)((100 * closesoundid[4]) / ((1400))));
-                    }
-                }
-                else
-                {
-                    sound_list[i].playing = 0;
-                }
-            }
-        }
-    }*/
 }
-
 
 
 int ResetSound()
@@ -1089,7 +783,6 @@ int ResetSound()
 
     return 1;
 }
-
 
 
 static wchar_t* charToWChar(const char* text)

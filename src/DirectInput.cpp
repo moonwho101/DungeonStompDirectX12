@@ -1,4 +1,3 @@
-
 #include "resource.h"
 #include "d3dtypes.h"
 #include "LoadWorld.hpp"
@@ -10,10 +9,7 @@
 #include "GameLogic.hpp"
 #include "Dice.hpp"
 
-
-//#define DIRECTINPUT_VERSION 0x0800
-
-//Only one input device should be true.
+//Only one input device should be true.  Set g_bUseJoystick=true for xbox controller.
 BOOL g_bUseMouse = true;
 BOOL g_bUseJoystick = false;
 BOOL g_bUseKeyboard = false;

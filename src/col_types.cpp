@@ -1,4 +1,3 @@
-
 #include "col_local.h"
 
 VECTOR::VECTOR()

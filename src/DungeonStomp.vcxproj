@@ -150,7 +150,6 @@
     <ClCompile Include="..\Common\GameTimer.cpp" />
     <ClCompile Include="..\Common\GeometryGenerator.cpp" />
     <ClCompile Include="..\Common\MathHelper.cpp" />
-    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="col_response.cpp" />
     <ClCompile Include="col_step.cpp" />
     <ClCompile Include="col_types.cpp" />
@@ -180,7 +179,6 @@
     <ClInclude Include="..\Common\GeometryGenerator.h" />
     <ClInclude Include="..\Common\MathHelper.h" />
     <ClInclude Include="..\Common\UploadBuffer.h" />
-    <ClInclude Include="Collision.hpp" />
     <ClInclude Include="col_global.h" />
     <ClInclude Include="col_local.h" />
     <ClInclude Include="d3dutil.h" />

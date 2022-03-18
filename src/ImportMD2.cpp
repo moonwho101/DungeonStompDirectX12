@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
@@ -6,18 +5,9 @@
 #include "world.hpp"
 #include "ImportMD2.hpp"
 
-
 PLAYERMODELDATA* pmdata;
 MODELLIST* model_list;
 GUNLIST* your_gun;
-//extern CMyD3DApplication* pCMyApp;
-
-//CMD2* pCMD2;
-
-//CMD2::CMD2()
-//{
-	//pCMD2 = this;
-//}
 
 BOOL ImportMD2_GLCMD(char* filename, int texture_alias,int pmodel_id, float scale)
 {
