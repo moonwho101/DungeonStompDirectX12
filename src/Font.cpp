@@ -20,6 +20,7 @@ extern char gfinaltext[2048];
 int numCharacters = 0;
 extern ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap;
 ID3D12PipelineState* textPSO; // pso containing a pipeline state
+ID3D12PipelineState* rectanglePSO; // pso containing a pipeline state
 
 Font arialFont; // this will store our arial font information
 static wchar_t* charToWChar(const char* text);
@@ -35,6 +36,8 @@ struct gametext
 extern gametext gtext[200];
 int maxNumTextCharacters = 1024; // the maximum number of characters you can render during a frame. This is just used to make sure
 								// there is enough memory allocated for the text vertex buffer each frame
+
+int maxNumRectangleCharacters = 1024;
 
 extern FLOAT LevelModTime;
 extern int totalmod;
@@ -214,6 +217,101 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 }
 
 
+void DungeonStompApp::RenderRectangle(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
+{
+	// clear the depth buffer so we can draw over everything
+	//mCommandList->ClearDepthStencilView(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+	//mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+	// set the rectangle pipeline state object
+	mCommandList->SetPipelineState(rectanglePSO);
+
+	// this way we only need 4 vertices per quad rather than 6 if we were to use a triangle list topology
+	mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	//mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+
+	// set the rectangle vertex buffer
+	mCommandList->IASetVertexBuffers(0, 1, &rectangleVertexBufferView);
+
+	// bind the rectangle srv. We will assume the correct descriptor heap and table are currently bound and set
+	//mCommandList->SetGraphicsRootDescriptorTable(3, font.srvHandle);
+
+	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	tex.Offset(111, mCbvSrvDescriptorSize);
+	mCommandList->SetGraphicsRootDescriptorTable(3, tex);
+
+	float topLeftScreenX = (pos.x * 2.0f) - 1.0f;
+	float topLeftScreenY = ((1.0f - pos.y) * 2.0f) - 1.0f;
+
+	float x = topLeftScreenX;
+	float y = topLeftScreenY;
+
+	float horrizontalPadding = (font.leftpadding + font.rightpadding) * padding.x;
+	float verticalPadding = (font.toppadding + font.bottompadding) * padding.y;
+
+	// cast the gpu virtual address to a textvertex, so we can directly store our vertices there
+	TextVertex* vert = (TextVertex*)rectangleVBGPUAddress;
+
+	wchar_t lastChar = -1; // no last character to start with
+
+	for (int i = 0; i < text.size(); ++i)
+	{
+		wchar_t c = text[i];
+
+		FontChar* fc = font.GetChar(c);
+
+		// character not in font char set
+		if (fc == nullptr)
+			continue;
+
+		// end of string
+		if (c == L'\0')
+			break;
+
+		// new line
+		if (c == L'\n')
+		{
+			x = topLeftScreenX;
+			y -= (font.lineHeight + verticalPadding) * scale.y;
+			continue;
+		}
+
+		// don't overflow the buffer. In your app if this is true, you can implement a resize of your text vertex buffer
+		if (numCharacters >= maxNumRectangleCharacters)
+			break;
+
+		float kerning = 0.0f;
+		if (i > 0)
+			kerning = font.GetKerning(lastChar, c);
+
+		vert[numCharacters] = TextVertex(color.x,
+			color.y,
+			color.z,
+			color.w,
+			0.0f,
+			0.0f,
+			1.0f,
+			1.0f,
+			x + ((fc->xoffset + kerning) * scale.x),
+			y - (fc->yoffset * scale.y),
+			fc->width * scale.x,
+			fc->height * scale.y);
+
+		numCharacters++;
+
+		// remove horrizontal padding and advance to next char position
+		x += (fc->xadvance - horrizontalPadding) * scale.x;
+
+		lastChar = c;
+	}
+
+	// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
+	mCommandList->DrawInstanced(4, numCharacters, 0, 0);
+}
+
+
 void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
 {
 	// clear the depth buffer so we can draw over everything
@@ -332,7 +430,9 @@ void DungeonStompApp::DisplayHud() {
 	sprintf_s(junk, "J");
 	//display_message(5.0f, (FLOAT)wHeight - adjust - 14.0f, junk, 255, 255, 0, 12.5, 16, 0);
 	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.30f, 0.30f)); //, XMFLOAT2(0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f));
-	RenderText(arialFont, charToWChar(junk), XMFLOAT2(-0.45f, 0.35f), XMFLOAT2(34.00f, 34.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(-0.45f, 0.35f), XMFLOAT2(34.00f, 34.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	
+	RenderRectangle(arialFont, charToWChar(junk), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(4.00f, 4.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	//sprintf_s(junk, "Area: ");
 	//display_message(0.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 255, 255, 0, 12.5, 16, 0);

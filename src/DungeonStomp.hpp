@@ -87,6 +87,7 @@ private:
 	void ProcessLights11();
 	//void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
+	void RenderRectangle(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
 	void display_message3(float x, float y, char text[2048], int r, int g, int b, float fontx, float fonty, int fonttype);
 	void SetDungeonText();
 	void ScanMod();
@@ -144,6 +145,11 @@ private:
 	ID3D12Resource* textVertexBuffer;
 	UINT8* textVBGPUAddress;
 	D3D12_VERTEX_BUFFER_VIEW textVertexBufferView; // a view for our text vertex buffer
+
+	ID3D12Resource* rectangleVertexBuffer;
+	UINT8* rectangleVBGPUAddress;
+	D3D12_VERTEX_BUFFER_VIEW rectangleVertexBufferView; // a view for our text vertex buffer
+	
 
 };
 

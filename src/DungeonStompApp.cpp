@@ -30,6 +30,8 @@ extern char gfinaltext[2048];
 int LevelUpXPNeeded(int xp);
 extern Font arialFont; // this will store our arial font information
 extern int maxNumTextCharacters;
+extern int maxNumRectangleCharacters;
+
 extern POLY_SORT ObjectsToDraw[200000];
 extern BOOL* dp_command_index_mode;
 extern int cnt;
@@ -41,6 +43,7 @@ extern int number_of_tex_aliases;
 static wchar_t* charToWChar(const char* text);
 ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
 extern ID3D12PipelineState* textPSO; // pso containing a pipeline state
+extern ID3D12PipelineState* rectanglePSO; // pso containing a pipeline state
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
@@ -117,6 +120,11 @@ bool DungeonStompApp::Initialize()
 	textVertexBufferView.BufferLocation = textVertexBuffer->GetGPUVirtualAddress();
 	textVertexBufferView.StrideInBytes = sizeof(TextVertex);
 	textVertexBufferView.SizeInBytes = maxNumTextCharacters * sizeof(TextVertex);
+
+	//Set the Rectangle Buffer
+	rectangleVertexBufferView.BufferLocation = rectangleVertexBuffer->GetGPUVirtualAddress();
+	rectangleVertexBufferView.StrideInBytes = sizeof(TextVertex);
+	rectangleVertexBufferView.SizeInBytes = maxNumRectangleCharacters * sizeof(TextVertex);
 
 	// Wait until initialization is complete.
 	FlushCommandQueue();
@@ -675,6 +683,42 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	textPixelShaderBytecode.pShaderBytecode = textPixelShader->GetBufferPointer();
 
 
+	// Rectangle PSO
+	// compile vertex shader
+	ID3DBlob* rectangleVertexShader; // d3d blob for holding vertex shader bytecode
+	hr = D3DCompileFromFile(L"..\\Shaders\\RectangleVertexShader.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&rectangleVertexShader,
+		&errorBuff);
+
+	// fill out a shader bytecode structure, which is basically just a pointer
+	// to the shader bytecode and the size of the shader bytecode
+	D3D12_SHADER_BYTECODE rectangleVertexShaderBytecode = {};
+	rectangleVertexShaderBytecode.BytecodeLength = rectangleVertexShader->GetBufferSize();
+	rectangleVertexShaderBytecode.pShaderBytecode = rectangleVertexShader->GetBufferPointer();
+
+	// compile pixel shader
+	ID3DBlob* rectanglePixelShader;
+	hr = D3DCompileFromFile(L"..\\Shaders\\RectanglePixelShader.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&rectanglePixelShader,
+		&errorBuff);
+
+	// fill out shader bytecode structure for pixel shader
+	D3D12_SHADER_BYTECODE rectanglePixelShaderBytecode = {};
+	rectanglePixelShaderBytecode.BytecodeLength = rectanglePixelShader->GetBufferSize();
+	rectanglePixelShaderBytecode.pShaderBytecode = rectanglePixelShader->GetBufferPointer();
+
 	mInputLayout =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -741,11 +785,50 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	hr = md3dDevice->CreateGraphicsPipelineState(&textpsoDesc, IID_PPV_ARGS(&textPSO));
 	if (FAILED(hr))
 	{
-		int a = 1;
-	//	Running = false;
-	//	return false;
+		//	Running = false;
+		//	return false;
 	}
 
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC rectanglepsoDesc = {};
+	rectanglepsoDesc.InputLayout = textInputLayoutDesc;
+	rectanglepsoDesc.pRootSignature = mRootSignature.Get();
+	rectanglepsoDesc.VS = rectangleVertexShaderBytecode;
+	rectanglepsoDesc.PS = rectanglePixelShaderBytecode;
+	rectanglepsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	rectanglepsoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	rectanglepsoDesc.SampleDesc = sampleDesc;
+	rectanglepsoDesc.SampleMask = 0xffffffff;
+	rectanglepsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+
+	D3D12_BLEND_DESC rectangleBlendStateDesc = {};
+	rectangleBlendStateDesc.AlphaToCoverageEnable = FALSE;
+	rectangleBlendStateDesc.IndependentBlendEnable = FALSE;
+	rectangleBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
+
+	rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+	rectangleBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+
+	rectangleBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+	rectangleBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
+	rectangleBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+
+	rectangleBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	rectanglepsoDesc.BlendState = rectangleBlendStateDesc;
+	rectanglepsoDesc.NumRenderTargets = 1;
+	D3D12_DEPTH_STENCIL_DESC rectangleDepthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	rectangleDepthStencilDesc.DepthEnable = false;
+	rectanglepsoDesc.DepthStencilState = rectangleDepthStencilDesc;
+
+	// create the text pso
+	hr = md3dDevice->CreateGraphicsPipelineState(&rectanglepsoDesc, IID_PPV_ARGS(&rectanglePSO));
+	if (FAILED(hr))
+	{
+		//	Running = false;
+		//	return false;
+	}
 
 }
 
@@ -1350,9 +1433,30 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	textVertexBuffer->SetName(L"Text Vertex Buffer Upload Resource Heap");
 
 	CD3DX12_RANGE readRange(0, 0);	// We do not intend to read from this resource on the CPU. (so end is less than or equal to begin)
-
 	// map the resource heap to get a gpu virtual address to the beginning of the heap
 	hr = textVertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&textVBGPUAddress));
+
+
+	// create upload heap. We will fill this with data for our text
+	hr = md3dDevice->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
+		D3D12_HEAP_FLAG_NONE, // no flags
+		&CD3DX12_RESOURCE_DESC::Buffer(maxNumRectangleCharacters * sizeof(TextVertex)), // resource description for a buffer
+		D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
+		nullptr,
+		IID_PPV_ARGS(&rectangleVertexBuffer));
+	//if (FAILED(hr))
+	//{
+	//	Running = false;
+	//	return false;
+	//}
+	rectangleVertexBuffer->SetName(L"Rectangle Vertex Buffer Upload Resource Heap");
+
+	
+	CD3DX12_RANGE readRange2(0, 0);
+	// map the resource heap to get a gpu virtual address to the beginning of the heap
+	hr = rectangleVertexBuffer->Map(0, &readRange2, reinterpret_cast<void**>(&rectangleVBGPUAddress));
+
 
 
 }
