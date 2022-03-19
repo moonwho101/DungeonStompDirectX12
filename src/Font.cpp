@@ -1056,7 +1056,7 @@ void DungeonStompApp::DisplayPlayerCaption() {
 
 
 				displayCaptureIndex[displayCapture] = cnt;;
-				displayCaptureCount[displayCapture] = countdisplay;
+				displayCaptureCount[displayCapture] = strlen(junk2);
 				
 
 				for (i = 0; i < ((countdisplay)); i += 1)
