@@ -1187,8 +1187,8 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	for (int i = 0; i < 1; i++) {
-		cmdList->DrawInstanced(6 * 4, 1, displayCaptureIndex[i], 0);
+	for (int i = 0; i < displayCapture; i++) {
+		cmdList->DrawInstanced(displayCaptureCount[i], 1, displayCaptureIndex[i], 0);
 	}
 
 
