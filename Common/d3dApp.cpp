@@ -161,6 +161,13 @@ void D3DApp::OnResize()
 		mBackBufferFormat, 
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
+	BOOL fullscreenState;
+	ThrowIfFailed(mSwapChain->GetFullscreenState(&fullscreenState, nullptr));
+
+	if (fullscreenState) {
+		ShowCursor(FALSE);
+	}
+
 	mCurrBackBuffer = 0;
  
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(mRtvHeap->GetCPUDescriptorHandleForHeapStart());
