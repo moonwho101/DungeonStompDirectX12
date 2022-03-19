@@ -1182,6 +1182,16 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
 	cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
+	tex.Offset(377, mCbvSrvDescriptorSize);
+	cmdList->SetGraphicsRootDescriptorTable(3, tex);
+
+	cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	for (int i = 0; i < 1; i++) {
+		cmdList->DrawInstanced(6 * 4, 1, displayCaptureIndex[i], 0);
+	}
+
+
 
 	int currentObject = 0;
 	for (currentObject = 0; currentObject < number_of_polys_per_frame; currentObject++)
@@ -1334,14 +1344,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		}
 	}
 
-	tex.Offset(355, mCbvSrvDescriptorSize);
-	cmdList->SetGraphicsRootDescriptorTable(3, tex);
-
-	cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	for (int i = 0; i < displayCapture; i++) {
-		cmdList->DrawInstanced(displayCaptureCount[i], 1, displayCaptureIndex[i], 0);
-	}
 
 	DisplayHud();
 	SetDungeonText();
