@@ -38,6 +38,11 @@ extern int cnt;
 extern D3DVERTEX* src_v;
 extern int number_of_polys_per_frame;
 
+extern int displayCaptureIndex[1000];
+extern int displayCaptureCount[1000];
+extern int displayCapture;
+
+
 std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
 extern int number_of_tex_aliases;
 static wchar_t* charToWChar(const char* text);
@@ -454,6 +459,9 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 
 void DungeonStompApp::UpdateWaves(const GameTimer& gt)
 {
+
+	DisplayPlayerCaption();
+
 	// Every quarter second, generate a random wave.
 	static float t_base = 0.0f;
 	if ((mTimer.TotalTime() - t_base) >= 0.25f)
@@ -1120,6 +1128,7 @@ extern SCROLLLISTING scrolllist1[50];
 void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
 	
+	
 
 	ProcessLights11();
 
@@ -1325,9 +1334,19 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		}
 	}
 
+	tex.Offset(355, mCbvSrvDescriptorSize);
+	cmdList->SetGraphicsRootDescriptorTable(3, tex);
+
+	cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	for (int i = 0; i < displayCapture; i++) {
+		cmdList->DrawInstanced(displayCaptureCount[i], 1, displayCaptureIndex[i], 0);
+	}
+
 	DisplayHud();
 	SetDungeonText();
 	ScanMod();
+
 	return;
 }
 

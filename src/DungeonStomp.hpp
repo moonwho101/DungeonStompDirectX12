@@ -92,6 +92,7 @@ private:
 	void SetDungeonText();
 	void ScanMod();
 	void DisplayHud();
+	void DisplayPlayerCaption();
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 

@@ -1138,6 +1138,8 @@ Alias  377   blood@8           AlphaTransparent  WHOLE
 AddTexture  ..\textures\blood\blood@9.dds
 Alias  378   blood@9           AlphaTransparent  WHOLE
 
+AddTexture  ..\textures\fonts\fontB.dds
+Alias  379   fontB           AlphaTransparent  WHOLE
 
 END_FILE
 

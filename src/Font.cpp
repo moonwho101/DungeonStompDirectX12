@@ -10,6 +10,7 @@
 #include "Missle.hpp"
 #include "GameLogic.hpp"
 #include "DungeonStomp.hpp"
+#include "ProcessModel.hpp"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -24,6 +25,15 @@ ID3D12PipelineState* rectanglePSO; // pso containing a pipeline state
 
 Font arialFont; // this will store our arial font information
 static wchar_t* charToWChar(const char* text);
+void display_font(float x, float y, char text[1000], int r, int g, int b);
+
+D3DVERTEX bubble[600];
+int countdisplay = 0;
+
+int displayCaptureIndex[1000];
+int displayCaptureCount[1000];
+int displayCapture=0;
+
 
 struct gametext
 {
@@ -910,3 +920,831 @@ void DungeonStompApp::SetDungeonText()
 	}
 }
 
+
+
+void DungeonStompApp::DisplayPlayerCaption() {
+
+	int i;
+	float x, y, z;
+	float pangle = 0;
+	int countit = 0;
+	int cullloop = 0;
+	int cullflag = 0;
+	int num = 0;
+	int len = 0;
+	int count = 0;
+	char junk2[2000];
+	int flag = 1;
+	float yadjust = 0;
+
+	//D3DXMATRIX matWorld, matProj;
+	//D3DXMATRIX matRotate;
+	int j = 0;
+
+	//Load the font texture
+	//int t = FindTextureAlias("fontA");
+	//pd3dImmediateContext->PSSetShaderResources(0, 1, &textures[t]);
+
+	int totalcount = 0;
+	displayCapture = 0;
+	
+
+	for (j = 0; j < num_monsters; j++)
+	{
+		cullflag = 0;
+		for (cullloop = 0; cullloop < monstercount; cullloop++)
+		{
+			if (monstercull[cullloop] == monster_list[j].monsterid)
+			{
+				cullflag = 1;
+				break;
+			}
+		}
+
+		flag = 1;
+		num = 0;
+		count = 0;
+		yadjust = 0.0f;
+
+		if (monster_list[j].bIsPlayerValid && cullflag == 1 && monster_list[j].bStopAnimating == FALSE)
+		{
+			len = strlen(monster_list[j].chatstr);
+
+			//TODO: why?
+			//if (len > 0)
+			  //  len--;
+
+			while (flag)
+			{
+				count = 0;
+
+				while (monster_list[j].chatstr[num] != '!')
+				{
+
+					junk2[count] = monster_list[j].chatstr[num];
+					count++;
+					num++;
+					if (num >= len)
+						break;
+				}
+				if (monster_list[j].chatstr[num] == '!')
+					num++;
+
+				junk2[count] = '\0';
+
+				if (num >= len || len == 0)
+					flag = 0;
+
+				float x = monster_list[j].x;
+				float y = monster_list[j].y + 28.0f - yadjust;
+				float z = monster_list[j].z;
+
+				yadjust += 6.0f;
+
+				countdisplay = 0;
+
+				display_font(0.0f, 0.0f, junk2, 255, 255, 0);
+
+
+				XMFLOAT3 collidenow;
+				XMFLOAT3 normroadold;
+				XMFLOAT3 vw1, vw2;
+
+				normroadold.x = 50;
+				normroadold.y = 0;
+				normroadold.z = 0;
+
+				vw1.x = m_vEyePt.x;
+				vw1.y = m_vEyePt.y;
+				vw1.z = m_vEyePt.z;
+
+				vw2.x = x;
+				vw2.y = y;
+				vw2.z = z;
+
+				XMVECTOR vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
+				XMVECTOR final = XMVector3Normalize(vDiff);
+				XMVECTOR final2 = XMVector3Normalize(XMLoadFloat3(&normroadold));
+
+				float fDot = XMVectorGetX(XMVector3Dot(final, final2));
+
+				//D3DXVec3Normalize(&final, &vDiff);
+				//D3DXVec3Normalize(&final2, &normroadold);
+				//float fDot = D3DXVec3Dot(&final, &final2);
+
+				float convangle;
+				convangle = (float)acos(fDot) / k;
+
+				fDot = convangle;
+
+				if (vw2.z < vw1.z)
+				{
+					fDot = -1.0f * (180.0f - fDot) + 90.0f;
+				}
+				else
+				{
+					fDot = 90.0f + (180.0f - fDot);
+				}
+
+				if ((vw2.x < vw1.x) && (vw2.z < vw1.z))
+				{
+					fDot = fixangle(fDot, 360.0f);
+				}
+
+				float cosine = cos_table[(int)fDot];
+				float sine = sin_table[(int)fDot];
+
+
+				displayCaptureIndex[displayCapture] = cnt;;
+				displayCaptureCount[displayCapture] = countdisplay;
+				
+
+				for (i = 0; i < ((countdisplay)); i += 1)
+				{
+					src_v[cnt].x = bubble[i].x;
+					src_v[cnt].y = bubble[i].y;
+					src_v[cnt].z = bubble[i].z;
+
+					src_v[cnt].tu = bubble[i].tu;
+					src_v[cnt].tv = bubble[i].tv;
+
+					totalcount++;
+					cnt++;
+				}
+
+				for (i = displayCaptureIndex[displayCapture]; i < cnt; i += 1)
+				{
+					float x2 = src_v[i].x;
+					float y2 = src_v[i].y;
+					float z2 = src_v[i].z;
+
+					//tx[vert_cnt] = obdata[ob_type].t[ob_vert_count].x;
+					//ty[vert_cnt] = obdata[ob_type].t[ob_vert_count].y;
+
+					float wx = x, wy = y, wz = z;
+
+					src_v[i].x = wx + (x2 * cosine - z2 * sine);
+					src_v[i].y = wy + y2;
+					src_v[i].z = wz + (x2 * sine + z2 * cosine);
+
+					//mCaption[i].color = D3DCOLOR_RGBA(105, 105, 105, 0); //0xffffffff;
+					//src_v[i].tu = bubble[i].tu;
+					//src_v[i].tv = bubble[i].tv;
+				}
+
+				displayCapture++;
+
+				//D3D11_MAPPED_SUBRESOURCE resource;
+				//pd3dImmediateContext->Map(g_pcbCaptionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
+				//int s = sizeof(Vertex) * countdisplay;
+				//memcpy(resource.pData, mCaption, s);
+				//pd3dImmediateContext->Unmap(g_pcbCaptionBuffer, 0);
+
+				//UINT stride = sizeof(Vertex);
+				//UINT offset = 0;
+				//pd3dImmediateContext->IASetVertexBuffers(0, 1, &g_pcbCaptionBuffer, &stride, &offset);
+				//pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+				//pd3dImmediateContext->Draw(countdisplay, 0);
+
+				//cmdList->DrawInstanced(4, 1, vert_index, 0);
+			}
+		}
+	}
+}
+
+
+
+void display_font(float x, float y, char text[1000], int r, int g, int b)
+{
+
+
+	int perspectiveview = 1;
+	float tuad = .0625f;
+	float tvad = .0625f;
+
+	float fontsize;
+	int intTextLength = 0;
+	int i = 0;
+	float itrue = 0;
+	float tu = 1.0f, tv = 1.0f;
+	int textlen = 0;
+	int textmid;
+	char lefttext[500];
+	char righttext[500];
+	char newtext[500];
+
+	char reversetext[500];
+	float adjust = 0.0f;
+	float adjust2 = 0.0f;
+
+	int j = 2;
+
+	int countl = 0;
+	int countr = 0;
+	int countreverse = 0;
+	float xcol;
+	xcol = x;
+	textlen = strlen(text);
+	textmid = textlen / 2;
+
+	fontsize = 5;
+
+	if (perspectiveview == 1)
+		fontsize = 5;
+
+	fontsize = 3;
+
+	int flip = 0;
+
+	for (i = 0; i < textlen; i++)
+	{
+
+		if (i < textmid)
+		{
+
+			lefttext[countl++] = text[i];
+		}
+		else
+		{
+
+			righttext[countr++] = text[i];
+		}
+	}
+
+	lefttext[countl] = '\0';
+	righttext[countr] = '\0';
+
+	strcpy_s(newtext, righttext);
+	countreverse = strlen(lefttext);
+
+	for (i = 1; i <= (int)strlen(lefttext); i++)
+	{
+
+		reversetext[i - 1] = lefttext[countreverse - i];
+	}
+
+	reversetext[i - 1] = '\0';
+
+	y = 40;
+
+	//for (j = 0; j < 1; j++)
+
+	for (j = 1; j >= 0; j--)
+	{
+
+		if (j == 1)
+		{
+			strcpy_s(newtext, reversetext);
+			if (flip == 0)
+				flip = 1;
+		}
+
+		if (j == 0)
+		{
+			//corect
+			strcpy_s(newtext, righttext);
+		}
+
+		intTextLength = strlen(newtext);
+
+		for (i = 0; i < intTextLength; i++)
+		{
+
+			switch (newtext[i])
+			{
+
+			case '0':
+
+				tu = 1.0f;
+				tv = 4.0f;
+
+				break;
+			case '1':
+
+				tu = 2.0f;
+				tv = 4.0f;
+
+				break;
+			case '2':
+
+				tu = 3.0f;
+				tv = 4.0f;
+
+				break;
+			case '3':
+
+				tu = 4.0f;
+				tv = 4.0f;
+				break;
+
+			case '4':
+
+				tu = 5.0f;
+				tv = 4.0f;
+
+				break;
+			case '5':
+
+				tu = 6.0f;
+				tv = 4.0f;
+
+				break;
+			case '6':
+
+				tu = 7.0f;
+				tv = 4.0f;
+
+				break;
+			case '7':
+
+				tu = 8.0f;
+				tv = 4.0f;
+				break;
+			case '8':
+
+				tu = 9.0f;
+				tv = 4.0f;
+
+				break;
+			case '9':
+
+				tu = 10.0f;
+				tv = 4.0f;
+
+				break;
+			case ':':
+
+				tu = 11.0f;
+				tv = 4.0f;
+
+				break;
+			case '.':
+
+				tu = 15.0f;
+				tv = 3.0f;
+
+				break;
+			case '+':
+
+				tu = 12.0f;
+				tv = 3.0f;
+
+				break;
+			case ',':
+
+				tu = 13.0f;
+				tv = 3.0f;
+
+				break;
+
+			case '-':
+
+				tu = 14.0f;
+				tv = 3.0f;
+
+				break;
+			case '/':
+
+				tu = 16.0f;
+				tv = 3.0f;
+
+				break;
+
+			case 'A':
+
+				tu = 2.0f;
+				tv = 5.0f;
+
+				break;
+
+			case 'B':
+
+				tu = 3.0f;
+				tv = 5.0f;
+
+				break;
+
+			case 'C':
+
+				tu = 4.0f;
+				tv = 5.0f;
+
+				break;
+
+			case 'D':
+
+				tu = 5.0f;
+				tv = 5.0f;
+
+				break;
+
+			case 'E':
+
+				tu = 6.0f;
+				tv = 5.0f;
+
+				break;
+
+			case 'F':
+
+				tu = 7.0f;
+				tv = 5.0f;
+
+				break;
+
+			case 'G':
+
+				tu = 8.0f;
+				tv = 5.0f;
+
+				break;
+			case 'H':
+
+				tu = 9.0f;
+				tv = 5.0f;
+
+				break;
+			case 'I':
+
+				tu = 10.0f;
+				tv = 5.0f;
+
+				break;
+			case 'J':
+
+				tu = 11.0f;
+				tv = 5.0f;
+
+				break;
+
+			case 'K':
+
+				tu = 12.0f;
+				tv = 5.0f;
+
+				break;
+
+			case 'L':
+
+				tu = 13.0f;
+				tv = 5.0f;
+
+				break;
+
+			case 'M':
+
+				tu = 14.0f;
+				tv = 5.0f;
+
+				break;
+			case 'N':
+
+				tu = 15.0f;
+				tv = 5.0f;
+
+				break;
+
+			case 'O':
+
+				tu = 16.0f;
+				tv = 5.0f;
+
+				break;
+			case 'P':
+
+				tu = 1.0f;
+				tv = 6.0f;
+
+				break;
+			case 'Q':
+
+				tu = 2.0f;
+				tv = 6.0f;
+
+				break;
+			case 'R':
+
+				tu = 3.0f;
+				tv = 6.0f;
+
+				break;
+			case 'S':
+
+				tu = 4.0f;
+				tv = 6.0f;
+
+				break;
+			case 'T':
+
+				tu = 5.0f;
+				tv = 6.0f;
+
+				break;
+			case 'U':
+
+				tu = 6.0f;
+				tv = 6.0f;
+
+				break;
+			case 'V':
+
+				tu = 7.0f;
+				tv = 6.0f;
+
+				break;
+			case 'W':
+
+				tu = 8.0f;
+				tv = 6.0f;
+
+				break;
+			case 'X':
+
+				tu = 9.0f;
+				tv = 6.0f;
+
+				break;
+			case 'Y':
+
+				tu = 10.0f;
+				tv = 6.0f;
+
+				break;
+			case 'Z':
+
+				tu = 11.0f;
+				tv = 6.0f;
+
+				break;
+
+			case 'a':
+
+				tu = 2.0f;
+				tv = 7.0f;
+
+				break;
+
+			case 'b':
+
+				tu = 3.0f;
+				tv = 7.0f;
+
+				break;
+
+			case 'c':
+
+				tu = 4.0f;
+				tv = 7.0f;
+
+				break;
+
+			case 'd':
+
+				tu = 5.0f;
+				tv = 7.0f;
+
+				break;
+
+			case 'e':
+
+				tu = 6.0f;
+				tv = 7.0f;
+
+				break;
+
+			case 'f':
+
+				tu = 7.0f;
+				tv = 7.0f;
+
+				break;
+
+			case 'g':
+
+				tu = 8.0f;
+				tv = 7.0f;
+
+				break;
+			case 'h':
+
+				tu = 9.0f;
+				tv = 7.0f;
+
+				break;
+			case 'i':
+
+				tu = 10.0f;
+				tv = 7.0f;
+
+				break;
+			case 'j':
+
+				tu = 11.0f;
+				tv = 7.0f;
+
+				break;
+
+			case 'k':
+
+				tu = 12.0f;
+				tv = 7.0f;
+
+				break;
+
+			case 'l':
+
+				tu = 13.0f;
+				tv = 7.0f;
+
+				break;
+
+			case 'm':
+
+				tu = 14.0f;
+				tv = 7.0f;
+
+				break;
+			case 'n':
+
+				tu = 15.0f;
+				tv = 7.0f;
+
+				break;
+
+			case 'o':
+
+				tu = 16.0f;
+				tv = 7.0f;
+
+				break;
+			case 'p':
+
+				tu = 1.0f;
+				tv = 8.0f;
+
+				break;
+			case 'q':
+
+				tu = 2.0f;
+				tv = 8.0f;
+
+				break;
+			case 'r':
+
+				tu = 3.0f;
+				tv = 8.0f;
+
+				break;
+			case 's':
+
+				tu = 4.0f;
+				tv = 8.0f;
+
+				break;
+			case 't':
+
+				tu = 5.0f;
+				tv = 8.0f;
+
+				break;
+			case 'u':
+
+				tu = 6.0f;
+				tv = 8.0f;
+
+				break;
+			case 'v':
+
+				tu = 7.0f;
+				tv = 8.0f;
+
+				break;
+			case 'w':
+
+				tu = 8.0f;
+				tv = 8.0f;
+
+				break;
+			case 'x':
+
+				tu = 9.0f;
+				tv = 8.0f;
+
+				break;
+			case 'y':
+
+				tu = 10.0f;
+				tv = 8.0f;
+
+				break;
+			case 'z':
+
+				tu = 11.0f;
+				tv = 8.0f;
+
+				break;
+
+			case ' ':
+
+				tu = 1.0f;
+				tv = 3.0f;
+				break;
+			case '|':
+
+				tu = 1.0f;
+				tv = 1.0f;
+				break;
+			case '`':
+
+				tu = 2.0f;
+				tv = 1.0f;
+				break;
+			default:
+				tu = 2.0f;
+				tv = 9.0f;
+
+				break;
+			}
+
+			if (j == 0)
+				itrue = (float)-i - 1;
+			else
+				itrue = (float)i;
+
+			if (flip == 1)
+			{
+				flip = 2;
+				adjust = 2.0f;
+			}
+
+			float amount = 1.5f;
+
+			if (j == 0)
+			{
+				adjust += amount;
+			}
+			else
+			{
+				adjust -= amount;
+			}
+
+			long currentcolour = 0;
+			currentcolour = RGBA_MAKE(255, 255, 255, 0);
+
+			RGBA_MAKE(0, 0, 0, 0);
+
+
+			adjust = 0;
+
+			//m_BackgroundMesh[countdisplay] = D3DVERTEX(D3DVECTOR(0, 0, 0.99f), 0.5f, -1, 0, tuad * tu, tvad * (tv - 1.0f));
+
+			//m_BackgroundMesh[countdisplay].sx = (x + (itrue * fontsize)) + adjust;
+			//m_BackgroundMesh[countdisplay].sy = y;
+
+			bubble[countdisplay].x = (x + (itrue * fontsize)) + adjust;
+			bubble[countdisplay].y = y;
+			bubble[countdisplay].tu = tuad * tu;
+			bubble[countdisplay].tv = tvad * (tv - 1.0f);
+
+			bubble[countdisplay].z = 0;
+
+			countdisplay++;
+			//m_BackgroundMesh[countdisplay] = D3DTLVERTEX(D3DVECTOR(0, 0, 0.99f), 0.5f, -1, 0, tuad * tu, tvad * tv);
+
+			//m_BackgroundMesh[countdisplay].sx = (x + (itrue * fontsize)) + adjust;
+			//m_BackgroundMesh[countdisplay].sy = y - fontsize;
+
+			bubble[countdisplay].x = (x + (itrue * fontsize)) + adjust;
+			bubble[countdisplay].y = y - fontsize;
+			bubble[countdisplay].tu = tuad * tu;
+			bubble[countdisplay].tv = tvad * tv;
+			bubble[countdisplay].z = 0;
+
+			countdisplay++;
+
+			//m_BackgroundMesh[countdisplay] = D3DTLVERTEX(D3DVECTOR(0, 0, 0.99f), 0.5f, -1, 0, tuad * (tu - 1.0f), tvad * (tv - 1.0f));
+			//m_BackgroundMesh[countdisplay].sx = (x + fontsize + (itrue * fontsize)) + adjust;
+			//m_BackgroundMesh[countdisplay].sy = y;
+
+			bubble[countdisplay].x = (x + fontsize + (itrue * fontsize)) + adjust;
+			bubble[countdisplay].y = y;
+			bubble[countdisplay].tu = tuad * (tu - 1.0f);
+			bubble[countdisplay].tv = tvad * (tv - 1.0f);
+			bubble[countdisplay].z = 0;
+
+			countdisplay++;
+
+			//m_BackgroundMesh[countdisplay] = D3DTLVERTEX(D3DVECTOR(0, 0, 0.99f), 0.5f, -1, 0, tuad * (tu - 1.0f), tvad * tv);
+			//m_BackgroundMesh[countdisplay].sx = (x + fontsize + (itrue * fontsize)) + adjust;
+			//m_BackgroundMesh[countdisplay].sy = y - fontsize;
+
+			bubble[countdisplay].x = (x + fontsize + (itrue * fontsize)) + adjust;
+			bubble[countdisplay].y = y - fontsize;
+			bubble[countdisplay].tu = tuad * (tu - 1.0f);
+			bubble[countdisplay].tv = tvad * tv;
+			bubble[countdisplay].z = 0;
+
+			countdisplay++;
+		}
+	}
+}
