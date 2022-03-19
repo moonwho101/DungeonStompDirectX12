@@ -217,12 +217,14 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 }
 
 
-void DungeonStompApp::RenderRectangle(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
+void DungeonStompApp::RenderRectangle(Font font, int textureid, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
 {
 	// clear the depth buffer so we can draw over everything
 	//mCommandList->ClearDepthStencilView(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
 	//mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+	std::wstring text = L"A";
 
 	// set the rectangle pipeline state object
 	mCommandList->SetPipelineState(rectanglePSO);
@@ -239,7 +241,7 @@ void DungeonStompApp::RenderRectangle(Font font, std::wstring text, XMFLOAT2 pos
 	//mCommandList->SetGraphicsRootDescriptorTable(3, font.srvHandle);
 
 	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-	tex.Offset(111, mCbvSrvDescriptorSize);
+	tex.Offset(textureid, mCbvSrvDescriptorSize);
 	mCommandList->SetGraphicsRootDescriptorTable(3, tex);
 
 	float topLeftScreenX = (pos.x * 2.0f) - 1.0f;
@@ -432,7 +434,7 @@ void DungeonStompApp::DisplayHud() {
 	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.30f, 0.30f)); //, XMFLOAT2(0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f));
 	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(-0.45f, 0.35f), XMFLOAT2(34.00f, 34.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 	
-	RenderRectangle(arialFont, charToWChar(junk), XMFLOAT2(0.5f, 0.5f), XMFLOAT2(4.00f, 4.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	RenderRectangle(arialFont, 355, XMFLOAT2(0.02f, 0.74f), XMFLOAT2(6.00f, 6.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	//sprintf_s(junk, "Area: ");
 	//display_message(0.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 255, 255, 0, 12.5, 16, 0);
