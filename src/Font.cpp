@@ -227,7 +227,7 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 }
 
 
-void DungeonStompApp::RenderRectangle(Font font, int textureid, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
+void DungeonStompApp::RenderRectangle(Font font, int index, int textureid, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
 {
 	// clear the depth buffer so we can draw over everything
 	//mCommandList->ClearDepthStencilView(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
@@ -245,7 +245,7 @@ void DungeonStompApp::RenderRectangle(Font font, int textureid, XMFLOAT2 pos, XM
 
 
 	// set the rectangle vertex buffer
-	mCommandList->IASetVertexBuffers(0, 1, &rectangleVertexBufferView);
+	mCommandList->IASetVertexBuffers(0, 1, &rectangleVertexBufferView[0]);
 
 	// bind the rectangle srv. We will assume the correct descriptor heap and table are currently bound and set
 	//mCommandList->SetGraphicsRootDescriptorTable(3, font.srvHandle);
@@ -264,7 +264,7 @@ void DungeonStompApp::RenderRectangle(Font font, int textureid, XMFLOAT2 pos, XM
 	float verticalPadding = (font.toppadding + font.bottompadding) * padding.y;
 
 	// cast the gpu virtual address to a textvertex, so we can directly store our vertices there
-	TextVertex* vert = (TextVertex*)rectangleVBGPUAddress;
+	TextVertex* vert = (TextVertex*)rectangleVBGPUAddress[0];
 
 	wchar_t lastChar = -1; // no last character to start with
 
@@ -444,7 +444,8 @@ void DungeonStompApp::DisplayHud() {
 	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.30f, 0.30f)); //, XMFLOAT2(0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f));
 	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(-0.45f, 0.35f), XMFLOAT2(34.00f, 34.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 	
-	RenderRectangle(arialFont, 355, XMFLOAT2(0.02f, 0.74f), XMFLOAT2(6.00f, 6.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	RenderRectangle(arialFont, 0, 355, XMFLOAT2(0.02f, 0.74f), XMFLOAT2(6.00f, 6.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	RenderRectangle(arialFont, 1, 355, XMFLOAT2(0.5f, 0.5f), XMFLOAT2(6.00f, 6.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	//sprintf_s(junk, "Area: ");
 	//display_message(0.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 255, 255, 0, 12.5, 16, 0);

@@ -127,10 +127,13 @@ bool DungeonStompApp::Initialize()
 	textVertexBufferView.SizeInBytes = maxNumTextCharacters * sizeof(TextVertex);
 
 	//Set the Rectangle Buffer
-	rectangleVertexBufferView.BufferLocation = rectangleVertexBuffer->GetGPUVirtualAddress();
-	rectangleVertexBufferView.StrideInBytes = sizeof(TextVertex);
-	rectangleVertexBufferView.SizeInBytes = maxNumRectangleCharacters * sizeof(TextVertex);
 
+	for (int i = 0; i < 3; ++i)
+	{
+		rectangleVertexBufferView[i].BufferLocation = rectangleVertexBuffer[i]->GetGPUVirtualAddress();
+		rectangleVertexBufferView[i].StrideInBytes = sizeof(TextVertex);
+		rectangleVertexBufferView[i].SizeInBytes = maxNumRectangleCharacters * sizeof(TextVertex);
+	}
 	// Wait until initialization is complete.
 	FlushCommandQueue();
 
@@ -1460,26 +1463,29 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	hr = textVertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&textVBGPUAddress));
 
 
-	// create upload heap. We will fill this with data for our text
-	hr = md3dDevice->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
-		D3D12_HEAP_FLAG_NONE, // no flags
-		&CD3DX12_RESOURCE_DESC::Buffer(maxNumRectangleCharacters * sizeof(TextVertex)), // resource description for a buffer
-		D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
-		nullptr,
-		IID_PPV_ARGS(&rectangleVertexBuffer));
-	//if (FAILED(hr))
-	//{
-	//	Running = false;
-	//	return false;
-	//}
-	rectangleVertexBuffer->SetName(L"Rectangle Vertex Buffer Upload Resource Heap");
+	for (int i = 0; i < 3; ++i)
+	{
 
-	
-	CD3DX12_RANGE readRange2(0, 0);
-	// map the resource heap to get a gpu virtual address to the beginning of the heap
-	hr = rectangleVertexBuffer->Map(0, &readRange2, reinterpret_cast<void**>(&rectangleVBGPUAddress));
+		// create upload heap. We will fill this with data for our text
+		hr = md3dDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
+			D3D12_HEAP_FLAG_NONE, // no flags
+			&CD3DX12_RESOURCE_DESC::Buffer(maxNumRectangleCharacters * sizeof(TextVertex)), // resource description for a buffer
+			D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
+			nullptr,
+			IID_PPV_ARGS(&rectangleVertexBuffer[i]));
+		//if (FAILED(hr))
+		//{
+		//	Running = false;
+		//	return false;
+		//}
+		rectangleVertexBuffer[i]->SetName(L"Rectangle Vertex Buffer Upload Resource Heap");
 
+
+		CD3DX12_RANGE readRange2(0, 0);
+		// map the resource heap to get a gpu virtual address to the beginning of the heap
+		hr = rectangleVertexBuffer[i]->Map(0, &readRange2, reinterpret_cast<void**>(&rectangleVBGPUAddress[i]));
+	}
 
 
 }
