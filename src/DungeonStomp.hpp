@@ -147,9 +147,9 @@ private:
 	UINT8* textVBGPUAddress;
 	D3D12_VERTEX_BUFFER_VIEW textVertexBufferView; // a view for our text vertex buffer
 
-	ID3D12Resource* rectangleVertexBuffer[3];
-	UINT8* rectangleVBGPUAddress[3];
-	D3D12_VERTEX_BUFFER_VIEW rectangleVertexBufferView[3]; // a view for our text vertex buffer
+	ID3D12Resource* rectangleVertexBuffer[MaxRectangle];
+	UINT8* rectangleVBGPUAddress[MaxRectangle];
+	D3D12_VERTEX_BUFFER_VIEW rectangleVertexBufferView[MaxRectangle]; // a view for our text vertex buffer
 	
 
 };

@@ -47,7 +47,7 @@ extern int number_of_tex_aliases;
 static wchar_t* charToWChar(const char* text);
 ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
 extern ID3D12PipelineState* textPSO; // pso containing a pipeline state
-extern ID3D12PipelineState* rectanglePSO; // pso containing a pipeline state
+extern ID3D12PipelineState* rectanglePSO[MaxRectangle]; // pso containing a pipeline state
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
@@ -127,7 +127,7 @@ bool DungeonStompApp::Initialize()
 
 	//Set the Rectangle Buffer
 
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < MaxRectangle; ++i)
 	{
 		rectangleVertexBufferView[i].BufferLocation = rectangleVertexBuffer[i]->GetGPUVirtualAddress();
 		rectangleVertexBufferView[i].StrideInBytes = sizeof(TextVertex);
@@ -799,45 +799,48 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 		//	return false;
 	}
 
+	for (int i = 0; i < MaxRectangle; i++) {
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC rectanglepsoDesc = {};
+		rectanglepsoDesc.InputLayout = textInputLayoutDesc;
+		rectanglepsoDesc.pRootSignature = mRootSignature.Get();
+		rectanglepsoDesc.VS = rectangleVertexShaderBytecode;
+		rectanglepsoDesc.PS = rectanglePixelShaderBytecode;
+		rectanglepsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		rectanglepsoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		rectanglepsoDesc.SampleDesc = sampleDesc;
+		rectanglepsoDesc.SampleMask = 0xffffffff;
+		rectanglepsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC rectanglepsoDesc = {};
-	rectanglepsoDesc.InputLayout = textInputLayoutDesc;
-	rectanglepsoDesc.pRootSignature = mRootSignature.Get();
-	rectanglepsoDesc.VS = rectangleVertexShaderBytecode;
-	rectanglepsoDesc.PS = rectanglePixelShaderBytecode;
-	rectanglepsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	rectanglepsoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	rectanglepsoDesc.SampleDesc = sampleDesc;
-	rectanglepsoDesc.SampleMask = 0xffffffff;
-	rectanglepsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		D3D12_BLEND_DESC rectangleBlendStateDesc = {};
+		rectangleBlendStateDesc.AlphaToCoverageEnable = FALSE;
+		rectangleBlendStateDesc.IndependentBlendEnable = FALSE;
+		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
 
-	D3D12_BLEND_DESC rectangleBlendStateDesc = {};
-	rectangleBlendStateDesc.AlphaToCoverageEnable = FALSE;
-	rectangleBlendStateDesc.IndependentBlendEnable = FALSE;
-	rectangleBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
+		rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+		rectangleBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 
-	rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
-	rectangleBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+		rectangleBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+		rectangleBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
+		rectangleBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 
-	rectangleBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
-	rectangleBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
-	rectangleBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		rectangleBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-	rectangleBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+		rectanglepsoDesc.BlendState = rectangleBlendStateDesc;
+		rectanglepsoDesc.NumRenderTargets = 1;
+		D3D12_DEPTH_STENCIL_DESC rectangleDepthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		rectangleDepthStencilDesc.DepthEnable = false;
+		rectanglepsoDesc.DepthStencilState = rectangleDepthStencilDesc;
 
-	rectanglepsoDesc.BlendState = rectangleBlendStateDesc;
-	rectanglepsoDesc.NumRenderTargets = 1;
-	D3D12_DEPTH_STENCIL_DESC rectangleDepthStencilDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	rectangleDepthStencilDesc.DepthEnable = false;
-	rectanglepsoDesc.DepthStencilState = rectangleDepthStencilDesc;
 
-	// create the text pso
-	hr = md3dDevice->CreateGraphicsPipelineState(&rectanglepsoDesc, IID_PPV_ARGS(&rectanglePSO));
-	if (FAILED(hr))
-	{
-		//	Running = false;
-		//	return false;
+
+		// create the rectangle pso
+		hr = md3dDevice->CreateGraphicsPipelineState(&rectanglepsoDesc, IID_PPV_ARGS(&rectanglePSO[i]));
+		if (FAILED(hr))
+		{
+			//	Running = false;
+			//	return false;
+		}
 	}
 
 }
@@ -1462,7 +1465,7 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	hr = textVertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&textVBGPUAddress));
 
 
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < MaxRectangle; ++i)
 	{
 
 		// create upload heap. We will fill this with data for our text

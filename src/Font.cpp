@@ -22,7 +22,7 @@ extern char gfinaltext[2048];
 int numCharacters = 0;
 extern ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap;
 ID3D12PipelineState* textPSO; // pso containing a pipeline state
-ID3D12PipelineState* rectanglePSO; // pso containing a pipeline state
+ID3D12PipelineState* rectanglePSO[MaxRectangle]; // pso containing a pipeline state
 
 Font arialFont; // this will store our arial font information
 static wchar_t* charToWChar(const char* text);
@@ -239,7 +239,7 @@ void DungeonStompApp::RenderRectangle(Font font, int index, int textureid, XMFLO
 	std::wstring text = L"A";
 
 	// set the rectangle pipeline state object
-	mCommandList->SetPipelineState(rectanglePSO);
+	mCommandList->SetPipelineState(rectanglePSO[index]);
 
 	// this way we only need 4 vertices per quad rather than 6 if we were to use a triangle list topology
 	mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -247,7 +247,7 @@ void DungeonStompApp::RenderRectangle(Font font, int index, int textureid, XMFLO
 
 
 	// set the rectangle vertex buffer
-	mCommandList->IASetVertexBuffers(0, 1, &rectangleVertexBufferView[0]);
+	mCommandList->IASetVertexBuffers(0, 1, &rectangleVertexBufferView[index]);
 
 	// bind the rectangle srv. We will assume the correct descriptor heap and table are currently bound and set
 	//mCommandList->SetGraphicsRootDescriptorTable(3, font.srvHandle);
@@ -266,7 +266,7 @@ void DungeonStompApp::RenderRectangle(Font font, int index, int textureid, XMFLO
 	float verticalPadding = (font.toppadding + font.bottompadding) * padding.y;
 
 	// cast the gpu virtual address to a textvertex, so we can directly store our vertices there
-	TextVertex* vert = (TextVertex*)rectangleVBGPUAddress[0];
+	TextVertex* vert = (TextVertex*)rectangleVBGPUAddress[index];
 
 	wchar_t lastChar = -1; // no last character to start with
 
@@ -451,10 +451,13 @@ void DungeonStompApp::DisplayHud() {
 	SetDiceTexture(false);
 	
 	int diceTexture = FindTextureAlias(dice[0].name);
-	RenderRectangle(arialFont, 1, diceTexture, XMFLOAT2(0.5f, 0.5f), XMFLOAT2(2.00f, 2.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	RenderRectangle(arialFont, 1, diceTexture, XMFLOAT2(0.475f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	diceTexture = FindTextureAlias(dice[1].name);
-	RenderRectangle(arialFont, 2, diceTexture, XMFLOAT2(0.8f, 0.5f), XMFLOAT2(2.00f, 2.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	RenderRectangle(arialFont, 2, diceTexture, XMFLOAT2(0.525f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+
+	diceTexture = FindTextureAlias(dice[1].name);
+	RenderRectangle(arialFont, 3, diceTexture, XMFLOAT2(0.625f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	//sprintf_s(junk, "Area: ");
 	//display_message(0.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 255, 255, 0, 12.5, 16, 0);
