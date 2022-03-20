@@ -1519,7 +1519,7 @@ void DrawItems()
 				m_vEyePt.z - item_list[i].z);
 
 
-			if (qdist < 11600.0f) {
+			if (qdist < 600.0f) {
 
 				cullflag = 0;
 				for (int cullloop = 0; cullloop < monstercount; cullloop++)
@@ -1533,7 +1533,7 @@ void DrawItems()
 
 				if (item_list[i].monsterid == 9999 && item_list[i].bIsPlayerAlive == TRUE)
 					cullflag = 1;
-				cullflag = 1;
+				
 
 				if (cullflag == 1)
 				{
@@ -1551,7 +1551,7 @@ void DrawItems()
 					//	monsteron = CalculateView(realEye, work1, 20.0f);
 					//else
 					monsteron = CalculateView(m_vEyePt, work1, 60.0f, true);
-					monsteron = 1;
+
 
 					if (monsteron)
 					{
