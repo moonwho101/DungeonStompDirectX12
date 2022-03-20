@@ -394,8 +394,8 @@ Alias  131   flamesword           OPAQUE  WHOLE
 AddTexture  ..\textures\weapons\icesword.dds
 Alias  132   icesword           OPAQUE  WHOLE
 
-AddTexture  ..\textures\weapons\knight.dds
-Alias  133   knight           OPAQUE  WHOLE
+AddTexture  ..\textures\weapons\bluetile1.dds
+Alias  133   bluetileback           OPAQUE  WHOLE
 
 AddTexture  ..\textures\weapons\lightning_sword.dds
 Alias  134   lightning_sword           OPAQUE  WHOLE
