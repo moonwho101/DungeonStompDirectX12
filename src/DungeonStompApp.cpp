@@ -32,7 +32,7 @@ extern Font arialFont; // this will store our arial font information
 extern int maxNumTextCharacters;
 extern int maxNumRectangleCharacters;
 
-extern POLY_SORT ObjectsToDraw[200000];
+extern POLY_SORT ObjectsToDraw[MAX_NUM_QUADS];
 extern BOOL* dp_command_index_mode;
 extern int cnt;
 extern D3DVERTEX* src_v;
@@ -925,7 +925,8 @@ void DungeonStompApp::BuildWavesGeometryBuffers()
 		}
 	}
 
-	UINT vbByteSize = mWaves->VertexCount() * sizeof(Vertex);
+	//UINT vbByteSize = mWaves->VertexCount() * sizeof(Vertex);
+	UINT vbByteSize = MAX_NUM_QUADS * sizeof(Vertex);
 	UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
 	auto geo = std::make_unique<MeshGeometry>();

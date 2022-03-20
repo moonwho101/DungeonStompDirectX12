@@ -13,7 +13,7 @@
 float wWidth = 1;
 float wHeight = 1;
 int num_players2 = 0;
-POLY_SORT ObjectsToDraw[200000];
+POLY_SORT ObjectsToDraw[MAX_NUM_QUADS];
 
 PLAYER* monster_list;
 OBJECTLIST* oblist;

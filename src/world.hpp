@@ -5,7 +5,9 @@
 #include <windows.h>
 #include <windowsx.h>
 #include "d3dtypes.h"
+#include "GlobalSettings.hpp"
 #include <DirectXMath.h>
+
 using namespace DirectX;
 
 #define MAX_NUM_TEXTURES 400
@@ -446,7 +448,7 @@ extern float rotatex;
 extern float rotatey;
 extern OBJECTLIST* oblist;
 extern TEXTUREMAPPING TexMap[MAX_NUM_TEXTURES];
-extern POLY_SORT ObjectsToDraw[200000];
+extern POLY_SORT ObjectsToDraw[MAX_NUM_QUADS];
 extern int countboundingbox;
 extern MODELLIST* model_list;
 extern GUNLIST* your_gun;

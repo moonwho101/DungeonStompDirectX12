@@ -1,4 +1,5 @@
 #include "FrameResource.h"
+#include "GlobalSettings.hpp"
 
 FrameResource::FrameResource(ID3D12Device* device, UINT passCount, UINT objectCount, UINT materialCount, UINT waveVertCount)
 {
@@ -13,7 +14,7 @@ FrameResource::FrameResource(ID3D12Device* device, UINT passCount, UINT objectCo
 
     //WavesVB = std::make_unique<UploadBuffer<Vertex>>(device, waveVertCount, false);
 
-    WavesVB = std::make_unique<UploadBuffer<Vertex>>(device, 200000, false);
+    WavesVB = std::make_unique<UploadBuffer<Vertex>>(device, MAX_NUM_QUADS, false);
 }
 
 FrameResource::~FrameResource()
