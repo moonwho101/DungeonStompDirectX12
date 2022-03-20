@@ -11,6 +11,7 @@
 #include "GameLogic.hpp"
 #include "DungeonStomp.hpp"
 #include "ProcessModel.hpp"
+#include "Dice.hpp"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -58,7 +59,8 @@ extern int countmodtime;
 extern FLOAT LevelModLastTime;
 extern int countswitches;
 extern SWITCHMOD* switchmodify;
-
+void SetDiceTexture(bool showroll);
+int FindTextureAlias(char* alias);
 
 Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 {
@@ -445,7 +447,11 @@ void DungeonStompApp::DisplayHud() {
 	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(-0.45f, 0.35f), XMFLOAT2(34.00f, 34.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 	
 	RenderRectangle(arialFont, 0, 355, XMFLOAT2(0.02f, 0.74f), XMFLOAT2(6.00f, 6.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
-	RenderRectangle(arialFont, 1, 355, XMFLOAT2(0.5f, 0.5f), XMFLOAT2(6.00f, 6.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+
+	SetDiceTexture(false);
+	
+	int diceTexture = FindTextureAlias(dice[0].name);
+	RenderRectangle(arialFont, 1, diceTexture, XMFLOAT2(0.5f, 0.5f), XMFLOAT2(6.00f, 6.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	//sprintf_s(junk, "Area: ");
 	//display_message(0.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 255, 255, 0, 12.5, 16, 0);
@@ -589,6 +595,13 @@ void DungeonStompApp::DisplayHud() {
 		if (count >= scrolllistnum)
 			flag = 0;
 	}
+
+
+
+	
+
+
+
 
 }
 

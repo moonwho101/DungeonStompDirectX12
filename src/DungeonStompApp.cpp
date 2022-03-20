@@ -42,7 +42,6 @@ extern int displayCaptureIndex[1000];
 extern int displayCaptureCount[1000];
 extern int displayCapture;
 
-
 std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
 extern int number_of_tex_aliases;
 static wchar_t* charToWChar(const char* text);
