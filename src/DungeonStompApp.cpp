@@ -1604,9 +1604,18 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 
 			//woodCrateTex->Filename = charToWChar(f);
 
-			ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+			DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
 				mCommandList.Get(), woodCrateTex->Filename.c_str(),
-				woodCrateTex->Resource, woodCrateTex->UploadHeap));
+				woodCrateTex->Resource, woodCrateTex->UploadHeap);
+
+
+			if (woodCrateTex->Resource == NULL) {
+				woodCrateTex->Filename = charToWChar("../Textures2/WoodCrate01.dds");
+				DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+					mCommandList.Get(), woodCrateTex->Filename.c_str(),
+					woodCrateTex->Resource, woodCrateTex->UploadHeap);
+			}
+
 
 			//auto woodCrateTex2 = woodCrateTex->Resource;
 
