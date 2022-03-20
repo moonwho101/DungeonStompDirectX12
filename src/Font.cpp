@@ -451,7 +451,10 @@ void DungeonStompApp::DisplayHud() {
 	SetDiceTexture(false);
 	
 	int diceTexture = FindTextureAlias(dice[0].name);
-	RenderRectangle(arialFont, 1, diceTexture, XMFLOAT2(0.5f, 0.5f), XMFLOAT2(6.00f, 6.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	RenderRectangle(arialFont, 1, diceTexture, XMFLOAT2(0.5f, 0.5f), XMFLOAT2(2.00f, 2.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+
+	diceTexture = FindTextureAlias(dice[1].name);
+	RenderRectangle(arialFont, 2, diceTexture, XMFLOAT2(0.8f, 0.5f), XMFLOAT2(2.00f, 2.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	//sprintf_s(junk, "Area: ");
 	//display_message(0.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 255, 255, 0, 12.5, 16, 0);
