@@ -98,6 +98,7 @@ Source: "D:\github\DungeonStompDX12\bin\level8.mod"; DestDir: "{app}\bin"; Flags
 Source: "D:\github\DungeonStompDX12\bin\level9.cmp"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "D:\github\DungeonStompDX12\bin\level9.map"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "D:\github\DungeonStompDX12\bin\level9.mod"; DestDir: "{app}\bin"; Flags: ignoreversion
+Source: "D:\github\DungeonStompDX12\bin\Arial.fnt"; DestDir: "{app}\bin"; Flags: ignoreversion
 
 Source: "D:\github\DungeonStompDX12\packages\Microsoft.XAudio2.Redist.1.2.8\build\native\release\bin\x64\xaudio2_9redist.dll"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "D:\github\DungeonStompDX12\bin\ui\arrow.x"; DestDir: "{app}\bin\ui"; Flags: ignoreversion
