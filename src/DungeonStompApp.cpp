@@ -1383,10 +1383,7 @@ void DungeonStompApp::LoadTextures()
 {
 	auto woodCrateTex = std::make_unique<Texture>();
 	woodCrateTex->Name = "woodCrateTex";
-	//woodCrateTex->Filename = L"../../Textures/WoodCrate01.dds";
-	//woodCrateTex->Filename = L"./Textures/eye.dds";
-	//woodCrateTex->Filename = L"./Textures/bricks2.dds";
-	woodCrateTex->Filename = L"../Textures/goblin.dds";
+	woodCrateTex->Filename = L"../Textures/bricks2.dds";
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
 		mCommandList.Get(), woodCrateTex->Filename.c_str(),
 		woodCrateTex->Resource, woodCrateTex->UploadHeap));
@@ -1394,10 +1391,7 @@ void DungeonStompApp::LoadTextures()
 
 	auto grassTex = std::make_unique<Texture>();
 	grassTex->Name = "grassTex";
-	//grassTex->Filename = L"../../Textures/grass.dds";
-	//grassTex->Filename = L"./Textures/bricks2.dds";
-	//grassTex->Filename = L"./Textures/goblin.dds";
-	grassTex->Filename = L"../Textures2/WoodCrate01.dds";
+	grassTex->Filename = L"../Textures/WoodCrate01.dds";
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
 		mCommandList.Get(), grassTex->Filename.c_str(),
 		grassTex->Resource, grassTex->UploadHeap));
@@ -1570,10 +1564,6 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 				exists = false;
 			}
 
-			//if (tex_counter == 301) {
-			//	int test = 1;
-			//}
-
 			auto woodCrateTex = std::make_unique<Texture>();
 			woodCrateTex->Name = p;
 
@@ -1581,28 +1571,8 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 				woodCrateTex->Filename = charToWChar(f);
 			}
 			else {
-				woodCrateTex->Filename = charToWChar("../Textures2/WoodCrate01.dds");
-				//woodCrateTex->Filename = charToWChar("./Textures/goblin.dds");
+				woodCrateTex->Filename = charToWChar("../Textures/WoodCrate01.dds");
 			}
-
-			//if (flip == 0) {
-			//	woodCrateTex->Filename = charToWChar("./Textures/goblin.dds");
-			//	flip = 1;
-			//}
-			//else {
-			//	woodCrateTex->Filename = charToWChar("../../Textures/WoodCrate01.dds");
-			//	flip = 0;
-			//}
-
-			//if (strcmp(p, "goblin") == 0) {
-			//	//woodCrateTex->Filename = charToWChar(f);
-			//	woodCrateTex->Filename = charToWChar("./Textures/goblin.dds");
-			//}
-			//else {
-			//	woodCrateTex->Filename = charToWChar("../../Textures/WoodCrate01.dds");
-			//}
-
-			//woodCrateTex->Filename = charToWChar(f);
 
 			DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
 				mCommandList.Get(), woodCrateTex->Filename.c_str(),
@@ -1610,7 +1580,7 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 
 
 			if (woodCrateTex->Resource == NULL) {
-				woodCrateTex->Filename = charToWChar("../Textures2/WoodCrate01.dds");
+				woodCrateTex->Filename = charToWChar("../Textures/WoodCrate01.dds");
 				DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
 					mCommandList.Get(), woodCrateTex->Filename.c_str(),
 					woodCrateTex->Resource, woodCrateTex->UploadHeap);
