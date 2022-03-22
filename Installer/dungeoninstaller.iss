@@ -645,6 +645,7 @@ Source: "D:\github\DungeonStompDX12\Textures\fonts\font_big.dds"; DestDir: "{app
 Source: "D:\github\DungeonStompDX12\Textures\fonts\font_med.dds"; DestDir: "{app}\Textures\fonts"; Flags: ignoreversion
 Source: "D:\github\DungeonStompDX12\Textures\fonts\font_small.dds"; DestDir: "{app}\Textures\fonts"; Flags: ignoreversion
 Source: "D:\github\DungeonStompDX12\Textures\fonts\fontA.dds"; DestDir: "{app}\Textures\fonts"; Flags: ignoreversion
+Source: "D:\github\DungeonStompDX12\Textures\fonts\fontB.dds"; DestDir: "{app}\Textures\fonts"; Flags: ignoreversion
 Source: "D:\github\DungeonStompDX12\Textures\house1\housef.dds"; DestDir: "{app}\Textures\house1"; Flags: ignoreversion
 Source: "D:\github\DungeonStompDX12\Textures\house1\housel.dds"; DestDir: "{app}\Textures\house1"; Flags: ignoreversion
 Source: "D:\github\DungeonStompDX12\Textures\house1\houser.dds"; DestDir: "{app}\Textures\house1"; Flags: ignoreversion
