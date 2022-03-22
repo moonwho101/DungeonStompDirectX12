@@ -653,7 +653,7 @@ void ApplyMissleDamage(int playernum)
 					{
 						//its a monsters missle
 						your_missle[misslecount].active = 2;
-						/*
+						
 						int volume;
 						volume = 100 - (int)((100 * your_missle[misslecount].qdist) / ((numberofsquares * monsterdist) / 2));
 
@@ -716,7 +716,7 @@ void ApplyMissleDamage(int playernum)
 						}
 
 						ApplyPlayerDamage(trueplayernum, raction);
-						*/
+						
 					}
 				}
 			}
