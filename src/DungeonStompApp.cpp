@@ -113,7 +113,7 @@ bool DungeonStompApp::Initialize()
 
 	InitDS();
 
-	arialFont = LoadFont(L"Arial.fnt", 800,600);
+	arialFont = LoadFont(L"Arial.fnt", 800, 600);
 
 	// Execute the initialization commands.
 	ThrowIfFailed(mCommandList->Close());
@@ -301,6 +301,7 @@ void DungeonStompApp::OnMouseMove(WPARAM btnState, int x, int y)
 
 void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 {
+	/*
 	const float dt = gt.DeltaTime();
 
 	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
@@ -316,6 +317,7 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 		mSunPhi += 1.0f * dt;
 
 	mSunPhi = MathHelper::Clamp(mSunPhi, 0.1f, XM_PIDIV2);
+	*/
 }
 
 void DungeonStompApp::UpdateCamera(const GameTimer& gt)
@@ -355,8 +357,6 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	//D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
 	//D3DXMATRIXA16 matView;
 	//D3DXMatrixLookAtLH(&matView, &vEyePt, &vLookatPt, &vUpVec);
-
-
 }
 
 
@@ -655,7 +655,7 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	//mShaders["textVS"] = d3dUtil::CompileShader(L"..\\Shaders\\test.hlsl", nullptr, "VS", "vs_5_0");
 	//mShaders["textPS"] = d3dUtil::CompileShader(L"..\\Shaders\\test.hlsl", nullptr, "PS", "ps_5_0");
 
-// Text PSO
+	// Text PSO
 	ID3DBlob* errorBuff; // a buffer holding the error data if any
 	// compile vertex shader
 	ID3DBlob* textVertexShader; // d3d blob for holding vertex shader bytecode
@@ -758,7 +758,6 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	DXGI_SAMPLE_DESC sampleDesc = {};
 	sampleDesc.Count = 1; // multisample count (no multisampling, so we just put 1, since we still need 1 sample)
 
-
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC textpsoDesc = {};
 	textpsoDesc.InputLayout = textInputLayoutDesc;
 	textpsoDesc.pRootSignature = mRootSignature.Get();
@@ -838,8 +837,6 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 		rectangleDepthStencilDesc.DepthEnable = false;
 		rectanglepsoDesc.DepthStencilState = rectangleDepthStencilDesc;
 
-
-
 		// create the rectangle pso
 		hr = md3dDevice->CreateGraphicsPipelineState(&rectanglepsoDesc, IID_PPV_ARGS(&rectanglePSO[i]));
 		if (FAILED(hr))
@@ -848,7 +845,6 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 			//	return false;
 		}
 	}
-
 }
 
 void DungeonStompApp::BuildLandGeometry()
@@ -1139,8 +1135,6 @@ extern SCROLLLISTING scrolllist1[50];
 
 void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
-	
-	
 
 	ProcessLights11();
 
@@ -1166,8 +1160,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	//	cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
 	//	//cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
-
-
 	//}
 
 	auto ri = ritems[2];
@@ -1193,9 +1185,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
 	cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
-
-
-
 
 	int currentObject = 0;
 	for (currentObject = 0; currentObject < number_of_polys_per_frame; currentObject++)
@@ -1235,7 +1224,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 			cmdList->DrawInstanced(v, 1, vert_index, 0);
 		}
 	}
-
 
 	bool draw = false;
 	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
@@ -1438,7 +1426,6 @@ void DungeonStompApp::BuildDescriptorHeaps()
 
 	md3dDevice->CreateShaderResourceView(woodCrateTex.Get(), &srvDesc, hDescriptor);
 
-
 	hDescriptor.Offset(1, mCbvSrvDescriptorSize);
 
 	srvDesc.Format = grassTex->GetDesc().Format;
@@ -1465,7 +1452,6 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	// map the resource heap to get a gpu virtual address to the beginning of the heap
 	hr = textVertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&textVBGPUAddress));
 
-
 	for (int i = 0; i < MaxRectangle; ++i)
 	{
 
@@ -1489,8 +1475,6 @@ void DungeonStompApp::BuildDescriptorHeaps()
 		// map the resource heap to get a gpu virtual address to the beginning of the heap
 		hr = rectangleVertexBuffer[i]->Map(0, &readRange2, reinterpret_cast<void**>(&rectangleVBGPUAddress[i]));
 	}
-
-
 }
 
 
@@ -1769,6 +1753,11 @@ static wchar_t* charToWChar(const char* text)
 
 void DungeonStompApp::ProcessLights11()
 {
+	//P = pointlight, M = misslelight, C = sword light S = spotlight
+	//12345678901234567890 
+	//01234567890123456789
+	//PPPPPPPPPPPMMMMCSSSS
+
 	int sort[200];
 	float dist[200];
 	int obj[200];
@@ -1830,11 +1819,6 @@ void DungeonStompApp::ProcessLights11()
 
 		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 10.0f, oblist[q].z };
 	}
-
-	//P = pointlight, M = misslelight, C = sword light S = spotlight
-	//12345678901234567890 
-	//01234567890123456789
-	//PPPPPPPPPPPMMMMCSSSS
 
 	int count = 0;
 
