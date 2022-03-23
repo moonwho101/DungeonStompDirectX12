@@ -24,7 +24,7 @@ VS_OUTPUT main(VS_INPUT input, uint vertexID : SV_VertexID)
 
 	// set the position for the vertex based on which vertex it is (uv)
 	output.pos = float4(input.pos.x + (input.pos.z * uv.x), input.pos.y - (input.pos.w * uv.y), 0, 1);
-	//output.color = input.color;
+	output.color = input.color;
 
 	// set the texture coordinate based on which vertex it is (uv)
 	output.texCoord = float2(input.texCoord.x + (input.texCoord.z * uv.x), input.texCoord.y + (input.texCoord.w * uv.y));
