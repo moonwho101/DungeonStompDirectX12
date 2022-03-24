@@ -1241,15 +1241,24 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		int texture_number = TexMap[texture_alias_number].texture;
 
 		auto t = TexMap[texture_number].material;
+
+		//grass
+		//brick
+		//stone
+		//tile
+
+		UINT a = mMaterials["brick"].get()->MatCBIndex;
 		
-		UINT a = mMaterials[t].get()->MatCBIndex;
+		if (currentObject % 2) {
+			a = 0;
+		}
+		else {
+			
+			a = 5;
+		}
+
 		
-		//if (currentObject % 2) {
-		//	a = TexMap[texture_number].material;
-		//}
-		//else {
-		//	a = 0;
-		//}
+
 
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
 		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + a * matCBByteSize;
