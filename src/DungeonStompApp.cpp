@@ -1072,64 +1072,103 @@ void DungeonStompApp::BuildFrameResources()
 
 void DungeonStompApp::BuildMaterials()
 {
+	auto default = std::make_unique<Material>();
+	default->Name = "default";
+	default->MatCBIndex = 1;
+	default->DiffuseSrvHeapIndex = 0;
+	default->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f);
+	default->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	default->Roughness = 0.5f;
+
+
 	auto grass = std::make_unique<Material>();
 	grass->Name = "grass";
 	grass->MatCBIndex = 0;
 	grass->DiffuseAlbedo = XMFLOAT4(2.0f, 2.0f, 2.0f, 1.0f);
-	grass->FresnelR0 = XMFLOAT3(0.00f, 0.00f, 0.00f);
-	grass->Roughness = 0.4f;
+	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	grass->Roughness = 0.125f;
 
 	// This is not a good water material definition, but we do not have all the rendering
 	// tools we need (transparency, environment reflection), so we fake it for now.
 	auto water = std::make_unique<Material>();
 	water->Name = "water";
-	water->MatCBIndex = 1;
+	water->MatCBIndex = 2;
 	water->DiffuseSrvHeapIndex = 0;
 	water->DiffuseAlbedo = XMFLOAT4(0.0f, 0.0f, 1.0f, 0.0f);
-	water->FresnelR0 = XMFLOAT3(0.3f, 0.3f, 0.3f);
-	water->Roughness = 0.5f;
+	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	water->Roughness = 0.0f;
+
+	auto brick = std::make_unique<Material>();
+	brick->Name = "brick";
+	brick->MatCBIndex = 3;
+	brick->DiffuseSrvHeapIndex = 0;
+	brick->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	brick->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	brick->Roughness = 0.1f;
 
 	auto stone = std::make_unique<Material>();
-	stone->Name = "DEFAULT";
-	stone->MatCBIndex = 2;
+	stone->Name = "stone";
+	stone->MatCBIndex = 4;
 	stone->DiffuseSrvHeapIndex = 0;
-	stone->DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f);
-	stone->FresnelR0 = XMFLOAT3(0.3f, 0.3f, 0.3f);
-	stone->Roughness = 0.5f;
+	stone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	stone->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	stone->Roughness = 0.3f;
 
-	auto bricks0 = std::make_unique<Material>();
-	bricks0->Name = "brick";
-	bricks0->MatCBIndex = 3;
-	bricks0->DiffuseSrvHeapIndex = 0;
-	bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	bricks0->Roughness = 0.1f;
+	auto tile = std::make_unique<Material>();
+	tile->Name = "tile";
+	tile->MatCBIndex = 5;
+	tile->DiffuseSrvHeapIndex = 0;
+	tile->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	tile->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	tile->Roughness = 0.3f;
 
-	auto stone0 = std::make_unique<Material>();
-	stone0->Name = "stone";
-	stone0->MatCBIndex = 4;
-	stone0->DiffuseSrvHeapIndex = 0;
-	stone0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	stone0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	stone0->Roughness = 0.3f;
+	auto crate = std::make_unique<Material>();
+	crate->Name = "crate";
+	crate->MatCBIndex = 6;
+	crate->DiffuseSrvHeapIndex = 0;
+	crate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	crate->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	crate->Roughness = 0.2f;
 
-	auto tile0 = std::make_unique<Material>();
-	tile0->Name = "tile";
-	tile0->MatCBIndex = 5;
-	tile0->DiffuseSrvHeapIndex = 0;
-	tile0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	tile0->Roughness = 0.3f;
+	auto ice = std::make_unique<Material>();
+	ice->Name = "ice";
+	ice->MatCBIndex = 7;
+	ice->DiffuseSrvHeapIndex = 0;
+	ice->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	ice->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	ice->Roughness = 0.0f;
 
+	auto bone = std::make_unique<Material>();
+	bone->Name = "bone";
+	bone->MatCBIndex = 8;
+	bone->DiffuseSrvHeapIndex = 0;
+	bone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	bone->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	bone->Roughness = 0.5f;
 
+	mMaterials["default"] = std::move(default);
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
-	mMaterials["DEFAULT"] = std::move(stone);
 
-	mMaterials["brick"] = std::move(bricks0);
-	mMaterials["stone"] = std::move(stone0);
-	mMaterials["tile"] = std::move(tile0);
+	mMaterials["brick"] = std::move(brick);
+	mMaterials["stone"] = std::move(stone);
+	mMaterials["tile"] = std::move(tile);
 
+	mMaterials["crate"] = std::move(crate);
+	mMaterials["ice"] = std::move(ice);
+	mMaterials["bone"] = std::move(bone);
+
+	//  default
+	//	grass
+	//	water
+
+	//	brick
+	//	stone
+	//	tile
+
+	//	crate
+	//	ice
+	//	bone
 
 }
 
@@ -1242,31 +1281,37 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 		auto t = TexMap[texture_number].material;
 
-		//grass
-		//brick
-		//stone
-		//tile
+		//default
+		//	grass
+		//	water
 
-		UINT a = mMaterials["brick"].get()->MatCBIndex;
-		
-		if (currentObject % 2) {
-			a = 0;
-		}
-		else {
-			
-			a = 3;
-		}
+		//	brick
+		//	stone
+		//	tile
 
-		a = 0;
+		//	crate
+		//	ice
+		//	bone
+
+
+		UINT materialIndex = mMaterials["brick"].get()->MatCBIndex;
+		//
+		//if (currentObject % 2) {
+		//	a = 0;
+		//}
+		//else {
+		//	
+		//	a = 3;
+		//}
+
+		//a = 0;
 
 
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
-		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + a * matCBByteSize;
+		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + materialIndex * matCBByteSize;
 
 		cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
 		cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
-
-
 
 		//if (texture_number == 111) {
 		CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
