@@ -1150,7 +1150,7 @@ void DungeonStompApp::BuildMaterials()
 	metal->Name = "metal";
 	metal->MatCBIndex = 9;
 	metal->DiffuseSrvHeapIndex = 0;
-	metal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	metal->DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 	metal->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
 	metal->Roughness = 0.7f;
 
@@ -1166,7 +1166,7 @@ void DungeonStompApp::BuildMaterials()
 	wood->Name = "wood";
 	wood->MatCBIndex = 11;
 	wood->DiffuseSrvHeapIndex = 0;
-	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	wood->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
 	wood->Roughness = 0.6f;
 
@@ -1279,8 +1279,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	auto test = mMaterials["grass"].get();
 	auto test2 = mMaterials["water"].get();
 
-	
-
 	//cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
 	//cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
@@ -1311,17 +1309,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		//  wood
 
 		UINT materialIndex = mMaterials[textureType].get()->MatCBIndex;
-		//
-		//if (currentObject % 2) {
-		//	a = 0;
-		//}
-		//else {
-		//	
-		//	a = 3;
-		//}
-
-		//a = 0;
-
 
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
 		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + materialIndex * matCBByteSize;
@@ -1356,6 +1343,18 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 			cmdList->DrawInstanced(v, 1, vert_index, 0);
 		}
 	}
+
+
+	UINT materialIndex = mMaterials["default"].get()->MatCBIndex;
+
+	D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
+	D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + materialIndex * matCBByteSize;
+
+	cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+	cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
+
+
+
 
 	bool draw = false;
 	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
