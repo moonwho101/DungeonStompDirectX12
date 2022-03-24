@@ -1110,7 +1110,7 @@ void DungeonStompApp::BuildMaterials()
 	stone->Name = "stone";
 	stone->MatCBIndex = 4;
 	stone->DiffuseSrvHeapIndex = 0;
-	stone->DiffuseAlbedo = XMFLOAT4(2.0f, 2.0f, 2.0f, 1.0f);
+	stone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	stone->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
 	stone->Roughness = 0.3f;
 
