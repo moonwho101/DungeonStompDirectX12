@@ -1075,7 +1075,7 @@ void DungeonStompApp::BuildMaterials()
 	auto grass = std::make_unique<Material>();
 	grass->Name = "grass";
 	grass->MatCBIndex = 0;
-	grass->DiffuseAlbedo = XMFLOAT4(0.2f, 0.6f, 0.2f, 1.0f);
+	grass->DiffuseAlbedo = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	grass->Roughness = 0.125f;
 
@@ -1085,13 +1085,52 @@ void DungeonStompApp::BuildMaterials()
 	water->Name = "water";
 	water->MatCBIndex = 1;
 	water->DiffuseSrvHeapIndex = 0;
-	water->DiffuseAlbedo = XMFLOAT4(2.0f, 2.0f, 2.0f, 2.0f);
+	water->DiffuseAlbedo = XMFLOAT4(0.0f, 0.0f, 1.0f, 0.0f);
 	water->FresnelR0 = XMFLOAT3(0.3f, 0.3f, 0.3f);
-
 	water->Roughness = 0.5f;
+
+	auto stone = std::make_unique<Material>();
+	stone->Name = "DEFAULT";
+	stone->MatCBIndex = 2;
+	stone->DiffuseSrvHeapIndex = 0;
+	stone->DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f);
+	stone->FresnelR0 = XMFLOAT3(0.3f, 0.3f, 0.3f);
+	stone->Roughness = 0.5f;
+
+	auto bricks0 = std::make_unique<Material>();
+	bricks0->Name = "brick";
+	bricks0->MatCBIndex = 3;
+	bricks0->DiffuseSrvHeapIndex = 0;
+	bricks0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	bricks0->Roughness = 0.1f;
+
+	auto stone0 = std::make_unique<Material>();
+	stone0->Name = "stone";
+	stone0->MatCBIndex = 4;
+	stone0->DiffuseSrvHeapIndex = 0;
+	stone0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	stone0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	stone0->Roughness = 0.3f;
+
+	auto tile0 = std::make_unique<Material>();
+	tile0->Name = "tile";
+	tile0->MatCBIndex = 5;
+	tile0->DiffuseSrvHeapIndex = 0;
+	tile0->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	tile0->Roughness = 0.3f;
+
 
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
+	mMaterials["DEFAULT"] = std::move(stone);
+
+	mMaterials["brick"] = std::move(bricks0);
+	mMaterials["stone"] = std::move(stone0);
+	mMaterials["tile"] = std::move(tile0);
+
+
 }
 
 void DungeonStompApp::BuildRenderItems()
@@ -1180,15 +1219,19 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-	D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
-	D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex * matCBByteSize;
 
-	cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-	cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
+	auto test = mMaterials["grass"].get();
+	auto test2 = mMaterials["water"].get();
+
+	
+
+	//cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+	//cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
 	int currentObject = 0;
 	for (currentObject = 0; currentObject < number_of_polys_per_frame; currentObject++)
 	{
+
 		int i = ObjectsToDraw[currentObject].vert_index;
 		int vert_index = ObjectsToDraw[currentObject].srcstart;
 		int fperpoly = (float)ObjectsToDraw[currentObject].srcfstart;
@@ -1196,6 +1239,25 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 		int texture_alias_number = texture_list_buffer[i];
 		int texture_number = TexMap[texture_alias_number].texture;
+
+		auto t = TexMap[texture_number].material;
+		
+		UINT a = mMaterials[t].get()->MatCBIndex;
+		
+		//if (currentObject % 2) {
+		//	a = TexMap[texture_number].material;
+		//}
+		//else {
+		//	a = 0;
+		//}
+
+		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
+		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + a * matCBByteSize;
+
+		cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+		cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
+
+
 
 		//if (texture_number == 111) {
 		CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
@@ -1716,6 +1778,10 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 			if (strcmp(p, "BR_TRI") == 0)
 			{
 			}
+
+
+			fscanf_s(fp, "%s", &p, 256);
+			strcpy_s((char*)TexMap[tex_alias_counter].material, 100, (char*)&p);
 
 			tex_alias_counter++;
 			found = TRUE;
