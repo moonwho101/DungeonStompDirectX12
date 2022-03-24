@@ -1150,7 +1150,7 @@ void DungeonStompApp::BuildMaterials()
 	metal->Name = "metal";
 	metal->MatCBIndex = 9;
 	metal->DiffuseSrvHeapIndex = 0;
-	metal->DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	metal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	metal->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
 	metal->Roughness = 0.7f;
 
@@ -1166,7 +1166,7 @@ void DungeonStompApp::BuildMaterials()
 	wood->Name = "wood";
 	wood->MatCBIndex = 11;
 	wood->DiffuseSrvHeapIndex = 0;
-	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	wood->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
 	wood->Roughness = 0.6f;
 
