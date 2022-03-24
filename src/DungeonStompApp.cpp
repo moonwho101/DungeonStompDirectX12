@@ -1076,8 +1076,8 @@ void DungeonStompApp::BuildMaterials()
 	grass->Name = "grass";
 	grass->MatCBIndex = 0;
 	grass->DiffuseAlbedo = XMFLOAT4(2.0f, 2.0f, 2.0f, 1.0f);
-	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	grass->Roughness = 0.1f;
+	grass->FresnelR0 = XMFLOAT3(0.00f, 0.00f, 0.00f);
+	grass->Roughness = 0.4f;
 
 	// This is not a good water material definition, but we do not have all the rendering
 	// tools we need (transparency, environment reflection), so we fake it for now.
@@ -1857,8 +1857,8 @@ void DungeonStompApp::ProcessLights11()
 		float	qdist = FastDistance(m_vEyePt.x - oblist[q].x,
 			m_vEyePt.y - oblist[q].y,
 			m_vEyePt.z - oblist[q].z);
-		//if (ob_type == 57)
-		if (ob_type == 6 && qdist < 2500 && oblist[q].light_source->command == 900)
+		if (ob_type == 57)
+		//if (ob_type == 6 && qdist < 2500 && oblist[q].light_source->command == 900)
 		{
 			dist[dcount] = qdist;
 			sort[dcount] = dcount;
@@ -1892,7 +1892,7 @@ void DungeonStompApp::ProcessLights11()
 		int angle = (int)oblist[q].rot_angle;
 		int ob_type = oblist[q].type;
 
-		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 70.0f, oblist[q].z };
+		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 65.0f, oblist[q].z };
 	}
 
 	int count = 0;
@@ -1902,6 +1902,9 @@ void DungeonStompApp::ProcessLights11()
 		if (your_missle[misslecount].active == 1)
 		{
 			if (count < 4) {
+
+				float r = MathHelper::RandF(10.0f, 100.0f);
+
 				LightContainer[11 + count].Position = DirectX::XMFLOAT3{ your_missle[misslecount].x, your_missle[misslecount].y, your_missle[misslecount].z };
 				LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 0.0f, 0.0f, 1.0f };
 				LightContainer[11 + count].FalloffStart = 200.0f;
