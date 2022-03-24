@@ -1074,7 +1074,7 @@ void DungeonStompApp::BuildMaterials()
 {
 	auto default = std::make_unique<Material>();
 	default->Name = "default";
-	default->MatCBIndex = 1;
+	default->MatCBIndex = 0;
 	default->DiffuseSrvHeapIndex = 0;
 	default->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f);
 	default->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
@@ -1083,7 +1083,7 @@ void DungeonStompApp::BuildMaterials()
 
 	auto grass = std::make_unique<Material>();
 	grass->Name = "grass";
-	grass->MatCBIndex = 0;
+	grass->MatCBIndex = 1;
 	grass->DiffuseAlbedo = XMFLOAT4(2.0f, 2.0f, 2.0f, 1.0f);
 	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	grass->Roughness = 0.125f;
@@ -1146,6 +1146,31 @@ void DungeonStompApp::BuildMaterials()
 	bone->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
 	bone->Roughness = 0.5f;
 
+	auto metal = std::make_unique<Material>();
+	metal->Name = "metal";
+	metal->MatCBIndex = 9;
+	metal->DiffuseSrvHeapIndex = 0;
+	metal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	metal->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	metal->Roughness = 0.7f;
+
+	auto glass = std::make_unique<Material>();
+	glass->Name = "glass";
+	glass->MatCBIndex = 10;
+	glass->DiffuseSrvHeapIndex = 0;
+	glass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	glass->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	glass->Roughness = 0.7f;
+
+	auto wood = std::make_unique<Material>();
+	wood->Name = "wood";
+	wood->MatCBIndex = 11;
+	wood->DiffuseSrvHeapIndex = 0;
+	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	wood->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	wood->Roughness = 0.6f;
+
+
 	mMaterials["default"] = std::move(default);
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
@@ -1157,18 +1182,10 @@ void DungeonStompApp::BuildMaterials()
 	mMaterials["crate"] = std::move(crate);
 	mMaterials["ice"] = std::move(ice);
 	mMaterials["bone"] = std::move(bone);
+	mMaterials["metal"] = std::move(metal);
 
-	//  default
-	//	grass
-	//	water
-
-	//	brick
-	//	stone
-	//	tile
-
-	//	crate
-	//	ice
-	//	bone
+	mMaterials["glass"] = std::move(glass);
+	mMaterials["wood"] = std::move(wood);
 
 }
 
@@ -1279,22 +1296,21 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		int texture_alias_number = texture_list_buffer[i];
 		int texture_number = TexMap[texture_alias_number].texture;
 
-		auto t = TexMap[texture_number].material;
+		auto textureType = TexMap[texture_number].material;
 
-		//default
+		//  default
 		//	grass
 		//	water
-
 		//	brick
 		//	stone
 		//	tile
-
 		//	crate
 		//	ice
 		//	bone
+		//  metal
+		//  wood
 
-
-		UINT materialIndex = mMaterials["brick"].get()->MatCBIndex;
+		UINT materialIndex = mMaterials[textureType].get()->MatCBIndex;
 		//
 		//if (currentObject % 2) {
 		//	a = 0;
