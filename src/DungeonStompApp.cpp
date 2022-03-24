@@ -1084,7 +1084,7 @@ void DungeonStompApp::BuildMaterials()
 	auto grass = std::make_unique<Material>();
 	grass->Name = "grass";
 	grass->MatCBIndex = 1;
-	grass->DiffuseAlbedo = XMFLOAT4(2.0f, 2.0f, 2.0f, 1.0f);
+	grass->DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	grass->Roughness = 0.125f;
 
@@ -1094,7 +1094,7 @@ void DungeonStompApp::BuildMaterials()
 	water->Name = "water";
 	water->MatCBIndex = 2;
 	water->DiffuseSrvHeapIndex = 0;
-	water->DiffuseAlbedo = XMFLOAT4(0.0f, 0.0f, 1.0f, 0.0f);
+	water->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
 	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	water->Roughness = 0.0f;
 
