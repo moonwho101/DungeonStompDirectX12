@@ -1075,9 +1075,9 @@ void DungeonStompApp::BuildMaterials()
 	auto grass = std::make_unique<Material>();
 	grass->Name = "grass";
 	grass->MatCBIndex = 0;
-	grass->DiffuseAlbedo = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	grass->DiffuseAlbedo = XMFLOAT4(2.0f, 2.0f, 2.0f, 1.0f);
 	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	grass->Roughness = 0.125f;
+	grass->Roughness = 0.1f;
 
 	// This is not a good water material definition, but we do not have all the rendering
 	// tools we need (transparency, environment reflection), so we fake it for now.
@@ -1254,10 +1254,10 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		}
 		else {
 			
-			a = 5;
+			a = 3;
 		}
 
-		
+		a = 0;
 
 
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
@@ -1892,7 +1892,7 @@ void DungeonStompApp::ProcessLights11()
 		int angle = (int)oblist[q].rot_angle;
 		int ob_type = oblist[q].type;
 
-		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 10.0f, oblist[q].z };
+		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 70.0f, oblist[q].z };
 	}
 
 	int count = 0;
