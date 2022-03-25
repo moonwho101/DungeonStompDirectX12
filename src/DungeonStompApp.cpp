@@ -2069,10 +2069,10 @@ void DungeonStompApp::ProcessLights11()
 
 		LightContainer[i + 16].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 0.0f, oblist[q].z };
 		LightContainer[i + 16].Strength = DirectX::XMFLOAT3{ (float)oblist[q].light_source->rcolour, (float)oblist[q].light_source->gcolour, (float)oblist[q].light_source->bcolour };
-		LightContainer[i + 16].FalloffStart = 550.0f;
+		LightContainer[i + 16].FalloffStart = 600.0f;
 		LightContainer[i + 16].Direction = { oblist[q].light_source->direction_x, oblist[q].light_source->direction_y, oblist[q].light_source->direction_z };
-		LightContainer[i + 16].FalloffEnd = 600.0f;
-		LightContainer[i + 16].SpotPower = 1.0f;
+		LightContainer[i + 16].FalloffEnd = 650.0f;
+		LightContainer[i + 16].SpotPower = 10.0f;
 	}
 }
 
