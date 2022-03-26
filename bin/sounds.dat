@@ -124,4 +124,5 @@ MID	forest		..\midi\forest.wav
 MID	human		..\midi\human.wav
 MID	home		..\midi\home.wav
 MID	time2		..\midi\time2.wav
+MID	corvalis	..\midi\corvalis.wav
 END_FILE
