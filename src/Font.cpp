@@ -3,7 +3,7 @@
 #include "../Common/UploadBuffer.h"
 #include "../Common/GeometryGenerator.h"
 #include "FrameResource.h"
-#include "Waves.h"
+#include "Dungeon.h"
 #include <d3dtypes.h>
 #include "world.hpp"
 #include "GlobalSettings.hpp"

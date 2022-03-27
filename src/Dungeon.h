@@ -1,24 +1,16 @@
-//***************************************************************************************
-// Waves.h by Frank Luna (C) 2011 All Rights Reserved.
-//
-// Performs the calculations for the wave simulation.  After the simulation has been
-// updated, the client must copy the current solution into vertex buffers for rendering.
-// This class only does the calculations, it does not do any drawing.
-//***************************************************************************************
-
-#ifndef WAVES_H
-#define WAVES_H
+#ifndef DUNGEON_H
+#define DUNGEON_H
 
 #include <vector>
 #include <DirectXMath.h>
 
-class Waves
+class Dungeon
 {
 public:
-    Waves(int m, int n, float dx, float dt, float speed, float damping);
-    Waves(const Waves& rhs) = delete;
-    Waves& operator=(const Waves& rhs) = delete;
-    ~Waves();
+    Dungeon(int m, int n, float dx, float dt, float speed, float damping);
+    Dungeon(const Dungeon& rhs) = delete;
+    Dungeon& operator=(const Dungeon& rhs) = delete;
+    ~Dungeon();
 
 	int RowCount()const;
 	int ColumnCount()const;
@@ -60,4 +52,4 @@ private:
     std::vector<DirectX::XMFLOAT3> mTangentX;
 };
 
-#endif // WAVES_H
+#endif // DUNGEON_H

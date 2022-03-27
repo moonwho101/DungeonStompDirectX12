@@ -7,7 +7,7 @@
 #include "../Common/UploadBuffer.h"
 #include "../Common/GeometryGenerator.h"
 #include "FrameResource.h"
-#include "Waves.h"
+#include "Dungeon.h"
 #include <d3dtypes.h>
 #include "world.hpp"
 #include "GlobalSettings.hpp"
@@ -95,7 +95,7 @@ bool DungeonStompApp::Initialize()
 	// to query this information.
 	mCbvSrvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
-	mWaves = std::make_unique<Waves>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
+	mDungeon = std::make_unique<Dungeon>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
 
 	LoadTextures();
 	BuildRootSignature();
@@ -180,7 +180,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 	UpdateObjectCBs(gt);
 	UpdateMaterialCBs(gt);
 	UpdateMainPassCB(gt);
-	UpdateWaves(gt);
+	UpdateDungeon(gt);
 }
 
 void DungeonStompApp::Draw(const GameTimer& gt)
@@ -459,47 +459,34 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 }
 
 
-void DungeonStompApp::UpdateWaves(const GameTimer& gt)
+void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 {
 
 	DisplayPlayerCaption();
 
-	// Every quarter second, generate a random wave.
-	static float t_base = 0.0f;
-	if ((mTimer.TotalTime() - t_base) >= 0.25f)
-	{
-		t_base += 0.25f;
+	//// Every quarter second, generate a random wave.
+	//static float t_base = 0.0f;
+	//if ((mTimer.TotalTime() - t_base) >= 0.25f)
+	//{
+	//	t_base += 0.25f;
 
-		int i = MathHelper::Rand(4, mWaves->RowCount() - 5);
-		int j = MathHelper::Rand(4, mWaves->ColumnCount() - 5);
+	//	int i = MathHelper::Rand(4, mDungeon->RowCount() - 5);
+	//	int j = MathHelper::Rand(4, mDungeon->ColumnCount() - 5);
 
-		float r = MathHelper::RandF(0.2f, 0.5f);
+	//	float r = MathHelper::RandF(0.2f, 0.5f);
 
-		mWaves->Disturb(i, j, r);
-	}
+	//	mDungeon->Disturb(i, j, r);
+	//}
 
-	// Update the wave simulation.
-	mWaves->Update(gt.DeltaTime());
+	//// Update the wave simulation.
+	//mDungeon->Update(gt.DeltaTime());
 
 	// Update the wave vertex buffer with the new solution.
 	auto currWavesVB = mCurrFrameResource->WavesVB.get();
-	for (int i = 0; i < mWaves->VertexCount(); ++i)
-	{
-		Vertex v;
-
-		v.Pos = mWaves->Position(i);
-		v.Normal = mWaves->Normal(i);
-
-
-		//currWavesVB->CopyData(i, v);
-	}
-
-	Vertex v;// [20000] ;
+	Vertex v;
 
 	for (int j = 0; j < cnt; j++)
 	{
-		//D3DXVECTOR3 a = D3DXVECTOR3(src_v[j].x, src_v[j].y, src_v[j].z);
-
 		v.Pos.x = src_v[j].x;
 		v.Pos.y = src_v[j].y;
 		v.Pos.z = src_v[j].z;
@@ -512,11 +499,7 @@ void DungeonStompApp::UpdateWaves(const GameTimer& gt)
 		v.TexC.y = src_v[j].tv;
 
 		currWavesVB->CopyData(j, v);
-
-		//v[j].tu = src_v[j].tu;
-		//v[j].tv = src_v[j].tv;
 	}
-
 
 	// Set the dynamic VB of the wave renderitem to the current frame VB.
 	mWavesRitem->Geo->VertexBufferGPU = currWavesVB->Resource();
@@ -904,12 +887,12 @@ void DungeonStompApp::BuildLandGeometry()
 
 void DungeonStompApp::BuildWavesGeometryBuffers()
 {
-	std::vector<std::uint16_t> indices(3 * mWaves->TriangleCount()); // 3 indices per face
-	assert(mWaves->VertexCount() < 0x0000ffff);
+	std::vector<std::uint16_t> indices(3 * mDungeon->TriangleCount()); // 3 indices per face
+	assert(mDungeon->VertexCount() < 0x0000ffff);
 
 	// Iterate over each quad.
-	int m = mWaves->RowCount();
-	int n = mWaves->ColumnCount();
+	int m = mDungeon->RowCount();
+	int n = mDungeon->ColumnCount();
 	int k = 0;
 	for (int i = 0; i < m - 1; ++i)
 	{
@@ -1066,7 +1049,7 @@ void DungeonStompApp::BuildFrameResources()
 	for (int i = 0; i < gNumFrameResources; ++i)
 	{
 		mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(),
-			1, (UINT)mAllRitems.size(), (UINT)mMaterials.size(), mWaves->VertexCount()));
+			1, (UINT)mAllRitems.size(), (UINT)mMaterials.size(), mDungeon->VertexCount()));
 	}
 }
 

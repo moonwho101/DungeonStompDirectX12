@@ -24,7 +24,7 @@
     <ClCompile Include="DungeonStompApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Waves.cpp">
+    <ClCompile Include="Dungeon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="col_response.cpp">
@@ -98,7 +98,7 @@
     <ClInclude Include="FrameResource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Waves.h">
+    <ClInclude Include="Dungeon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="d3dutil.h">

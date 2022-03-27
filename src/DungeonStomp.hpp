@@ -69,7 +69,7 @@ private:
 	void UpdateObjectCBs(const GameTimer& gt);
 	void UpdateMaterialCBs(const GameTimer& gt);
 	void UpdateMainPassCB(const GameTimer& gt);
-	void UpdateWaves(const GameTimer& gt);
+	void UpdateDungeon(const GameTimer& gt);
 
 	void BuildRootSignature();
 	void BuildShadersAndInputLayout();
@@ -124,7 +124,7 @@ private:
 	// Render items divided by PSO.
 	std::vector<RenderItem*> mRitemLayer[(int)RenderLayer::Count];
 
-	std::unique_ptr<Waves> mWaves;
+	std::unique_ptr<Dungeon> mDungeon;
 
 	PassConstants mMainPassCB;
 

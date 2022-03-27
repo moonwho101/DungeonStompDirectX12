@@ -2,7 +2,7 @@
 // Waves.cpp by Frank Luna (C) 2011 All Rights Reserved.
 //***************************************************************************************
 
-#include "Waves.h"
+#include "Dungeon.h"
 #include <ppl.h>
 #include <algorithm>
 #include <vector>
@@ -10,7 +10,7 @@
 
 using namespace DirectX;
 
-Waves::Waves(int m, int n, float dx, float dt, float speed, float damping)
+Dungeon::Dungeon(int m, int n, float dx, float dt, float speed, float damping)
 {
     mNumRows = m;
     mNumCols = n;
@@ -51,41 +51,41 @@ Waves::Waves(int m, int n, float dx, float dt, float speed, float damping)
     }
 }
 
-Waves::~Waves()
+Dungeon::~Dungeon()
 {
 }
 
-int Waves::RowCount()const
+int Dungeon::RowCount()const
 {
 	return mNumRows;
 }
 
-int Waves::ColumnCount()const
+int Dungeon::ColumnCount()const
 {
 	return mNumCols;
 }
 
-int Waves::VertexCount()const
+int Dungeon::VertexCount()const
 {
 	return mVertexCount;
 }
 
-int Waves::TriangleCount()const
+int Dungeon::TriangleCount()const
 {
 	return mTriangleCount;
 }
 
-float Waves::Width()const
+float Dungeon::Width()const
 {
 	return mNumCols*mSpatialStep;
 }
 
-float Waves::Depth()const
+float Dungeon::Depth()const
 {
 	return mNumRows*mSpatialStep;
 }
 
-void Waves::Update(float dt)
+void Dungeon::Update(float dt)
 {
 	static float t = 0;
 
@@ -154,7 +154,7 @@ void Waves::Update(float dt)
 	}
 }
 
-void Waves::Disturb(int i, int j, float magnitude)
+void Dungeon::Disturb(int i, int j, float magnitude)
 {
 	// Don't disturb boundaries.
 	assert(i > 1 && i < mNumRows-2);

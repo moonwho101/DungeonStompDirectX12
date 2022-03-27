@@ -166,7 +166,7 @@
     <ClCompile Include="LoadWorld.cpp" />
     <ClCompile Include="Missle.cpp" />
     <ClCompile Include="ProcessModel.cpp" />
-    <ClCompile Include="Waves.cpp" />
+    <ClCompile Include="Dungeon.cpp" />
     <ClCompile Include="WAVFileReader.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="XAudio2BasicSound.cpp" />
@@ -197,7 +197,7 @@
     <ClInclude Include="Missle.hpp" />
     <ClInclude Include="ProcessModel.hpp" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Waves.h" />
+    <ClInclude Include="Dungeon.h" />
     <ClInclude Include="WAVFileReader.h" />
     <ClInclude Include="world.hpp" />
     <ClInclude Include="XAudio2Versions.h" />
