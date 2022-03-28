@@ -1255,17 +1255,19 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 
 		draw = true;
 
-		if (texture_number >= 94 && texture_number <= 101 ||
-			texture_number >= 289 - 1 && texture_number <= 296 - 1 ||
-			texture_number >= 279 - 1 && texture_number <= 288 - 1 ||
-			texture_number >= 206 - 1 && texture_number <= 210 - 1) {
+		if (isAlpha) {
+			if (texture_number >= 94 && texture_number <= 101 ||
+				texture_number >= 289 - 1 && texture_number <= 296 - 1 ||
+				texture_number >= 279 - 1 && texture_number <= 288 - 1 ||
+				texture_number >= 206 - 1 && texture_number <= 210 - 1) {
 
-			if (isAlpha && !isTorch) {
-				draw = false;
-			}
+				if (isAlpha && !isTorch) {
+					draw = false;
+				}
 
-			if (isAlpha && isTorch) {
-				draw = true;
+				if (isAlpha && isTorch) {
+					draw = true;
+				}
 			}
 		}
 
