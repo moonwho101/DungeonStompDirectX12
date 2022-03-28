@@ -74,7 +74,7 @@ private:
 	void BuildRootSignature();
 	void BuildShadersAndInputLayout();
 	void BuildLandGeometry();
-	void BuildWavesGeometryBuffers();
+	void BuildDungeonGeometryBuffers();
 	void BuildPSOs();
 	void BuildFrameResources();
 	void BuildMaterials();

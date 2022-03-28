@@ -102,7 +102,7 @@ bool DungeonStompApp::Initialize()
 	BuildDescriptorHeaps();
 	BuildShadersAndInputLayout();
 	BuildLandGeometry();
-	BuildWavesGeometryBuffers();
+	BuildDungeonGeometryBuffers();
 	BuildMaterials();
 	BuildRenderItems();
 	BuildRenderItems();
@@ -865,7 +865,7 @@ void DungeonStompApp::BuildLandGeometry()
 	mGeometries["landGeo"] = std::move(geo);
 }
 
-void DungeonStompApp::BuildWavesGeometryBuffers()
+void DungeonStompApp::BuildDungeonGeometryBuffers()
 {
 	std::vector<std::uint16_t> indices(3 * mDungeon->TriangleCount()); // 3 indices per face
 	assert(mDungeon->VertexCount() < 0x0000ffff);
@@ -890,7 +890,7 @@ void DungeonStompApp::BuildWavesGeometryBuffers()
 		}
 	}
 
-	//UINT vbByteSize = mWaves->VertexCount() * sizeof(Vertex);
+	//UINT vbByteSize = mDungeon->VertexCount() * sizeof(Vertex);
 	UINT vbByteSize = MAX_NUM_QUADS * sizeof(Vertex);
 	UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
@@ -1154,19 +1154,19 @@ void DungeonStompApp::BuildMaterials()
 
 void DungeonStompApp::BuildRenderItems()
 {
-	auto wavesRitem = std::make_unique<RenderItem>();
-	wavesRitem->World = MathHelper::Identity4x4();
-	wavesRitem->ObjCBIndex = 0;
-	wavesRitem->Mat = mMaterials["water"].get();
-	wavesRitem->Geo = mGeometries["waterGeo"].get();
-	wavesRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-	wavesRitem->IndexCount = wavesRitem->Geo->DrawArgs["grid"].IndexCount;
-	wavesRitem->StartIndexLocation = wavesRitem->Geo->DrawArgs["grid"].StartIndexLocation;
-	wavesRitem->BaseVertexLocation = wavesRitem->Geo->DrawArgs["grid"].BaseVertexLocation;
+	auto dungeonRitem = std::make_unique<RenderItem>();
+	dungeonRitem->World = MathHelper::Identity4x4();
+	dungeonRitem->ObjCBIndex = 0;
+	dungeonRitem->Mat = mMaterials["water"].get();
+	dungeonRitem->Geo = mGeometries["waterGeo"].get();
+	dungeonRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	dungeonRitem->IndexCount = dungeonRitem->Geo->DrawArgs["grid"].IndexCount;
+	dungeonRitem->StartIndexLocation = dungeonRitem->Geo->DrawArgs["grid"].StartIndexLocation;
+	dungeonRitem->BaseVertexLocation = dungeonRitem->Geo->DrawArgs["grid"].BaseVertexLocation;
 
-	mDungeonRitem = wavesRitem.get();
+	mDungeonRitem = dungeonRitem.get();
 
-	mRitemLayer[(int)RenderLayer::Opaque].push_back(wavesRitem.get());
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(dungeonRitem.get());
 
 	auto gridRitem = std::make_unique<RenderItem>();
 	gridRitem->World = MathHelper::Identity4x4();
@@ -1180,7 +1180,7 @@ void DungeonStompApp::BuildRenderItems()
 
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(gridRitem.get());
 
-	mAllRitems.push_back(std::move(wavesRitem));
+	mAllRitems.push_back(std::move(dungeonRitem));
 	mAllRitems.push_back(std::move(gridRitem));
 }
 
