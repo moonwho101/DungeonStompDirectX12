@@ -370,7 +370,7 @@ void ObjectCollision()
 
 	count = 0;
 	vertnum = 4;
-	
+
 	for (i = 0; i < countboundingbox; i++)
 	{
 
@@ -436,9 +436,9 @@ void ObjectCollision()
 			count = 0;
 		}
 
-		
+
 	}
-	
+
 }
 
 void calculate_block_location()

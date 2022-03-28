@@ -1043,7 +1043,6 @@ void DungeonStompApp::BuildMaterials()
 	default->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	default->Roughness = 0.5f;
 
-
 	auto grass = std::make_unique<Material>();
 	grass->Name = "grass";
 	grass->MatCBIndex = 1;
@@ -1051,8 +1050,6 @@ void DungeonStompApp::BuildMaterials()
 	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	grass->Roughness = 0.125f;
 
-	// This is not a good water material definition, but we do not have all the rendering
-	// tools we need (transparency, environment reflection), so we fake it for now.
 	auto water = std::make_unique<Material>();
 	water->Name = "water";
 	water->MatCBIndex = 2;
@@ -1515,42 +1512,42 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 				exists = false;
 			}
 
-			auto woodCrateTex = std::make_unique<Texture>();
-			woodCrateTex->Name = p;
+			auto currentTex = std::make_unique<Texture>();
+			currentTex->Name = p;
 
 			if (exists) {
-				woodCrateTex->Filename = charToWChar(f);
+				currentTex->Filename = charToWChar(f);
 			}
 			else {
-				woodCrateTex->Filename = charToWChar("../Textures/WoodCrate01.dds");
+				currentTex->Filename = charToWChar("../Textures/WoodCrate01.dds");
 			}
 
 			DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-				mCommandList.Get(), woodCrateTex->Filename.c_str(),
-				woodCrateTex->Resource, woodCrateTex->UploadHeap);
+				mCommandList.Get(), currentTex->Filename.c_str(),
+				currentTex->Resource, currentTex->UploadHeap);
 
 
-			if (woodCrateTex->Resource == NULL) {
-				woodCrateTex->Filename = charToWChar("../Textures/WoodCrate01.dds");
+			if (currentTex->Resource == NULL) {
+				currentTex->Filename = charToWChar("../Textures/WoodCrate01.dds");
 				DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
-					mCommandList.Get(), woodCrateTex->Filename.c_str(),
-					woodCrateTex->Resource, woodCrateTex->UploadHeap);
+					mCommandList.Get(), currentTex->Filename.c_str(),
+					currentTex->Resource, currentTex->UploadHeap);
 			}
 
 
 			//auto woodCrateTex2 = woodCrateTex->Resource;
 
 			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-			srvDesc.Format = woodCrateTex->Resource->GetDesc().Format;
+			srvDesc.Format = currentTex->Resource->GetDesc().Format;
 			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 			srvDesc.Texture2D.MostDetailedMip = 0;
-			srvDesc.Texture2D.MipLevels = woodCrateTex->Resource->GetDesc().MipLevels;
+			srvDesc.Texture2D.MipLevels = currentTex->Resource->GetDesc().MipLevels;
 			srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-			srvDesc.Format = woodCrateTex->Resource->GetDesc().Format;
-			md3dDevice->CreateShaderResourceView(woodCrateTex->Resource.Get(), &srvDesc, hDescriptor);
+			srvDesc.Format = currentTex->Resource->GetDesc().Format;
+			md3dDevice->CreateShaderResourceView(currentTex->Resource.Get(), &srvDesc, hDescriptor);
 
-			mTextures[woodCrateTex->Name] = std::move(woodCrateTex);
+			mTextures[currentTex->Name] = std::move(currentTex);
 
 			// next descriptor
 			hDescriptor.Offset(1, mCbvSrvDescriptorSize);
