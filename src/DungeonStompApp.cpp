@@ -1184,13 +1184,6 @@ void DungeonStompApp::BuildRenderItems()
 	mAllRitems.push_back(std::move(gridRitem));
 }
 
-int FindTextureAlias(char* alias);
-
-int itest = 1;
-extern LONGLONG gametimer;
-
-extern SCROLLLISTING scrolllist1[50];
-
 void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
 	ProcessLights11();
@@ -1206,7 +1199,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	tex.Offset(1, mCbvSrvDescriptorSize);
 	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-	//Draw dungeon mosnters and items
+	//Draw dungeon, monsters and items
 	DrawDungeon(cmdList, ritems, false);
 
 	//Draw alpha transparent items
@@ -1216,7 +1209,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	//Draw the torches and effects
 	mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
 	DrawDungeon(cmdList, ritems, true, true);
-
 
 	//Draw the Monster Captions
 	tex.Offset(377, mCbvSrvDescriptorSize);
