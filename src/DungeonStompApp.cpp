@@ -1193,32 +1193,7 @@ extern SCROLLLISTING scrolllist1[50];
 
 void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
-
 	ProcessLights11();
-
-	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
-	UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
-
-	auto objectCB = mCurrFrameResource->ObjectCB->Resource();
-	auto matCB = mCurrFrameResource->MaterialCB->Resource();
-	// i = 2 water
-	// For each render item...
-	//for(size_t i = 0; i < ritems.size(); ++i)
-	//{
-	//	auto ri = ritems[i];
-
-	//	cmdList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
-	//	cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
-	//	cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
-
-	//	D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
-	//	D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex * matCBByteSize;
-
-	//	cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-	//	cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
-
-	//	//cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
-	//}
 
 	auto ri = ritems[2];
 
@@ -1227,209 +1202,23 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
 
 	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-	//tex.Offset(ri->Mat->DiffuseSrvHeapIndex, mCbvSrvDescriptorSize);
-
-	//int a = FindTextureAlias("goblin");
 
 	tex.Offset(1, mCbvSrvDescriptorSize);
-
-	//int size = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);;
-	//tex.Offset(0, size);
-
 	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
+	//Draw dungeon mosnters and items
+	DrawDungeon(cmdList, ritems, false);
 
-	auto test = mMaterials["grass"].get();
-	auto test2 = mMaterials["water"].get();
-
-	//cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-	//cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
-
-	int currentObject = 0;
-	for (currentObject = 0; currentObject < number_of_polys_per_frame; currentObject++)
-	{
-
-		int i = ObjectsToDraw[currentObject].vert_index;
-		int vert_index = ObjectsToDraw[currentObject].srcstart;
-		int fperpoly = (float)ObjectsToDraw[currentObject].srcfstart;
-		int face_index = ObjectsToDraw[currentObject].srcfstart;
-
-		int texture_alias_number = texture_list_buffer[i];
-		int texture_number = TexMap[texture_alias_number].texture;
-
-		auto textureType = TexMap[texture_number].material;
-
-		//  default
-		//	grass
-		//	water
-		//	brick
-		//	stone
-		//	tile
-		//	crate
-		//	ice
-		//	bone
-		//  metal
-		//  wood
-
-		UINT materialIndex = mMaterials[textureType].get()->MatCBIndex;
-
-		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
-		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + materialIndex * matCBByteSize;
-
-		cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-		cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
-
-		//if (texture_number == 111) {
-		CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-		tex.Offset(texture_number, mCbvSrvDescriptorSize);
-		//tex.Offset(111, mCbvSrvDescriptorSize);
-		cmdList->SetGraphicsRootDescriptorTable(3, tex);
-		//}
-
-		if (dp_command_index_mode[i] == 1 && TexMap[texture_alias_number].is_alpha_texture == FALSE) {  //USE_NON_INDEXED_DP
-			//pd3dImmediateContext->PSSetShaderResources(0, 1, &textures[texture_number]);
-			//Draw(currentObject, pd3dImmediateContext, vert_index);
-
-			int  v = verts_per_poly[currentObject];
-
-			if (dp_commands[currentObject] == D3DPT_TRIANGLESTRIP)
-			{
-				cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-				//pd3dImmediateContext->Draw(v, vert_index);
-			}
-			else if (dp_commands[currentObject] == D3DPT_TRIANGLELIST)
-			{
-				cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				//pd3dImmediateContext->Draw(v, vert_index);
-			}
-
-			cmdList->DrawInstanced(v, 1, vert_index, 0);
-		}
-	}
-
-
-	UINT materialIndex = mMaterials["default"].get()->MatCBIndex;
-
-	D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
-	D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + materialIndex * matCBByteSize;
-
-	cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-	cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
-
-
-
-
-	bool draw = false;
+	//Draw alpha transparent items
 	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
-	//mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
+	DrawDungeon(cmdList, ritems, true);
 
-	for (currentObject = 0; currentObject < number_of_polys_per_frame; currentObject++)
-	{
-		int i = ObjectsToDraw[currentObject].vert_index;
-		int vert_index = ObjectsToDraw[currentObject].srcstart;
-		int fperpoly = (float)ObjectsToDraw[currentObject].srcfstart;
-		int face_index = ObjectsToDraw[currentObject].srcfstart;
-
-		int texture_alias_number = texture_list_buffer[i];
-		int texture_number = TexMap[texture_alias_number].texture;
-
-		if (texture_number >= 94 && texture_number <= 101 ||
-			texture_number >= 289 - 1 && texture_number <= 296 - 1 ||
-			texture_number >= 279 - 1 && texture_number <= 288 - 1 ||
-			texture_number >= 206 - 1 && texture_number <= 210 - 1) {
-			draw = false;
-		}
-		else {
-			draw = true;
-		}
-
-		if (draw) {
-			//if (texture_number == 111) {
-			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			tex.Offset(texture_number, mCbvSrvDescriptorSize);
-			//tex.Offset(111, mCbvSrvDescriptorSize);
-			cmdList->SetGraphicsRootDescriptorTable(3, tex);
-			//}
-
-			if (dp_command_index_mode[i] == 1 && TexMap[texture_alias_number].is_alpha_texture == TRUE) {  //USE_NON_INDEXED_DP
-				//pd3dImmediateContext->PSSetShaderResources(0, 1, &textures[texture_number]);
-				//Draw(currentObject, pd3dImmediateContext, vert_index);
-
-				int  v = verts_per_poly[currentObject];
-
-				if (dp_commands[currentObject] == D3DPT_TRIANGLESTRIP)
-				{
-					cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-					//pd3dImmediateContext->Draw(v, vert_index);
-				}
-				else if (dp_commands[currentObject] == D3DPT_TRIANGLELIST)
-				{
-					cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-					//pd3dImmediateContext->Draw(v, vert_index);
-				}
-
-				cmdList->DrawInstanced(v, 1, vert_index, 0);
-			}
-		}
-	}
-
-	//Draw Torch
-	//mCommandList->SetPipelineState(mPSOs["transparent"].Get());
+	//Draw the torches and effects
 	mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
-
-	draw = false;
-
-	for (currentObject = 0; currentObject < number_of_polys_per_frame; currentObject++)
-	{
-		int i = ObjectsToDraw[currentObject].vert_index;
-		int vert_index = ObjectsToDraw[currentObject].srcstart;
-		int fperpoly = (float)ObjectsToDraw[currentObject].srcfstart;
-		int face_index = ObjectsToDraw[currentObject].srcfstart;
-
-		int texture_alias_number = texture_list_buffer[i];
-		int texture_number = TexMap[texture_alias_number].texture;
-
-		if (texture_number >= 94 && texture_number <= 101 ||
-			texture_number >= 289 - 1 && texture_number <= 296 - 1 ||
-			texture_number >= 279 - 1 && texture_number <= 288 - 1 ||
-			texture_number >= 206 - 1 && texture_number <= 210 - 1) {
-			draw = true;
-		}
-		else {
-			draw = false;
-		}
+	DrawDungeon(cmdList, ritems, true, true);
 
 
-
-		if (draw) {
-			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			tex.Offset(texture_number, mCbvSrvDescriptorSize);
-			//tex.Offset(111, mCbvSrvDescriptorSize);
-			cmdList->SetGraphicsRootDescriptorTable(3, tex);
-			//}
-
-			if (dp_command_index_mode[i] == 1 && TexMap[texture_alias_number].is_alpha_texture == TRUE) {  //USE_NON_INDEXED_DP
-				//pd3dImmediateContext->PSSetShaderResources(0, 1, &textures[texture_number]);
-				//Draw(currentObject, pd3dImmediateContext, vert_index);
-
-				int  v = verts_per_poly[currentObject];
-
-				if (dp_commands[currentObject] == D3DPT_TRIANGLESTRIP)
-				{
-					cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-					//pd3dImmediateContext->Draw(v, vert_index);
-				}
-				else if (dp_commands[currentObject] == D3DPT_TRIANGLELIST)
-				{
-					cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-					//pd3dImmediateContext->Draw(v, vert_index);
-				}
-
-				cmdList->DrawInstanced(v, 1, vert_index, 0);
-			}
-		}
-	}
-
+	//Draw the Monster Captions
 	tex.Offset(377, mCbvSrvDescriptorSize);
 	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
@@ -1446,6 +1235,90 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	ScanMod();
 
 	return;
+}
+
+
+void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, bool isAlpha, bool isTorch) {
+
+	auto ri = ritems[2];
+
+	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
+
+	auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+	auto matCB = mCurrFrameResource->MaterialCB->Resource();
+
+	bool draw = true;
+
+	int currentObject = 0;
+	for (currentObject = 0; currentObject < number_of_polys_per_frame; currentObject++)
+	{
+		int i = ObjectsToDraw[currentObject].vert_index;
+		int vert_index = ObjectsToDraw[currentObject].srcstart;
+		int fperpoly = (float)ObjectsToDraw[currentObject].srcfstart;
+		int face_index = ObjectsToDraw[currentObject].srcfstart;
+
+		int texture_alias_number = texture_list_buffer[i];
+		int texture_number = TexMap[texture_alias_number].texture;
+
+		draw = true;
+
+		if (texture_number >= 94 && texture_number <= 101 ||
+			texture_number >= 289 - 1 && texture_number <= 296 - 1 ||
+			texture_number >= 279 - 1 && texture_number <= 288 - 1 ||
+			texture_number >= 206 - 1 && texture_number <= 210 - 1) {
+
+			if (isAlpha && !isTorch) {
+				draw = false;
+			}
+
+			if (isAlpha && isTorch) {
+				draw = true;
+			}
+		}
+
+		if (draw) {
+
+			//default,grass,water,brick,stone,tile,crate,ice,bone,metal,wood
+			auto textureType = TexMap[texture_number].material;
+
+			UINT materialIndex = mMaterials[textureType].get()->MatCBIndex;
+
+			D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
+			D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + materialIndex * matCBByteSize;
+
+			cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+			cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
+
+			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+			tex.Offset(texture_number, mCbvSrvDescriptorSize);
+
+			cmdList->SetGraphicsRootDescriptorTable(3, tex);
+
+			if (dp_command_index_mode[i] == 1 && TexMap[texture_alias_number].is_alpha_texture == isAlpha) {  //USE_NON_INDEXED_DP
+				int  v = verts_per_poly[currentObject];
+
+				if (dp_commands[currentObject] == D3DPT_TRIANGLESTRIP)
+				{
+					cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+				}
+				else if (dp_commands[currentObject] == D3DPT_TRIANGLELIST)
+				{
+					cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				}
+
+				cmdList->DrawInstanced(v, 1, vert_index, 0);
+			}
+		}
+	}
+
+	UINT materialIndex = mMaterials["default"].get()->MatCBIndex;
+
+	D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
+	D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + materialIndex * matCBByteSize;
+
+	cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+	cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 }
 
 float DungeonStompApp::GetHillsHeight(float x, float z)const
@@ -1881,7 +1754,7 @@ void DungeonStompApp::ProcessLights11()
 			m_vEyePt.y - oblist[q].y,
 			m_vEyePt.z - oblist[q].z);
 		if (ob_type == 57)
-		//if (ob_type == 6 && qdist < 2500 && oblist[q].light_source->command == 900)
+			//if (ob_type == 6 && qdist < 2500 && oblist[q].light_source->command == 900)
 		{
 			dist[dcount] = qdist;
 			sort[dcount] = dcount;
