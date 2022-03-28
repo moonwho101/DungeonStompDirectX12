@@ -116,7 +116,7 @@ private:
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
 
-	RenderItem* mWavesRitem = nullptr;
+	RenderItem* mDungeonRitem = nullptr;
 
 	// List of all the render items.
 	std::vector<std::unique_ptr<RenderItem>> mAllRitems;

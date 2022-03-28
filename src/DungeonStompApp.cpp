@@ -464,25 +464,8 @@ void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 
 	DisplayPlayerCaption();
 
-	//// Every quarter second, generate a random wave.
-	//static float t_base = 0.0f;
-	//if ((mTimer.TotalTime() - t_base) >= 0.25f)
-	//{
-	//	t_base += 0.25f;
-
-	//	int i = MathHelper::Rand(4, mDungeon->RowCount() - 5);
-	//	int j = MathHelper::Rand(4, mDungeon->ColumnCount() - 5);
-
-	//	float r = MathHelper::RandF(0.2f, 0.5f);
-
-	//	mDungeon->Disturb(i, j, r);
-	//}
-
-	//// Update the wave simulation.
-	//mDungeon->Update(gt.DeltaTime());
-
-	// Update the wave vertex buffer with the new solution.
-	auto currWavesVB = mCurrFrameResource->DungeonVB.get();
+	// Update the dungeon vertex buffer with the new solution.
+	auto currDungeonVB = mCurrFrameResource->DungeonVB.get();
 	Vertex v;
 
 	for (int j = 0; j < cnt; j++)
@@ -498,11 +481,11 @@ void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 		v.TexC.x = src_v[j].tu;
 		v.TexC.y = src_v[j].tv;
 
-		currWavesVB->CopyData(j, v);
+		currDungeonVB->CopyData(j, v);
 	}
 
-	// Set the dynamic VB of the wave renderitem to the current frame VB.
-	mWavesRitem->Geo->VertexBufferGPU = currWavesVB->Resource();
+	// Set the dynamic VB of the dungeon renderitem to the current frame VB.
+	mDungeonRitem->Geo->VertexBufferGPU = currDungeonVB->Resource();
 }
 
 void DungeonStompApp::BuildRootSignature()
@@ -526,9 +509,6 @@ void DungeonStompApp::BuildRootSignature()
 	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
 		(UINT)staticSamplers.size(), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-	// A root signature is an array of root parameters.
-	//CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
 	ComPtr<ID3DBlob> serializedRootSig = nullptr;
@@ -1184,7 +1164,7 @@ void DungeonStompApp::BuildRenderItems()
 	wavesRitem->StartIndexLocation = wavesRitem->Geo->DrawArgs["grid"].StartIndexLocation;
 	wavesRitem->BaseVertexLocation = wavesRitem->Geo->DrawArgs["grid"].BaseVertexLocation;
 
-	mWavesRitem = wavesRitem.get();
+	mDungeonRitem = wavesRitem.get();
 
 	mRitemLayer[(int)RenderLayer::Opaque].push_back(wavesRitem.get());
 
