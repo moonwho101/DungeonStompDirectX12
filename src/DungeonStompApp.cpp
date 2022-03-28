@@ -482,7 +482,7 @@ void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 	//mDungeon->Update(gt.DeltaTime());
 
 	// Update the wave vertex buffer with the new solution.
-	auto currWavesVB = mCurrFrameResource->WavesVB.get();
+	auto currWavesVB = mCurrFrameResource->DungeonVB.get();
 	Vertex v;
 
 	for (int j = 0; j < cnt; j++)
