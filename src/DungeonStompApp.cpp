@@ -346,6 +346,13 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
+	//Check for collision and nan errors
+	XMVECTOR EyeDirection = XMVectorSubtract(pos, target);
+	//assert(!XMVector3Equal(EyeDirection, XMVectorZero()));
+	if (XMVector3Equal(EyeDirection, XMVectorZero())) {
+		return;
+	}
+
 	//XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
 	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
 
