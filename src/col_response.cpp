@@ -110,7 +110,6 @@ XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity)
 	}
 
 	// Ok, we need to worry:
-
 	VECTOR vel;
 	vel.x = (float)velocity.x;
 	vel.y = (float)velocity.y;
@@ -132,13 +131,9 @@ XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity)
 	collisionPackage.realpos.x = pos.x * eRadius.x;
 	collisionPackage.realpos.y = pos.y * eRadius.y;
 	collisionPackage.realpos.z = pos.z * eRadius.z;
-	//collisionPackage.realpos.x = pos.x * 25;
-	//collisionPackage.realpos.y = pos.y * 50;
-	//collisionPackage.realpos.z = pos.z * 25;
 
 	// Check for collision (calls the collision routines)
 	// Application specific!!
-
 	ObjectCollision();
 	// If no collision we just move along the velocity
 	if (collisionPackage.foundCollision == false)
@@ -163,30 +158,26 @@ XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity)
 	}
 	*/
 
-
 	// *** Collision occured ***
 	// The original destination point
 	VECTOR destinationPoint = pos + vel;
 	VECTOR newSourcePoint = pos;
 
 	VECTOR V = vel;
-
-	/*
-		//added by silencer ver 2.0 new untested unconfirmed
-		if(collisionPackage.nearestDistance==0.0f){
-			final.x = pos.x + vel.x;
-			final.y = pos.y + vel.y;
-			final.z = pos.z + vel.z;
-			return final;
-		}
-	*/
+	
+	//added by silencer ver 2.0 new untested unconfirmed
+	if (collisionPackage.nearestDistance == 0.0f) {
+		final.x = pos.x;
+		final.y = pos.y;
+		final.z = pos.z;
+		return final;
+	}
 
 	V.SetLength(collisionPackage.nearestDistance);
 
 	newSourcePoint = collisionPackage.basePoint + V;
 
 	VECTOR slidePlaneNormal = newSourcePoint - collisionPackage.intersectionPoint;
-
 
 	eTest.x = slidePlaneNormal.x;
 	eTest.y = slidePlaneNormal.y;
@@ -200,24 +191,8 @@ XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity)
 
 	//silencer ver 2.0 - i think it fixed it can u believe it 2 years and these 5 lines did it.
 	float factor;
-
 	V.SetLength(veryCloseDistance);
-
 	factor = veryCloseDistance / (V.x * slidePlaneNormal.x + V.y * slidePlaneNormal.y + V.z * slidePlaneNormal.z);
-
-	if (isnan(factor)) {
-		final.x = pos.x;
-		final.y = pos.y;
-		final.z = pos.z;
-		collisionRecursionDepth = 0;
-		return final;
-	}
-
-
-
-	//VECTOR V2;
-	//V2.SetLength(1);
-	//V=V2;
 
 	V.SetLength(1);
 
@@ -240,14 +215,11 @@ XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity)
 
 	// Generate the slide vector, which will become our new
 	// velocity vector for the next iteration
-
 	VECTOR newVelocityVector = newDestinationPoint - collisionPackage.intersectionPoint;
 
 	// Recurse:
 	// dont recurse if the new velocity is very small
-
 	if (newVelocityVector.length() < veryCloseDistance)
-
 	{
 		final.x = newSourcePoint.x;
 		final.y = newSourcePoint.y;
