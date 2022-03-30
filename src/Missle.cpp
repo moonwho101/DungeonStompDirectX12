@@ -83,7 +83,7 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 	{
 		firemissle = 0;
 	}
-	else if (firemissle == 1 ||	shoot == 1)
+	else if (firemissle == 1 || shoot == 1)
 	{
 		firemissle = 0;
 		MissleVelocity.x = 32.0f * sinf(angy * k);
@@ -304,7 +304,7 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 			savevelocity.x = (savevelocity).x * realspeed * fTimeKeysave;
 			savevelocity.y = (savevelocity).y * realspeed * fTimeKeysave;
 			savevelocity.z = (savevelocity).z * realspeed * fTimeKeysave;
-			
+
 			foundcollisiontrue = 0;
 			XMFLOAT3 result;
 
@@ -557,11 +557,11 @@ void ApplyMissleDamage(int playernum)
 						//its current players missle missle dont explode it
 					}
 					else if (your_missle[misslecount].owner != trueplayernum &&
-	 						 your_missle[misslecount].playertype == 1)
+						your_missle[misslecount].playertype == 1)
 					{
 						//its other players missle
 						your_missle[misslecount].active = 2;
-						
+
 						int volume;
 						volume = 100 - (int)((100 * your_missle[misslecount].qdist) / ((numberofsquares * monsterdist) / 2));
 
@@ -624,7 +624,7 @@ void ApplyMissleDamage(int playernum)
 					{
 						//its a monsters missle
 						your_missle[misslecount].active = 2;
-						
+
 						int volume;
 						volume = 100 - (int)((100 * your_missle[misslecount].qdist) / ((numberofsquares * monsterdist) / 2));
 
@@ -836,9 +836,9 @@ void FireMonsterMissle(int monsterid, int type)
 	your_missle[misslespot].model_id = 102;
 
 	float qdist = FastDistance(player_list[trueplayernum].x - your_missle[misslespot].x,
-							   player_list[trueplayernum].y - your_missle[misslespot].y,
-							   player_list[trueplayernum].z - your_missle[misslespot].z);
-	
+		player_list[trueplayernum].y - your_missle[misslespot].y,
+		player_list[trueplayernum].z - your_missle[misslespot].z);
+
 	your_missle[misslespot].qdist = qdist;
 
 	int volume;

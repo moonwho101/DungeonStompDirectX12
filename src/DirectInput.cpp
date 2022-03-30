@@ -14,7 +14,6 @@ BOOL g_bUseMouse = true;
 BOOL g_bUseJoystick = false;
 BOOL g_bUseKeyboard = false;
 
-
 void PlaySong();
 extern int damageinprogress;
 extern char gActionMessage[2048];
@@ -38,7 +37,6 @@ void level();
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 
-
 //////////////
 // INCLUDES //
 //////////////
@@ -52,14 +50,12 @@ IDirectInputDevice8* g_pdidDevice2;			 // The DIDevice2 interface
 IDirectInputDevice8* g_Keyboard_pdidDevice2; // The DIDevice2 interface
 IDirectInputDevice8* m_mouse;
 
-
 GUID g_guidJoystick;						 // The GUID for the joystick
 BOOL CALLBACK EnumJoysticksCallback(LPCDIDEVICEINSTANCE pInst, VOID* pvContext);
 BOOL DelayKey2[256];
 float filterx = 0;
 float filtery = 0;
 BOOL have_i_moved_flag;
-//int playermove;
 float rotate_camera;
 
 float mousediv = 5.0f;
@@ -87,10 +83,7 @@ float use_x, use_y;      // position to use for displaying
 float springiness = 9; // tweak to taste.
 
 void smooth_mouse(float time_d, float realx, float realy);
-
 extern int firemissle;
-
-//int playermovestrife;
 
 CONTROLS Controls;
 
@@ -100,10 +93,8 @@ int nojumpallow = 0;
 int jumpvdir = 0;
 float cleanjumpspeed = 0;
 float lastjumptime = 0;
-
 int gravitybutton = 0;
 int gravityon = 1;
-
 bool loadprogress = 0;
 
 
@@ -120,16 +111,13 @@ int load_game(char* filename);
 HRESULT CreateDInput(HWND hWnd)
 {
 #define DIDEVTYPE_JOYSTICK 4
-	//extern HRESULT WINAPI DirectInputCreateEx(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID * ppvOut, LPUNKNOWN punkOuter);
-	// Create the main DirectInput object
 
-	//PrintMessage(NULL, "CD3DApplication::CreateDInput()", NULL, LOGFILE_ONLY);
+	// Create the main DirectInput object
 	HRESULT result;
 	// Initialize the main direct input interface.
 	result = DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&g_pDI, NULL);
 	if (FAILED(result))
 	{
-		//DisplayError("DirectInputCreate() failed.");
 		return E_FAIL;
 	}
 
@@ -147,7 +135,6 @@ HRESULT CreateDInput(HWND hWnd)
 	{
 		return 0;
 	}
-
 
 	hWndGlobal = hWnd;
 
@@ -178,7 +165,6 @@ VOID DestroyDInput()
 }
 
 
-
 //-----------------------------------------------------------------------------
 // Name: EnumJoysticksCallback()
 // Desc: Called once for each enumerated joystick. If we find one,
@@ -192,14 +178,11 @@ BOOL CALLBACK EnumJoysticksCallback(LPCDIDEVICEINSTANCE pInst, VOID* pvContext)
 }
 
 
-
 VOID UpdateControls()
 {
 	int i;
 	int look_up = 0;
 	int look_down = 0;
-
-
 
 	// Note we want to always keyboard, either alone, or with another input
 	// device such as a mouse or joystick etc
@@ -218,7 +201,6 @@ VOID UpdateControls()
 			g_Keyboard_pdidDevice2->Acquire();
 			hr = g_Keyboard_pdidDevice2->GetDeviceState(sizeof(diks), &diks);
 		}
-
 
 		// read the current mouse and keyboard state
 		if (g_bUseMouse)
@@ -245,7 +227,6 @@ VOID UpdateControls()
 			hr = g_pdidDevice2->Acquire();
 			hr = g_pdidDevice2->GetDeviceState(sizeof(DIJOYSTATE2), &dijs);
 		}
-		//DIJOYSTATE2
 
 		// Check whether the input stream has been interrupted. If so,
 		// re-acquire and try again.
@@ -264,9 +245,6 @@ VOID UpdateControls()
 		// Read Keyboard input only
 		if (g_Keyboard_pdidDevice2)
 		{
-
-			//DIK_ESCAPE
-
 			Controls.Escape = diks[DIK_ESCAPE] && 0x80;
 			Controls.bLeft = diks[DIK_A] && 0x80;
 			Controls.bRight = diks[DIK_D] && 0x80;
@@ -278,27 +256,18 @@ VOID UpdateControls()
 			Controls.bHeadDown = diks[DIK_PGDN] && 0x80;
 			Controls.bStepLeft = diks[DIK_COMMA] && 0x80;
 			Controls.bStepRight = diks[DIK_PERIOD] && 0x80;
-			//Controls.bPrevWeap = diks[DIK_DELETE] && 0x80;
-			//Controls.bNextWeap = diks[DIK_INSERT] && 0x80;
 			Controls.bPrevWeap = diks[DIK_Z] && 0x80;
 			Controls.bNextWeap = diks[DIK_Q] && 0x80;
-
-
 			Controls.bInTalkMode = diks[DIK_SLASH] && 0x80;
 			Controls.opendoor = diks[DIK_SPACE] && 0x80;
-			// Check both left and right control keys
-
 			Controls.bFire2 = diks[DIK_END] && 0x80;
-
 			Controls.bCameraleft = diks[DIK_LSHIFT] && 0x80;
 			Controls.bCameraright = diks[DIK_RSHIFT] && 0x80;
 			Controls.missle = diks[DIK_E] && 0x80;
 			Controls.bFire = diks[DIK_RCONTROL] && 0x80;
 			Controls.spell = diks[DIK_RCONTROL] && 0x80;
-
 			Controls.xp = diks[DIK_X] && 0x80;
 			Controls.bDisableGravity = diks[DIK_G] && 0x80;
-
 			Controls.bLoadGame = diks[DIK_F5] && 0x80;
 			Controls.bSaveGame = diks[DIK_F6] && 0x80;
 			Controls.bNextSong = diks[DIK_P] && 0x80;
@@ -306,7 +275,6 @@ VOID UpdateControls()
 			Controls.bMusicOn = diks[DIK_I] && 0x80;
 			Controls.bNextLevel = diks[DIK_RBRACKET] && 0x80;
 			Controls.bPreviousLevel = diks[DIK_LBRACKET] && 0x80;
-
 		}
 
 		// Read mouse input
@@ -349,8 +317,6 @@ VOID UpdateControls()
 		// Read joystick input
 		if (g_bUseJoystick)
 		{
-
-
 			/*
 			//Control PAD
 			if (dijs.rgdwPOV[0] == -1)
@@ -384,8 +350,6 @@ VOID UpdateControls()
 			}
 			*/
 
-
-
 			//Control PAD
 			if (dijs.rgdwPOV[0] == -1) {
 				cycleweaponbuttonpressedjoystick = FALSE;
@@ -402,7 +366,6 @@ VOID UpdateControls()
 				CyclePreviousWeapon();
 				cycleweaponbuttonpressedjoystick = TRUE;
 			}
-
 
 			//Right controller - look around
 
@@ -452,9 +415,6 @@ VOID UpdateControls()
 				Controls.bBackward = 1;
 			}
 
-
-
-
 			//sprintf_s(gActionMessage, "%ld %ld %ld", dijs.lRx,dijs.lRy,dijs.lRz); //right controller
 			//sprintf_s(gActionMessage, "%ld %ld %ld", dijs.lX,dijs.lY,dijs.lZ); //left controller
 			//sprintf_s(gActionMessage, "%ld", dijs.rgdwPOV[0]);  //Control PAD
@@ -480,26 +440,6 @@ VOID UpdateControls()
 		}
 
 		MovePlayer(&Controls);
-
-		/*	if (RRAppActive == TRUE && dialogpause == 0)
-			{
-				MovePlayer(&Controls);
-			}
-
-			if (Controls.dialogpausejoystick && dialogpause) {
-				gtext[dialognum].shown = 1;
-				dialogpause = 0;
-			}
-
-			if (!Controls.changeviews) {
-				changeviewbuttonpressed = FALSE;
-			}
-
-			if (Controls.changeviews && changeviewbuttonpressed == FALSE) {
-				SwitchView();
-				changeviewbuttonpressed = TRUE;
-			}*/
-
 	}
 }
 
@@ -508,8 +448,6 @@ VOID WalkMode(CONTROLS* Controls)
 	int i = 0;
 	float speed = 8.0f;
 	int perspectiveview = 1;
-	//	float step_left_angy;
-	//	float step_right_angy;
 
 	filterx = 0;
 	filtery = 0;
@@ -524,12 +462,6 @@ VOID WalkMode(CONTROLS* Controls)
 		//DXUTShutdown();
 	}
 
-	// Update the frame rate once per second
-	//if (fTime - fLastGunFireTime > .3f)
-	//{
-	//	firepause = 0;
-	//}
-
 	if (Controls->spell && player_list[trueplayernum].firespeed == 0 && usespell == 1)
 	{
 		int pspeed = (18 - player_list[trueplayernum].hd);
@@ -542,22 +474,16 @@ VOID WalkMode(CONTROLS* Controls)
 
 	if (Controls->bCameraleft)
 	{
-
-		//rotate_camera+=5.0f;
 		rotate_camera += 105 * elapsegametimersave;
 	}
 
 	if (Controls->bCameraright)
 	{
-
-		//rotate_camera-=5.0f;
 		rotate_camera -= 105 * elapsegametimersave;
 	}
 
-
 	if (Controls->missle && jump == 0 && nojumpallow == 0)
 	{
-
 		jump = 1;
 		if (perspectiveview == 1)
 			jumpv = { 0.0f, 30.0f, 0.0f };
@@ -569,7 +495,6 @@ VOID WalkMode(CONTROLS* Controls)
 		PlayWavSound(SoundID("jump1"), 80);
 		jumpstart = 1;
 	}
-
 
 	// turn left
 	if (Controls->bLeft)
@@ -610,7 +535,6 @@ VOID WalkMode(CONTROLS* Controls)
 		runflag = 1;
 	}
 
-
 	if (Controls->bDisableGravity && !gravitybutton)
 	{
 		if (gravityon == 1) {
@@ -636,11 +560,11 @@ VOID WalkMode(CONTROLS* Controls)
 	if (Controls->bSaveGame && !loadprogress)
 	{
 		save_game("");
-	}else  if (Controls->bLoadGame && !loadprogress)
+	}
+	else  if (Controls->bLoadGame && !loadprogress)
 	{
 		load_game("");
 	}
-
 
 	if (Controls->bSaveGame || Controls->bLoadGame) {
 		loadprogress = TRUE;
@@ -648,7 +572,6 @@ VOID WalkMode(CONTROLS* Controls)
 	else {
 		loadprogress = FALSE;
 	}
-
 
 	// move backward
 	if (Controls->bBackward)
@@ -685,40 +608,24 @@ VOID WalkMode(CONTROLS* Controls)
 		(Controls->bFire2 == TRUE) && (MyHealth > 0) && jump == 0 && (player_list[trueplayernum].current_sequence != 2) && player_list[trueplayernum].bIsPlayerAlive == TRUE &&
 		usespell == 0)
 	{
-
-
 		hitmonster = 0;
 		numdice = 2;
 		firing_gun_flag = TRUE;
 		SetPlayerAnimationSequence(trueplayernum, 2);
 		PlayWavSound(SoundID("knightattack"), 100);
-
-
-		//set_firing_timer_flag = TRUE;
-
-
 		fLastGunFireTime = timeGetTime() * 0.001f;
-
 		playermove = 5;
-		//firepause = 1;
-
 		dice[0].roll = 1;
 		dice[1].roll = 1;
-
 		criticalhiton = 0;
-
 	}
 	else
 	{
 		firing_gun_flag = FALSE;
 	}
 
-
-
-
 	if (Controls->opendoor)
 	{
-
 		pressopendoor = 1;
 	}
 	else
@@ -734,14 +641,12 @@ VOID WalkMode(CONTROLS* Controls)
 	// tilt head upwards
 	if (Controls->bHeadDown)
 	{
-
 		if (g_bUseMouse)
 		{
 			filtery = (float)Controls->bHeadDown / (float)mousediv;
 		}
 		else
 		{
-			//	look_up_ang += 4;
 			look_up_ang += 105 * elapsegametimersave;
 			if (look_up_ang > 90)
 				look_up_ang = 89.9f;
@@ -751,34 +656,25 @@ VOID WalkMode(CONTROLS* Controls)
 	// tilt head downward
 	if (Controls->bHeadUp)
 	{
-
 		if (g_bUseMouse)
 		{
-			//look_up_ang += (float)Controls->bHeadUp / (float)5;
 			filtery = (float)Controls->bHeadUp / (float)mousediv;
 		}
 		else
 		{
-
 			look_up_ang -= 105 * elapsegametimersave;
-			//	look_up_ang -= 4;
 			if (look_up_ang < -90)
 				look_up_ang = -89.9f;
 		}
-
-		//look_up_ang -= 4;
 	}
 
 	// side step left
-
-
 	if (Controls->bStepLeft)
 	{
 		playermovestrife = 6;
 	}
 
 	// side step right
-
 	if (Controls->bStepRight)
 	{
 		playermovestrife = 7;
@@ -796,7 +692,6 @@ VOID WalkMode(CONTROLS* Controls)
 	{
 		nextsong = 0;
 	}
-
 
 	if (Controls->bGiveAllWeapons && !giveallweapons)
 	{
@@ -831,14 +726,13 @@ VOID WalkMode(CONTROLS* Controls)
 		stopmusic = 0;
 	}
 
-
-
 	if (Controls->bNextLevel && !nextlevel)
 	{
 		currentlevel++;
 		level();
 		nextlevel = 1;
 	}
+
 	if (!Controls->bNextLevel && nextlevel)
 	{
 		nextlevel = 0;
@@ -850,20 +744,16 @@ VOID WalkMode(CONTROLS* Controls)
 		level();
 		previouslevel = 1;
 	}
+
 	if (!Controls->bPreviousLevel && previouslevel)
 	{
 		previouslevel = 0;
 	}
 
-
-
-
 	if (g_bUseMouse)
 	{
 		angy += filterx;
-
 		look_up_ang += filtery;
-
 	}
 
 	bool mousefilter = true;
@@ -871,7 +761,6 @@ VOID WalkMode(CONTROLS* Controls)
 	{
 		if (mousefilter)
 		{
-
 			smooth_mouse(elapsegametimersave, filterx, filtery);
 			//MouseFilter(filterx, filtery);
 			angy += filterx;
@@ -894,14 +783,8 @@ VOID WalkMode(CONTROLS* Controls)
 VOID MovePlayer(CONTROLS* Controls)
 {
 	// Update the variables for the player
-
-
 	WalkMode(Controls);
-
-
 }
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -912,21 +795,15 @@ HRESULT CreateInputDevice(IDirectInput8* pDI, IDirectInputDevice8* pDIdDevice, G
 {
 	HRESULT result;
 
-	//PrintMessage(NULL, "CD3DApplication::CreateInputDevice()", NULL, LOGFILE_ONLY);
-
 	result = g_pDI->CreateDevice(guidDevice, &pDIdDevice, NULL);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
-	//else
-		//PrintMessage(NULL, "CD3DApplication::CreateInputDevice() - CreateDeviceEx ok", NULL, LOGFILE_ONLY);
-
 	// Set the device data format. Note: a data format specifies which
 	// controls on a device we are interested in, and how they should be
 	// reported.
-
 
 	result = pDIdDevice->SetDataFormat(pdidDataFormat);
 	if (FAILED(result))
@@ -941,9 +818,6 @@ HRESULT CreateInputDevice(IDirectInput8* pDI, IDirectInputDevice8* pDIdDevice, G
 
 	// Set the cooperativity level to let DirectInput know how this device
 	// should interact with the system and with other DirectInput applications.
-	//if (FAILED(pDIdDevice->SetCooperativeLevel(hWnd, dwFlags)))
-	//if (FAILED(pDIdDevice->SetCooperativeLevel(hWnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE)))
-
 	if (FAILED(pDIdDevice->SetCooperativeLevel(hWndGlobal, dwFlags)))
 	{
 		//DisplayError("SetCooperativeLevel() failed");
@@ -968,9 +842,7 @@ void DestroyInputDevice()
 		g_pdidDevice2->Release();
 		g_pdidDevice2 = NULL;
 	}
-
 	// keyboard
-
 	if (g_Keyboard_pdidDevice2)
 	{
 		g_Keyboard_pdidDevice2->Unacquire();
@@ -981,15 +853,11 @@ void DestroyInputDevice()
 }
 
 
-
 HRESULT SelectInputDevice()
 {
-
 	// Destroy the old device
 	DestroyInputDevice();
-
 	// Check the dialog controls to see which device type to create
-
 
 	if (g_bUseKeyboard)
 	{
@@ -1003,9 +871,6 @@ HRESULT SelectInputDevice()
 
 	if (g_bUseMouse)
 	{
-		//c_dfDIMouse2
-
-
 		CreateInputDevice(g_pDI,
 			g_pdidDevice2,
 			GUID_SysMouse, &c_dfDIMouse,
@@ -1021,11 +886,9 @@ HRESULT SelectInputDevice()
 
 	if (g_bUseJoystick)
 	{
-
 		HRESULT hr = CreateInputDevice(g_Keyboard_pDI, g_Keyboard_pdidDevice2, GUID_SysKeyboard, &c_dfDIKeyboard, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 
 		hr = g_Keyboard_pdidDevice2->Acquire();
-
 		hr = CreateInputDevice(g_pDI,
 			g_pdidDevice2,
 			g_guidJoystick, &c_dfDIJoystick2,
@@ -1034,8 +897,6 @@ HRESULT SelectInputDevice()
 		if (g_pdidDevice2 == NULL) {
 			//UINT resultclick = MessageBox(main_window_handle, "DirectInput Error", "Game Controller not found.", MB_OK);
 		}
-
-		//pdidInstance->guidInstance = { B34EE010 - 12EE - 11EC - 8001 - 444553540000 }
 
 		hr = g_pdidDevice2->Acquire();
 
@@ -1075,7 +936,6 @@ LONGLONG DSTimer()
 {
 	LONGLONG cur_time;
 	QueryPerformanceCounter((LARGE_INTEGER*)&cur_time);
-
 	return cur_time;
 }
 
@@ -1100,7 +960,6 @@ void SwitchGun(int gun)
 
 void CyclePreviousWeapon()
 {
-
 	int loopguns = current_gun - 1;
 
 	if (loopguns < 0)
@@ -1132,18 +991,6 @@ void CyclePreviousWeapon()
 	player_list[trueplayernum].damage1 = your_gun[current_gun].damage1;
 	player_list[trueplayernum].damage2 = your_gun[current_gun].damage2;
 
-	//if (strstr(your_gun[loopguns].gunname, "FLAME") != NULL ||
-	//	strstr(your_gun[loopguns].gunname, "ICE") != NULL ||
-	//	strstr(your_gun[loopguns].gunname, "LIGHTNINGSWORD") != NULL)
-	//{
-	//	bIsFlashlightOn = TRUE;
-	//	lighttype = 2;
-	//}
-	//else
-	//{
-	//	lighttype = 0;
-	//	bIsFlashlightOn = FALSE;
-	//}
 	MakeDamageDice();
 }
 
@@ -1181,25 +1028,11 @@ void CycleNextWeapon()
 	player_list[trueplayernum].damage2 = your_gun[current_gun].damage2;
 
 	MakeDamageDice();
-
-	//if (strstr(your_gun[loopguns].gunname, "FLAME") != NULL ||
-	//	strstr(your_gun[loopguns].gunname, "ICE") != NULL ||
-	//	strstr(your_gun[loopguns].gunname, "LIGHTNINGSWORD") != NULL)
-	//{
-	//	bIsFlashlightOn = TRUE;
-	//	lighttype = 2;
-	//}
-	//else
-	//{
-	//	lighttype = 0;
-	//	bIsFlashlightOn = FALSE;
-	//}
 }
 
 
 void GiveWeapons()
 {
-
 	strcpy_s(gActionMessage, "Give all weapons.");
 	UpdateScrollList(0, 245, 255);
 	player_list[trueplayernum].keys = 10;
@@ -1208,7 +1041,6 @@ void GiveWeapons()
 
 	for (i = 0; i < MAX_NUM_GUNS; i++)
 	{
-
 		if (i < 10)
 			your_gun[i].active = 1;
 
@@ -1218,13 +1050,10 @@ void GiveWeapons()
 	player_list[trueplayernum].gold = 99999;
 
 	your_gun[18].active = 1;
-
 	your_gun[19].active = 1;
 	your_gun[20].active = 1;
 	your_gun[21].active = 1;
 }
-
-
 
 
 void smooth_mouse(float time_d, float realx, float realy) {
@@ -1241,11 +1070,7 @@ void smooth_mouse(float time_d, float realx, float realy) {
 }
 
 
-
-
 void level() {
-
-
 	if (currentlevel < 1)
 		currentlevel = 19;
 
@@ -1263,7 +1088,7 @@ void level() {
 
 	ClearObjectList();
 	ResetSound();
-	
+
 	sprintf_s(levelname, "level%d", currentlevel);
 	sprintf_s(gActionMessage, "Loading %s...", levelname);
 	UpdateScrollList(0, 245, 255);
