@@ -1007,7 +1007,7 @@ void DungeonStompApp::BuildMaterials()
 	default->Name = "default";
 	default->MatCBIndex = 0;
 	default->DiffuseSrvHeapIndex = 0;
-	default->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f);
+	default->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	default->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	default->Roughness = 0.5f;
 
@@ -1022,7 +1022,7 @@ void DungeonStompApp::BuildMaterials()
 	water->Name = "water";
 	water->MatCBIndex = 2;
 	water->DiffuseSrvHeapIndex = 0;
-	water->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
+	water->DiffuseAlbedo = XMFLOAT4(0.5f, 0.5f, 1.0f, 0.5f);
 	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	water->Roughness = 0.01f;
 
