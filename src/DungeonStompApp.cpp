@@ -228,7 +228,6 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	//mCommandList->SetPipelineState(mPSOs["transparent"].Get());
 	//DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Transparent]);
 
-
 	// Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -240,7 +239,7 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
 	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-	// Swap the back and front buffers
+	// Swap the back and front buffers (vsync enable)
 	//ThrowIfFailed(mSwapChain->Present(0, 0));
 	ThrowIfFailed(mSwapChain->Present(1, 0));
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
@@ -333,11 +332,9 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	mEyePos.y = m_vEyePt.y + adjust;
 	mEyePos.z = m_vEyePt.z;
 
-
 	player_list[trueplayernum].x = m_vEyePt.x;
 	player_list[trueplayernum].y = m_vEyePt.y + adjust;
 	player_list[trueplayernum].z = m_vEyePt.z;
-
 
 	// Build the view matrix.
 	XMVECTOR pos = XMVectorSet(mEyePos.x, mEyePos.y, mEyePos.z, 1.0f);
@@ -357,13 +354,6 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
 
 	XMStoreFloat4x4(&mView, view);
-
-	//D3DXVECTOR3 vEyePt(m_vEyePt.x, m_vEyePt.y + adjust, m_vEyePt.z);
-	//D3DXVECTOR3 vLookatPt(m_vLookatPt.x, m_vLookatPt.y + adjust, m_vLookatPt.z);
-
-	//D3DXVECTOR3 vUpVec(0.0f, 1.0f, 0.0f);
-	//D3DXMATRIXA16 matView;
-	//D3DXMatrixLookAtLH(&matView, &vEyePt, &vLookatPt, &vUpVec);
 }
 
 
@@ -446,11 +436,9 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	//mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
 	mMainPassCB.AmbientLight = { 0.00f, 0.00f, 0.00f, 0.00f };
 
-	XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
-
-	XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
+	//XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
+	//XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
 	//mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
-	mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
 
 	for (int i = 0; i < MaxLights; i++) {
 		mMainPassCB.Lights[i].Direction = LightContainer[i].Direction;
@@ -622,9 +610,6 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_0");
 	mShaders["torchPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", torchTestDefines, "PS", "ps_5_0");
 
-	//mShaders["textVS"] = d3dUtil::CompileShader(L"..\\Shaders\\test.hlsl", nullptr, "VS", "vs_5_0");
-	//mShaders["textPS"] = d3dUtil::CompileShader(L"..\\Shaders\\test.hlsl", nullptr, "PS", "ps_5_0");
-
 	// Text PSO
 	ID3DBlob* errorBuff; // a buffer holding the error data if any
 	// compile vertex shader
@@ -661,7 +646,6 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	D3D12_SHADER_BYTECODE textPixelShaderBytecode = {};
 	textPixelShaderBytecode.BytecodeLength = textPixelShader->GetBufferSize();
 	textPixelShaderBytecode.pShaderBytecode = textPixelShader->GetBufferPointer();
-
 
 	// Rectangle PSO
 	// compile vertex shader
@@ -708,9 +692,6 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 
 	D3D12_INPUT_ELEMENT_DESC textInputLayout[] =
 	{
-		//{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		//{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 },
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 }
@@ -762,12 +743,8 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 
 	// create the text pso
 	hr = md3dDevice->CreateGraphicsPipelineState(&textpsoDesc, IID_PPV_ARGS(&textPSO));
-	if (FAILED(hr))
-	{
-		//	Running = false;
-		//	return false;
-	}
 
+	//create the rectangles for HUD
 	for (int i = 0; i < MaxRectangle; i++) {
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC rectanglepsoDesc = {};
 		rectanglepsoDesc.InputLayout = textInputLayoutDesc;
@@ -809,11 +786,6 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 
 		// create the rectangle pso
 		hr = md3dDevice->CreateGraphicsPipelineState(&rectanglepsoDesc, IID_PPV_ARGS(&rectanglePSO[i]));
-		if (FAILED(hr))
-		{
-			//	Running = false;
-			//	return false;
-		}
 	}
 }
 
@@ -981,17 +953,6 @@ void DungeonStompApp::BuildPSOs()
 
 	transparentPsoDesc.BlendState.RenderTarget[0] = transparencyBlendDesc;
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&transparentPsoDesc, IID_PPV_ARGS(&mPSOs["transparent"])));
-
-	/*blendStateDesc.AlphaToCoverageEnable = FALSE;
-	blendStateDesc.IndependentBlendEnable = FALSE;
-	blendStateDesc.RenderTarget[0].BlendEnable = TRUE;
-	blendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_COLOR;
-	blendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND_BLEND_FACTOR;
-	blendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-	blendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-	blendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-	blendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	blendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;*/
 
 	//
 	// PSO for alpha tested objects
@@ -1406,11 +1367,7 @@ void DungeonStompApp::BuildDescriptorHeaps()
 		D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
 		nullptr,
 		IID_PPV_ARGS(&textVertexBuffer));
-	//if (FAILED(hr))
-	//{
-	//	Running = false;
-	//	return false;
-	//}
+
 	textVertexBuffer->SetName(L"Text Vertex Buffer Upload Resource Heap");
 
 	CD3DX12_RANGE readRange(0, 0);	// We do not intend to read from this resource on the CPU. (so end is less than or equal to begin)
@@ -1428,13 +1385,8 @@ void DungeonStompApp::BuildDescriptorHeaps()
 			D3D12_RESOURCE_STATE_GENERIC_READ, // GPU will read from this buffer and copy its contents to the default heap
 			nullptr,
 			IID_PPV_ARGS(&rectangleVertexBuffer[i]));
-		//if (FAILED(hr))
-		//{
-		//	Running = false;
-		//	return false;
-		//}
-		rectangleVertexBuffer[i]->SetName(L"Rectangle Vertex Buffer Upload Resource Heap");
 
+		rectangleVertexBuffer[i]->SetName(L"Rectangle Vertex Buffer Upload Resource Heap");
 
 		CD3DX12_RANGE readRange2(0, 0);
 		// map the resource heap to get a gpu virtual address to the beginning of the heap
@@ -1487,26 +1439,15 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 		if (strcmp(s, "AddTexture") == 0)
 		{
 			fscanf_s(fp, "%s", &p, 256);
-
 			//remember the file
 			strcpy(f, p);
-
-			/*	if (hr == S_OK)
-				{
-					textures[tex_counter] = save_out_srv;
-					tex_counter++;
-					found = TRUE;
-				}*/
-
 			tex_counter++;
 		}
 
 		if (strcmp(s, "Alias") == 0)
 		{
 			fscanf_s(fp, "%s", &p, 256);
-
 			fscanf_s(fp, "%s", &p, 256);
-
 			strcpy_s((char*)TexMap[tex_alias_counter].tex_alias_name, 100, (char*)&p);
 
 			TexMap[tex_alias_counter].texture = tex_counter - 1;
@@ -1533,16 +1474,13 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 				mCommandList.Get(), currentTex->Filename.c_str(),
 				currentTex->Resource, currentTex->UploadHeap);
 
-
+			//Default to woodcrate if the texture will not load
 			if (currentTex->Resource == NULL) {
 				currentTex->Filename = charToWChar("../Textures/WoodCrate01.dds");
 				DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
 					mCommandList.Get(), currentTex->Filename.c_str(),
 					currentTex->Resource, currentTex->UploadHeap);
 			}
-
-
-			//auto woodCrateTex2 = woodCrateTex->Resource;
 
 			srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 			srvDesc.Format = currentTex->Resource->GetDesc().Format;
@@ -1558,7 +1496,6 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 
 			// next descriptor
 			hDescriptor.Offset(1, mCbvSrvDescriptorSize);
-
 
 			fscanf_s(fp, "%s", &p, 256);
 			if (strcmp(p, "AlphaTransparent") == 0)
@@ -1682,7 +1619,6 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 			{
 			}
 
-
 			fscanf_s(fp, "%s", &p, 256);
 			strcpy_s((char*)TexMap[tex_alias_counter].material, 100, (char*)&p);
 
@@ -1741,7 +1677,6 @@ void DungeonStompApp::ProcessLights11()
 		LightContainer[i].Position = DirectX::XMFLOAT3{ 0.0f,9000.0f,0.0f };
 		LightContainer[i].SpotPower = 90.0f;
 	}
-
 
 	int dcount = 0;
 	//Find lights
@@ -1830,7 +1765,6 @@ void DungeonStompApp::ProcessLights11()
 	{
 		flamesword = true;
 	}
-
 
 	if (flamesword) {
 
