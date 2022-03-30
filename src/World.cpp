@@ -81,7 +81,7 @@ extern SWITCHMOD* switchmodify;
 float fDot2last = 0;
 
 void PlaySong();
-void DrawMissles();
+void ComputeMissles();
 void DrawMissle();
 void ApplyMissleDamage(int playernum);
 
@@ -124,7 +124,6 @@ void InitDS()
 	your_missle = new GUNLIST[MAX_MISSLE];
 	oblist = new OBJECTLIST[MAX_OBJECTLIST];
 
-
 	levelmodify = new LEVELMOD[50];
 	switchmodify = new SWITCHMOD[50];
 
@@ -146,7 +145,6 @@ void InitDS()
 		//src_on[i] = 1;
 		src_collide[i] = 1;
 	}
-
 
 	for (int i = 0; i < 1; i++)
 	{
@@ -305,6 +303,7 @@ void InitDS()
 		monster_list[i].takedamageonce = 0;
 		monster_list[i].closest = trueplayernum;
 	}
+
 	for (int i = 0; i < MAX_NUM_ITEMS; i++)
 	{
 		item_list[i].frags = 0;
@@ -367,36 +366,10 @@ void InitDS()
 		your_missle[i].z_offset = 0;
 	}
 
-
-	//for (int i = 0; i < MAX_NUM_GUNS; i++)
-	//{
-
-	//	if (i == 0)
-	//	{
-	//		your_gun[i].active = 1;
-	//		your_gun[i].x_offset = 0;
-	//	}
-	//	else if (i == 18)
-	//	{
-	//		your_gun[i].active = 1;
-	//		your_gun[i].x_offset = 2;
-	//	}
-	//	else
-	//	{
-	//		your_gun[i].active = 0;
-
-	//		your_gun[i].x_offset = 0;
-	//	}
-	//}
-
-
 	player_list[trueplayernum].gunid = your_gun[current_gun].model_id;
 	player_list[trueplayernum].guntex = your_gun[current_gun].skin_tex_id;
 	player_list[trueplayernum].damage1 = your_gun[current_gun].damage1;
 	player_list[trueplayernum].damage2 = your_gun[current_gun].damage2;
-
-
-
 
 	if (!pCWorld->LoadImportedModelList("modellist.dat"))
 	{
@@ -416,13 +389,8 @@ void InitDS()
 		//return FALSE;
 	}
 
-
 	pCWorld->LoadMod("level1.mod");
-
-
 	SetStartSpot();
-
-	//float k = (float)0.017453292;
 	float fangle = (float)90 * k;
 
 	for (int i = 0; i <= 360; i++)
@@ -431,7 +399,6 @@ void InitDS()
 		sin_table[i] = (float)sin(fangle);
 		cos_table[i] = (float)cos(fangle);
 	}
-
 
 	player_list[trueplayernum].gunid = FindModelID("AXE");
 	player_list[trueplayernum].guntex = FindGunTexture("AXE");
@@ -482,7 +449,6 @@ void UpdateWorld(float fElapsedTime) {
 
 	player_list[trueplayernum].gunangle = gun_angle;
 
-
 	ActivateSwitch();
 
 	if (maingameloop) {
@@ -497,7 +463,6 @@ void UpdateWorld(float fElapsedTime) {
 		//120 text   //6 lamp post
 		//35  monster //57 flamesnothit
 		//131 startpos /58 torch
-
 		//120 = text
 
 		//if (ob_type != 120 && ob_type != 35 && ob_type != 131 && ob_type != 6)
@@ -517,13 +482,11 @@ void UpdateWorld(float fElapsedTime) {
 				ObjectToD3DVertList(ob_type, angle, q);
 			}
 		}
-		//ObjectToD3DVertList(ob_type, angle, q, pd3dDevice);
 	}
 
 	FreeSlave();
 	ApplyMissleDamage(1);
-
-	DrawMissles();
+	ComputeMissles();
 	WakeUpMonsters();
 	MoveMonsters(fElapsedTime);
 	DrawMonsters();
@@ -539,8 +502,6 @@ void UpdateWorld(float fElapsedTime) {
 	FirePlayerMissle(player_list[trueplayernum].x, player_list[trueplayernum].y,
 		player_list[trueplayernum].z,
 		angy, trueplayernum, 0, em, look_up_ang, fElapsedTime);
-
-
 
 	DrawMissle();
 
@@ -559,33 +520,10 @@ void UpdateWorld(float fElapsedTime) {
 		else {
 			DrawIndexedItems(lsort, vert_index);
 		}
-	} // end for i
+	}
 
 	num_light_sources = 0;
 }
-
-/*
-void UpdateVertexBuffer(IDirect3DDevice9* pd3dDevice) {
-
-	g_pVB->Lock(0, sizeof(&pVertices), (void**)&pVertices, 0);
-
-	for (int j = 0; j < cnt; j++)
-	{
-		D3DXVECTOR3 a = D3DXVECTOR3(src_v[j].x, src_v[j].y, src_v[j].z);
-
-		pVertices[j].position = a;
-		pVertices[j].color = D3DCOLOR_RGBA(105, 105, 105, 0); //0xffffffff;
-		pVertices[j].tu = src_v[j].tu;
-		pVertices[j].tv = src_v[j].tv;
-		pVertices[j].nx = src_v[j].nx;
-		pVertices[j].ny = src_v[j].ny;
-		pVertices[j].nz = src_v[j].nz;
-	}
-
-	g_pVB->Unlock();
-}
-
-*/
 
 
 void SetMonsterAnimationSequence(int player_number, int sequence_number)
@@ -777,17 +715,14 @@ HRESULT AnimateCharacters()
 
 	for (i = 0; i < num_monsters; i++)
 	{
-
 		int mod_id = monster_list[i].model_id;
 		curr_frame = monster_list[i].current_frame;
 		stop_frame = pmdata[mod_id].sequence_stop_frame[monster_list[i].current_sequence];
 		startframe = pmdata[mod_id].sequence_start_frame[monster_list[i].current_sequence];
 		if (monster_list[i].bStopAnimating == FALSE)
 		{
-
 			if (monster_list[i].animationdir == 0)
 			{
-
 				if (curr_frame >= stop_frame)
 				{
 					curr_seq = monster_list[i].current_sequence;
@@ -838,15 +773,8 @@ HRESULT AnimateCharacters()
 			item_list[i].current_frame = 87;
 	}
 
-
 	return 0;
 }
-
-
-
-
-
-
 
 
 float fixangle(float angle, float adjust)
@@ -893,30 +821,18 @@ int initDSTimer()
 
 	if (QueryPerformanceFrequency((LARGE_INTEGER*)&perf_cnt))
 	{
-
-
 		// set scaling factor
 		time_factor = (double)1.0 / (double)perf_cnt;
-
 		QueryPerformanceCounter((LARGE_INTEGER*)&count);
-
-
-
-		//		elapsegametimer = count;
-		//		elapsegametimersave = 0;
-		//		elapsegametimerlast = count;
-
 		gametimerlast = count;
-		//		gametimerlastpost = count;
 		gametimerlast2 = count;
-		//		gametimerlastdoor = count;
 	}
 
 	return 1;
 }
 
 
-void DrawMissles()
+void ComputeMissles()
 {
 
 	XMFLOAT3 vw1, vw2;
@@ -927,13 +843,8 @@ void DrawMissles()
 	fDot2 = 0.0f;
 	for (int misslecount = 0; misslecount < MAX_MISSLE; misslecount++)
 	{
-
 		if (your_missle[misslecount].active == 2)
 		{
-			//TODO: REMOVE whne textures are working in DX12
-			//your_missle[misslecount].active = 0;
-			//	continue;
-
 			float wx = your_missle[misslecount].x;
 			float wy = your_missle[misslecount].y;
 			float wz = your_missle[misslecount].z;
@@ -960,9 +871,6 @@ void DrawMissles()
 			work1.y = wy;
 
 			XMVECTOR r1 = XMLoadFloat3(&work1) - XMLoadFloat3(&work2);
-
-			//vDiff = Normalize(vDiff);
-			//D3DXVec3Normalize(&vDiff, &vDiff);
 			r1 = XMVector3Normalize(r1);
 
 			XMVECTOR final, final2;
@@ -1013,7 +921,6 @@ void DrawMissles()
 			fDot2last = fDot2;
 
 			//Show blood splatter
-
 			int bloodmodel = 100;
 
 			if (your_missle[misslecount].critical) {
@@ -1049,84 +956,9 @@ void DrawMissles()
 	}
 }
 
-/*
-FLOAT D3DXVec3Length
-(CONST D3DXVECTOR3* pV)
-{
-#ifdef D3DX_DEBUG
-	if (!pV)
-		return 0.0f;
-#endif
-
-#ifdef __cplusplus
-	return sqrtf(pV->x * pV->x + pV->y * pV->y + pV->z * pV->z);
-#else
-	return (FLOAT)sqrt(pV->x * pV->x + pV->y * pV->y + pV->z * pV->z);
-#endif
-}
-
-
-FLOAT D3DXVec3Dot
-(CONST D3DXVECTOR3* pV1, CONST D3DXVECTOR3* pV2)
-{
-#ifdef D3DX_DEBUG
-	if (!pV1 || !pV2)
-		return 0.0f;
-#endif
-
-	return pV1->x * pV2->x + pV1->y * pV2->y + pV1->z * pV2->z;
-}
-
-
-D3DXVECTOR3* WINAPI D3DXVec3Normalize(D3DXVECTOR3* pout, const D3DXVECTOR3* pv)
-{
-	FLOAT norm;
-
-	norm = D3DXVec3Length(pv);
-	if (!norm)
-	{
-		pout->x = 0.0f;
-		pout->y = 0.0f;
-		pout->z = 0.0f;
-	}
-	else
-	{
-		pout->x = pv->x / norm;
-		pout->y = pv->y / norm;
-		pout->z = pv->z / norm;
-	}
-
-	return pout;
-}
-
-
-
-D3DXVECTOR3* D3DXVec3Cross (D3DXVECTOR3* pOut, CONST D3DXVECTOR3* pV1, CONST D3DXVECTOR3* pV2)
-{
-	D3DXVECTOR3 v;
-
-#ifdef D3DX_DEBUG
-	if (!pOut || !pV1 || !pV2)
-		return NULL;
-#endif
-
-	v.x = pV1->y * pV2->z - pV1->z * pV2->y;
-	v.y = pV1->z * pV2->x - pV1->x * pV2->z;
-	v.z = pV1->x * pV2->y - pV1->y * pV2->x;
-
-	*pOut = v;
-	return pOut;
-}
-
-*/
-
-
 void display_message(float x, float y, char text[2048], int r, int g, int b, float fontx, float fonty, int fonttype) {
-
-
 	return;
 }
-
 
 void DrawIndexedItems(int fakel, int vert_index)
 {
@@ -1181,11 +1013,6 @@ void DrawIndexedItems(int fakel, int vert_index)
 				XMVECTOR vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
 				XMVECTOR vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
 
-				//D3DXVECTOR3 vCross, final;
-
-				//D3DXVec3Cross(&vCross, &vDiff, &vDiff2);
-				//D3DXVec3Normalize(&final, &vCross);
-
 				XMVECTOR  vCross, final;
 				vCross = XMVector3Cross(vDiff, vDiff2);
 				final = XMVector3Normalize(vCross);
@@ -1215,7 +1042,6 @@ void DrawIndexedItems(int fakel, int vert_index)
 
 		for (int j = 0; j < dwIndexCount; j++)
 		{
-			//D3DXVECTOR3 a = D3DXVECTOR3(temp_v[j].x, temp_v[j].y, temp_v[j].z);
 			src_v[cnt].x = temp_v[j].x;
 			src_v[cnt].y = temp_v[j].y;
 			src_v[cnt].z = temp_v[j].z;
@@ -1226,9 +1052,7 @@ void DrawIndexedItems(int fakel, int vert_index)
 			src_v[cnt].nz = temp_v[j].nz;
 			cnt++;
 		}
-
 		//SmoothNormals(start_cnt);
-
 	}
 }
 
