@@ -501,9 +501,9 @@ void DungeonStompApp::DisplayHud() {
 		strcpy_s(junk3, "HEALING");
 		sprintf_s(junk, "%s %d", junk3, (int)your_gun[current_gun].x_offset);
 	}
-	else if (strstr(your_gun[current_gun].gunname, "FLAMESWORD") != NULL)
+	else if (strstr(your_gun[current_gun].gunname, "SUPERFLAMESWORD") != NULL)
 	{
-		sprintf_s(junk, "%s", "FLAME SWORD");
+		sprintf_s(junk, "%s", "SUPER SWORD");
 	}
 	else if (strstr(your_gun[current_gun].gunname, "BASTARDSWORD") != NULL)
 	{
@@ -529,9 +529,9 @@ void DungeonStompApp::DisplayHud() {
 	{
 		sprintf_s(junk, "%s", "SPLIT SWORD");
 	}
-	else if (strstr(your_gun[current_gun].gunname, "SUPERFLAMESWORD") != NULL)
+	else if (strstr(your_gun[current_gun].gunname, "FLAMESWORD") != NULL)
 	{
-		sprintf_s(junk, "%s", "SUPER SWORD");
+		sprintf_s(junk, "%s", "FLAME SWORD");
 	}
 	else if (strstr(your_gun[current_gun].gunname, "LIGHTNINGSWORD") != NULL)
 	{
