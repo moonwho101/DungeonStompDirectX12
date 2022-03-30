@@ -1071,7 +1071,6 @@ HRESULT SelectInputDevice()
 }
 
 
-
 LONGLONG DSTimer()
 {
 	LONGLONG cur_time;
@@ -1081,8 +1080,22 @@ LONGLONG DSTimer()
 }
 
 
+void SwitchGun(int gun)
+{
+	if (gun > current_gun) {
 
+		PlayWavSound(SoundID("switch"), 100);
 
+		current_gun = gun;
+
+		player_list[trueplayernum].gunid = your_gun[current_gun].model_id;
+		player_list[trueplayernum].guntex = your_gun[current_gun].skin_tex_id;
+		player_list[trueplayernum].damage1 = your_gun[current_gun].damage1;
+		player_list[trueplayernum].damage2 = your_gun[current_gun].damage2;
+
+		MakeDamageDice();
+	}
+}
 
 
 void CyclePreviousWeapon()

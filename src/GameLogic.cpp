@@ -80,7 +80,7 @@ char levelname[80];
 extern CLoadWorld* pCWorld;
 int ResetPlayer();
 void ClearObjectList();
-
+void SwitchGun(int gun);
 void statusbardisplay(float x, float length, int type);
 
 void MoveMonsters(float fElapsedTime)
@@ -3187,7 +3187,6 @@ void GetItem()
 					}
 					else
 					{
-
 						sprintf_s(gActionMessage, "You found a %s", item_list[i].rname);
 					}
 					UpdateScrollList(0, 245, 255);
@@ -3204,11 +3203,16 @@ void GetItem()
 						junk[strlen(junk) - 1] = '\0';
 
 						if (your_gun[q].model_id == item_list[i].model_id ||
-							strstr(your_gun[q].gunname, junk) != NULL &&
-							strstr(your_gun[q].gunname, "SCROLL") != NULL)
+							strstr(your_gun[q].gunname, junk) != NULL)
 						{
-							your_gun[q].active = 1;
-							your_gun[q].x_offset = your_gun[q].x_offset + 1;
+							if (strstr(your_gun[q].gunname, "SCROLL") != NULL) {
+								your_gun[q].active = 1;
+								your_gun[q].x_offset = your_gun[q].x_offset + 1;
+							}
+							else {
+								//Switch to this wepaon if it is better
+								SwitchGun(q);
+							}
 						}
 					}
 				}

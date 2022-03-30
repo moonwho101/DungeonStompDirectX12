@@ -446,7 +446,7 @@ void DungeonStompApp::DisplayHud() {
 	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.30f, 0.30f)); //, XMFLOAT2(0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f));
 	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(-0.45f, 0.35f), XMFLOAT2(34.00f, 34.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 	
-	RenderRectangle(arialFont, 0, 355, XMFLOAT2(0.02f, 0.74f), XMFLOAT2(6.00f, 6.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	RenderRectangle(arialFont, 0, 355, XMFLOAT2(0.01f, 0.73f), XMFLOAT2(7.00f, 7.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	SetDiceTexture(false);
 	
@@ -483,23 +483,59 @@ void DungeonStompApp::DisplayHud() {
 	char junk3[255];
 	if (strstr(your_gun[current_gun].gunname, "SCROLL-MAGICMISSLE") != NULL)
 	{
-		strcpy_s(junk3, "MAGIC MISSLE");
-		sprintf_s(junk, "%s: %d", junk3, (int)your_gun[current_gun].x_offset);
+		strcpy_s(junk3, "MISSLE");
+		sprintf_s(junk, "%s %d", junk3, (int)your_gun[current_gun].x_offset);
 	}
 	else if (strstr(your_gun[current_gun].gunname, "SCROLL-FIREBALL") != NULL)
 	{
 		strcpy_s(junk3, "FIREBALL");
-		sprintf_s(junk, "%s: %d", junk3, (int)your_gun[current_gun].x_offset);
+		sprintf_s(junk, "%s %d", junk3, (int)your_gun[current_gun].x_offset);
 	}
 	else if (strstr(your_gun[current_gun].gunname, "SCROLL-LIGHTNING") != NULL)
 	{
 		strcpy_s(junk3, "LIGHTNING");
-		sprintf_s(junk, "%s: %d", junk3, (int)your_gun[current_gun].x_offset);
+		sprintf_s(junk, "%s %d", junk3, (int)your_gun[current_gun].x_offset);
 	}
 	else if (strstr(your_gun[current_gun].gunname, "SCROLL-HEALING") != NULL)
 	{
 		strcpy_s(junk3, "HEALING");
-		sprintf_s(junk, "%s: %d", junk3, (int)your_gun[current_gun].x_offset);
+		sprintf_s(junk, "%s %d", junk3, (int)your_gun[current_gun].x_offset);
+	}
+	else if (strstr(your_gun[current_gun].gunname, "FLAMESWORD") != NULL)
+	{
+		sprintf_s(junk, "%s", "FLAME SWORD");
+	}
+	else if (strstr(your_gun[current_gun].gunname, "BASTARDSWORD") != NULL)
+	{
+		sprintf_s(junk, "%s", "BASTARD SWORD");
+	}
+	else if (strstr(your_gun[current_gun].gunname, "BATTLEAXE") != NULL)
+	{
+		sprintf_s(junk, "%s", "BATTLE AXE");
+	}
+	else if (strstr(your_gun[current_gun].gunname, "ICESWORD") != NULL)
+	{
+		sprintf_s(junk, "%s", "ICE SWORD");
+	}
+	else if (strstr(your_gun[current_gun].gunname, "MORNINGSTAR") != NULL)
+	{
+		sprintf_s(junk, "%s", "MORNING STAR");
+	}
+	else if (strstr(your_gun[current_gun].gunname, "SPIKEDFLAIL") != NULL)
+	{
+		sprintf_s(junk, "%s", "SPIKED FLAIL");
+	}
+	else if (strstr(your_gun[current_gun].gunname, "SPLITSWORD") != NULL)
+	{
+		sprintf_s(junk, "%s", "SPLIT SWORD");
+	}
+	else if (strstr(your_gun[current_gun].gunname, "SUPERFLAMESWORD") != NULL)
+	{
+		sprintf_s(junk, "%s", "SUPER SWORD");
+	}
+	else if (strstr(your_gun[current_gun].gunname, "LIGHTNINGSWORD") != NULL)
+	{
+		sprintf_s(junk, "%s", "LIGHT SWORD");
 	}
 	else
 	{
