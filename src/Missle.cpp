@@ -40,7 +40,6 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 	int gun_angle;
 
 	if (maingameloop) {
-
 		//only update fire in mainloop
 		if (player_list[trueplayernum].firespeed > 0)
 		{
@@ -52,7 +51,6 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 
 		for (int i = 0; i < num_monsters; i++)
 		{
-
 			//only update fire in mainloop
 			if (monster_list[i].bIsPlayerValid == TRUE && monster_list[i].firespeed > 0)
 			{
@@ -78,7 +76,6 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 	}
 	else
 	{
-
 		gun_angle = (int)angy;
 	}
 
@@ -89,19 +86,16 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 	else if (firemissle == 1 ||	shoot == 1)
 	{
 		firemissle = 0;
-
 		MissleVelocity.x = 32.0f * sinf(angy * k);
 
 		if (perspectiveview == 0)
 		{
-
 			MissleVelocity.y = 32.0f * sinf(0 * k);
 		}
 		else
 		{
 			float newangle = 0;
 			newangle = fixangle(look_up_ang, 90);
-
 			MissleVelocity.y = 32.0f * sinf(newangle * k);
 		}
 
@@ -155,7 +149,6 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 		{
 			if (player_list[trueplayernum].health < player_list[trueplayernum].hp)
 			{
-
 				int roll = 0;
 				roll = random_num(8) + 1;
 
@@ -257,7 +250,6 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 		dice[1].roll = 1;
 
 		PlayWavSound(your_missle[misslecount].smove, 100);
-
 	}
 
 	saveoldvelocity = savevelocity;
@@ -278,7 +270,6 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 
 	for (misslecount = 0; misslecount < MAX_MISSLE; misslecount++)
 	{
-
 		if (your_missle[misslecount].active == 1)
 		{
 			MissleMove.x = your_missle[misslecount].x;
@@ -306,7 +297,6 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 			//TODO: fix radius
 			eRadius = { 10.0f, 10.0f, 10.0f };
 
-
 			savevelocity = your_missle[misslecount].velocity;
 
 			float realspeed = 600.0f;
@@ -314,7 +304,6 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 			savevelocity.x = (savevelocity).x * realspeed * fTimeKeysave;
 			savevelocity.y = (savevelocity).y * realspeed * fTimeKeysave;
 			savevelocity.z = (savevelocity).z * realspeed * fTimeKeysave;
-
 			
 			foundcollisiontrue = 0;
 			XMFLOAT3 result;
@@ -376,9 +365,7 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 			}
 
 			m_vEyePt = saveeye;
-
 			your_missle[misslecount].qdist = qdist;
-
 		}
 	}
 }
@@ -437,7 +424,6 @@ void ApplyMissleDamage(int playernum)
 	float qdist;
 
 	//type 0=monster 1=player
-
 	for (misslecount = 0; misslecount < MAX_MISSLE; misslecount++)
 	{
 		if (your_missle[misslecount].active == 1)
@@ -458,7 +444,6 @@ void ApplyMissleDamage(int playernum)
 
 					if (qdist < 60.0f)
 					{
-
 						if (your_missle[misslecount].playertype == 0)
 						{
 							//missle is a monsters
@@ -468,7 +453,6 @@ void ApplyMissleDamage(int playernum)
 						{
 							//it is your missle
 							your_missle[misslecount].active = 2;
-
 
 							int volume;
 							volume = 100 - (int)((100 * your_missle[misslecount].qdist) / ((numberofsquares * monsterdist) / 2));
@@ -551,40 +535,32 @@ void ApplyMissleDamage(int playernum)
 								LevelUp(player_list[trueplayernum].xp);
 
 							}
-
-
 						}
 					}
 				}
 			}
 
 			//deal with missles hitting you
-
 			i = trueplayernum;
 			if (player_list[i].bIsPlayerValid == TRUE &&
 				player_list[i].bIsPlayerAlive == TRUE && player_list[i].health > 0)
 			{
-
 				qdist = FastDistance(your_missle[misslecount].x - player_list[i].x,
 					your_missle[misslecount].y - player_list[i].y,
 					your_missle[misslecount].z - player_list[i].z);
 
 				if (qdist < 60.0f)
 				{
-
 					if (your_missle[misslecount].owner == i &&
 						your_missle[misslecount].playertype == 1)
 					{
 						//its current players missle missle dont explode it
 					}
 					else if (your_missle[misslecount].owner != trueplayernum &&
-						your_missle[misslecount].playertype == 1)
-
+	 						 your_missle[misslecount].playertype == 1)
 					{
 						//its other players missle
-
 						your_missle[misslecount].active = 2;
-
 						
 						int volume;
 						volume = 100 - (int)((100 * your_missle[misslecount].qdist) / ((numberofsquares * monsterdist) / 2));
@@ -613,15 +589,12 @@ void ApplyMissleDamage(int playernum)
 						}
 
 						int lvl;
-
 						lvl = your_missle[misslecount].dmg;
-
 						lvl = lvl / 2;
 						if (lvl <= 1)
 							lvl = 1;
 
 						raction = raction * lvl;
-
 						int result = SavingThrow(raction, 1, your_missle[misslecount].owner, misslecount, 1, trueplayernum);
 
 						if (result != raction)
@@ -647,9 +620,7 @@ void ApplyMissleDamage(int playernum)
 
 						ApplyPlayerDamage(trueplayernum, raction);
 					}
-
-					else if (
-						your_missle[misslecount].playertype == 0)
+					else if (your_missle[misslecount].playertype == 0)
 					{
 						//its a monsters missle
 						your_missle[misslecount].active = 2;
@@ -681,15 +652,11 @@ void ApplyMissleDamage(int playernum)
 						}
 
 						int lvl;
-
 						lvl = monster_list[your_missle[misslecount].owner].hd;
-
 						lvl = lvl / 2;
 						if (lvl <= 1)
 							lvl = 1;
-
 						raction = raction * lvl;
-
 						int result = SavingThrow(raction, 0, your_missle[misslecount].owner, misslecount, 1, trueplayernum);
 
 						if (result != raction)
@@ -706,17 +673,13 @@ void ApplyMissleDamage(int playernum)
 
 							UpdateScrollList(255, 0, 0);
 							raction = result;
-
-
 						}
 						else
 						{
 							sprintf_s(gActionMessage, "A spell hit you for %d hp", raction);
 							UpdateScrollList(255, 0, 0);
 						}
-
 						ApplyPlayerDamage(trueplayernum, raction);
-						
 					}
 				}
 			}
@@ -724,13 +687,9 @@ void ApplyMissleDamage(int playernum)
 			//missle near monster
 			for (i = 0; i < num_monsters; i++)
 			{
-
 				if (monster_list[i].bIsPlayerValid == TRUE &&
-					monster_list[i].bIsPlayerAlive == TRUE && monster_list[i].health > 0
-
-					)
+					monster_list[i].bIsPlayerAlive == TRUE && monster_list[i].health > 0)
 				{
-
 					qdist = FastDistance(your_missle[misslecount].x - monster_list[i].x,
 						your_missle[misslecount].y - monster_list[i].y,
 						your_missle[misslecount].z - monster_list[i].z);
@@ -739,60 +698,23 @@ void ApplyMissleDamage(int playernum)
 					{
 						if (your_missle[misslecount].playertype == 0)
 						{
-
 							//yours does nothing
 						}
-						else
+						else {
 							your_missle[misslecount].active = 2;
+						}
 					}
 				}
 			}
-
-			//missle near player (not you)
-			//for (i = 0; i < num_players; i++)
-			//{
-
-			//	if (player_list[i].bIsPlayerValid == TRUE &&
-			//		player_list[i].bIsPlayerAlive == TRUE && i != trueplayernum &&
-			//		player_list[i].health > 0)
-			//	{
-
-			//		qdist = FastDistance(your_missle[misslecount].x - player_list[i].x,
-			//			your_missle[misslecount].y - player_list[i].y,
-			//			your_missle[misslecount].z - player_list[i].z);
-
-			//		if (qdist < 60.0f)
-			//		{
-
-			//			// explode it
-
-			//			if (your_missle[misslecount].owner == i &&
-			//				your_missle[misslecount].playertype == 1)
-			//			{
-			//				//yours does nothing
-			//			}
-			//			else
-			//			{
-			//				your_missle[misslecount].active = 2;
-			//			}
-			//		}
-			//	}
-			//}
 		}
 	}
 }
 
 
-
 int SavingThrow(int damage, int player, int level, int missleid, int isplayer, int id)
 {
-
 	//saving throw = 10 + level of speel + ADJUSTMENT (bonus)
-	
-
-	//todo: fix dice
 	int action = random_num(dice[3].sides) + 1;
-	//int action = random_num(20) + 1;
 
 	int save = 0;
 	int hd = 1;
@@ -883,7 +805,6 @@ void FireMonsterMissle(int monsterid, int type)
 	{
 		if (your_missle[misslecount].active == 0)
 		{
-
 			misslespot = misslecount;
 			break;
 		}
@@ -903,9 +824,6 @@ void FireMonsterMissle(int monsterid, int type)
 	slope1.y = player_list[monster_list[monsterid].closest].y - 10.0f;
 	slope1.z = player_list[monster_list[monsterid].closest].z;
 
-	//slope = Normalize(slope1 - slope);
-	//D3DXVec3Normalize(&slope, &scalc);
-
 	XMVECTOR scalc = XMLoadFloat3(&slope1) - XMLoadFloat3(&slope);
 	XMVECTOR final = XMVector3Normalize(scalc);
 	XMFLOAT3 final2;
@@ -917,10 +835,10 @@ void FireMonsterMissle(int monsterid, int type)
 
 	your_missle[misslespot].model_id = 102;
 
-	float qdist = FastDistance(
-		player_list[trueplayernum].x - your_missle[misslespot].x,
-		player_list[trueplayernum].y - your_missle[misslespot].y,
-		player_list[trueplayernum].z - your_missle[misslespot].z);
+	float qdist = FastDistance(player_list[trueplayernum].x - your_missle[misslespot].x,
+							   player_list[trueplayernum].y - your_missle[misslespot].y,
+							   player_list[trueplayernum].z - your_missle[misslespot].z);
+	
 	your_missle[misslespot].qdist = qdist;
 
 	int volume;
@@ -962,7 +880,6 @@ void FireMonsterMissle(int monsterid, int type)
 		your_missle[misslespot].skin_tex_id = 278;
 	}
 
-
 	//todo: fix this why 
 	//savevelocity = calculatemisslelength(savevelocity);
 
@@ -995,11 +912,5 @@ void FireMonsterMissle(int monsterid, int type)
 
 	}
 	your_missle[misslespot].sexplode = DSound_Replicate_Sound(SoundID("explod2"));
-
-	//D3DVECTOR velocity;
-	//velocity = D3DVECTOR(0, 0, 0);
-
-
 	num_your_missles++;
-
 }
