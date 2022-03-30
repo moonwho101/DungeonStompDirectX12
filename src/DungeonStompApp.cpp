@@ -1024,7 +1024,7 @@ void DungeonStompApp::BuildMaterials()
 	water->DiffuseSrvHeapIndex = 0;
 	water->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 0.5f);
 	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-	water->Roughness = 0.0f;
+	water->Roughness = 0.01f;
 
 	auto brick = std::make_unique<Material>();
 	brick->Name = "brick";
@@ -1040,7 +1040,7 @@ void DungeonStompApp::BuildMaterials()
 	stone->DiffuseSrvHeapIndex = 0;
 	stone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	stone->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	stone->Roughness = 0.3f;
+	stone->Roughness = 0.4f;
 
 	auto tile = std::make_unique<Material>();
 	tile->Name = "tile";
@@ -1055,8 +1055,8 @@ void DungeonStompApp::BuildMaterials()
 	crate->MatCBIndex = 6;
 	crate->DiffuseSrvHeapIndex = 0;
 	crate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	crate->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	crate->Roughness = 0.2f;
+	crate->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
+	crate->Roughness = 0.35f;
 
 	auto ice = std::make_unique<Material>();
 	ice->Name = "ice";
@@ -1064,7 +1064,7 @@ void DungeonStompApp::BuildMaterials()
 	ice->DiffuseSrvHeapIndex = 0;
 	ice->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	ice->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-	ice->Roughness = 0.0f;
+	ice->Roughness = 0.05f;
 
 	auto bone = std::make_unique<Material>();
 	bone->Name = "bone";
@@ -1072,30 +1072,30 @@ void DungeonStompApp::BuildMaterials()
 	bone->DiffuseSrvHeapIndex = 0;
 	bone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	bone->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	bone->Roughness = 0.5f;
+	bone->Roughness = 0.1f;
 
 	auto metal = std::make_unique<Material>();
 	metal->Name = "metal";
 	metal->MatCBIndex = 9;
 	metal->DiffuseSrvHeapIndex = 0;
 	metal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	metal->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	metal->Roughness = 0.7f;
+	metal->FresnelR0 = XMFLOAT3(0.15f, 0.15f, 0.15f);
+	metal->Roughness = 0.21f;
 
 	auto glass = std::make_unique<Material>();
 	glass->Name = "glass";
 	glass->MatCBIndex = 10;
 	glass->DiffuseSrvHeapIndex = 0;
 	glass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	glass->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	glass->Roughness = 0.7f;
+	glass->FresnelR0 = XMFLOAT3(0.06f, 0.06f, 0.06f);
+	glass->Roughness = 0.04f;
 
 	auto wood = std::make_unique<Material>();
 	wood->Name = "wood";
 	wood->MatCBIndex = 11;
 	wood->DiffuseSrvHeapIndex = 0;
 	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	wood->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	wood->FresnelR0 = XMFLOAT3(0.08f, 0.08f, 0.08f);
 	wood->Roughness = 0.6f;
 
 
