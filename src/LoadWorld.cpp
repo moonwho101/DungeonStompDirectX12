@@ -59,6 +59,7 @@ char g_model_filename[256];
 float monx, mony, monz;
 int totalmod;
 
+extern int usespell;
 extern struct gametext gtext[200];
 extern int ResetSound();
 
@@ -2034,6 +2035,15 @@ int load_game(char* filename)
 		player_list[trueplayernum].guntex = your_gun[current_gun].skin_tex_id;
 		player_list[trueplayernum].damage1 = your_gun[current_gun].damage1;
 		player_list[trueplayernum].damage2 = your_gun[current_gun].damage2;
+
+		if (strstr(your_gun[current_gun].gunname, "SCROLL") != NULL)
+		{
+			usespell = 1;
+		}
+		else
+		{
+			usespell = 0;
+		}
 
 		//MakeDamageDice();
 
