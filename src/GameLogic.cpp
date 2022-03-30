@@ -3203,7 +3203,7 @@ void GetItem()
 						junk[strlen(junk) - 1] = '\0';
 
 						if (your_gun[q].model_id == item_list[i].model_id ||
-							strstr(your_gun[q].gunname, junk) != NULL)
+							strcmp(your_gun[q].gunname, junk) == 0)
 						{
 							if (strstr(your_gun[q].gunname, "SCROLL") != NULL) {
 								your_gun[q].active = 1;
@@ -3211,6 +3211,7 @@ void GetItem()
 							}
 							else {
 								//Switch to this wepaon if it is better
+								your_gun[q].active = 1;
 								SwitchGun(q);
 							}
 						}
