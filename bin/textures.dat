@@ -644,7 +644,7 @@ AddTexture  ..\Models\3ds\Goblet\goblet.dds
 Alias  215   GOBLET           OPAQUE  WHOLE  wood
 
 AddTexture  ..\Models\3ds\Goblet\gobjwl.dds
-Alias  216   gobjwl           OPAQUE  WHOLE  default
+Alias  216   gobjwl           OPAQUE  WHOLE  metal
 
 AddTexture  ..\Models\3ds\bucket\bucket.dds
 Alias  217   bucket           OPAQUE  WHOLE  glass
