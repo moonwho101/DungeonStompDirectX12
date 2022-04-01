@@ -84,6 +84,7 @@ void PlaySong();
 void ComputeMissles();
 void DrawMissle();
 void ApplyMissleDamage(int playernum);
+void SmoothNormals(int start_cnt);
 
 extern int jumpvdir;
 extern int jumpstart;
@@ -1046,7 +1047,7 @@ void DrawIndexedItems(int fakel, int vert_index)
 			src_v[cnt].nz = temp_v[j].nz;
 			cnt++;
 		}
-		//SmoothNormals(start_cnt);
+		SmoothNormals(start_cnt);
 	}
 }
 
