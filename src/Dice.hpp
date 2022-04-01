@@ -14,7 +14,7 @@ typedef struct diceroll
 	int rollmax;
 
 	D3DVERTEX2 dicebox[4];
-};
+} dicer;
 
 extern diceroll dice[50];
 extern int numdice;

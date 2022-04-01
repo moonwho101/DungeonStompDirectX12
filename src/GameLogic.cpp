@@ -31,7 +31,7 @@ DOORS door[200];
 int pressopendoor;
 //Door
 int listendoor = 0;
-int listenfailed = 0.0f;
+int listenfailed = 0;
 
 char statusbar[255];
 //BoundingBox
@@ -101,16 +101,15 @@ void MoveMonsters(float fElapsedTime)
 		//fTimeKeysave = 0;
 	//}
 
-	XMFLOAT3 work1, work2, work3, vw1, vw2;
+	XMFLOAT3 work1, work2, vw1, vw2;
 	int i;
 
-	XMFLOAT3 saveeyept, inarea, inarea2, pIPoint, inarea3;
+	XMFLOAT3 saveeyept;
 	int cullloop2 = 0;
 	int raction = 0;
 	int skipmonster = 0;
 
 	XMFLOAT3 result;
-	XMFLOAT3 savepos;
 
 	int cullloop = 0;
 	int cullflag = 0;
@@ -671,8 +670,7 @@ XMFLOAT3 RadiusMultiply(XMFLOAT3  eRadius, XMFLOAT3 vector) {
 int CalculateView(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, bool distancecheck)
 {
 
-	XMFLOAT3 final, final2;
-	XMFLOAT3 m, n, vw1, vw2, work2, work1;// vDiff, normroadold;
+	XMFLOAT3 vw1, vw2, work2, work1;// vDiff, normroadold;
 	float fDot;
 	float convangle;
 	float anglework = 0;
@@ -778,9 +776,7 @@ int CalculateView(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, bool distan
 int CalculateViewMonster(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, float angy)
 {
 
-	//	return 1;
-	XMFLOAT3 final, final2;
-	XMFLOAT3 m, n, vw1, vw2, work2, work1;//, vDiff, normroadold;
+	XMFLOAT3 vw1, vw2, work2, work1;//, vDiff, normroadold;
 	float fDot;
 	float convangle;
 	float anglework = 0;
@@ -934,7 +930,7 @@ void WakeUpMonsters()
 						wy = monster_list[montry].y;
 						wz = monster_list[montry].z;
 
-						D3DVECTOR work2, work1;
+						D3DVECTOR work1;
 
 						work1.x = monster_list[montry].x;
 						work1.y = monster_list[montry].y;
@@ -985,7 +981,7 @@ void WakeUpMonsters()
 						wy = item_list[montry].y;
 						wz = item_list[montry].z;
 
-						D3DVECTOR work2, work1;
+						D3DVECTOR work1;
 
 						work1.x = item_list[montry].x;
 						work1.y = item_list[montry].y;
@@ -1028,7 +1024,7 @@ void WakeUpMonsters()
 						wy = player_list2[montry].y;
 						wz = player_list2[montry].z;
 
-						D3DVECTOR work2, work1;
+						D3DVECTOR work1;
 
 						work1.x = player_list2[montry].x;
 						work1.y = player_list2[montry].y;
@@ -1071,7 +1067,6 @@ int SceneInBox(D3DVECTOR point)
 	int result;
 	float xx, zz;
 	float cosine, sine;
-	D3DVECTOR work1;
 
 	eyex = m_vLookatPt.x;
 	eyez = m_vLookatPt.z;
@@ -1322,7 +1317,7 @@ int OpenDoor(int doornum, float dist, FLOAT fTimeKey)
 
 					senddoorinfo = 0;
 					door[i].open = -100;
-					door[i].y = oblist[doornum].y;
+					door[i].y = (int) oblist[doornum].y;
 				}
 			}
 			else
@@ -1549,8 +1544,6 @@ void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, flo
 
 	D3DPRIMITIVETYPE p_command;
 	BOOL error = TRUE;
-
-	D3DVECTOR v1, v2, vw1, vw2, vw3, vw4, vDiff2, vDiff3, vw5;
 
 	if (angle >= 360)
 		angle = angle - 360;
@@ -1790,8 +1783,6 @@ void PlayerIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float 
 	max_x = wx;
 	max_y = wy;
 	max_z = wz;
-
-	D3DVECTOR v1, v2, vw1, vw2, vw3, vw4, vDiff2, vDiff3, vw5;
 
 	if (curr_frame >= pmdata[pmodel_id].num_frames)
 		curr_frame = 0;
@@ -2102,7 +2093,7 @@ void MonsterHit()
 		if (qdist < 100.0f && player_list[trueplayernum].current_frame >= 50 && player_list[trueplayernum].current_frame <= 50 && (monster_list[i].takedamageonce == 0))
 		{
 
-			XMFLOAT3 work2, work1;
+			XMFLOAT3 work1;
 
 			hitplayer = 1;
 			work1.x = wx;
@@ -2997,7 +2988,6 @@ int FreeSlave()
 int DisplayDamage(float x, float y, float z, int owner, int id, bool criticalhit)
 {
 
-	D3DVECTOR MissleMove;
 	D3DVECTOR MissleVelocity;
 	int misslecount = 0;
 	int misslespot = 0;
@@ -3407,8 +3397,7 @@ int ResetPlayer()
 void ClearObjectList()
 {
 
-	int cell_z;
-	int cell_x;
+
 	int q = 0;
 
 	//for (q = 0; q < oblist_length; q++)

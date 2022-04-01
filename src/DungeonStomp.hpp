@@ -35,7 +35,7 @@ typedef struct RenderItem
 	UINT IndexCount = 0;
 	UINT StartIndexLocation = 0;
 	int BaseVertexLocation = 0;
-};
+} RenderItemMain;
 
 enum class RenderLayer : int
 {
@@ -93,7 +93,7 @@ private:
 	void ScanMod();
 	void DisplayHud();
 	void DisplayPlayerCaption();
-	void DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, bool isAlpha, bool isTorch = false);
+	void DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch = false);
 	
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();

@@ -368,7 +368,7 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 
-int main2();
+int SoundInit();
 HRESULT CreateDInput(HWND hWnd);
 void InitDS();
 
@@ -408,12 +408,9 @@ bool D3DApp::InitMainWindow()
 
 	ShowWindow(mhMainWnd, SW_SHOW);
 	UpdateWindow(mhMainWnd);
-
-	srand(time(NULL));
-
-	main2();
+	srand((unsigned int) time(NULL));
+	SoundInit();
 	CreateDInput(mhMainWnd);
-	//InitDS();
 
 	return true;
 }

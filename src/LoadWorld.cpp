@@ -125,7 +125,6 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 	FILE* fp;
 	char s[256];
 	char p[256];
-	char buffer[100];
 	int y_count = 30;
 	int done = 0;
 	int object_count = 0;
@@ -134,7 +133,6 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 	int poly_count = 0;
 	int object_id;
 	BOOL lwm_start_flag = TRUE;
-	int num_lverts;
 	int mem_counter = 0;
 	int lit_vert;
 	char monsterid[256];
@@ -1335,7 +1333,7 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 
 			fscanf_s(fp, "%s", &p, 256);
 
-			char junk[255];
+			//char junk[255];
 			//sprintf(junk, "..\\bin\\%s", p);
 
 			if (fopen_s(&fp2, p, "r") != 0)

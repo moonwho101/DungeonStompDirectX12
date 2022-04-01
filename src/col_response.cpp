@@ -265,8 +265,6 @@ void ObjectCollision()
 
 	colPack2.foundCollision = false;
 	colPack2.nearestDistance = 10000000;
-	D3DVECTOR realpos;
-
 
 	vertnum = verts_per_poly[vertcount];
 
@@ -415,17 +413,8 @@ void ObjectCollision()
 
 void calculate_block_location()
 {
-
-	TCollisionPacket colPackage;
 	// plane data
-
 	D3DVECTOR p1, p2, p3;
-	D3DVECTOR pNormal;
-	D3DVECTOR pOrigin;
-	D3DVECTOR v1, v2;
-	D3DVECTOR source;
-
-	D3DVECTOR velocity;
 
 	int nohit = 0;
 

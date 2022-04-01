@@ -33,7 +33,7 @@ int countdisplay = 0;
 
 int displayCaptureIndex[1000];
 int displayCaptureCount[1000];
-int displayCapture=0;
+int displayCapture = 0;
 
 
 struct gametext
@@ -73,12 +73,12 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 
 	// extract font name
 	fs >> tmp >> tmp; // info face="Arial"
-	startpos = tmp.find(L"\"") + 1;
+	startpos = (int)tmp.find(L"\"") + 1;
 	font.name = tmp.substr(startpos, tmp.size() - startpos - 1);
 
 	// get font size
 	fs >> tmp; // size=73
-	startpos = tmp.find(L"=") + 1;
+	startpos = (int)tmp.find(L"=") + 1;
 	font.size = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// bold, italic, charset, unicode, stretchH, smooth, aa, padding, spacing
@@ -86,21 +86,21 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 
 	// get padding
 	fs >> tmp; // padding=5,5,5,5 
-	startpos = tmp.find(L"=") + 1;
+	startpos = (int)tmp.find(L"=") + 1;
 	tmp = tmp.substr(startpos, tmp.size() - startpos); // 5,5,5,5
 
 	// get up padding
-	startpos = tmp.find(L",") + 1;
+	startpos = (int)tmp.find(L",") + 1;
 	font.toppadding = std::stoi(tmp.substr(0, startpos)) / (float)windowWidth;
 
 	// get right padding
 	tmp = tmp.substr(startpos, tmp.size() - startpos);
-	startpos = tmp.find(L",") + 1;
+	startpos = (int)tmp.find(L",") + 1;
 	font.rightpadding = std::stoi(tmp.substr(0, startpos)) / (float)windowWidth;
 
 	// get down padding
 	tmp = tmp.substr(startpos, tmp.size() - startpos);
-	startpos = tmp.find(L",") + 1;
+	startpos = (int)tmp.find(L",") + 1;
 	font.bottompadding = std::stoi(tmp.substr(0, startpos)) / (float)windowWidth;
 
 	// get left padding
@@ -111,22 +111,22 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 
 	// get lineheight (how much to move down for each line), and normalize (between 0.0 and 1.0 based on size of font)
 	fs >> tmp >> tmp; // common lineHeight=95
-	startpos = tmp.find(L"=") + 1;
+	startpos = (int)tmp.find(L"=") + 1;
 	font.lineHeight = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
 
 	// get base height (height of all characters), and normalize (between 0.0 and 1.0 based on size of font)
 	fs >> tmp; // base=68
-	startpos = tmp.find(L"=") + 1;
+	startpos = (int)tmp.find(L"=") + 1;
 	font.baseHeight = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
 
 	// get texture width
 	fs >> tmp; // scaleW=512
-	startpos = tmp.find(L"=") + 1;
+	startpos = (int)tmp.find(L"=") + 1;
 	font.textureWidth = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// get texture height
 	fs >> tmp; // scaleH=512
-	startpos = tmp.find(L"=") + 1;
+	startpos = (int)tmp.find(L"=") + 1;
 	font.textureHeight = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// get pages, packed, page id
@@ -136,12 +136,12 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	// get texture filename
 	std::wstring wtmp;
 	fs >> wtmp; // file="Arial.png"
-	startpos = wtmp.find(L"\"") + 1;
+	startpos = (int)wtmp.find(L"\"") + 1;
 	font.fontImage = wtmp.substr(startpos, wtmp.size() - startpos - 1);
 
 	// get number of characters
 	fs >> tmp >> tmp; // chars count=97
-	startpos = tmp.find(L"=") + 1;
+	startpos = (int)tmp.find(L"=") + 1;
 	font.numCharacters = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// initialize the character list
@@ -151,46 +151,46 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	{
 		// get unicode id
 		fs >> tmp >> tmp; // char id=0
-		startpos = tmp.find(L"=") + 1;
+		startpos = (int)tmp.find(L"=") + 1;
 		font.CharList[c].id = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 		// get x
 		fs >> tmp; // x=392
-		startpos = tmp.find(L"=") + 1;
+		startpos = (int)tmp.find(L"=") + 1;
 		font.CharList[c].u = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)font.textureWidth;
 
 		// get y
 		fs >> tmp; // y=340
-		startpos = tmp.find(L"=") + 1;
+		startpos = (int)tmp.find(L"=") + 1;
 		font.CharList[c].v = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)font.textureHeight;
 
 		// get width
 		fs >> tmp; // width=47
-		startpos = tmp.find(L"=") + 1;
+		startpos = (int)tmp.find(L"=") + 1;
 		tmp = tmp.substr(startpos, tmp.size() - startpos);
 		font.CharList[c].width = (float)std::stoi(tmp) / (float)windowWidth;
 		font.CharList[c].twidth = (float)std::stoi(tmp) / (float)font.textureWidth;
 
 		// get height
 		fs >> tmp; // height=57
-		startpos = tmp.find(L"=") + 1;
+		startpos = (int)tmp.find(L"=") + 1;
 		tmp = tmp.substr(startpos, tmp.size() - startpos);
 		font.CharList[c].height = (float)std::stoi(tmp) / (float)windowHeight;
 		font.CharList[c].theight = (float)std::stoi(tmp) / (float)font.textureHeight;
 
 		// get xoffset
 		fs >> tmp; // xoffset=-6
-		startpos = tmp.find(L"=") + 1;
+		startpos = (int)tmp.find(L"=") + 1;
 		font.CharList[c].xoffset = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowWidth;
 
 		// get yoffset
 		fs >> tmp; // yoffset=16
-		startpos = tmp.find(L"=") + 1;
+		startpos = (int)tmp.find(L"=") + 1;
 		font.CharList[c].yoffset = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowHeight;
 
 		// get xadvance
 		fs >> tmp; // xadvance=65
-		startpos = tmp.find(L"=") + 1;
+		startpos = (int)tmp.find(L"=") + 1;
 		font.CharList[c].xadvance = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos)) / (float)windowWidth;
 
 		// get page
@@ -200,7 +200,7 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 
 	// get number of kernings
 	fs >> tmp >> tmp; // kernings count=96
-	startpos = tmp.find(L"=") + 1;
+	startpos = (int)tmp.find(L"=") + 1;
 	font.numKernings = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 	// initialize the kernings list
@@ -210,18 +210,18 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	{
 		// get first character
 		fs >> tmp >> tmp; // kerning first=87
-		startpos = tmp.find(L"=") + 1;
+		startpos = (int)tmp.find(L"=") + 1;
 		font.KerningsList[k].firstid = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 		// get second character
 		fs >> tmp; // second=45
-		startpos = tmp.find(L"=") + 1;
+		startpos = (int)tmp.find(L"=") + 1;
 		font.KerningsList[k].secondid = std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 
 		// get amount
 		fs >> tmp; // amount=-1
-		startpos = tmp.find(L"=") + 1;
-		int t = (float)std::stoi(tmp.substr(startpos, tmp.size() - startpos));
+		startpos = (int)tmp.find(L"=") + 1;
+		int t = (int)std::stoi(tmp.substr(startpos, tmp.size() - startpos));
 		font.KerningsList[k].amount = (float)t / (float)windowWidth;
 	}
 
@@ -445,11 +445,11 @@ void DungeonStompApp::DisplayHud() {
 	//display_message(5.0f, (FLOAT)wHeight - adjust - 14.0f, junk, 255, 255, 0, 12.5, 16, 0);
 	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.8f), XMFLOAT2(0.30f, 0.30f)); //, XMFLOAT2(0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f));
 	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(-0.45f, 0.35f), XMFLOAT2(34.00f, 34.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
-	
+
 	RenderRectangle(arialFont, 0, 355, XMFLOAT2(0.02f, 0.74f), XMFLOAT2(6.00f, 6.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	SetDiceTexture(false);
-	
+
 	int diceTexture = FindTextureAlias(dice[0].name);
 	RenderRectangle(arialFont, 1, diceTexture, XMFLOAT2(0.475f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
@@ -640,7 +640,7 @@ void DungeonStompApp::DisplayHud() {
 
 
 
-	
+
 
 
 
@@ -684,7 +684,7 @@ void DungeonStompApp::ScanMod()
 						if (gotone == 0)
 						{
 							//DisplayDialogText(levelmodify[counter].Text1, -20.0f);
-							int len = strlen(levelmodify[counter].Text1);
+							int len = (int)strlen(levelmodify[counter].Text1);
 							len = len / 2;
 							RenderText(arialFont, charToWChar(levelmodify[counter].Text1), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
@@ -740,7 +740,7 @@ void DungeonStompApp::ScanMod()
 						if (gotone == 0)
 						{
 							//DisplayDialogText(levelmodify[counter].Text1, -20.0f);
-							int len = strlen(levelmodify[counter].Text1);
+							int len = (int)strlen(levelmodify[counter].Text1);
 							len = len / 2;
 							RenderText(arialFont, charToWChar(levelmodify[counter].Text1), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 						}
@@ -774,7 +774,7 @@ void DungeonStompApp::ScanMod()
 						if (gotone == 0)
 						{
 							//DisplayDialogText(levelmodify[counter].Text1, -20.0f);
-							int len = strlen(levelmodify[counter].Text1);
+							int len = (int)strlen(levelmodify[counter].Text1);
 							len = len / 2;
 							RenderText(arialFont, charToWChar(levelmodify[counter].Text1), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
@@ -856,7 +856,7 @@ void DungeonStompApp::ScanMod()
 						if (gotone == 0)
 						{
 							//DisplayDialogText(levelmodify[counter].Text1, -20.0f);
-							int len = strlen(levelmodify[counter].Text1);
+							int len = (int)strlen(levelmodify[counter].Text1);
 							len = len / 2;
 							RenderText(arialFont, charToWChar(levelmodify[counter].Text1), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
@@ -963,7 +963,7 @@ void DungeonStompApp::SetDungeonText()
 									//DisplayDialogText(gtext[il].text, 0.0f);
 									//XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
 
-									int len = strlen(gtext[il].text);
+									int len = (int)strlen(gtext[il].text);
 									len = len / 2;
 									RenderText(arialFont, charToWChar(gtext[il].text), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 								}
@@ -981,7 +981,6 @@ void DungeonStompApp::SetDungeonText()
 void DungeonStompApp::DisplayPlayerCaption() {
 
 	int i;
-	float x, y, z;
 	float pangle = 0;
 	int countit = 0;
 	int cullloop = 0;
@@ -1003,7 +1002,7 @@ void DungeonStompApp::DisplayPlayerCaption() {
 
 	int totalcount = 0;
 	displayCapture = 0;
-	
+
 
 	for (j = 0; j < num_monsters; j++)
 	{
@@ -1024,7 +1023,7 @@ void DungeonStompApp::DisplayPlayerCaption() {
 
 		if (monster_list[j].bIsPlayerValid && cullflag == 1 && monster_list[j].bStopAnimating == FALSE)
 		{
-			len = strlen(monster_list[j].chatstr);
+			len = (int)strlen(monster_list[j].chatstr);
 
 			//TODO: why?
 			//if (len > 0)
@@ -1061,8 +1060,6 @@ void DungeonStompApp::DisplayPlayerCaption() {
 
 				display_font(0.0f, 0.0f, junk2, 255, 255, 0);
 
-
-				XMFLOAT3 collidenow;
 				XMFLOAT3 normroadold;
 				XMFLOAT3 vw1, vw2;
 
@@ -1112,8 +1109,8 @@ void DungeonStompApp::DisplayPlayerCaption() {
 
 
 				displayCaptureIndex[displayCapture] = cnt;;
-				displayCaptureCount[displayCapture] = strlen(junk2);
-				
+				displayCaptureCount[displayCapture] = (int)strlen(junk2);
+
 
 				for (i = 0; i < ((countdisplay)); i += 1)
 				{
@@ -1200,7 +1197,7 @@ void display_font(float x, float y, char text[1000], int r, int g, int b)
 	int countreverse = 0;
 	float xcol;
 	xcol = x;
-	textlen = strlen(text);
+	textlen = (int)strlen(text);
 	textmid = textlen / 2;
 
 	fontsize = 5;
@@ -1231,7 +1228,7 @@ void display_font(float x, float y, char text[1000], int r, int g, int b)
 	righttext[countr] = '\0';
 
 	strcpy_s(newtext, righttext);
-	countreverse = strlen(lefttext);
+	countreverse = (int) strlen(lefttext);
 
 	for (i = 1; i <= (int)strlen(lefttext); i++)
 	{
@@ -1261,7 +1258,7 @@ void display_font(float x, float y, char text[1000], int r, int g, int b)
 			strcpy_s(newtext, righttext);
 		}
 
-		intTextLength = strlen(newtext);
+		intTextLength = (int)strlen(newtext);
 
 		for (i = 0; i < intTextLength; i++)
 		{

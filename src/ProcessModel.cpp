@@ -94,11 +94,10 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 	int vert_cnt;
 	int w, i;
 	float x, y, z;
-	float pos_x, pos_y, pos_z;
-	float dir_x, dir_y, dir_z;
+	
 	D3DPRIMITIVETYPE poly_command;
 	BOOL poly_command_error = TRUE;
-	XMFLOAT3 v1, v2, vw1, vw2, vw3, vw4, vDiff2, vDiff3, vw5;
+
 	float workx, worky, workz;
 	int countnorm = 0;
 
@@ -166,7 +165,6 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 		{
 			oblist[oblist_index].monstertexture = cresult;
 
-			XMFLOAT3 collidenow;
 			XMFLOAT3 normroadold;
 			XMFLOAT3 work1, work2;
 
@@ -576,9 +574,9 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 	float my[224];
 	float mz[224];
 
-	//int weapondrop = 0;
 
-	XMFLOAT3 v1, v2, vw1, vw2, vw3, vw4, vDiff2, vDiff3, vw5;
+
+	XMFLOAT3 vw1, vw2, vw3;
 	float workx, worky, workz;
 
 	if (angle >= 360)
@@ -957,7 +955,7 @@ void SmoothNormals(int start_cnt) {
 				//D3DXVECTOR3 sum = D3DXVECTOR3(0, 0, 0);
 				XMVECTOR sum = XMVectorSet(0,0,0,0);
 
-				XMFLOAT3 x1, x2, x3;
+				XMFLOAT3 x1;
 				XMVECTOR average;
 
 				for (int k = 0;k < scount;k++) {
@@ -967,7 +965,7 @@ void SmoothNormals(int start_cnt) {
 					sum = sum + XMLoadFloat3(&x1);
 				}
 
-				sum = sum / scount;
+				sum = sum / (float) scount;
 				//D3DXVec3Normalize(&average, &sum);
 				average = XMVector3Normalize(sum);
 				XMFLOAT3 final2;
@@ -1675,12 +1673,11 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 	float rx, ry, rz;
 	float tx, ty;
 	int count_v = 0;
-	FILE* fp;
 	float mx[6000];
 	float my[6000];
 	float mz[6000];
 	float workx, worky, workz;
-	XMFLOAT3 v1, v2, vw1, vw2, vw3, vw4, vw5;
+	XMFLOAT3 vw1, vw2, vw3;
 
 	float x_off = 0;
 	float y_off = 0;
@@ -1763,12 +1760,6 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 				rx = newx;
 				ry = (newy * cosf(0.0f * k) - newz * sinf(0.0f * k));
 				rz = (newy * sinf(0.0f * k) + newz * cosf(0.0f * k));
-
-				D3DMATRIX matW;
-				D3DMATRIX matPoint;
-				D3DMATRIX matRotateX;
-				D3DMATRIX matRotateY;
-				D3DMATRIX matRotateZ;
 			}
 			else
 			{

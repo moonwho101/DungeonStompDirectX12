@@ -1201,7 +1201,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 }
 
 
-void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, bool isAlpha, bool isTorch) {
+void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch) {
 
 	auto ri = ritems[2];
 
@@ -1218,7 +1218,7 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 	{
 		int i = ObjectsToDraw[currentObject].vert_index;
 		int vert_index = ObjectsToDraw[currentObject].srcstart;
-		int fperpoly = (float)ObjectsToDraw[currentObject].srcfstart;
+		int fperpoly = ObjectsToDraw[currentObject].srcfstart;
 		int face_index = ObjectsToDraw[currentObject].srcfstart;
 
 		int texture_alias_number = texture_list_buffer[i];
@@ -1365,7 +1365,7 @@ void DungeonStompApp::BuildDescriptorHeaps()
 
 
 	// create upload heap. We will fill this with data for our text
-	ID3D12Resource* vBufferUploadHeap;
+	
 	HRESULT hr = md3dDevice->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
 		D3D12_HEAP_FLAG_NONE, // no flags
@@ -1446,7 +1446,7 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 		{
 			fscanf_s(fp, "%s", &p, 256);
 			//remember the file
-			strcpy(f, p);
+			strcpy_s(f,256, p);
 			tex_counter++;
 		}
 
@@ -1657,7 +1657,8 @@ static wchar_t* charToWChar(const char* text)
 {
 	const size_t size = strlen(text) + 1;
 	wchar_t* wText = new wchar_t[size];
-	mbstowcs(wText, text, size);
+	size_t outSize;
+	mbstowcs_s(&outSize,wText,size, text, size);
 	return wText;
 }
 

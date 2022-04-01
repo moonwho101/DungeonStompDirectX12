@@ -104,8 +104,6 @@ extern int jump;
 
 void InitDS()
 {
-	HRESULT hr;
-
 	verts_per_poly = new int[MAX_NUM_QUADS];
 	src_v = new D3DVERTEX2[MAX_NUM_QUADS];
 	dp_commands = new D3DPRIMITIVETYPE[MAX_NUM_QUADS];
@@ -510,7 +508,7 @@ void UpdateWorld(float fElapsedTime) {
 	{
 		int i = ObjectsToDraw[lsort].vert_index;
 		int vert_index = ObjectsToDraw[lsort].srcstart;
-		int fperpoly = (float)ObjectsToDraw[lsort].srcfstart;
+		int fperpoly = ObjectsToDraw[lsort].srcfstart;
 		int face_index = ObjectsToDraw[lsort].srcfstart;
 
 		if (dp_command_index_mode[i] == 1) {  //USE_NON_INDEXED_DP
@@ -834,9 +832,6 @@ int initDSTimer()
 
 void ComputeMissles()
 {
-
-	XMFLOAT3 vw1, vw2;
-
 	fDot2 = 0.0f;
 	weapondrop = 0;
 
@@ -853,9 +848,8 @@ void ComputeMissles()
 			int tex;
 			tex = your_missle[misslecount].skin_tex_id;
 
-			XMFLOAT3 collidenow;
 			XMFLOAT3 normroadold;
-			XMFLOAT3 work1, work2, vDiff;
+			XMFLOAT3 work1, work2;
 			normroadold.x = 50;
 			normroadold.y = 0;
 			normroadold.z = 0;

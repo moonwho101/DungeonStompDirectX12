@@ -1,3 +1,5 @@
+#define DIRECTINPUT_VERSION 0x0800
+
 #include "resource.h"
 #include "d3dtypes.h"
 #include "LoadWorld.hpp"
@@ -8,6 +10,7 @@
 #include "DirectInput.hpp"
 #include "GameLogic.hpp"
 #include "Dice.hpp"
+
 
 //Only one input device should be true.  Set g_bUseJoystick=true for xbox controller.
 BOOL g_bUseMouse = true;
@@ -190,7 +193,7 @@ VOID UpdateControls()
 	// Read from input devices
 	if (g_Keyboard_pDI)
 	{
-		HRESULT hr;
+		HRESULT hr = NULL;
 		//  BYTE         diks[256]; // DInput keyboard state buffer
 		DIMOUSESTATE dims; // DInput mouse state structure
 		DIJOYSTATE2 dijs;   // DInput joystick state structure
@@ -384,13 +387,13 @@ VOID UpdateControls()
 			if (dijs.lRy < 32767)
 			{
 				//up
-				Controls.bHeadUp = -1.0f;
+				Controls.bHeadUp = -1;
 			}
 
 			if (dijs.lRy > 32767)
 			{
 				//down
-				Controls.bHeadDown = 1.0f;
+				Controls.bHeadDown = 1;
 			}
 
 			//Left Controller - Move
@@ -798,7 +801,7 @@ HRESULT CreateInputDevice(IDirectInput8* pDI, IDirectInputDevice8* pDIdDevice, G
 	result = g_pDI->CreateDevice(guidDevice, &pDIdDevice, NULL);
 	if (FAILED(result))
 	{
-		return false;
+		return 0;
 	}
 
 	// Set the device data format. Note: a data format specifies which
@@ -808,7 +811,7 @@ HRESULT CreateInputDevice(IDirectInput8* pDI, IDirectInputDevice8* pDIdDevice, G
 	result = pDIdDevice->SetDataFormat(pdidDataFormat);
 	if (FAILED(result))
 	{
-		return false;
+		return 0;
 	}
 
 	//HWND hWnd = DXUTGetHWND();
@@ -1059,8 +1062,8 @@ void GiveWeapons()
 void smooth_mouse(float time_d, float realx, float realy) {
 	double d = 1 - exp(log(0.5) * springiness * time_d);
 
-	use_x += (realx - use_x) * d;
-	use_y += (realy - use_y) * d;
+	use_x += ((realx - use_x) * (float) d);
+	use_y += (realy - use_y) * (float) d;
 
 	//sprintf(gActionMessage, "%9.6f %9.6f",use_x,use_y);
 	//UpdateScrollList(0, 245, 255);

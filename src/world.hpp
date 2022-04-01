@@ -32,7 +32,7 @@ typedef struct CUSTOMVERTEXTEST
 	FLOAT tu, tv;   // The texture coordinates
 
 #endif
-};
+} CUSTOMVERT;
 
 typedef struct texturemapping_typ
 {
@@ -278,29 +278,6 @@ typedef struct pmdata_typ
 	char name[256];
 
 } PLAYERMODELDATA, * pmdata_ptr;
-/*
-typedef struct objectdata_typ
-{
-	VERT v[2000]; // 6000
-	VERT t[2000]; // 6000
-	int f[2000];
-	int num_vert[2000];
-	D3DPRIMITIVETYPE poly_cmd[2000];
-	int tex[2000];
-	BOOL use_texmap[2000];
-	char name[256];
-	VERT connection[4];
-	char typedesc[255];
-
-	int hd;
-	int ac;
-	int hp;
-	int damage;
-
-
-
-} OBJECTDATA,*objectdata_ptr;
-*/
 
 typedef struct objectdata_typ
 {

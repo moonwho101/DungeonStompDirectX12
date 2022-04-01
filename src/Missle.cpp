@@ -420,7 +420,6 @@ void DrawMissle()
 void ApplyMissleDamage(int playernum)
 {
 	int misslecount = 0, i = 0;
-	D3DVECTOR MissleMove;
 	float qdist;
 
 	//type 0=monster 1=player
@@ -787,8 +786,6 @@ int SavingThrow(int damage, int player, int level, int missleid, int isplayer, i
 void FireMonsterMissle(int monsterid, int type)
 {
 
-	XMFLOAT3 MissleMove;
-	XMFLOAT3 MissleVelocity;
 	int misslecount = 0;
 	int misslespot = 0;
 	float gun_angle;

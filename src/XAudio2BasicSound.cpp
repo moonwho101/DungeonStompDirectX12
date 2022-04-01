@@ -78,7 +78,7 @@ void MakeWave(char* file, std::unique_ptr<uint8_t[]> waveFile);
 //--------------------------------------------------------------------------------------
 // Entry point to the program
 //--------------------------------------------------------------------------------------
-int main2()
+int SoundInit()
 {
     //
     // Initialize XAudio2
@@ -194,6 +194,8 @@ int main2()
     sound_buffer = new SOUNDBUFFER[250];
     sound_list = new SOUNDLIST[1250];
     LoadSoundFiles("sounds.dat");
+
+    return 1;
 }
 
 void ShutDownSound() {
@@ -654,7 +656,7 @@ void PlaySong() {
         if (sound_list[i].type == 1)
         {
             if (count == raction) {
-                PlayWavSound(SoundID(sound_list[i].name), 90.0f);
+                PlayWavSound(SoundID(sound_list[i].name), 90);
                 playingsong = i;
                 break;
             }
@@ -789,8 +791,7 @@ static wchar_t* charToWChar(const char* text)
 {
     const size_t size = strlen(text) + 1;
     wchar_t* wText = new wchar_t[size];
-
-    //TODO: Fix this
-    mbstowcs(wText, text, size);
+    size_t outSize;
+    mbstowcs_s(&outSize, wText, size, text, size);
     return wText;
 }
