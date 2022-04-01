@@ -1,5 +1,4 @@
 #include "col_global.h"
-#include "D3DUtil.h"
 #include <DirectXMath.h>
 using namespace DirectX;
 

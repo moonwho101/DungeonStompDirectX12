@@ -181,7 +181,6 @@
     <ClInclude Include="..\Common\UploadBuffer.h" />
     <ClInclude Include="col_global.h" />
     <ClInclude Include="col_local.h" />
-    <ClInclude Include="d3dutil.h" />
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="Dice.hpp" />
     <ClInclude Include="DirectInput.hpp" />

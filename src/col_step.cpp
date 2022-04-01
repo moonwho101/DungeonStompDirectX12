@@ -1,5 +1,4 @@
 #include "col_local.h"
-#include "D3DUtil.h"
 #include "world.hpp"
 #include "ImportMD2.hpp"
 #include "Import3DS.hpp"

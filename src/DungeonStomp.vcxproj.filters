@@ -101,9 +101,6 @@
     <ClInclude Include="Dungeon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="d3dutil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="col_global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
