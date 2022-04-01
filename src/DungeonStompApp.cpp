@@ -44,7 +44,7 @@ extern int displayCapture;
 
 std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
 extern int number_of_tex_aliases;
-static wchar_t* charToWChar(const char* text);
+
 ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
 extern ID3D12PipelineState* textPSO; // pso containing a pipeline state
 extern ID3D12PipelineState* rectanglePSO[MaxRectangle]; // pso containing a pipeline state
@@ -1650,16 +1650,6 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 	fclose(fp);
 
 	return TRUE;
-}
-
-
-static wchar_t* charToWChar(const char* text)
-{
-	const size_t size = strlen(text) + 1;
-	wchar_t* wText = new wchar_t[size];
-	size_t outSize;
-	mbstowcs_s(&outSize,wText,size, text, size);
-	return wText;
 }
 
 

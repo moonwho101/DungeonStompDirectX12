@@ -41,7 +41,7 @@ void InitWorldMap();
 int FindTextureAlias(char* alias);
 int CheckValidTextureAlias(char* alias);
 extern void AddModel(float x, float y, float z, float rot_angle, float monsterid, float monstertexture, float monnum, char modelid[80], char modeltexture[80], int ability);
-static wchar_t* charToWChar(const char* text);
+
 int FindTextureAlias(char* alias);
 int CheckValidTextureAlias(char* alias);
 extern int monsterenable;

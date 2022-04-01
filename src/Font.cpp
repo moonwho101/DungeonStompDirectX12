@@ -25,7 +25,6 @@ ID3D12PipelineState* textPSO; // pso containing a pipeline state
 ID3D12PipelineState* rectanglePSO[MaxRectangle]; // pso containing a pipeline state
 
 Font arialFont; // this will store our arial font information
-static wchar_t* charToWChar(const char* text);
 void display_font(float x, float y, char text[1000], int r, int g, int b);
 
 D3DVERTEX2 bubble[600];
@@ -921,16 +920,6 @@ void DungeonStompApp::ScanMod()
 		}
 		counter++;
 	}
-}
-
-static wchar_t* charToWChar(const char* text)
-{
-	const size_t size = strlen(text) + 1;
-	wchar_t* wText = new wchar_t[size];
-
-	//TODO: Fix this
-	mbstowcs(wText, text, size);
-	return wText;
 }
 
 

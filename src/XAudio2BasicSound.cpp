@@ -52,7 +52,6 @@ SOUNDBUFFER* sound_buffer;
 
 SOUNDLIST* sound_list;
 BOOL LoadSoundFiles(char* filename);
-static wchar_t* charToWChar(const char* text);
 
 //--------------------------------------------------------------------------------------
 // Forward declaration
@@ -784,14 +783,4 @@ int ResetSound()
     numsounds = numcoresounds;
 
     return 1;
-}
-
-
-static wchar_t* charToWChar(const char* text)
-{
-    const size_t size = strlen(text) + 1;
-    wchar_t* wText = new wchar_t[size];
-    size_t outSize;
-    mbstowcs_s(&outSize, wText, size, text, size);
-    return wText;
 }

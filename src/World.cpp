@@ -1050,3 +1050,14 @@ void DrawIndexedItems(int fakel, int vert_index)
 	}
 }
 
+
+wchar_t* charToWChar(const char* text)
+{
+	const size_t size = strlen(text) + 1;
+	wchar_t* wText = new wchar_t[size];
+	size_t outSize;
+	mbstowcs_s(&outSize, wText, size, text, size);
+	return wText;
+}
+
+

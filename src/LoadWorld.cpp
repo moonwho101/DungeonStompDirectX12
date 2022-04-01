@@ -92,7 +92,7 @@ typedef struct startposition
 	float y;
 	float z;
 	float angle;
-};
+} startpos2;
 
 
 //typedef enum _D3DPRIMITIVETYPE {
@@ -2183,3 +2183,6 @@ int load_level(char* filename)
 
 	return 1;
 }
+
+
+

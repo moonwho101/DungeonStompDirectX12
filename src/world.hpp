@@ -540,6 +540,6 @@ int SoundID(char* name);
 int FreeSlave();
 void CheckMidiMusic();
 int MakeDice();
-
+wchar_t* charToWChar(const char* text);
 
 #endif // __WORLD_H__
