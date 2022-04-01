@@ -14,7 +14,7 @@ void ConvertTraingleStrip(int fan_cnt);
 void ConvertTraingleFan(int fan_cnt);
 extern OBJECTLIST* oblist;
 extern OBJECTDATA* obdata;
-extern D3DVERTEX boundingbox[2000];
+extern D3DVERTEX2 boundingbox[2000];
 int cnt_f = 0;
 float px[100], py[100], pz[100], pw[100];
 float mx[100], my[100], mz[100], mw[100];
@@ -33,9 +33,9 @@ int* verts_per_poly;
 int number_of_polys_per_frame;
 int* faces_per_poly;
 int* src_f;
-D3DVERTEX temp_v[120000]; // debug
+D3DVERTEX2 temp_v[120000]; // debug
 int tempvcounter = 0;
-D3DVERTEX* src_v;
+D3DVERTEX2* src_v;
 int drawthistri = 1;
 extern float culldist;
 
@@ -1708,7 +1708,7 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 	}*/
 
 	// process and transfer the model data from the pmdata structure
-	// to the array of D3DVERTEX structures, src_v
+	// to the array of D3DVERTEX2 structures, src_v
 
 	num_poly = pmdata[pmodel_id].num_polys_per_frame;
 

@@ -107,7 +107,7 @@ void InitDS()
 	HRESULT hr;
 
 	verts_per_poly = new int[MAX_NUM_QUADS];
-	src_v = new D3DVERTEX[MAX_NUM_QUADS];
+	src_v = new D3DVERTEX2[MAX_NUM_QUADS];
 	dp_commands = new D3DPRIMITIVETYPE[MAX_NUM_QUADS];
 	dp_command_index_mode = new BOOL[MAX_NUM_QUADS];
 	num_vert_per_object = new int[MAX_NUM_QUADS];
@@ -984,9 +984,9 @@ void DrawIndexedItems(int fakel, int vert_index)
 		for (int t = 0; t < (int)dwIndexCount; t++)
 		{
 			int f_index = src_f[face_index + t];
-			memset(&temp_v[t], 0, sizeof(D3DVERTEX));
+			memset(&temp_v[t], 0, sizeof(D3DVERTEX2));
 			memcpy(&temp_v[t], &src_v[vert_index + f_index],
-				sizeof(D3DVERTEX));
+				sizeof(D3DVERTEX2));
 		}
 
 		int counttri = 0;

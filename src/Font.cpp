@@ -28,7 +28,7 @@ Font arialFont; // this will store our arial font information
 static wchar_t* charToWChar(const char* text);
 void display_font(float x, float y, char text[1000], int r, int g, int b);
 
-D3DVERTEX bubble[600];
+D3DVERTEX2 bubble[600];
 int countdisplay = 0;
 
 int displayCaptureIndex[1000];
@@ -1752,7 +1752,7 @@ void display_font(float x, float y, char text[1000], int r, int g, int b)
 
 			adjust = 0;
 
-			//m_BackgroundMesh[countdisplay] = D3DVERTEX(D3DVECTOR(0, 0, 0.99f), 0.5f, -1, 0, tuad * tu, tvad * (tv - 1.0f));
+			//m_BackgroundMesh[countdisplay] = D3DVERTEX2(D3DVECTOR(0, 0, 0.99f), 0.5f, -1, 0, tuad * tu, tvad * (tv - 1.0f));
 
 			//m_BackgroundMesh[countdisplay].sx = (x + (itrue * fontsize)) + adjust;
 			//m_BackgroundMesh[countdisplay].sy = y;

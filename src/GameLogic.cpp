@@ -26,7 +26,7 @@ int monsterobject[1000];
 int trueplayernum = 0;
 int numberofsquares = 11;
 float monsterdist = 150.0f;
-D3DVERTEX showview[10];
+D3DVERTEX2 showview[10];
 DOORS door[200];
 int pressopendoor;
 //Door
@@ -36,7 +36,7 @@ int listenfailed = 0.0f;
 char statusbar[255];
 //BoundingBox
 int excludebox = 0;
-D3DVERTEX boundingbox[2000];
+D3DVERTEX2 boundingbox[2000];
 int countboundingbox = 0;
 extern int currentmonstercollisionid;
 extern int criticalhiton;
@@ -1807,7 +1807,7 @@ void PlayerIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float 
 	//		fp = fopen("ds.txt","a");
 
 	// process and transfer the model data from the pmdata structure
-	// to the array of D3DVERTEX structures, src_v
+	// to the array of D3DVERTEX2 structures, src_v
 
 	num_poly = pmdata[pmodel_id].num_polys_per_frame;
 

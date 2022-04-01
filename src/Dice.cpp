@@ -13,14 +13,14 @@
 
 struct diceroll dice[50];
 int numdice;
-D3DVERTEX MakeVertex(float x, float y, float z);
+D3DVERTEX2 MakeVertex(float x, float y, float z);
 int showsavingthrow = 0;
 extern int d20roll;
 extern int damageroll;
 
-D3DVERTEX MakeVertex(float x, float y, float z) {
+D3DVERTEX2 MakeVertex(float x, float y, float z) {
 
-	D3DVERTEX d;
+	D3DVERTEX2 d;
 
 	d.x = x;
 	d.y = y;

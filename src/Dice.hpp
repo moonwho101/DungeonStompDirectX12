@@ -13,7 +13,7 @@ typedef struct diceroll
 	int sides;
 	int rollmax;
 
-	D3DVERTEX dicebox[4];
+	D3DVERTEX2 dicebox[4];
 };
 
 extern diceroll dice[50];

@@ -413,6 +413,40 @@ typedef struct camera_float
 	float dir;
 } CAMERAFLOAT;
 
+typedef struct _D3DVERTEX2 {
+	union {
+		D3DVALUE     x;             /* Homogeneous coordinates */
+		D3DVALUE     dvX;
+	};
+	union {
+		D3DVALUE     y;
+		D3DVALUE     dvY;
+	};
+	union {
+		D3DVALUE     z;
+		D3DVALUE     dvZ;
+	};
+	union {
+		D3DVALUE     nx;            /* Normal */
+		D3DVALUE     dvNX;
+	};
+	union {
+		D3DVALUE     ny;
+		D3DVALUE     dvNY;
+	};
+	union {
+		D3DVALUE     nz;
+		D3DVALUE     dvNZ;
+	};
+	union {
+		D3DVALUE     tu;            /* Texture coordinates */
+		D3DVALUE     dvTU;
+	};
+	union {
+		D3DVALUE     tv;
+		D3DVALUE     dvTV;
+	};
+} D3DVERTEX2, * LPD3DVERTEX2;
 
 
 extern PLAYERMODELDATA* pmdata;
@@ -421,8 +455,8 @@ extern int* verts_per_poly;
 extern int number_of_polys_per_frame;
 extern int* faces_per_poly;
 extern int* src_f;
-extern D3DVERTEX temp_v[120000]; // debug
-extern D3DVERTEX* src_v;
+extern D3DVERTEX2 temp_v[120000]; // debug
+extern D3DVERTEX2* src_v;
 extern D3DPRIMITIVETYPE* dp_commands;
 extern BOOL* dp_command_index_mode;
 extern int* num_vert_per_object;

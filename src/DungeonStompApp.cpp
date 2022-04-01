@@ -35,7 +35,7 @@ extern int maxNumRectangleCharacters;
 extern POLY_SORT ObjectsToDraw[MAX_NUM_QUADS];
 extern BOOL* dp_command_index_mode;
 extern int cnt;
-extern D3DVERTEX* src_v;
+extern D3DVERTEX2* src_v;
 extern int number_of_polys_per_frame;
 
 extern int displayCaptureIndex[1000];
