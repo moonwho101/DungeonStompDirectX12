@@ -428,7 +428,12 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 
 	} // end for w
 	
-	//SmoothNormals(start_cnt);
+	//121=pillar 58=torch 169=house1 170=house2
+
+	//if (ob_type == 121 || ob_type == 169 || ob_type == 170 || ob_type == 58
+	//	|| strstr(oblist[oblist_index].name, "door") != NULL) {
+	//	SmoothNormals(start_cnt);
+	//}
 
 	//return;
 }
