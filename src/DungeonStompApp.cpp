@@ -1105,6 +1105,15 @@ void DungeonStompApp::BuildMaterials()
 	wood->FresnelR0 = XMFLOAT3(0.04f, 0.04f, 0.04f);
 	wood->Roughness = 0.6f;
 
+	auto flat = std::make_unique<Material>();
+	flat->Name = "flat";
+	flat->MatCBIndex = 11;
+	flat->DiffuseSrvHeapIndex = 0;
+	flat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	flat->FresnelR0 = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	flat->Roughness = 1.0f;
+
+
 	mMaterials["default"] = std::move(default);
 	mMaterials["grass"] = std::move(grass);
 	mMaterials["water"] = std::move(water);
@@ -1120,6 +1129,7 @@ void DungeonStompApp::BuildMaterials()
 
 	mMaterials["glass"] = std::move(glass);
 	mMaterials["wood"] = std::move(wood);
+	mMaterials["flat"] = std::move(flat);
 
 }
 

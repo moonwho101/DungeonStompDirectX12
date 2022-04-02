@@ -1112,31 +1112,31 @@ AddTexture  ..\textures\monster\sorb.dds
 Alias  369   sorb           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\blood\blood@1.dds
-Alias  370   blood@1           AlphaTransparent  WHOLE  default
+Alias  370   blood@1           AlphaTransparent  WHOLE  flat
 
 AddTexture  ..\textures\blood\blood@2.dds
-Alias  371   blood@2           AlphaTransparent  WHOLE  default
+Alias  371   blood@2           AlphaTransparent  WHOLE  flat
 
 AddTexture  ..\textures\blood\blood@3.dds
-Alias  372   blood@3           AlphaTransparent  WHOLE  default
+Alias  372   blood@3           AlphaTransparent  WHOLE  flat
 
 AddTexture  ..\textures\blood\blood@4.dds
-Alias  373   blood@4           AlphaTransparent  WHOLE  default
+Alias  373   blood@4           AlphaTransparent  WHOLE  flat
 
 AddTexture  ..\textures\blood\blood@5.dds
-Alias  374   blood@5           AlphaTransparent  WHOLE  default
+Alias  374   blood@5           AlphaTransparent  WHOLE  flat
 
 AddTexture  ..\textures\blood\blood@6.dds
-Alias  375   blood@6           AlphaTransparent  WHOLE  default
+Alias  375   blood@6           AlphaTransparent  WHOLE  flat
 
 AddTexture  ..\textures\blood\blood@7.dds
-Alias  376   blood@7           AlphaTransparent  WHOLE  default
+Alias  376   blood@7           AlphaTransparent  WHOLE  flat
 
 AddTexture  ..\textures\blood\blood@8.dds
-Alias  377   blood@8           AlphaTransparent  WHOLE  default
+Alias  377   blood@8           AlphaTransparent  WHOLE  flat
 
 AddTexture  ..\textures\blood\blood@9.dds
-Alias  378   blood@9           AlphaTransparent  WHOLE  default
+Alias  378   blood@9           AlphaTransparent  WHOLE  flat
 
 AddTexture  ..\textures\fonts\fontB.dds
 Alias  379   fontB           AlphaTransparent  WHOLE  default
