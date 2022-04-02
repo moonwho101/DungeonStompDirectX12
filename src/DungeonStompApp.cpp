@@ -1107,12 +1107,13 @@ void DungeonStompApp::BuildMaterials()
 
 	auto flat = std::make_unique<Material>();
 	flat->Name = "flat";
-	flat->MatCBIndex = 11;
+	flat->MatCBIndex = 12;
 	flat->DiffuseSrvHeapIndex = 0;
 	flat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	flat->FresnelR0 = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	flat->Roughness = 1.0f;
+	flat->Roughness = 0.9f;
 
+	//new material - increment MatCBIndex 
 
 	mMaterials["default"] = std::move(default);
 	mMaterials["grass"] = std::move(grass);
