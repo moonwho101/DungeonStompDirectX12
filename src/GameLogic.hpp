@@ -54,7 +54,6 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 int FindModelID(char* p);
 void AddTreasure(float x, float y, float z, int gold);
 void SetMonsterAnimationSequence(int player_number, int sequence_number);
-void OpenChest();
 int UpdateScrollList(int r, int g, int b);
 void ApplyPlayerDamage(int playerid, int damage);
 int DisplayDialogText(char* text, float yloc);

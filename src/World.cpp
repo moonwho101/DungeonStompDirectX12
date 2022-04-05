@@ -489,9 +489,8 @@ void UpdateWorld(float fElapsedTime) {
 	WakeUpMonsters();
 	MoveMonsters(fElapsedTime);
 	DrawMonsters();
-	OpenChest();
-	DrawItems();
 	DrawModel();
+	DrawItems();
 	DrawPlayerGun();
 	MakeBoundingBox();
 

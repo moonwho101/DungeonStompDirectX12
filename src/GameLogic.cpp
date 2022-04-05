@@ -2553,7 +2553,7 @@ int UpdateScrollList(int r, int g, int b)
 
 
 
-void OpenChest()
+void DrawModel()
 {
 	int cullflag = 0;
 	BOOL use_player_skins_flag = false;
@@ -2592,7 +2592,7 @@ void OpenChest()
 				if (perspectiveview == 0)
 					monsteron = CalculateView(m_vEyePt, work1, 20.0f, false);
 				else
-					monsteron = CalculateView(m_vEyePt, work1, 20.0f, false);
+					monsteron = CalculateView(m_vEyePt, work1, 60.0f, true);
 				if (monsteron)
 				{
 
