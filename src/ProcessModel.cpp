@@ -94,7 +94,7 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 	int vert_cnt;
 	int w, i;
 	float x, y, z;
-	
+
 	D3DPRIMITIVETYPE poly_command;
 	BOOL poly_command_error = TRUE;
 
@@ -104,15 +104,9 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 	float zaveragedist;
 	int zaveragedistcount = 0;
 
-
 	float  wx = oblist[oblist_index].x;
 	float  wy = oblist[oblist_index].y;
 	float  wz = oblist[oblist_index].z;
-
-	if (cnt > 10000)
-	{
-		//sprintf_s(gActionMessage, "Exceeded CNT...");
-	}
 
 	float cosine = cos_table[angle];
 	float sine = sin_table[angle];
@@ -155,11 +149,9 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 
 		texture_list_buffer[number_of_polys_per_frame] = ctext;
 
-
 		int cresult;
 
 		cresult = CycleBitMap(ctext);
-
 
 		if (cresult != -1)
 		{
@@ -184,7 +176,7 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 			XMVECTOR P2 = XMLoadFloat3(&work2);
 			XMVECTOR vDiff = P1 - P2;
 
-			XMVECTOR final  = XMVector3Normalize(vDiff);
+			XMVECTOR final = XMVector3Normalize(vDiff);
 			XMVECTOR final2 = XMVector3Normalize(XMLoadFloat3(&normroadold));
 
 			XMVECTOR fDotVector = XMVector3Dot(final, final2);
@@ -205,20 +197,16 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 
 			cosine = cos_table[(int)fDot];
 			sine = sin_table[(int)fDot];
-
 		}
-
 
 		for (vert_cnt = 0; vert_cnt < num_vert; vert_cnt++)
 		{
-
 			x = obdata[ob_type].v[ob_vert_count].x;
 			y = obdata[ob_type].v[ob_vert_count].y;
 			z = obdata[ob_type].v[ob_vert_count].z;
 
 			tx[vert_cnt] = obdata[ob_type].t[ob_vert_count].x;
 			ty[vert_cnt] = obdata[ob_type].t[ob_vert_count].y;
-
 
 			mx[vert_cnt] = wx + (x * cosine - z * sine);
 			my[vert_cnt] = wy + y;
@@ -233,11 +221,9 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 		}
 		float centroidx = (mx[0] + mx[1] + mx[2]) * 0.3333333333333f;
 		float centroidy = (my[0] + my[1] + my[2]) * 0.3333333333333f;
-		;
 		float centroidz = (mz[0] + mz[1] + mz[2]) * 0.3333333333333f;
 
 		//zaveragedist = zaveragedist / zaveragedistcount;
-
 		verts_per_poly[number_of_polys_per_frame] = num_vert;
 
 		ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = num_vert;
@@ -249,17 +235,11 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 		{
 			for (i = 0; i < verts_per_poly[number_of_polys_per_frame]; i++)
 			{
-
 				src_v[cnt].x = D3DVAL(mx[i]);
 				src_v[cnt].y = D3DVAL(my[i]);
 				src_v[cnt].z = D3DVAL(mz[i]);
 				src_v[cnt].tu = D3DVAL(tx[i]);
 				src_v[cnt].tv = D3DVAL(ty[i]);
-
-				//if (drawthistri == 1)
-					//src_on[cnt] = 1;
-				//else
-					//src_on[cnt] = 0;
 
 				if (objectcollide == 1)
 					src_collide[cnt] = 1;
@@ -288,12 +268,8 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 					XMVECTOR   vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
 
 					XMVECTOR  vCross, final;
-					//D3DXVec3Cross(&vCross, &vDiff, &vDiff2);
-					//D3DXVec3Normalize(&final, &vCross);
-					//D3DXVec3Cross(&vCross, &vDiff, &vDiff2);
 					vCross = XMVector3Cross(vDiff, vDiff2);
 					final = XMVector3Normalize(vCross);
-					//D3DXVec3Normalize(&final, &vCross);
 					XMFLOAT3 final2;
 					XMStoreFloat3(&final2, final);
 
@@ -317,39 +293,8 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 				src_v[cnt].y = D3DVAL(my[i]);
 				src_v[cnt].z = D3DVAL(mz[i]);
 
-				//			QUADTEX		80.00    0.00   0.00	0.0	0.0
-				//					0.00    0.00   0.00	0.0	1.0
-				//					0.00    0.00  80.00	1.0	1.0
-				//					80.00    0.00  80.00	1.0	0.0
-
-
-				if (i == 0) {
-					src_v[cnt].tu = 1;
-					src_v[cnt].tv = 1;
-
-				}
-				else if (i == 1) {
-					src_v[cnt].tu = 1;
-					src_v[cnt].tv = 0;
-
-				}
-				else if (i == 2) {
-					src_v[cnt].tu = 0;
-					src_v[cnt].tv = 1;
-
-				}
-				else if (i == 3) {
-					src_v[cnt].tu = 0;
-					src_v[cnt].tv = 0;
-
-				}
-
-				//src_v[cnt].tu = D3DVAL(TexMap[ctext].tu[i]);
-				//src_v[cnt].tv = D3DVAL(TexMap[ctext].tv[i]);
-				//if (drawthistri == 1)
-				//	src_on[cnt] = 1;
-				//else
-				//	src_on[cnt] = 0;
+				src_v[cnt].tu = D3DVAL(TexMap[ctext].tu[i]);
+				src_v[cnt].tv = D3DVAL(TexMap[ctext].tv[i]);
 
 				if (objectcollide == 1)
 					src_collide[cnt] = 1;
@@ -374,14 +319,8 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 
 					// calculate the NORMAL for the road using the CrossProduct <-important!
 					XMVECTOR vCross, final;
-					//D3DXVECTOR3 vDiff = vw1 - vw2;
-					//D3DXVECTOR3 vDiff2 = vw3 - vw2;
-
 					XMVECTOR   vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
 					XMVECTOR   vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
-
-					//D3DXVec3Cross(&vCross, &vDiff, &vDiff2);
-					//D3DXVec3Normalize(&final, &vCross);
 
 					vCross = XMVector3Cross(vDiff, vDiff2);
 					final = XMVector3Normalize(vCross);
@@ -401,14 +340,13 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 			}
 		}
 
-		//qdist = FastDistance(
-		//	m_vEyePt.x - centroidx,
-		//	m_vEyePt.y - centroidy,
-		//	m_vEyePt.z - centroidz);
+		qdist = FastDistance(
+			m_vEyePt.x - centroidx,
+			m_vEyePt.y - centroidy,
+			m_vEyePt.z - centroidz);
 
 		ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
 		ObjectsToDraw[number_of_polys_per_frame].dist = qdist;
-
 
 		dp_commands[number_of_polys_per_frame] = poly_command;
 		dp_command_index_mode[number_of_polys_per_frame] = USE_NON_INDEXED_DP;
@@ -425,9 +363,8 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 
 		//if ((poly_command < 0) || (poly_command > 6))
 			//PrintMessage(NULL, "CMyD3DApplication::ObjectToD3DVertList -  ERROR UNRECOGNISED COMMAND", NULL, LOGFILE_ONLY);
+	}
 
-	} // end for w
-	
 	//121=pillar 58=torch 169=house1 170=house2
 
 	//if (ob_type == 121 || ob_type == 169 || ob_type == 170 || ob_type == 58
@@ -629,7 +566,7 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 		int fan_cnt = -1;
 
 		//if (p_command == D3DPT_TRIANGLEFAN) {
-			fan_cnt = cnt;
+		fan_cnt = cnt;
 		//}
 
 		for (j = 0; j < num_verts_per_poly; j++)
@@ -693,7 +630,7 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 				ry = (newy * cosf(0.0f * k) - newz * sinf(0.0f * k));
 				rz = (newy * sinf(0.0f * k) + newz * cosf(0.0f * k));
 
-			
+
 			}
 			else
 			{
@@ -726,7 +663,7 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 			my[j] = D3DVAL(ry);
 			mz[j] = D3DVAL(rz);
 
-			if (counttri == 2 && firstcount ==0 || firstcount ==1 )
+			if (counttri == 2 && firstcount == 0 || firstcount == 1)
 			{
 				vw1.x = D3DVAL(mx[j - 2]);
 				vw1.y = D3DVAL(my[j - 2]);
@@ -780,7 +717,7 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 					//D3DXVECTOR3 sum = D3DXVECTOR3(0, 0, 0);
 					XMFLOAT3 x1, x2, x3;
 					XMVECTOR sum, average;
-					
+
 					x1.x = src_v[cnt - 2].nx;
 					x1.y = src_v[cnt - 2].ny;
 					x1.z = src_v[cnt - 2].nz;
@@ -809,11 +746,11 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 					src_v[cnt].ny = final2.y;
 					src_v[cnt].nz = final2.z;
 
-					src_v[cnt-1].nx = final2.x;
-					src_v[cnt-1].ny = final2.y;
-					src_v[cnt-1].nz = final2.z;
+					src_v[cnt - 1].nx = final2.x;
+					src_v[cnt - 1].ny = final2.y;
+					src_v[cnt - 1].nz = final2.z;
 
-					
+
 
 				}
 				else {
@@ -931,11 +868,11 @@ void SmoothNormals(int start_cnt) {
 	int scount = 0;
 
 
-	for (int i = 0;i < 60000;i++) {
+	for (int i = 0; i < 60000; i++) {
 		track[i] = 0;
 	}
 
-	for (int i = start_cnt;i < cnt;i++) {
+	for (int i = start_cnt; i < cnt; i++) {
 		float x = src_v[i].x;
 		float y = src_v[i].y;
 		float z = src_v[i].z;
@@ -944,7 +881,7 @@ void SmoothNormals(int start_cnt) {
 
 		if (track[i - start_cnt] == 0) {
 
-			for (int j = start_cnt;j < cnt;j++) {
+			for (int j = start_cnt; j < cnt; j++) {
 				//if (i != j) {
 				if (x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
 					//found shared vertex
@@ -958,26 +895,26 @@ void SmoothNormals(int start_cnt) {
 			if (scount > 0) {
 
 				//D3DXVECTOR3 sum = D3DXVECTOR3(0, 0, 0);
-				XMVECTOR sum = XMVectorSet(0,0,0,0);
+				XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
 
 				XMFLOAT3 x1;
 				XMVECTOR average;
 
-				for (int k = 0;k < scount;k++) {
+				for (int k = 0; k < scount; k++) {
 					x1.x = src_v[sharedv[k]].nx;
 					x1.y = src_v[sharedv[k]].ny;
 					x1.z = src_v[sharedv[k]].nz;
 					sum = sum + XMLoadFloat3(&x1);
 				}
 
-				sum = sum / (float) scount;
+				sum = sum / (float)scount;
 				//D3DXVec3Normalize(&average, &sum);
 				average = XMVector3Normalize(sum);
 				XMFLOAT3 final2;
 				XMStoreFloat3(&final2, average);
 
 
-				for (int k = 0;k < scount;k++) {
+				for (int k = 0; k < scount; k++) {
 					src_v[sharedv[k]].nx = final2.x;
 					src_v[sharedv[k]].ny = final2.y;
 					src_v[sharedv[k]].nz = final2.z;
@@ -994,7 +931,7 @@ void ConvertTraingleFan(int fan_cnt) {
 
 	int counter = 0;
 
-	for (int i = fan_cnt;i < cnt;i++) {
+	for (int i = fan_cnt; i < cnt; i++) {
 
 		if (counter < 3) {
 
@@ -1046,7 +983,7 @@ void ConvertTraingleFan(int fan_cnt) {
 
 	int normal = 0;
 
-	for (int i = 0;i < counter;i++) {
+	for (int i = 0; i < counter; i++) {
 		src_v[fan_cnt + i].x = temp_v[i].x;
 		src_v[fan_cnt + i].y = temp_v[i].y;
 		src_v[fan_cnt + i].z = temp_v[i].z;
@@ -1096,7 +1033,7 @@ void ConvertTraingleFan(int fan_cnt) {
 
 			XMFLOAT3 x1, x2, x3;
 			XMVECTOR average;
-			XMVECTOR sum = XMVectorSet(0,0,0,0);
+			XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
 
 			x1.x = src_v[(fan_cnt + i) - 2].nx;
 			x1.y = src_v[(fan_cnt + i) - 2].ny;
@@ -1155,7 +1092,7 @@ void ConvertTraingleStrip(int fan_cnt) {
 	int counter = 0;
 	int v = 0;
 
-	for (int i = fan_cnt;i < cnt;i++) {
+	for (int i = fan_cnt; i < cnt; i++) {
 
 		if (counter < 3) {
 
@@ -1255,7 +1192,7 @@ void ConvertTraingleStrip(int fan_cnt) {
 
 	int normal = 0;
 
-	for (int i = 0;i < counter;i++) {
+	for (int i = 0; i < counter; i++) {
 		src_v[fan_cnt + i].x = temp_v[i].x;
 		src_v[fan_cnt + i].y = temp_v[i].y;
 		src_v[fan_cnt + i].z = temp_v[i].z;
@@ -1536,7 +1473,7 @@ void DrawItems()
 
 				if (item_list[i].monsterid == 9999 && item_list[i].bIsPlayerAlive == TRUE)
 					cullflag = 1;
-				
+
 
 				if (cullflag == 1)
 				{
@@ -1831,7 +1768,7 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 
 				//if (FastDistance(final.x,final.y,final.z) < 0.1f)
 					//final = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-				
+
 				XMFLOAT3 final2;
 				XMStoreFloat3(&final2, final);
 
@@ -1932,8 +1869,8 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 	}*/
 
 
-	
-	
+
+
 
 	return;
 }
