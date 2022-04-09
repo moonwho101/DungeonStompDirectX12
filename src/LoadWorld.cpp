@@ -106,14 +106,14 @@ typedef struct startposition
 //} D3DPRIMITIVETYPE;
 
 
- struct startposition startpos[200];
+struct startposition startpos[200];
 //extern struct doors door[200];
 
 
- LEVELMOD* levelmodify;
- SWITCHMOD* switchmodify;
+LEVELMOD* levelmodify;
+SWITCHMOD* switchmodify;
 
- int DSound_Replicate_Sound(int id);
+int DSound_Replicate_Sound(int id);
 
 CLoadWorld::CLoadWorld()
 {
@@ -385,7 +385,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 						int sc = 0;
 
 						int s1, s2, s3, s4, s5, s6, s7;
-						float speed=0;
+						float speed = 0;
 						char name[80];
 						char dm[80];
 
@@ -1337,7 +1337,7 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 			//sprintf(junk, "..\\bin\\%s", p);
 
 			if (fopen_s(&fp2, p, "r") != 0)
-//			if (fopen_s(&fp2, junk, "r") != 0)
+				//			if (fopen_s(&fp2, junk, "r") != 0)
 			{
 				//PrintMessage(hwnd, "ERROR can't load ", filename, SCN_AND_FILE);
 				//MessageBox(hwnd, filename, "Error can't load file", MB_OK);
@@ -1349,7 +1349,7 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 			fscanf_s(fp2, "%s", &p, 256);
 			slist[slistcount].attack = SoundID(p);
 			fscanf_s(fp2, "%s", &p, 256);
-			slist[slistcount].die =  SoundID(p);
+			slist[slistcount].die = SoundID(p);
 			fscanf_s(fp2, "%s", &p, 256);
 			slist[slistcount].weapon = SoundID(p);
 			fscanf_s(fp2, "%s", &p, 256);
@@ -1399,7 +1399,7 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 			countmodellist++;
 
 			LoadPlayerAnimationSequenceList(model_id);
-			
+
 			command_recognised = TRUE;
 		}
 
@@ -1850,7 +1850,7 @@ extern int countswitches;
 int save_game(char* filename)
 {
 	sprintf_s(gActionMessage, "Saving Game...");
-	UpdateScrollList(255, 0, 0);
+	UpdateScrollList(0, 255, 0);
 
 	int perspectiveview = 1;
 
@@ -1862,77 +1862,77 @@ int save_game(char* filename)
 	//if (resultclick == IDYES)
 	//{
 
-		if (strlen(filename) > 0)
+	if (strlen(filename) > 0)
+	{
+		if (fopen_s(&fp, filename, "wb+") != 0)
 		{
-			if (fopen_s(&fp, filename, "wb+") != 0)
-			{
-				return 0;
-			}
+			return 0;
 		}
-		else
-		{
+	}
+	else
+	{
 
-			if (fopen_s(&fp, "ds.sav", "wb+") != 0)
-			{
-				return 0;
-			}
+		if (fopen_s(&fp, "ds.sav", "wb+") != 0)
+		{
+			return 0;
 		}
+	}
 
-		fwrite(levelname, sizeof(char), 50, fp);
-		fwrite(&current_level, sizeof(int), 1, fp);
-		fwrite(&angy, sizeof(int), 1, fp);
-		fwrite(&look_up_ang, sizeof(int), 1, fp);
-		fwrite(&perspectiveview, sizeof(int), 1, fp);
-		fwrite(&current_gun, sizeof(int), 1, fp);
+	fwrite(levelname, sizeof(char), 50, fp);
+	fwrite(&current_level, sizeof(int), 1, fp);
+	fwrite(&angy, sizeof(int), 1, fp);
+	fwrite(&look_up_ang, sizeof(int), 1, fp);
+	fwrite(&perspectiveview, sizeof(int), 1, fp);
+	fwrite(&current_gun, sizeof(int), 1, fp);
 
-		fwrite(&player_list[trueplayernum], sizeof(struct player_typ), 1, fp);
+	fwrite(&player_list[trueplayernum], sizeof(struct player_typ), 1, fp);
 
-		fwrite(&num_players2, sizeof(int), 1, fp);
-		for (montry = 0; montry < num_players2; montry++)
-		{
-			fwrite(&player_list2[montry], sizeof(struct player_typ), 1, fp);
-		}
+	fwrite(&num_players2, sizeof(int), 1, fp);
+	for (montry = 0; montry < num_players2; montry++)
+	{
+		fwrite(&player_list2[montry], sizeof(struct player_typ), 1, fp);
+	}
 
-		fwrite(&num_monsters, sizeof(int), 1, fp);
-		for (montry = 0; montry < num_monsters; montry++)
-		{
-			fwrite(&monster_list[montry], sizeof(struct player_typ), 1, fp);
-		}
-		fwrite(&itemlistcount, sizeof(int), 1, fp);
-		for (montry = 0; montry < itemlistcount; montry++)
-		{
-			fwrite(&item_list[montry], sizeof(struct player_typ), 1, fp);
-		}
-		fwrite(&doorcounter, sizeof(int), 1, fp);
-		for (montry = 0; montry < doorcounter; montry++)
-		{
-			fwrite(&door[montry], sizeof(struct doors), 1, fp);
-		}
+	fwrite(&num_monsters, sizeof(int), 1, fp);
+	for (montry = 0; montry < num_monsters; montry++)
+	{
+		fwrite(&monster_list[montry], sizeof(struct player_typ), 1, fp);
+	}
+	fwrite(&itemlistcount, sizeof(int), 1, fp);
+	for (montry = 0; montry < itemlistcount; montry++)
+	{
+		fwrite(&item_list[montry], sizeof(struct player_typ), 1, fp);
+	}
+	fwrite(&doorcounter, sizeof(int), 1, fp);
+	for (montry = 0; montry < doorcounter; montry++)
+	{
+		fwrite(&door[montry], sizeof(struct doors), 1, fp);
+	}
 
-		fwrite(&num_your_guns, sizeof(int), 1, fp);
-		for (montry = 0; montry < num_your_guns; montry++)
-		{
-			fwrite(&your_gun[montry], sizeof(struct gunlist_typ), 1, fp);
-		}
+	fwrite(&num_your_guns, sizeof(int), 1, fp);
+	for (montry = 0; montry < num_your_guns; montry++)
+	{
+		fwrite(&your_gun[montry], sizeof(struct gunlist_typ), 1, fp);
+	}
 
-		fwrite(&countswitches, sizeof(int), 1, fp);
-		for (montry = 0; montry < countswitches; montry++)
-		{
-			fwrite(&switchmodify[montry], sizeof(struct SwitchMod), 1, fp);
-		}
-		fwrite(&totalmod, sizeof(int), 1, fp);
-		for (montry = 0; montry < totalmod; montry++)
-		{
-			fwrite(&levelmodify[montry], sizeof(struct LevelMod), 1, fp);
-		}
-		fwrite(&textcounter, sizeof(int), 1, fp);
-		for (montry = 0; montry < textcounter; montry++)
-		{
-			fwrite(&gtext[montry], sizeof(struct gametext), 1, fp);
-		}
+	fwrite(&countswitches, sizeof(int), 1, fp);
+	for (montry = 0; montry < countswitches; montry++)
+	{
+		fwrite(&switchmodify[montry], sizeof(struct SwitchMod), 1, fp);
+	}
+	fwrite(&totalmod, sizeof(int), 1, fp);
+	for (montry = 0; montry < totalmod; montry++)
+	{
+		fwrite(&levelmodify[montry], sizeof(struct LevelMod), 1, fp);
+	}
+	fwrite(&textcounter, sizeof(int), 1, fp);
+	for (montry = 0; montry < textcounter; montry++)
+	{
+		fwrite(&gtext[montry], sizeof(struct gametext), 1, fp);
+	}
 
-		fclose(fp);
-		return 1;
+	fclose(fp);
+	return 1;
 	//}
 
 	//return 0;
@@ -1942,7 +1942,7 @@ int load_game(char* filename)
 {
 
 	sprintf_s(gActionMessage, "Loading Game...");
-	UpdateScrollList(255, 0, 0);
+	UpdateScrollList(0, 255, 0);
 
 
 
@@ -1955,115 +1955,115 @@ int load_game(char* filename)
 	//if (resultclick == IDYES)
 	//{
 
-		if (strlen(filename) > 0)
+	if (strlen(filename) > 0)
+	{
+
+		if (fopen_s(&fp, filename, "rb") != 0)
 		{
-
-			if (fopen_s(&fp, filename, "rb") != 0)
-			{
-				return 0;
-			}
+			return 0;
 		}
-		else
+	}
+	else
+	{
+
+		if (fopen_s(&fp, "ds.sav", "rb") != 0)
 		{
-
-			if (fopen_s(&fp, "ds.sav", "rb") != 0)
-			{
-				return 0;
-			}
+			return 0;
 		}
+	}
 
-		fread(levelname, sizeof(char), 50, fp);
-		fread(&current_level, sizeof(int), 1, fp);
-		fread(&angy, sizeof(int), 1, fp);
-		fread(&look_up_ang, sizeof(int), 1, fp);
-		fread(&perspectiveview, sizeof(int), 1, fp);
-		fread(&current_gun, sizeof(int), 1, fp);
-		load_level(levelname);
-		fread(&player_list[trueplayernum], sizeof(struct player_typ), 1, fp);
+	fread(levelname, sizeof(char), 50, fp);
+	fread(&current_level, sizeof(int), 1, fp);
+	fread(&angy, sizeof(int), 1, fp);
+	fread(&look_up_ang, sizeof(int), 1, fp);
+	fread(&perspectiveview, sizeof(int), 1, fp);
+	fread(&current_gun, sizeof(int), 1, fp);
+	load_level(levelname);
+	fread(&player_list[trueplayernum], sizeof(struct player_typ), 1, fp);
 
-		//player_list[trueplayernum].y += 100.0f;
-		m_vEyePt.x = player_list[trueplayernum].x;
-		m_vEyePt.y = player_list[trueplayernum].y;
-		m_vEyePt.z = player_list[trueplayernum].z;
+	//player_list[trueplayernum].y += 100.0f;
+	m_vEyePt.x = player_list[trueplayernum].x;
+	m_vEyePt.y = player_list[trueplayernum].y;
+	m_vEyePt.z = player_list[trueplayernum].z;
 
-		m_vLookatPt.x = player_list[trueplayernum].x;
-		m_vLookatPt.y = player_list[trueplayernum].y + 10.0f;
-		m_vLookatPt.z = player_list[trueplayernum].z;
+	m_vLookatPt.x = player_list[trueplayernum].x;
+	m_vLookatPt.y = player_list[trueplayernum].y + 10.0f;
+	m_vLookatPt.z = player_list[trueplayernum].z;
 
-		fread(&num_players2, sizeof(int), 1, fp);
+	fread(&num_players2, sizeof(int), 1, fp);
 
-		for (montry = 0; montry < num_players2; montry++)
-		{
-			fread(&player_list2[montry], sizeof(struct player_typ), 1, fp);
-		}
+	for (montry = 0; montry < num_players2; montry++)
+	{
+		fread(&player_list2[montry], sizeof(struct player_typ), 1, fp);
+	}
 
-		fread(&num_monsters, sizeof(int), 1, fp);
+	fread(&num_monsters, sizeof(int), 1, fp);
 
-		for (montry = 0; montry < num_monsters; montry++)
-		{
-			fread(&monster_list[montry], sizeof(struct player_typ), 1, fp);
-		}
+	for (montry = 0; montry < num_monsters; montry++)
+	{
+		fread(&monster_list[montry], sizeof(struct player_typ), 1, fp);
+	}
 
-		fread(&itemlistcount, sizeof(int), 1, fp);
+	fread(&itemlistcount, sizeof(int), 1, fp);
 
-		for (montry = 0; montry < itemlistcount; montry++)
-		{
-			fread(&item_list[montry], sizeof(struct player_typ), 1, fp);
-		}
+	for (montry = 0; montry < itemlistcount; montry++)
+	{
+		fread(&item_list[montry], sizeof(struct player_typ), 1, fp);
+	}
 
-		fread(&doorcounter, sizeof(int), 1, fp);
+	fread(&doorcounter, sizeof(int), 1, fp);
 
-		for (montry = 0; montry < doorcounter; montry++)
-		{
-			fread(&door[montry], sizeof(struct doors), 1, fp);
-			oblist[door[montry].doornum].rot_angle = (float)door[montry].angle;
+	for (montry = 0; montry < doorcounter; montry++)
+	{
+		fread(&door[montry], sizeof(struct doors), 1, fp);
+		oblist[door[montry].doornum].rot_angle = (float)door[montry].angle;
 
-			if (door[montry].y != 0)
-				oblist[door[montry].doornum].y = (float)door[montry].y;
-		}
+		if (door[montry].y != 0)
+			oblist[door[montry].doornum].y = (float)door[montry].y;
+	}
 
-		fread(&num_your_guns, sizeof(int), 1, fp);
-		for (montry = 0; montry < num_your_guns; montry++)
-		{
-			fread(&your_gun[montry], sizeof(struct gunlist_typ), 1, fp);
-		}
+	fread(&num_your_guns, sizeof(int), 1, fp);
+	for (montry = 0; montry < num_your_guns; montry++)
+	{
+		fread(&your_gun[montry], sizeof(struct gunlist_typ), 1, fp);
+	}
 
-		//SwitchGun(current_gun);
-		player_list[trueplayernum].gunid = your_gun[current_gun].model_id;
-		player_list[trueplayernum].guntex = your_gun[current_gun].skin_tex_id;
-		player_list[trueplayernum].damage1 = your_gun[current_gun].damage1;
-		player_list[trueplayernum].damage2 = your_gun[current_gun].damage2;
+	//SwitchGun(current_gun);
+	player_list[trueplayernum].gunid = your_gun[current_gun].model_id;
+	player_list[trueplayernum].guntex = your_gun[current_gun].skin_tex_id;
+	player_list[trueplayernum].damage1 = your_gun[current_gun].damage1;
+	player_list[trueplayernum].damage2 = your_gun[current_gun].damage2;
 
-		if (strstr(your_gun[current_gun].gunname, "SCROLL") != NULL)
-		{
-			usespell = 1;
-		}
-		else
-		{
-			usespell = 0;
-		}
+	if (strstr(your_gun[current_gun].gunname, "SCROLL") != NULL)
+	{
+		usespell = 1;
+	}
+	else
+	{
+		usespell = 0;
+	}
 
-		//MakeDamageDice();
+	//MakeDamageDice();
 
-		fread(&countswitches, sizeof(int), 1, fp);
-		for (montry = 0; montry < countswitches; montry++)
-		{
-			fread(&switchmodify[montry], sizeof(struct SwitchMod), 1, fp);
-		}
-		fread(&totalmod, sizeof(int), 1, fp);
-		for (montry = 0; montry < totalmod; montry++)
-		{
-			fread(&levelmodify[montry], sizeof(struct LevelMod), 1, fp);
-		}
-		fread(&textcounter, sizeof(int), 1, fp);
-		for (montry = 0; montry < textcounter; montry++)
-		{
-			fread(&gtext[montry], sizeof(struct gametext), 1, fp);
-		}
+	fread(&countswitches, sizeof(int), 1, fp);
+	for (montry = 0; montry < countswitches; montry++)
+	{
+		fread(&switchmodify[montry], sizeof(struct SwitchMod), 1, fp);
+	}
+	fread(&totalmod, sizeof(int), 1, fp);
+	for (montry = 0; montry < totalmod; montry++)
+	{
+		fread(&levelmodify[montry], sizeof(struct LevelMod), 1, fp);
+	}
+	fread(&textcounter, sizeof(int), 1, fp);
+	for (montry = 0; montry < textcounter; montry++)
+	{
+		fread(&gtext[montry], sizeof(struct gametext), 1, fp);
+	}
 
-		fclose(fp);
+	fclose(fp);
 
-		return 1;
+	return 1;
 	//}
 	//return 0;
 }
@@ -2110,7 +2110,7 @@ int load_level(char* filename)
 	ResetSound();
 	//pCWorld->LoadSoundFiles(m_hWnd, "sounds.dat");
 
-	if (!pCWorld->LoadWorldMap( level))
+	if (!pCWorld->LoadWorldMap(level))
 	{
 		//PrintMessage(m_hWnd, "LoadWorldMap failed", NULL, LOGFILE_ONLY);
 		//return FALSE;
