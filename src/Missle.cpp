@@ -167,7 +167,7 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 				sprintf_s(dice[1].name, "die8s%d", roll);
 
 				sprintf_s(gActionMessage, "You heal by %d health", hp);
-				UpdateScrollList(0, 245, 255);
+				UpdateScrollList(0, 100, 255);
 				your_gun[current_gun].x_offset--;
 				if (your_gun[current_gun].x_offset <= 0)
 				{
@@ -484,15 +484,15 @@ void ApplyMissleDamage(int playernum)
 							if (result != action)
 							{
 								sprintf_s(gActionMessage, "%s made a saving throw!", monster_list[i].rname);
-								UpdateScrollList(0, 245, 255);
+								UpdateScrollList(255, 255, 0);
 								sprintf_s(gActionMessage, "Your spell hit a %s for %d hp (%d/2).", monster_list[i].rname, result, action);
-								UpdateScrollList(0, 245, 255);
+								UpdateScrollList(255, 255, 0);
 								action = result;
 							}
 							else
 							{
 								sprintf_s(gActionMessage, "Your spell hit a %s for %d hp.", monster_list[i].rname, action);
-								UpdateScrollList(0, 245, 255);
+								UpdateScrollList(255, 255, 0);
 							}
 
 							DisplayDamage(monster_list[i].x, monster_list[i].y, monster_list[i].z, 1, i, 0);
@@ -525,7 +525,7 @@ void ApplyMissleDamage(int playernum)
 								int gd = (random_num(monster_list[i].hd * 10) + monster_list[i].hd * 10) + 1;
 								int xp = XpPoints(monster_list[i].hd, monster_list[i].hp);
 								sprintf_s(gActionMessage, "You killed a %s worth %d xp.", monster_list[i].rname, xp);
-								UpdateScrollList(0, 245, 255);
+								UpdateScrollList(255, 0, 255);
 								player_list[trueplayernum].frags++;
 
 								AddTreasure(monster_list[i].x, monster_list[i].y, monster_list[i].z, gd);

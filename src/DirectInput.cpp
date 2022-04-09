@@ -421,7 +421,7 @@ VOID UpdateControls()
 			//sprintf_s(gActionMessage, "%ld %ld %ld", dijs.lRx,dijs.lRy,dijs.lRz); //right controller
 			//sprintf_s(gActionMessage, "%ld %ld %ld", dijs.lX,dijs.lY,dijs.lZ); //left controller
 			//sprintf_s(gActionMessage, "%ld", dijs.rgdwPOV[0]);  //Control PAD
-			//UpdateScrollList(0, 245, 255);
+			//UpdateScrollList(0, 255, 255);
 
 			//Button xbox  0=A 1=B 2=X 3=Y
 			Controls.bFire = dijs.rgbButtons[2] && 0x80; //Fire
@@ -542,14 +542,14 @@ VOID WalkMode(CONTROLS* Controls)
 	{
 		if (gravityon == 1) {
 			strcpy_s(gActionMessage, "Gravity off.");
-			UpdateScrollList(0, 245, 255);
+			UpdateScrollList(0, 255, 255);
 
 			gravityon = 0;
 		}
 		else {
 			gravityon = 1;
 			strcpy_s(gActionMessage, "Gravity on.");
-			UpdateScrollList(0, 245, 255);
+			UpdateScrollList(0, 255, 255);
 
 		}
 
@@ -687,7 +687,7 @@ VOID WalkMode(CONTROLS* Controls)
 	{
 		nextsong = 1;
 		strcpy_s(gActionMessage, "Random Song.");
-		UpdateScrollList(0, 245, 255);
+		UpdateScrollList(0, 255, 255);
 		PlaySong();
 	}
 
@@ -712,13 +712,13 @@ VOID WalkMode(CONTROLS* Controls)
 		stopmusic = 1;
 		if (musicon) {
 			strcpy_s(gActionMessage, "Music Off.");
-			UpdateScrollList(0, 245, 255);
+			UpdateScrollList(0, 255, 255);
 			StopMusic();
 			musicon = 0;
 		}
 		else {
 			strcpy_s(gActionMessage, "Music On.");
-			UpdateScrollList(0, 245, 255);
+			UpdateScrollList(0, 255, 255);
 
 			musicon = 1;
 		}
@@ -1037,7 +1037,7 @@ void CycleNextWeapon()
 void GiveWeapons()
 {
 	strcpy_s(gActionMessage, "Give all weapons.");
-	UpdateScrollList(0, 245, 255);
+	UpdateScrollList(0, 255, 255);
 	player_list[trueplayernum].keys = 10;
 
 	int i = 0;
@@ -1066,7 +1066,7 @@ void smooth_mouse(float time_d, float realx, float realy) {
 	use_y += (realy - use_y) * (float) d;
 
 	//sprintf(gActionMessage, "%9.6f %9.6f",use_x,use_y);
-	//UpdateScrollList(0, 245, 255);
+	//UpdateScrollList(0, 255, 255);
 
 	filterx = use_x;
 	filtery = use_y;
@@ -1094,7 +1094,7 @@ void level() {
 
 	sprintf_s(levelname, "level%d", currentlevel);
 	sprintf_s(gActionMessage, "Loading %s...", levelname);
-	UpdateScrollList(0, 245, 255);
+	UpdateScrollList(0, 255, 255);
 	int current_level = 1;
 	strcpy_s(level, levelname);
 	strcat_s(level, ".map");

@@ -1221,14 +1221,14 @@ int OpenDoor(int doornum, float dist, FLOAT fTimeKey)
 					//{
 						//listenfailed = 1;
 						//strcpy_s(gActionMessage, "Listen at door failed.");
-						//UpdateScrollList(0, 245, 255);
+						//UpdateScrollList(0, 255, 255);
 					//}
 					//else
 					//{
 
 						//listenfailed = 0;
 						//strcpy_s(gActionMessage, "Listening at the door reveals...");
-						//UpdateScrollList(0, 245, 255);
+						//UpdateScrollList(0, 255, 255);
 						//ListenAtDoor();
 					//}
 				}
@@ -1242,7 +1242,7 @@ int OpenDoor(int doornum, float dist, FLOAT fTimeKey)
 				if (door[i].key != 0 && door[i].key != -1 || door[i].key == -2)
 				{
 					strcpy_s(gActionMessage, "This door is locked");
-					UpdateScrollList(0, 245, 255);
+					UpdateScrollList(255, 255, 0);
 					flag = 0;
 
 					if (player_list[trueplayernum].keys > 0)
@@ -1253,7 +1253,7 @@ int OpenDoor(int doornum, float dist, FLOAT fTimeKey)
 						if (door[i].key > 0)
 							door[i].key = 0;
 
-						UpdateScrollList(0, 245, 255);
+						UpdateScrollList(255, 255, 0);
 						player_list[trueplayernum].keys--;
 
 						if (player_list[trueplayernum].keys < 0)
@@ -1291,7 +1291,7 @@ int OpenDoor(int doornum, float dist, FLOAT fTimeKey)
 								if (strcmp(monster_list[j].rname, "SLAVE") == 0)
 								{
 									sprintf_s(gActionMessage, "You found a slave. 50 xp.");
-									UpdateScrollList(0, 245, 255);
+									UpdateScrollList(255, 0, 255);
 									player_list[trueplayernum].xp += 50;
 								}
 							}
@@ -2159,9 +2159,9 @@ void MonsterHit()
 						criticalhiton = 1;
 						PlayWavSound(SoundID("natural20"), 100);
 						sprintf_s(gActionMessage, "Wow. A natural 20, double damage.");
-						UpdateScrollList(0, 245, 255);
+						UpdateScrollList(0, 255, 255);
 						sprintf_s(gActionMessage, "You hit a  %s for %d damage", monster_list[i].rname, action);
-						UpdateScrollList(0, 245, 255);
+						UpdateScrollList(0, 255, 255);
 						bloodspot = DisplayDamage(monster_list[i].x, monster_list[i].y - 10.0f, monster_list[i].z, trueplayernum, i, true);
 						hitmonster = 1;
 					}
@@ -2171,7 +2171,7 @@ void MonsterHit()
 						//PlayWaveFile(".\\Sounds\\impact.wav");
 						action = action + damagebonus;
 						sprintf_s(gActionMessage, "You hit a %s for %d damage", monster_list[i].rname, action);
-						UpdateScrollList(0, 245, 255);
+						UpdateScrollList(0, 255, 255);
 						bloodspot = DisplayDamage(monster_list[i].x, monster_list[i].y - 10.0f, monster_list[i].z, trueplayernum, i, false);
 						hitmonster = 1;
 					}
@@ -2220,7 +2220,7 @@ void MonsterHit()
 						int xp = XpPoints(monster_list[i].hd, monster_list[i].hp);
 
 						sprintf_s(gActionMessage, "You killed a %s worth %d xp.", monster_list[i].rname, xp);
-						UpdateScrollList(0, 245, 255);
+						UpdateScrollList(255, 0, 255);
 						player_list[trueplayernum].frags++;
 
 						AddTreasure(monster_list[i].x, monster_list[i].y, monster_list[i].z, gd);
@@ -2707,9 +2707,9 @@ void ApplyPlayerDamage(int playerid, int damage)
 		look_up_ang = 30;
 		perspectiveview = 0;
 		sprintf_s(gActionMessage, "Great Crom. You are dead!");
-		UpdateScrollList(0, 245, 255);
+		UpdateScrollList(0, 255, 255);
 		sprintf_s(gActionMessage, "Press SPACE to rise again...");
-		UpdateScrollList(0, 245, 255);
+		UpdateScrollList(0, 255, 255);
 	}
 
 }
@@ -2974,7 +2974,7 @@ int FreeSlave()
 					PlayWavSound(SoundID("goal1"), 100);
 					PlayWavSound(SoundID("thankyou"), 100);
 					sprintf_s(gActionMessage, "You set a slave free! 50 xp.");
-					UpdateScrollList(0, 245, 255);
+					UpdateScrollList(255, 0, 255);
 					player_list[trueplayernum].xp += 50;
 				}
 			}
@@ -3050,6 +3050,13 @@ int DisplayDamage(float x, float y, float z, int owner, int id, bool criticalhit
 void GetItem()
 {
 
+	//  normal cyan 0, 255, 255
+	//	action gold : 255, 255, 0
+	//	money green : 0, 255, 0
+	//	xp purple : 255, 0, 255
+	//	health white 255, 255, 255
+	//	damage red 255, 0, 0
+
 	int i = 0;
 	int cullflag = 0;
 	int cullloop = 0;
@@ -3110,7 +3117,7 @@ void GetItem()
 
 					sprintf_s(levelname, "level%d", item_list[i].ability);
 					sprintf_s(gActionMessage, "Loading %s...", levelname);
-					UpdateScrollList(0, 245, 255);
+					UpdateScrollList(0, 255, 255);
 					int current_level = item_list[i].ability;
 					strcpy_s(level, levelname);
 					strcat_s(level, ".map");
@@ -3179,7 +3186,7 @@ void GetItem()
 					{
 						sprintf_s(gActionMessage, "You found a %s", item_list[i].rname);
 					}
-					UpdateScrollList(0, 245, 255);
+					UpdateScrollList(0, 255, 255);
 
 					//you got something good! (weapon)
 					item_list[i].bIsPlayerAlive = FALSE;
@@ -3223,7 +3230,7 @@ void GetItem()
 						PlayWavSound(SoundID("potion"), 100);
 						//StartFlare(3);
 						sprintf_s(gActionMessage, "You found a potion worth %d health", hp);
-						UpdateScrollList(0, 255, 255);
+						UpdateScrollList(255, 255, 255);
 						foundsomething = 1;
 						//LevelUp(player_list[trueplayernum].xp);
 					}
@@ -3244,7 +3251,7 @@ void GetItem()
 						PlayWavSound(SoundID("potion"), 100);
 						//StartFlare(3);
 						sprintf_s(gActionMessage, "You found some cheese %d health", hp);
-						UpdateScrollList(0, 255, 255);
+						UpdateScrollList(255, 255, 255);
 						foundsomething = 1;
 						//LevelUp(player_list[trueplayernum].xp);
 					}
@@ -3265,7 +3272,7 @@ void GetItem()
 						PlayWavSound(SoundID("potion"), 100);
 						//StartFlare(3);
 						sprintf_s(gActionMessage, "You found some bread %d health", hp);
-						UpdateScrollList(0, 245, 255);
+						UpdateScrollList(255, 255, 255);
 						foundsomething = 1;
 						//LevelUp(player_list[trueplayernum].xp);
 					}
@@ -3285,7 +3292,7 @@ void GetItem()
 
 					foundsomething = 1;
 					sprintf_s(gActionMessage, "You found %d coin", item_list[i].gold);
-					UpdateScrollList(0, 255, 100);
+					UpdateScrollList(0, 255, 0);
 					//LevelUp(player_list[trueplayernum].xp);
 				}
 				else if (strcmp(item_list[i].rname, "GOBLET") == 0)
@@ -3302,7 +3309,7 @@ void GetItem()
 
 					foundsomething = 1;
 					sprintf_s(gActionMessage, "You found a goblet worth %d coin", item_list[i].gold);
-					UpdateScrollList(0, 245, 255);
+					UpdateScrollList(0, 255, 0);
 					//LevelUp(player_list[trueplayernum].xp);
 				}
 
@@ -3317,7 +3324,7 @@ void GetItem()
 
 					foundsomething = 1;
 					sprintf_s(gActionMessage, "You found a key");
-					UpdateScrollList(0, 245, 255);
+					UpdateScrollList(255, 255, 0);
 					//LevelUp(player_list[trueplayernum].xp);
 				}
 				else if (strcmp(item_list[i].rname, "diamond") == 0)
@@ -3330,7 +3337,7 @@ void GetItem()
 					item_list[i].bIsPlayerValid = FALSE;
 					foundsomething = 1;
 					sprintf_s(gActionMessage, "You found a diamond worth %d coin", item_list[i].gold);
-					UpdateScrollList(0, 245, 255);
+					UpdateScrollList(0, 255, 0);
 					//LevelUp(player_list[trueplayernum].xp);
 				}
 				else if (strcmp(item_list[i].rname, "armour") == 0)
@@ -3340,7 +3347,7 @@ void GetItem()
 					player_list[trueplayernum].ac = player_list[trueplayernum].ac - 1;
 					foundsomething = 1;
 					sprintf_s(gActionMessage, "You found some armour");
-					UpdateScrollList(0, 245, 255);
+					UpdateScrollList(0, 100, 255);
 					//StartFlare(2);
 					PlayWavSound(SoundID("potion"), 100);
 					PlayWavSound(SoundID("goal4"), 100);
@@ -3796,7 +3803,7 @@ int LevelUp(int xp)
 			player_list[trueplayernum].thaco = 5;
 
 		sprintf_s(gActionMessage, "You went up a level.  Hit Dice: %d", player_list[trueplayernum].hd);
-		UpdateScrollList(0, 245, 255);
+		UpdateScrollList(255, 0, 255);
 		//StartFlare(2);
 
 		PlayWavSound(SoundID("win"), 100);

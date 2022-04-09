@@ -622,8 +622,15 @@ void DungeonStompApp::DisplayHud() {
 		sprintf_s(junk2, "%s", scrolllist1[scount].text);
 		//display_message(0.0f, scrollmessage1, junk2, scrolllist1[scount].r, scrolllist1[scount].g, scrolllist1[scount].b, 12.5, 16, 0);
 
-		RenderText(arialFont, charToWChar(junk2), XMFLOAT2(0.0f, 0.1f + scrollmessage1), XMFLOAT2(0.30f, 0.30f));
+		//RenderText(arialFont, charToWChar(junk2), XMFLOAT2(0.0f, 0.1f + scrollmessage1), XMFLOAT2(0.30f, 0.30f));
+		//RenderText(arialFont, charToWChar(junk2), XMFLOAT2(0.0f, 0.1f + scrollmessage1), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4((float)((float)scrolllist1[scount].r / 255.0f), (float)((float)scrolllist1[scount].g / 255.0f), (float)((float)scrolllist1[scount].b / 255.0f), 1.0f));
 
+		RenderText(arialFont, charToWChar(junk2), XMFLOAT2(0.0f, 0.1f + scrollmessage1), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4((float)scrolllist1[scount].r , (float)scrolllist1[scount].g , (float)scrolllist1[scount].b, 1.0f));
+
+
+		//RenderText(arialFont, charToWChar(junk2), XMFLOAT2(0.0f, 0.1f + scrollmessage1), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4((float)(0 ), (float)((float)255 ), (float)((float)100 ), 1.0f));
+
+		//RenderText(arialFont, charToWChar(junk2), XMFLOAT2(0.0f, 0.1f + scrollmessage1), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0,0,0.5f, 1.0f));
 
 		scrollmessage1 -= 0.02f;
 
@@ -713,7 +720,7 @@ void DungeonStompApp::ScanMod()
 						levelmodify[counter].active = 0;
 						int xp = atoi(levelmodify[counter].Text1);
 						sprintf_s(gActionMessage, "You got %d XP!.", xp);
-						UpdateScrollList(0, 245, 255);
+						UpdateScrollList(255, 0, 255);
 						player_list[trueplayernum].xp += xp;
 						//LevelUp(player_list[trueplayernum].xp);
 					}
