@@ -70,7 +70,7 @@ int nextsong = 0;
 int giveallweapons = 0;
 extern int pressopendoor;
 
-int MyHealth = 100;
+
 int jump = 0;
 float jumpcount = 0;
 XMFLOAT3 jumpv;
@@ -448,6 +448,10 @@ VOID UpdateControls()
 
 VOID WalkMode(CONTROLS* Controls)
 {
+
+	if (player_list[trueplayernum].bIsPlayerAlive == FALSE)
+		return;
+
 	int i = 0;
 	float speed = 8.0f;
 	int perspectiveview = 1;
@@ -607,8 +611,8 @@ VOID WalkMode(CONTROLS* Controls)
 	}
 
 	// fire gun
-	if ((Controls->bFire == TRUE) && (MyHealth > 0 && jump == 0) && (player_list[trueplayernum].current_sequence != 2) && player_list[trueplayernum].bIsPlayerAlive == TRUE && usespell == 0 ||
-		(Controls->bFire2 == TRUE) && (MyHealth > 0) && jump == 0 && (player_list[trueplayernum].current_sequence != 2) && player_list[trueplayernum].bIsPlayerAlive == TRUE &&
+	if ((Controls->bFire == TRUE) && jump == 0 && (player_list[trueplayernum].current_sequence != 2) && player_list[trueplayernum].bIsPlayerAlive == TRUE && usespell == 0 ||
+		(Controls->bFire2 == TRUE) && jump == 0 && (player_list[trueplayernum].current_sequence != 2) && player_list[trueplayernum].bIsPlayerAlive == TRUE &&
 		usespell == 0)
 	{
 		hitmonster = 0;

@@ -240,8 +240,8 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	// Swap the back and front buffers (vsync enable)
-	//ThrowIfFailed(mSwapChain->Present(0, 0));
-	ThrowIfFailed(mSwapChain->Present(1, 0));
+	//ThrowIfFailed(mSwapChain->Present(0, 0)); //set vsync off
+	ThrowIfFailed(mSwapChain->Present(1, 0)); //set vsync on
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
 
 	// Advance the fence value to mark commands up to this fence point.
@@ -300,23 +300,13 @@ void DungeonStompApp::OnMouseMove(WPARAM btnState, int x, int y)
 
 void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 {
-	/*
-	const float dt = gt.DeltaTime();
-
-	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-		mSunTheta -= 1.0f * dt;
-
-	if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-		mSunTheta += 1.0f * dt;
-
-	if (GetAsyncKeyState(VK_UP) & 0x8000)
-		mSunPhi -= 1.0f * dt;
-
-	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-		mSunPhi += 1.0f * dt;
-
-	mSunPhi = MathHelper::Clamp(mSunPhi, 0.1f, XM_PIDIV2);
-	*/
+	//rise from the dead
+	if (player_list[trueplayernum].bIsPlayerAlive == FALSE) {
+		if (GetAsyncKeyState(VK_SPACE) & 0x8000) {
+			player_list[trueplayernum].bIsPlayerAlive = TRUE;
+			player_list[trueplayernum].health = player_list[trueplayernum].hp;
+		}
+	}
 }
 
 void DungeonStompApp::UpdateCamera(const GameTimer& gt)

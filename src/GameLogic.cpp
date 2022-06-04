@@ -127,8 +127,8 @@ void MoveMonsters(float fElapsedTime)
 
 	MakeBoundingBox();
 
-	//if (player_list[trueplayernum].bIsPlayerAlive == FALSE)
-		//return;
+	if (player_list[trueplayernum].bIsPlayerAlive == FALSE)
+		return;
 
 	for (i = 0; i < num_monsters; i++)
 	{
@@ -2683,20 +2683,20 @@ void ApplyPlayerDamage(int playerid, int damage)
 	{
 		player_list[trueplayernum].health = 0;
 
-		raction = (int)random_num(3);
+		//raction = (int)random_num(3);
 
-		switch (raction)
-		{
-		case 0:
-			SetPlayerAnimationSequence(trueplayernum, 12); // death1
-			break;
-		case 1:
-			SetPlayerAnimationSequence(trueplayernum, 13);// death2
-			break;
-		case 2:
-			SetPlayerAnimationSequence(trueplayernum, 14);// death3
-			break;
-		}
+		//switch (raction)
+		//{
+		//case 0:
+		//	SetPlayerAnimationSequence(trueplayernum, 12); // death1
+		//	break;
+		//case 1:
+		//	SetPlayerAnimationSequence(trueplayernum, 13);// death2
+		//	break;
+		//case 2:
+		//	SetPlayerAnimationSequence(trueplayernum, 14);// death3
+		//	break;
+		//}
 
 		player_list[trueplayernum].bIsPlayerAlive = FALSE;
 
