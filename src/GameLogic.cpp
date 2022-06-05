@@ -2704,7 +2704,7 @@ void ApplyPlayerDamage(int playerid, int damage)
 			m_vLookatPt = m_vEyePt;
 		//m_vLookatPt=m_vEyePt;
 
-		look_up_ang = -10;
+		look_up_ang = -20;
 		perspectiveview = 0;
 		sprintf_s(gActionMessage, "Great Crom. You are dead!");
 		UpdateScrollList(0, 255, 255);
