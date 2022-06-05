@@ -455,6 +455,7 @@ VOID WalkMode(CONTROLS* Controls)
 	int i = 0;
 	float speed = 8.0f;
 	int perspectiveview = 1;
+	float gravityspeed = 200.0f;
 
 	filterx = 0;
 	filtery = 0;
@@ -589,12 +590,14 @@ VOID WalkMode(CONTROLS* Controls)
 	}
 
 	// Move vertically up towards sky
-	if (Controls->bUp)
-		m_vEyePt.y += 2;
+	if (Controls->bUp && !gravityon) {
+		m_vEyePt.y += gravityspeed * elapsegametimersave;
+	}
 
 	// Move vertically down towards ground
-	if (Controls->bDown)
-		m_vEyePt.y -= 2;
+	if (Controls->bDown && !gravityon) {
+		m_vEyePt.y -= gravityspeed * elapsegametimersave;
+	}
 
 	if (Controls->bNextWeap && !cycleweaponbuttonpressed) {
 		CycleNextWeapon();
