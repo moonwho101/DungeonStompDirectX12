@@ -318,6 +318,11 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 
 	float adjust = 50.0f;
 
+	if (player_list[trueplayernum].bIsPlayerAlive == FALSE) {
+		//Dead on floor
+		adjust = 0.0f;
+	}
+
 	mEyePos.x = m_vEyePt.x;
 	mEyePos.y = m_vEyePt.y + adjust;
 	mEyePos.z = m_vEyePt.z;
