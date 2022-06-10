@@ -456,34 +456,6 @@ void calculate_block_location()
 	return;
 }
 
-
-
-/*
-extern "C" __declspec(dllexport) void colSetUnitsPerMeter(float UPM)
-{
-	unitsPerMeter=UPM;
-}
-
-extern "C" __declspec(dllexport) void colSetGravity(float* grav )
-{
-	gravity.set(grav[0], grav[1], grav[2]);
-}
-
-extern "C" __declspec(dllexport) void colSetRadius(float radius)
-{
-	collisionPackage.eRadius=radius;
-}
-
-extern "C" __declspec(dllexport) void colSetTrianglePool(int numtri, float** pool)
-{
-	numtriangle=numtri;
-	triangle_pool=pool;
-}
-*/
-
-
-
-
 float FastDistance(float fx, float fy, float fz)
 {
 
