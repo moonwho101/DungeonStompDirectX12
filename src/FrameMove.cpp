@@ -45,6 +45,13 @@ HRESULT FrameMove(double fTime, FLOAT fTimeKey)
 
 	PlayerJump(fTimeKey);
 
+	if (look_up_ang < -89.3f)
+		look_up_ang = -89.3f;
+
+	if (look_up_ang > 89.3f)
+		look_up_ang = 89.3f;
+
+
 	float newangle = 0;
 	newangle = fixangle(look_up_ang, 90);
 

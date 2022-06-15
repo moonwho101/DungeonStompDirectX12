@@ -658,8 +658,8 @@ VOID WalkMode(CONTROLS* Controls)
 		else
 		{
 			look_up_ang += 105 * elapsegametimersave;
-			if (look_up_ang > 90)
-				look_up_ang = 89.9f;
+			/*if (look_up_ang > 90)
+				look_up_ang = 89.9f;*/
 		}
 	}
 
@@ -673,8 +673,8 @@ VOID WalkMode(CONTROLS* Controls)
 		else
 		{
 			look_up_ang -= 105 * elapsegametimersave;
-			if (look_up_ang < -90)
-				look_up_ang = -89.9f;
+			//if (look_up_ang < -90)
+			//	look_up_ang = -89.9f;
 		}
 	}
 
@@ -781,11 +781,11 @@ VOID WalkMode(CONTROLS* Controls)
 			angy += filterx;
 			look_up_ang += filtery;
 		}
-		if (look_up_ang < -90.0f)
+	/*	if (look_up_ang < -90.0f)
 			look_up_ang = -89.9f;
 
 		if (look_up_ang > 90.0f)
-			look_up_ang = 89.9f;
+			look_up_ang = 89.9f;*/
 	}
 }
 
