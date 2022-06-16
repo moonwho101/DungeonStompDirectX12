@@ -156,10 +156,11 @@ void UpdateWorld(float fElapsedTime);
 void DungeonStompApp::Update(const GameTimer& gt)
 {
 	float t = gt.DeltaTime();
+
+	ScanMod(t);
 	UpdateControls();
 	FrameMove(0.0f, t);
 	UpdateWorld(t);
-
 	OnKeyboardInput(gt);
 	UpdateCamera(gt);
 
@@ -1201,7 +1202,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	DisplayHud();
 	SetDungeonText();
-	ScanMod();
 
 	return;
 }
