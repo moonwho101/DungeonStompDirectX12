@@ -4070,8 +4070,6 @@ int LevelUpXPNeeded(int xp)
 }
 
 
-
-
 void statusbardisplay(float x, float length, int type)
 {
 
