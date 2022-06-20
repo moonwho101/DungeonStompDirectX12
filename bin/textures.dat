@@ -1141,6 +1141,24 @@ Alias  378   blood@9           AlphaTransparent  WHOLE  flat
 AddTexture  ..\textures\fonts\fontB.dds
 Alias  379   fontB           AlphaTransparent  WHOLE  default
 
+AddTexture  ..\textures\normalmap\bricks.dds
+Alias  380   bricks           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\normalmap\bricks_nmap.dds
+Alias  381   bricks_nmap.dds           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\normalmap\bricks2.dds
+Alias  382   bricks2           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\normalmap\bricks2_nmap.dds
+Alias  383   bricks2_nmap.dds           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\normalmap\tile.dds
+Alias  384   tile           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\normalmap\tile_nmap.dds
+Alias  385   tile_nmap           OPAQUE  WHOLE  default
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
