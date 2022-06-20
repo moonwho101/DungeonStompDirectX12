@@ -64,7 +64,7 @@ extern struct gametext gtext[200];
 extern int ResetSound();
 
 TEXTUREMAPPING  TexMap[MAX_NUM_TEXTURES];
-//LPDIRECT3DTEXTURE9 g_pTextureList[MAX_NUM_TEXTURESLIST];
+
 MSOUNDLIST slist[500];
 
 CLoadWorld* pCWorld;

@@ -45,7 +45,7 @@ BOOL* dp_command_index_mode;
 
 #define USE_INDEXED_DP			0
 #define USE_NON_INDEXED_DP		1
-//extern LPDIRECT3DTEXTURE9      g_pTextureList[MAX_NUM_TEXTURESLIST];
+
 float k = (float)0.017453292;
 
 struct CUSTOMVERTEX { FLOAT X, Y, Z; DWORD COLOR; };
