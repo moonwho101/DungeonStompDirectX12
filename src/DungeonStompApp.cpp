@@ -368,6 +368,7 @@ void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
 			ObjectConstants objConstants;
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+			objConstants.MaterialIndex = e->Mat->MatCBIndex;
 
 			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
 
@@ -375,7 +376,10 @@ void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
 			e->NumFramesDirty--;
 		}
 	}
+
 }
+
+
 
 
 void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
@@ -395,6 +399,9 @@ void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
 			matConstants.FresnelR0 = mat->FresnelR0;
 			matConstants.Roughness = mat->Roughness;
 			XMStoreFloat4x4(&matConstants.MatTransform, XMMatrixTranspose(matTransform));
+
+			matConstants.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
+			matConstants.NormalMapIndex = mat->NormalSrvHeapIndex;
 
 			currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
 
@@ -484,22 +491,36 @@ void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 void DungeonStompApp::BuildRootSignature()
 {
 
-	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	CD3DX12_DESCRIPTOR_RANGE texTable0;
+	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
+
+	CD3DX12_DESCRIPTOR_RANGE texTable1;
+	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 1, 0);
+
 
 	// Root parameter can be a table, root descriptor or root constants.
-	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+	CD3DX12_ROOT_PARAMETER slotRootParameter[5];
 
 	// Create root CBV.
+	//slotRootParameter[0].InitAsConstantBufferView(0);
+	//slotRootParameter[1].InitAsConstantBufferView(1);
+	//slotRootParameter[2].InitAsConstantBufferView(2);
+	//slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
+	//slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
+
+
 	slotRootParameter[0].InitAsConstantBufferView(0);
 	slotRootParameter[1].InitAsConstantBufferView(1);
-	slotRootParameter[2].InitAsConstantBufferView(2);
-	slotRootParameter[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+	slotRootParameter[2].InitAsShaderResourceView(0, 1);
+	slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
+	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
+
+
 
 	auto staticSamplers = GetStaticSamplers();
 
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter,
 		(UINT)staticSamplers.size(), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -680,6 +701,7 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	D3D12_SHADER_BYTECODE rectanglePixelShaderBytecode = {};
 	rectanglePixelShaderBytecode.BytecodeLength = rectanglePixelShader->GetBufferSize();
 	rectanglePixelShaderBytecode.pShaderBytecode = rectanglePixelShader->GetBufferPointer();
+
 
 	mInputLayout =
 	{
@@ -902,6 +924,7 @@ void DungeonStompApp::BuildDungeonGeometryBuffers()
 
 void DungeonStompApp::BuildPSOs()
 {
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
 
 	//

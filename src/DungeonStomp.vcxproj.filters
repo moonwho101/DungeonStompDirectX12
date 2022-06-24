@@ -204,5 +204,8 @@
     <Text Include="..\Shaders\RectangleVertexShader.hlsl">
       <Filter>Shaders</Filter>
     </Text>
+    <Text Include="..\Shaders\Common.hlsl">
+      <Filter>Shaders</Filter>
+    </Text>
   </ItemGroup>
 </Project>
