@@ -23,6 +23,9 @@ struct Material
     float Shininess;
 };
 
+
+
+
 float CalcAttenuation(float d, float falloffStart, float falloffEnd)
 {
     // Linear falloff.

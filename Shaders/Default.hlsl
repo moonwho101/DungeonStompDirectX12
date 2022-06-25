@@ -24,6 +24,8 @@ Texture2D    gDiffuseMap : register(t0);
 Texture2D    gNormalMap : register(t1);
 
 
+
+
 // An array of textures, which is only supported in shader model 5.1+.  Unlike Texture2DArray, the textures
 // in this array can be different sizes and formats, making it more flexible than texture arrays.
 //Texture2D gTextureMaps[10] : register(t1);
@@ -102,6 +104,9 @@ struct VertexOut
     float2 TexC    : TEXCOORD;
 };
 
+
+
+
 //---------------------------------------------------------------------------------------
 // Transforms a normal map sample to world space.
 //---------------------------------------------------------------------------------------
@@ -151,12 +156,12 @@ VertexOut VS(VertexIn vin)
 float4 PS(VertexOut pin) : SV_Target
 {
     //float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
-    float4 diffuseAlbedo = gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
+    //float4 diffuseAlbedo = gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
 
-    //float4 diffuseAlbedo = gDiffuseAlbedo;
+    float4 diffuseAlbedo = gDiffuseAlbedo;
     //float4 diffuseAlbedo =  gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
-    //float3 fresnelR0 = gFresnelR0;
-    //float  roughness = gRoughness;
+    float3 fresnelR0 = gFresnelR0;
+    float  roughness = gRoughness;
     //uint diffuseMapIndex = gDiffuseMapIndex;
     //uint normalMapIndex = gNormalMapIndex;
 
@@ -165,12 +170,14 @@ float4 PS(VertexOut pin) : SV_Target
     pin.NormalW = normalize(pin.NormalW);
 
 
-    //float4 normalMapSample = gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC);
-    //float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
+    float4 normalMapSample = gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC);
+    float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
+
+    // Uncomment to turn off normal mapping.
+    //bumpedNormalW = pin.NormalW;
 
     // Dynamically look up the texture in the array.
-    //diffuseAlbedo = gTextureMaps[1].Sample(gsamAnisotropicWrap, pin.TexC);
-    
+    diffuseAlbedo *= gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
 
 
     // Vector from point being lit to eye. 
@@ -181,13 +188,22 @@ float4 PS(VertexOut pin) : SV_Target
     // Light terms.
     float4 ambient = gAmbientLight * diffuseAlbedo;
 
-    const float shininess = 1.0f - gRoughness;
+    const float shininess = (1.0f - roughness) * normalMapSample.a;
     Material mat = { diffuseAlbedo, gFresnelR0, shininess };
     float3 shadowFactor = 1.0f;
     float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
         pin.NormalW, toEyeW, shadowFactor);
 
     float4 litColor = ambient + directLight;
+
+    // Add in specular reflections.
+    float3 r = reflect(-toEyeW, bumpedNormalW);
+    //float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
+    float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
+    litColor.rgb += shininess * fresnelFactor; // *reflectionColor.rgb;
+
+
+
 
 #ifdef FOG
     float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
@@ -199,5 +215,6 @@ float4 PS(VertexOut pin) : SV_Target
 
     return litColor;
 }
+
 
 
