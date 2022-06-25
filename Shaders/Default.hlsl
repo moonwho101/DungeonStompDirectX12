@@ -21,11 +21,12 @@
 #include "LightingUtil.hlsl"
 
 Texture2D    gDiffuseMap : register(t0);
+Texture2D    gNormalMap : register(t1);
 
 
 // An array of textures, which is only supported in shader model 5.1+.  Unlike Texture2DArray, the textures
 // in this array can be different sizes and formats, making it more flexible than texture arrays.
-Texture2D gTextureMaps[10] : register(t1);
+//Texture2D gTextureMaps[10] : register(t1);
 
 
 SamplerState gsamPointWrap        : register(s0);
@@ -49,10 +50,6 @@ cbuffer cbMaterial : register(b1)
     float3 gFresnelR0;
     float  gRoughness;
 	float4x4 gMatTransform;
-    uint     gDiffuseMapIndex;
-    uint     gNormalMapIndex;
-    uint     gMatPad1;
-    uint     gMatPad2;
 };
 
 // Constant data that varies per material.
@@ -153,25 +150,26 @@ VertexOut VS(VertexIn vin)
 
 float4 PS(VertexOut pin) : SV_Target
 {
-    float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
+    //float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
+    float4 diffuseAlbedo = gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
 
     //float4 diffuseAlbedo = gDiffuseAlbedo;
-    //float4 diffuseAlbedo =  gTextureMaps[4].Sample(gsamAnisotropicWrap, pin.TexC);
-    float3 fresnelR0 = gFresnelR0;
-    float  roughness = gRoughness;
-    uint diffuseMapIndex = gDiffuseMapIndex;
-    uint normalMapIndex = gNormalMapIndex;
+    //float4 diffuseAlbedo =  gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
+    //float3 fresnelR0 = gFresnelR0;
+    //float  roughness = gRoughness;
+    //uint diffuseMapIndex = gDiffuseMapIndex;
+    //uint normalMapIndex = gNormalMapIndex;
 
 
     // Interpolating normal can unnormalize it, so renormalize it.
     pin.NormalW = normalize(pin.NormalW);
 
 
-    float4 normalMapSample = gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
-    float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
+    //float4 normalMapSample = gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC);
+    //float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
 
     // Dynamically look up the texture in the array.
-    diffuseAlbedo *= gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
+    //diffuseAlbedo = gTextureMaps[1].Sample(gsamAnisotropicWrap, pin.TexC);
     
 
 

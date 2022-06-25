@@ -400,8 +400,8 @@ void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
 			matConstants.Roughness = mat->Roughness;
 			XMStoreFloat4x4(&matConstants.MatTransform, XMMatrixTranspose(matTransform));
 
-			matConstants.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
-			matConstants.NormalMapIndex = mat->NormalSrvHeapIndex;
+			//matConstants.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
+			//matConstants.NormalMapIndex = mat->NormalSrvHeapIndex;
 
 			currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
 
@@ -1309,8 +1309,12 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 			tex.Offset(texture_number, mCbvSrvDescriptorSize);
-
 			cmdList->SetGraphicsRootDescriptorTable(3, tex);
+
+			CD3DX12_GPU_DESCRIPTOR_HANDLE tex2(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+			tex2.Offset(44, mCbvSrvDescriptorSize);
+			cmdList->SetGraphicsRootDescriptorTable(4, tex2);
+
 
 			if (dp_command_index_mode[i] == 1 && TexMap[texture_alias_number].is_alpha_texture == isAlpha) {  //USE_NON_INDEXED_DP
 				int  v = verts_per_poly[currentObject];
