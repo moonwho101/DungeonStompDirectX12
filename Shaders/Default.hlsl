@@ -153,9 +153,10 @@ VertexOut VS(VertexIn vin)
 
 float4 PS(VertexOut pin) : SV_Target
 {
-    //float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
+    float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
 
-    float4 diffuseAlbedo = gDiffuseAlbedo;
+    //float4 diffuseAlbedo = gDiffuseAlbedo;
+    //float4 diffuseAlbedo =  gTextureMaps[4].Sample(gsamAnisotropicWrap, pin.TexC);
     float3 fresnelR0 = gFresnelR0;
     float  roughness = gRoughness;
     uint diffuseMapIndex = gDiffuseMapIndex;
@@ -169,11 +170,15 @@ float4 PS(VertexOut pin) : SV_Target
     float4 normalMapSample = gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
     float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
 
+    // Dynamically look up the texture in the array.
+    diffuseAlbedo *= gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
+    
+
 
     // Vector from point being lit to eye. 
-    float3 toEyeW = gEyePosW - pin.PosW;
+    float3 toEyeW = normalize(gEyePosW - pin.PosW);
     float distToEye = length(toEyeW);
-    toEyeW /= distToEye; // normalize
+
 
     // Light terms.
     float4 ambient = gAmbientLight * diffuseAlbedo;

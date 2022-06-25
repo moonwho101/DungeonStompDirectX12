@@ -368,7 +368,7 @@ void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
 			ObjectConstants objConstants;
 			XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 			XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
-			objConstants.MaterialIndex = e->Mat->MatCBIndex;
+			//objConstants.MaterialIndex = e->Mat->MatCBIndex;
 
 			currObjectCB->CopyData(e->ObjCBIndex, objConstants);
 
@@ -410,6 +410,7 @@ void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
 		}
 	}
 }
+
 
 
 void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
@@ -490,22 +491,28 @@ void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 void DungeonStompApp::BuildRootSignature()
 {
 
-	CD3DX12_DESCRIPTOR_RANGE texTable;
-	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	CD3DX12_DESCRIPTOR_RANGE texTable0;
+	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
+
+	CD3DX12_DESCRIPTOR_RANGE texTable1;
+	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 1, 0);
+
 
 	// Root parameter can be a table, root descriptor or root constants.
-	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+	CD3DX12_ROOT_PARAMETER slotRootParameter[5];
 
 	// Create root CBV.
 	slotRootParameter[0].InitAsConstantBufferView(0);
 	slotRootParameter[1].InitAsConstantBufferView(1);
 	slotRootParameter[2].InitAsConstantBufferView(2);
-	slotRootParameter[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
+	slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
+	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
+
 
 	auto staticSamplers = GetStaticSamplers();
 
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter,
 		(UINT)staticSamplers.size(), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -1016,11 +1023,15 @@ void DungeonStompApp::BuildMaterials()
 	//Gold (1.0f, 0.71f, 0.29f);
 	//Silver (0.95f, 0.73f, 0.88f);
 	//Copper (0.95f, 0.64f, 0.54f);
+	//383 = tile
+	//384 = tile normal
+
 
 	auto default = std::make_unique<Material>();
 	default->Name = "default";
 	default->MatCBIndex = 0;
-	default->DiffuseSrvHeapIndex = 0;
+	default->NormalSrvHeapIndex = 384;
+	default->DiffuseSrvHeapIndex = 383;
 	default->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	default->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	default->Roughness = 0.5f;
@@ -1028,12 +1039,16 @@ void DungeonStompApp::BuildMaterials()
 	auto grass = std::make_unique<Material>();
 	grass->Name = "grass";
 	grass->MatCBIndex = 1;
+	grass->NormalSrvHeapIndex = 384;
+	grass->DiffuseSrvHeapIndex = 383;
 	grass->DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	grass->Roughness = 0.125f;
 
 	auto water = std::make_unique<Material>();
 	water->Name = "water";
+	water->NormalSrvHeapIndex = 384;
+	water->DiffuseSrvHeapIndex = 383;
 	water->MatCBIndex = 2;
 	water->DiffuseSrvHeapIndex = 0;
 	water->DiffuseAlbedo = XMFLOAT4(0.5f, 0.5f, 1.0f, 0.5f);
@@ -1043,6 +1058,8 @@ void DungeonStompApp::BuildMaterials()
 	auto brick = std::make_unique<Material>();
 	brick->Name = "brick";
 	brick->MatCBIndex = 3;
+	brick->NormalSrvHeapIndex = 384;
+	brick->DiffuseSrvHeapIndex = 383;
 	brick->DiffuseSrvHeapIndex = 0;
 	brick->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	brick->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
@@ -1051,6 +1068,8 @@ void DungeonStompApp::BuildMaterials()
 	auto stone = std::make_unique<Material>();
 	stone->Name = "stone";
 	stone->MatCBIndex = 4;
+	stone->NormalSrvHeapIndex = 384;
+	stone->DiffuseSrvHeapIndex = 383;
 	stone->DiffuseSrvHeapIndex = 0;
 	stone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	stone->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
@@ -1059,6 +1078,8 @@ void DungeonStompApp::BuildMaterials()
 	auto tile = std::make_unique<Material>();
 	tile->Name = "tile";
 	tile->MatCBIndex = 5;
+	tile->NormalSrvHeapIndex = 384;
+	tile->DiffuseSrvHeapIndex = 383;
 	tile->DiffuseSrvHeapIndex = 0;
 	tile->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	tile->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
@@ -1067,6 +1088,8 @@ void DungeonStompApp::BuildMaterials()
 	auto crate = std::make_unique<Material>();
 	crate->Name = "crate";
 	crate->MatCBIndex = 6;
+	crate->NormalSrvHeapIndex = 384;
+	crate->DiffuseSrvHeapIndex = 383;
 	crate->DiffuseSrvHeapIndex = 0;
 	crate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	crate->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
@@ -1075,6 +1098,8 @@ void DungeonStompApp::BuildMaterials()
 	auto ice = std::make_unique<Material>();
 	ice->Name = "ice";
 	ice->MatCBIndex = 7;
+	ice->NormalSrvHeapIndex = 384;
+	ice->DiffuseSrvHeapIndex = 383;
 	ice->DiffuseSrvHeapIndex = 0;
 	ice->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	ice->FresnelR0 = XMFLOAT3(0.2f, 0.2f, 0.2f);
@@ -1083,6 +1108,8 @@ void DungeonStompApp::BuildMaterials()
 	auto bone = std::make_unique<Material>();
 	bone->Name = "bone";
 	bone->MatCBIndex = 8;
+	bone->NormalSrvHeapIndex = 384;
+	bone->DiffuseSrvHeapIndex = 383;
 	bone->DiffuseSrvHeapIndex = 0;
 	bone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	bone->FresnelR0 = XMFLOAT3(0.15f, 0.15f, 0.15f);
@@ -1091,6 +1118,8 @@ void DungeonStompApp::BuildMaterials()
 	auto metal = std::make_unique<Material>();
 	metal->Name = "metal";
 	metal->MatCBIndex = 9;
+	metal->NormalSrvHeapIndex = 384;
+	metal->DiffuseSrvHeapIndex = 383;
 	metal->DiffuseSrvHeapIndex = 0;
 	metal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	metal->FresnelR0 = XMFLOAT3(0.95f, 0.73f, 0.88f);
@@ -1099,6 +1128,8 @@ void DungeonStompApp::BuildMaterials()
 	auto glass = std::make_unique<Material>();
 	glass->Name = "glass";
 	glass->MatCBIndex = 10;
+	glass->NormalSrvHeapIndex = 384;
+	glass->DiffuseSrvHeapIndex = 383;
 	glass->DiffuseSrvHeapIndex = 0;
 	glass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	glass->FresnelR0 = XMFLOAT3(0.06f, 0.06f, 0.06f);
@@ -1106,6 +1137,8 @@ void DungeonStompApp::BuildMaterials()
 
 	auto wood = std::make_unique<Material>();
 	wood->Name = "wood";
+	wood->NormalSrvHeapIndex = 384;
+	wood->DiffuseSrvHeapIndex = 383;
 	wood->MatCBIndex = 11;
 	wood->DiffuseSrvHeapIndex = 0;
 	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -1115,6 +1148,8 @@ void DungeonStompApp::BuildMaterials()
 	auto flat = std::make_unique<Material>();
 	flat->Name = "flat";
 	flat->MatCBIndex = 12;
+	flat->NormalSrvHeapIndex = 384;
+	flat->DiffuseSrvHeapIndex = 383;
 	flat->DiffuseSrvHeapIndex = 0;
 	flat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	flat->FresnelR0 = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -1191,28 +1226,28 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	//Draw dungeon, monsters and items
 	DrawDungeon(cmdList, ritems, false);
 
-	//Draw alpha transparent items
-	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
-	DrawDungeon(cmdList, ritems, true);
+	////Draw alpha transparent items
+	//mCommandList->SetPipelineState(mPSOs["transparent"].Get());
+	//DrawDungeon(cmdList, ritems, true);
 
-	//Draw the torches and effects
-	mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
-	DrawDungeon(cmdList, ritems, true, true);
+	////Draw the torches and effects
+	//mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
+	//DrawDungeon(cmdList, ritems, true, true);
 
-	//Draw the Monster Captions
-	tex.Offset(377, mCbvSrvDescriptorSize);
-	cmdList->SetGraphicsRootDescriptorTable(3, tex);
+	////Draw the Monster Captions
+	//tex.Offset(377, mCbvSrvDescriptorSize);
+	//cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-	cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	//cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	for (int i = 0; i < displayCapture; i++) {
-		for (int j = 0; j < displayCaptureCount[i]; j++) {
-			cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
-		}
-	}
+	//for (int i = 0; i < displayCapture; i++) {
+	//	for (int j = 0; j < displayCaptureCount[i]; j++) {
+	//		cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
+	//	}
+	//}
 
-	DisplayHud();
-	SetDungeonText();
+	//DisplayHud();
+	//SetDungeonText();
 
 	return;
 }
