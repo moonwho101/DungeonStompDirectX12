@@ -487,40 +487,25 @@ void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 	// Set the dynamic VB of the dungeon renderitem to the current frame VB.
 	mDungeonRitem->Geo->VertexBufferGPU = currDungeonVB->Resource();
 }
-
 void DungeonStompApp::BuildRootSignature()
 {
 
-	CD3DX12_DESCRIPTOR_RANGE texTable0;
-	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
-
-	CD3DX12_DESCRIPTOR_RANGE texTable1;
-	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 1, 0);
-
+	CD3DX12_DESCRIPTOR_RANGE texTable;
+	texTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
 	// Root parameter can be a table, root descriptor or root constants.
-	CD3DX12_ROOT_PARAMETER slotRootParameter[5];
+	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
 
 	// Create root CBV.
-	//slotRootParameter[0].InitAsConstantBufferView(0);
-	//slotRootParameter[1].InitAsConstantBufferView(1);
-	//slotRootParameter[2].InitAsConstantBufferView(2);
-	//slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
-	//slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
-
-
 	slotRootParameter[0].InitAsConstantBufferView(0);
 	slotRootParameter[1].InitAsConstantBufferView(1);
-	slotRootParameter[2].InitAsShaderResourceView(0, 1);
-	slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
-	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
-
-
+	slotRootParameter[2].InitAsConstantBufferView(2);
+	slotRootParameter[3].InitAsDescriptorTable(1, &texTable, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	auto staticSamplers = GetStaticSamplers();
 
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
 		(UINT)staticSamplers.size(), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
