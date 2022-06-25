@@ -22,6 +22,12 @@
 
 Texture2D    gDiffuseMap : register(t0);
 
+
+// An array of textures, which is only supported in shader model 5.1+.  Unlike Texture2DArray, the textures
+// in this array can be different sizes and formats, making it more flexible than texture arrays.
+Texture2D gTextureMaps[10] : register(t1);
+
+
 SamplerState gsamPointWrap        : register(s0);
 SamplerState gsamPointClamp       : register(s1);
 SamplerState gsamLinearWrap       : register(s2);
@@ -35,10 +41,6 @@ cbuffer cbPerObject : register(b0)
 {
     float4x4 gWorld;
     float4x4 gTexTransform;
-    uint gMaterialIndex;
-    uint gObjPad0;
-    uint gObjPad1;
-    uint gObjPad2;
 };
 
 cbuffer cbMaterial : register(b1)
@@ -47,10 +49,10 @@ cbuffer cbMaterial : register(b1)
     float3 gFresnelR0;
     float  gRoughness;
 	float4x4 gMatTransform;
-    uint     DiffuseMapIndex;
-    uint     NormalMapIndex;
-    uint     MatPad1;
-    uint     MatPad2;
+    uint     gDiffuseMapIndex;
+    uint     gNormalMapIndex;
+    uint     gMatPad1;
+    uint     gMatPad2;
 };
 
 // Constant data that varies per material.
@@ -103,6 +105,29 @@ struct VertexOut
     float2 TexC    : TEXCOORD;
 };
 
+//---------------------------------------------------------------------------------------
+// Transforms a normal map sample to world space.
+//---------------------------------------------------------------------------------------
+float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
+{
+    // Uncompress each component from [0,1] to [-1,1].
+    float3 normalT = 2.0f * normalMapSample - 1.0f;
+
+    // Build orthonormal basis.
+    float3 N = unitNormalW;
+    float3 T = normalize(tangentW - dot(tangentW, N) * N);
+    float3 B = cross(N, T);
+
+    float3x3 TBN = float3x3(T, B, N);
+
+    // Transform from tangent space to world space.
+    float3 bumpedNormalW = mul(normalT, TBN);
+
+    return bumpedNormalW;
+}
+
+
+
 VertexOut VS(VertexIn vin)
 {
     VertexOut vout = (VertexOut)0.0f;
@@ -113,6 +138,8 @@ VertexOut VS(VertexIn vin)
 
     // Assumes nonuniform scaling; otherwise, need to use inverse-transpose of world matrix.
     vout.NormalW = mul(vin.NormalL, (float3x3)gWorld);
+
+    vout.TangentW = mul(vin.TangentU, (float3x3)gWorld);
 
     // Transform to homogeneous clip space.
     vout.PosH = mul(posW, gViewProj);
@@ -126,27 +153,22 @@ VertexOut VS(VertexIn vin)
 
 float4 PS(VertexOut pin) : SV_Target
 {
-    float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
-    //float4 diffuseAlbedo =  gDiffuseAlbedo;
+    //float4 diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC) * gDiffuseAlbedo;
 
-#ifdef ALPHA_TEST
-    // Discard pixel if texture alpha < 0.1.  We do this test as soon 
-    // as possible in the shader so that we can potentially exit the
-    // shader early, thereby skipping the rest of the shader code.
-    clip(diffuseAlbedo.a - 0.1f);
-#endif
-
-
-#ifdef TORCH_TEST
-    // Discard pixel if texture alpha < 0.1.  We do this test as soon 
-    // as possible in the shader so that we can potentially exit the
-    // shader early, thereby skipping the rest of the shader code.
-    return diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
-#endif
+    float4 diffuseAlbedo = gDiffuseAlbedo;
+    float3 fresnelR0 = gFresnelR0;
+    float  roughness = gRoughness;
+    uint diffuseMapIndex = gDiffuseMapIndex;
+    uint normalMapIndex = gNormalMapIndex;
 
 
     // Interpolating normal can unnormalize it, so renormalize it.
     pin.NormalW = normalize(pin.NormalW);
+
+
+    float4 normalMapSample = gTextureMaps[normalMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
+    float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
+
 
     // Vector from point being lit to eye. 
     float3 toEyeW = gEyePosW - pin.PosW;
