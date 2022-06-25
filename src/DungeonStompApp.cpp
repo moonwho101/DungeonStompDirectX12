@@ -1308,11 +1308,12 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			tex.Offset(texture_number, mCbvSrvDescriptorSize);
+			//tex.Offset(texture_number, mCbvSrvDescriptorSize);
+			tex.Offset(379, mCbvSrvDescriptorSize);
 			cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex2(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			tex2.Offset(44, mCbvSrvDescriptorSize);
+			tex2.Offset(380, mCbvSrvDescriptorSize);
 			cmdList->SetGraphicsRootDescriptorTable(4, tex2);
 
 
