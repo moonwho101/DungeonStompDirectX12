@@ -480,7 +480,12 @@ void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 		v.TexC.x = src_v[j].tu;
 		v.TexC.y = src_v[j].tv;
 
-		v.TangentU = XMFLOAT3(0.0f, 1.0f, 0.0f);
+		//v.TangentU = XMFLOAT3(0.0f, 1.0f, 0.0f);
+
+		v.TangentU.x = src_v[j].nmx;
+		v.TangentU.y = src_v[j].nmy;
+		v.TangentU.z = src_v[j].nmz;
+
 
 		currDungeonVB->CopyData(j, v);
 	}

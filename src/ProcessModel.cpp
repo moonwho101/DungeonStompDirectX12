@@ -81,6 +81,83 @@ int num_light_sources = 0;
 
 
 
+void CalculateTangentBinormal(D3DVERTEX2 &vertex1, D3DVERTEX2 &vertex2, D3DVERTEX2 &vertex3)
+{
+	float vector1[3], vector2[3];
+	float tuVector[2], tvVector[2];
+	float den;
+	float length;
+
+	D3DVERTEX2 tangent, binormal;
+
+
+	// Calculate the two vectors for this face.
+	vector1[0] = vertex2.x - vertex1.x;
+	vector1[1] = vertex2.y - vertex1.y;
+	vector1[2] = vertex2.z - vertex1.z;
+
+	vector2[0] = vertex3.x - vertex1.x;
+	vector2[1] = vertex3.y - vertex1.y;
+	vector2[2] = vertex3.z - vertex1.z;
+
+	// Calculate the tu and tv texture space vectors.
+	tuVector[0] = vertex2.tu - vertex1.tu;
+	tvVector[0] = vertex2.tv - vertex1.tv;
+
+	tuVector[1] = vertex3.tu - vertex1.tu;
+	tvVector[1] = vertex3.tv - vertex1.tv;
+
+	// Calculate the denominator of the tangent/binormal equation.
+
+
+	float result = (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
+
+	if (result == 0) {
+		return;
+	}
+
+	den = 1.0f / (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
+
+	// Calculate the cross products and multiply by the coefficient to get the tangent and binormal.
+	tangent.x = (tvVector[1] * vector1[0] - tvVector[0] * vector2[0]) * den;
+	tangent.y = (tvVector[1] * vector1[1] - tvVector[0] * vector2[1]) * den;
+	tangent.z = (tvVector[1] * vector1[2] - tvVector[0] * vector2[2]) * den;
+
+	binormal.x = (tuVector[0] * vector2[0] - tuVector[1] * vector1[0]) * den;
+	binormal.y = (tuVector[0] * vector2[1] - tuVector[1] * vector1[1]) * den;
+	binormal.z = (tuVector[0] * vector2[2] - tuVector[1] * vector1[2]) * den;
+
+	// Calculate the length of this normal.
+	length = sqrt((tangent.x * tangent.x) + (tangent.y * tangent.y) + (tangent.z * tangent.z));
+
+	// Normalize the normal and then store it
+	tangent.x = tangent.x / length;
+	tangent.y = tangent.y / length;
+	tangent.z = tangent.z / length;
+
+	// Calculate the length of this normal.
+	length = sqrt((binormal.x * binormal.x) + (binormal.y * binormal.y) + (binormal.z * binormal.z));
+
+	// Normalize the normal and then store it
+	binormal.x = binormal.x / length;
+	binormal.y = binormal.y / length;
+	binormal.z = binormal.z / length;
+
+	vertex1.nmx = tangent.x;
+	vertex1.nmy = tangent.y;
+	vertex1.nmz = tangent.z;
+
+	vertex2.nmx = tangent.x;
+	vertex2.nmy = tangent.y;
+	vertex2.nmz = tangent.z;
+
+	vertex3.nmx = tangent.x;
+	vertex3.nmy = tangent.y;
+	vertex3.nmz = tangent.z;
+
+
+	return;
+}
 
 
 
@@ -283,6 +360,13 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 				src_v[cnt].nz = workz;
 
 				cnt++;
+
+				if (i == 2)
+				{
+					CalculateTangentBinormal(src_v[cnt - 3], src_v[cnt - 2], src_v[cnt - 1]);
+					int a = 1;
+				}
+
 			}
 		}
 		else

@@ -423,6 +423,19 @@ typedef struct _D3DVERTEX2 {
 		D3DVALUE     tv;
 		D3DVALUE     dvTV;
 	};
+	union {
+		D3DVALUE     nmx;            /* Normal */
+		D3DVALUE     dvNMX;
+	};
+	union {
+		D3DVALUE     nmy;
+		D3DVALUE     dvNMY;
+	};
+	union {
+		D3DVALUE     nmz;
+		D3DVALUE     dvNMZ;
+	};
+
 } D3DVERTEX2, * LPD3DVERTEX2;
 
 
