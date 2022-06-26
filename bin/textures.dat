@@ -1156,8 +1156,8 @@ Alias  383   bricks2_nmap.dds           OPAQUE  WHOLE  brick
 AddTexture  ..\textures\normalmap\tile.dds
 Alias  384   tile           OPAQUE  WHOLE  tile
 
-AddTexture  ..\textures\normalmap\tile_nmap.dds
-Alias  385   tile_nmap           OPAQUE  WHOLE  tile
+AddTexture  ..\textures\normalmap\tile_nm.dds
+Alias  385   tile_nm           OPAQUE  WHOLE  tile
 
 AddTexture  ..\textures\normalmap\floor_d.dds
 Alias  386   floor_d           OPAQUE  WHOLE  stone
@@ -1165,8 +1165,38 @@ Alias  386   floor_d           OPAQUE  WHOLE  stone
 AddTexture  ..\textures\normalmap\floor_n.dds
 Alias  387   floor_n           OPAQUE  WHOLE  stone
 
-AddTexture  ..\textures\normalmap\brelab_nm.dds
+AddTexture  ..\textures\brelab_nm.dds
 Alias  388   brelab_nm           OPAQUE  WHOLE  brick
+
+AddTexture  ..\textures\brbrik3_nm.dds
+Alias  389   brbrik3_nm           OPAQUE  WHOLE  brick
+
+AddTexture  ..\textures\curb_nm.dds
+Alias  390   curb_nm           OPAQUE  WHOLE  brick
+
+AddTexture  ..\textures\yellowtile1_nm.dds
+Alias  391   yellowtile1_nm           OPAQUE  WHOLE  brick
+
+AddTexture  ..\textures\doors\door10_nm.dds
+Alias  392   door10_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\door1_nm.dds
+Alias  393   door1_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\mtl10_nm.dds
+Alias  394   mtl10_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\ceiling_nm.dds
+Alias  395   ceiling_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\pave1_nm.dds
+Alias  396   pave1_nm           OPAQUE  WHOLE  wood
+
+
+AddTexture  ..\textures\redtile1_nm.dds
+Alias  396   redtile1_nm           OPAQUE  WHOLE  wood
+
+
 
 END_FILE
 
