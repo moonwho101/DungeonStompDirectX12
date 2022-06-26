@@ -626,6 +626,9 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_1");
 	mShaders["torchPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", torchTestDefines, "PS", "ps_5_1");
 
+	mShaders["normalMapVS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", nullptr, "VS", "vs_5_1");
+	mShaders["normalMapPS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", defines, "PS", "ps_5_1");
+
 	// Text PSO
 	ID3DBlob* errorBuff; // a buffer holding the error data if any
 	// compile vertex shader
@@ -952,6 +955,38 @@ void DungeonStompApp::BuildPSOs()
 	opaquePsoDesc.DSVFormat = mDepthStencilFormat;
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
 
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC normalMapPsoDesc;
+
+	//
+	// PSO for normalMap objects.
+	//
+	ZeroMemory(&normalMapPsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+	normalMapPsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
+	normalMapPsoDesc.pRootSignature = mRootSignature.Get();
+	normalMapPsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["normalMapVS"]->GetBufferPointer()),
+		mShaders["normalMapVS"]->GetBufferSize()
+	};
+	normalMapPsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["normalMapPS"]->GetBufferPointer()),
+		mShaders["normalMapPS"]->GetBufferSize()
+	};
+	normalMapPsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	normalMapPsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	normalMapPsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	normalMapPsoDesc.SampleMask = UINT_MAX;
+	normalMapPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	normalMapPsoDesc.NumRenderTargets = 1;
+	normalMapPsoDesc.RTVFormats[0] = mBackBufferFormat;
+	normalMapPsoDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
+	normalMapPsoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+	normalMapPsoDesc.DSVFormat = mDepthStencilFormat;
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&normalMapPsoDesc, IID_PPV_ARGS(&mPSOs["normalMap"])));
+
+
 	//
 	// PSO for transparent objects
 	//
@@ -1227,9 +1262,14 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	tex.Offset(1, mCbvSrvDescriptorSize);
 	cmdList->SetGraphicsRootDescriptorTable(3, tex);
+	mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 
-	//Draw dungeon, monsters and items
-	DrawDungeon(cmdList, ritems, false);
+	//Draw dungeon, monsters and items with normal maps
+	DrawDungeon(cmdList, ritems, false, false, true);
+
+	//Draw dungeon, monsters and items without normal maps
+	DrawDungeon(cmdList, ritems, false, false, false);
+
 
 	////Draw alpha transparent items
 	//mCommandList->SetPipelineState(mPSOs["transparent"].Get());
@@ -1258,7 +1298,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 }
 
 
-void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch) {
+void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch, bool normalMap) {
 
 	auto ri = ritems[2];
 
@@ -1301,10 +1341,9 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			}
 		}
 
-		if (normal_map_texture == -1) {
-			//draw = false;
-
-			normal_map_texture = 1;
+		if (normal_map_texture == -1 && normalMap) {
+			draw = false;
+			//normal_map_texture = 1;
 		}
 
 		if (draw) {
@@ -1325,11 +1364,13 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			//tex.Offset(385, mCbvSrvDescriptorSize);
 			cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-			CD3DX12_GPU_DESCRIPTOR_HANDLE tex2(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			//tex2.Offset(386, mCbvSrvDescriptorSize);
-			tex2.Offset(normal_map_texture, mCbvSrvDescriptorSize);
-			cmdList->SetGraphicsRootDescriptorTable(4, tex2);
+			if (normalMap) {
 
+				CD3DX12_GPU_DESCRIPTOR_HANDLE tex2(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+				//tex2.Offset(386, mCbvSrvDescriptorSize);
+				tex2.Offset(normal_map_texture, mCbvSrvDescriptorSize);
+				cmdList->SetGraphicsRootDescriptorTable(4, tex2);
+			}
 
 			if (dp_command_index_mode[i] == 1 && TexMap[texture_alias_number].is_alpha_texture == isAlpha) {  //USE_NON_INDEXED_DP
 				int  v = verts_per_poly[currentObject];
