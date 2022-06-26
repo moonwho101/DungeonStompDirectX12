@@ -42,6 +42,7 @@ typedef struct texturemapping_typ
 	char tex_alias_name[100];
 	BOOL is_alpha_texture;
 	char material[100];
+	int normalmaptextureid = -1;
 } TEXTUREMAPPING, * texturemapping_ptr;
 
 typedef struct tagD3DAppMode

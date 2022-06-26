@@ -94,7 +94,7 @@ private:
 	void DisplayHud();
 	void DisplayPlayerCaption();
 	void DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch = false);
-	
+	void SetTextureNormalMap();
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> GetStaticSamplers();
 

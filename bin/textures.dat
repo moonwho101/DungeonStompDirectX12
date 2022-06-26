@@ -1165,6 +1165,8 @@ Alias  386   floor_d           OPAQUE  WHOLE  stone
 AddTexture  ..\textures\normalmap\floor_n.dds
 Alias  387   floor_n           OPAQUE  WHOLE  stone
 
+AddTexture  ..\textures\normalmap\brelab_nm.dds
+Alias  388   brelab_nm           OPAQUE  WHOLE  brick
 
 END_FILE
 

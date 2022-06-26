@@ -1314,11 +1314,11 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 			//tex.Offset(texture_number, mCbvSrvDescriptorSize);
-			tex.Offset(379, mCbvSrvDescriptorSize);
+			tex.Offset(385, mCbvSrvDescriptorSize);
 			cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex2(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			tex2.Offset(380, mCbvSrvDescriptorSize);
+			tex2.Offset(386, mCbvSrvDescriptorSize);
 			cmdList->SetGraphicsRootDescriptorTable(4, tex2);
 
 
@@ -1711,7 +1711,30 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 	}
 	fclose(fp);
 
+	SetTextureNormalMap();
+
 	return TRUE;
+}
+
+void DungeonStompApp::SetTextureNormalMap() {
+
+	char junk[255];
+
+	for (int i = 0; i < number_of_tex_aliases; i++) {
+
+		sprintf_s(junk, "%s_nm", TexMap[i].tex_alias_name);
+
+		int normalmap = -1;
+		
+		for (int j = 0; j < number_of_tex_aliases; j++) {
+			if (strstr(TexMap[j].tex_alias_name, "_nm") != 0) {
+
+				if (strcmp(TexMap[j].tex_alias_name, junk) == 0) {
+					TexMap[i].normalmaptextureid = j;
+				}
+			}
+		}
+	}
 }
 
 

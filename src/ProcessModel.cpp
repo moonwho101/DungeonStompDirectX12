@@ -364,7 +364,6 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 				if (i == 2)
 				{
 					CalculateTangentBinormal(src_v[cnt - 3], src_v[cnt - 2], src_v[cnt - 1]);
-					int a = 1;
 				}
 
 			}
@@ -421,6 +420,12 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 				src_v[cnt].nz = workz;
 
 				cnt++;
+
+				if (i == 2)
+				{
+					CalculateTangentBinormal(src_v[cnt - 3], src_v[cnt - 2], src_v[cnt - 1]);
+				}
+
 			}
 		}
 
