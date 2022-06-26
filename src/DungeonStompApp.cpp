@@ -480,7 +480,7 @@ void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 		v.TexC.x = src_v[j].tu;
 		v.TexC.y = src_v[j].tv;
 
-		v.TangentU = XMFLOAT3(1.0f, 0.0f, 0.0f);
+		v.TangentU = XMFLOAT3(0.0f, 1.0f, 0.0f);
 
 		currDungeonVB->CopyData(j, v);
 	}
@@ -495,7 +495,7 @@ void DungeonStompApp::BuildRootSignature()
 	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
 
 	CD3DX12_DESCRIPTOR_RANGE texTable1;
-	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 1, 0);
+	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0);
 
 
 	// Root parameter can be a table, root descriptor or root constants.
