@@ -1236,8 +1236,8 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	//DrawDungeon(cmdList, ritems, true);
 
 	//Draw the torches and effects
-	mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
-	DrawDungeon(cmdList, ritems, true, true);
+	//mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
+	//DrawDungeon(cmdList, ritems, true, true);
 
 	////Draw the Monster Captions
 	//tex.Offset(377, mCbvSrvDescriptorSize);

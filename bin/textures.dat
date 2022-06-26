@@ -1192,9 +1192,15 @@ Alias  395   ceiling_nm           OPAQUE  WHOLE  wood
 AddTexture  ..\textures\pave1_nm.dds
 Alias  396   pave1_nm           OPAQUE  WHOLE  wood
 
-
 AddTexture  ..\textures\redtile1_nm.dds
-Alias  396   redtile1_nm           OPAQUE  WHOLE  wood
+Alias  397   redtile1_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\hex2b_nm.dds
+Alias  398   hex2b_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\road1_nm.dds
+Alias  399   road1_nm           OPAQUE  WHOLE  wood
+
 
 
 
