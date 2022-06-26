@@ -1144,14 +1144,14 @@ Alias  379   fontB           AlphaTransparent  WHOLE  default
 AddTexture  ..\textures\normalmap\bricks.dds
 Alias  380   bricks           OPAQUE  WHOLE  brick
 
-AddTexture  ..\textures\normalmap\bricks_nmap.dds
-Alias  381   bricks_nmap.dds           OPAQUE  WHOLE  brick
+AddTexture  ..\textures\normalmap\bricks_nm.dds
+Alias  381   bricks_nm           OPAQUE  WHOLE  brick
 
 AddTexture  ..\textures\normalmap\bricks2.dds
 Alias  382   bricks2           OPAQUE  WHOLE  brick
 
-AddTexture  ..\textures\normalmap\bricks2_nmap.dds
-Alias  383   bricks2_nmap.dds           OPAQUE  WHOLE  brick
+AddTexture  ..\textures\normalmap\bricks2_nm.dds
+Alias  383   bricks2_nm           OPAQUE  WHOLE  brick
 
 AddTexture  ..\textures\normalmap\tile.dds
 Alias  384   tile           OPAQUE  WHOLE  tile
@@ -1159,11 +1159,11 @@ Alias  384   tile           OPAQUE  WHOLE  tile
 AddTexture  ..\textures\normalmap\tile_nm.dds
 Alias  385   tile_nm           OPAQUE  WHOLE  tile
 
-AddTexture  ..\textures\normalmap\floor_d.dds
-Alias  386   floor_d           OPAQUE  WHOLE  stone
+AddTexture  ..\textures\normalmap\floord.dds
+Alias  386   floord           OPAQUE  WHOLE  stone
 
-AddTexture  ..\textures\normalmap\floor_n.dds
-Alias  387   floor_n           OPAQUE  WHOLE  stone
+AddTexture  ..\textures\normalmap\floord_nm.dds
+Alias  387   floord_nm           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\brelab_nm.dds
 Alias  388   brelab_nm           OPAQUE  WHOLE  brick
