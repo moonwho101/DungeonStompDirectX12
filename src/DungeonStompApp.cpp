@@ -1272,27 +1272,27 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 
 	////Draw alpha transparent items
-	//mCommandList->SetPipelineState(mPSOs["transparent"].Get());
-	//DrawDungeon(cmdList, ritems, true);
+	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
+	DrawDungeon(cmdList, ritems, true);
 
 	//Draw the torches and effects
-	//mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
-	//DrawDungeon(cmdList, ritems, true, true);
+	mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
+	DrawDungeon(cmdList, ritems, true, true);
 
-	////Draw the Monster Captions
-	//tex.Offset(377, mCbvSrvDescriptorSize);
-	//cmdList->SetGraphicsRootDescriptorTable(3, tex);
+	//Draw the Monster Captions
+	tex.Offset(377, mCbvSrvDescriptorSize);
+	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-	//cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	//for (int i = 0; i < displayCapture; i++) {
-	//	for (int j = 0; j < displayCaptureCount[i]; j++) {
-	//		cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
-	//	}
-	//}
+	for (int i = 0; i < displayCapture; i++) {
+		for (int j = 0; j < displayCaptureCount[i]; j++) {
+			cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
+		}
+	}
 
-	//DisplayHud();
-	//SetDungeonText();
+	DisplayHud();
+	SetDungeonText();
 
 	return;
 }
@@ -1345,6 +1345,11 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			draw = false;
 			//normal_map_texture = 1;
 		}
+
+		if (!normalMap  && normal_map_texture  != -1 ) {
+			draw = false;
+		}
+
 
 		if (draw) {
 
