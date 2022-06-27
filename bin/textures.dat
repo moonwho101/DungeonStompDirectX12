@@ -1183,6 +1183,11 @@ Alias  392   brick03           OPAQUE  WHOLE  stone
 AddTexture  ..\textures\normalmap\brick03_nm.dds
 Alias  393   brick03_nm           OPAQUE  WHOLE  stone
 
+AddTexture  ..\textures\road1_nm.dds
+Alias  394   road1_nm           OPAQUE  WHOLE  stone
+
+AddTexture  ..\textures\hex2b_nm.dds
+Alias  395   hex2b_nm           OPAQUE  WHOLE  stone
 
 END_FILE
 
