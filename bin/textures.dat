@@ -1166,10 +1166,16 @@ AddTexture  ..\textures\normalmap\floord_nm.dds
 Alias  387   floord_nm           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\doors\door10_nm.dds
-Alias  392   door10_nm           OPAQUE  WHOLE  wood
+Alias  388   door10_nm           OPAQUE  WHOLE  wood
 
 AddTexture  ..\textures\door1_nm.dds
-Alias  393   door1_nm           OPAQUE  WHOLE  wood
+Alias  389   door1_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\normalmap\stones.dds
+Alias  390   stones           OPAQUE  WHOLE  stone
+
+AddTexture  ..\textures\normalmap\stones_nm.dds
+Alias  391   stones_nm           OPAQUE  WHOLE  stone
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
