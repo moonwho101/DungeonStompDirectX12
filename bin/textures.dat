@@ -1176,6 +1176,14 @@ Alias  390   stones           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\normalmap\stones_nm.dds
 Alias  391   stones_nm           OPAQUE  WHOLE  stone
+
+AddTexture  ..\textures\normalmap\brick03.dds
+Alias  392   brick03           OPAQUE  WHOLE  stone
+
+AddTexture  ..\textures\normalmap\brick03_nm.dds
+Alias  393   brick03_nm           OPAQUE  WHOLE  stone
+
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
