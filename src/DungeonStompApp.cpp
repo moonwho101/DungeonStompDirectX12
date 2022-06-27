@@ -241,8 +241,8 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	// Swap the back and front buffers (vsync enable)
-	ThrowIfFailed(mSwapChain->Present(0, 0)); //set vsync off
-	//ThrowIfFailed(mSwapChain->Present(1, 0)); //set vsync on
+	//ThrowIfFailed(mSwapChain->Present(0, 0)); //set vsync off
+	ThrowIfFailed(mSwapChain->Present(1, 0)); //set vsync on
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
 
 	// Advance the fence value to mark commands up to this fence point.
