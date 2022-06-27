@@ -1262,11 +1262,13 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	tex.Offset(1, mCbvSrvDescriptorSize);
 	cmdList->SetGraphicsRootDescriptorTable(3, tex);
-	mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 
+	mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 	//Draw dungeon, monsters and items with normal maps
 	DrawDungeon(cmdList, ritems, false, false, true);
 
+
+	mCommandList->SetPipelineState(mPSOs["opaque"].Get());
 	//Draw dungeon, monsters and items without normal maps
 	DrawDungeon(cmdList, ritems, false, false, false);
 
