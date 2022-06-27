@@ -128,8 +128,6 @@ float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, floa
     return bumpedNormalW;
 }
 
-
-
 VertexOut VS(VertexIn vin)
 {
     VertexOut vout = (VertexOut)0.0f;
@@ -179,11 +177,10 @@ float4 PS(VertexOut pin) : SV_Target
     // Dynamically look up the texture in the array.
     diffuseAlbedo *= gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
 
-
     // Vector from point being lit to eye. 
-    float3 toEyeW = normalize(gEyePosW - pin.PosW);
+    float3 toEyeW = gEyePosW - pin.PosW;
     float distToEye = length(toEyeW);
-
+    toEyeW /= distToEye; // normalize
 
     // Light terms.
     float4 ambient = gAmbientLight * diffuseAlbedo;
@@ -203,8 +200,8 @@ float4 PS(VertexOut pin) : SV_Target
     litColor.rgb += shininess * fresnelFactor; // *reflectionColor.rgb;
 
 #ifdef FOG
-    //float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
-    //litColor = lerp(litColor, gFogColor, fogAmount);
+    float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
+    litColor = lerp(litColor, gFogColor, fogAmount);
 #endif
 
     // Common convention to take alpha from diffuse albedo.
