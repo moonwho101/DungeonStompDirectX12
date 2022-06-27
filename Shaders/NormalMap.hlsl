@@ -202,12 +202,9 @@ float4 PS(VertexOut pin) : SV_Target
     float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
     litColor.rgb += shininess * fresnelFactor; // *reflectionColor.rgb;
 
-
-
-
 #ifdef FOG
-    float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
-    litColor = lerp(litColor, gFogColor, fogAmount);
+    //float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
+    //litColor = lerp(litColor, gFogColor, fogAmount);
 #endif
 
     // Common convention to take alpha from diffuse albedo.
