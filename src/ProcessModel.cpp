@@ -128,7 +128,7 @@ void CalculateTangentBinormal(D3DVERTEX2 &vertex1, D3DVERTEX2 &vertex2, D3DVERTE
 	binormal.z = (tuVector[0] * vector2[2] - tuVector[1] * vector1[2]) * den;
 
 	// Calculate the length of this normal.
-	length = sqrt((tangent.x * tangent.x) + (tangent.y * tangent.y) + (tangent.z * tangent.z));
+	length = (float)sqrt((tangent.x * tangent.x) + (tangent.y * tangent.y) + (tangent.z * tangent.z));
 
 	// Normalize the normal and then store it
 	tangent.x = tangent.x / length;
@@ -136,7 +136,7 @@ void CalculateTangentBinormal(D3DVERTEX2 &vertex1, D3DVERTEX2 &vertex2, D3DVERTE
 	tangent.z = tangent.z / length;
 
 	// Calculate the length of this normal.
-	length = sqrt((binormal.x * binormal.x) + (binormal.y * binormal.y) + (binormal.z * binormal.z));
+	length = (float) sqrt((binormal.x * binormal.x) + (binormal.y * binormal.y) + (binormal.z * binormal.z));
 
 	// Normalize the normal and then store it
 	binormal.x = binormal.x / length;
