@@ -1070,8 +1070,6 @@ void DungeonStompApp::BuildMaterials()
 	auto default = std::make_unique<Material>();
 	default->Name = "default";
 	default->MatCBIndex = 0;
-	default->NormalSrvHeapIndex = 384;
-	default->DiffuseSrvHeapIndex = 383;
 	default->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	default->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	default->Roughness = 0.5f;
@@ -1079,16 +1077,12 @@ void DungeonStompApp::BuildMaterials()
 	auto grass = std::make_unique<Material>();
 	grass->Name = "grass";
 	grass->MatCBIndex = 1;
-	grass->NormalSrvHeapIndex = 384;
-	grass->DiffuseSrvHeapIndex = 383;
 	grass->DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
 	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
 	grass->Roughness = 0.125f;
 
 	auto water = std::make_unique<Material>();
 	water->Name = "water";
-	water->NormalSrvHeapIndex = 384;
-	water->DiffuseSrvHeapIndex = 383;
 	water->MatCBIndex = 2;
 	water->DiffuseSrvHeapIndex = 0;
 	water->DiffuseAlbedo = XMFLOAT4(0.5f, 0.5f, 1.0f, 0.5f);
@@ -1098,8 +1092,6 @@ void DungeonStompApp::BuildMaterials()
 	auto brick = std::make_unique<Material>();
 	brick->Name = "brick";
 	brick->MatCBIndex = 3;
-	brick->NormalSrvHeapIndex = 384;
-	brick->DiffuseSrvHeapIndex = 383;
 	brick->DiffuseSrvHeapIndex = 0;
 	brick->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	brick->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
@@ -1108,8 +1100,6 @@ void DungeonStompApp::BuildMaterials()
 	auto stone = std::make_unique<Material>();
 	stone->Name = "stone";
 	stone->MatCBIndex = 4;
-	stone->NormalSrvHeapIndex = 384;
-	stone->DiffuseSrvHeapIndex = 383;
 	stone->DiffuseSrvHeapIndex = 0;
 	stone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	stone->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
@@ -1118,8 +1108,6 @@ void DungeonStompApp::BuildMaterials()
 	auto tile = std::make_unique<Material>();
 	tile->Name = "tile";
 	tile->MatCBIndex = 5;
-	tile->NormalSrvHeapIndex = 384;
-	tile->DiffuseSrvHeapIndex = 383;
 	tile->DiffuseSrvHeapIndex = 0;
 	tile->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	tile->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
@@ -1128,8 +1116,6 @@ void DungeonStompApp::BuildMaterials()
 	auto crate = std::make_unique<Material>();
 	crate->Name = "crate";
 	crate->MatCBIndex = 6;
-	crate->NormalSrvHeapIndex = 384;
-	crate->DiffuseSrvHeapIndex = 383;
 	crate->DiffuseSrvHeapIndex = 0;
 	crate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	crate->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
@@ -1138,8 +1124,6 @@ void DungeonStompApp::BuildMaterials()
 	auto ice = std::make_unique<Material>();
 	ice->Name = "ice";
 	ice->MatCBIndex = 7;
-	ice->NormalSrvHeapIndex = 384;
-	ice->DiffuseSrvHeapIndex = 383;
 	ice->DiffuseSrvHeapIndex = 0;
 	ice->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	ice->FresnelR0 = XMFLOAT3(0.2f, 0.2f, 0.2f);
@@ -1148,8 +1132,6 @@ void DungeonStompApp::BuildMaterials()
 	auto bone = std::make_unique<Material>();
 	bone->Name = "bone";
 	bone->MatCBIndex = 8;
-	bone->NormalSrvHeapIndex = 384;
-	bone->DiffuseSrvHeapIndex = 383;
 	bone->DiffuseSrvHeapIndex = 0;
 	bone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	bone->FresnelR0 = XMFLOAT3(0.15f, 0.15f, 0.15f);
@@ -1158,8 +1140,6 @@ void DungeonStompApp::BuildMaterials()
 	auto metal = std::make_unique<Material>();
 	metal->Name = "metal";
 	metal->MatCBIndex = 9;
-	metal->NormalSrvHeapIndex = 384;
-	metal->DiffuseSrvHeapIndex = 383;
 	metal->DiffuseSrvHeapIndex = 0;
 	metal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	metal->FresnelR0 = XMFLOAT3(0.95f, 0.73f, 0.88f);
@@ -1168,8 +1148,6 @@ void DungeonStompApp::BuildMaterials()
 	auto glass = std::make_unique<Material>();
 	glass->Name = "glass";
 	glass->MatCBIndex = 10;
-	glass->NormalSrvHeapIndex = 384;
-	glass->DiffuseSrvHeapIndex = 383;
 	glass->DiffuseSrvHeapIndex = 0;
 	glass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	glass->FresnelR0 = XMFLOAT3(0.06f, 0.06f, 0.06f);
@@ -1177,8 +1155,6 @@ void DungeonStompApp::BuildMaterials()
 
 	auto wood = std::make_unique<Material>();
 	wood->Name = "wood";
-	wood->NormalSrvHeapIndex = 384;
-	wood->DiffuseSrvHeapIndex = 383;
 	wood->MatCBIndex = 11;
 	wood->DiffuseSrvHeapIndex = 0;
 	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -1188,12 +1164,18 @@ void DungeonStompApp::BuildMaterials()
 	auto flat = std::make_unique<Material>();
 	flat->Name = "flat";
 	flat->MatCBIndex = 12;
-	flat->NormalSrvHeapIndex = 384;
-	flat->DiffuseSrvHeapIndex = 383;
 	flat->DiffuseSrvHeapIndex = 0;
 	flat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	flat->FresnelR0 = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	flat->Roughness = 0.9f;
+
+	auto tilebrown = std::make_unique<Material>();
+	tilebrown->Name = "tilebrown";
+	tilebrown->MatCBIndex = 13;
+	tilebrown->DiffuseSrvHeapIndex = 0;
+	tilebrown->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	tilebrown->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	tilebrown->Roughness = 0.32f;
 
 	//new material - increment MatCBIndex 
 
@@ -1213,6 +1195,7 @@ void DungeonStompApp::BuildMaterials()
 	mMaterials["glass"] = std::move(glass);
 	mMaterials["wood"] = std::move(wood);
 	mMaterials["flat"] = std::move(flat);
+	mMaterials["tilebrown"] = std::move(tilebrown);
 
 }
 

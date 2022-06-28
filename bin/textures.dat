@@ -1154,7 +1154,7 @@ AddTexture  ..\textures\normalmap\bricks2_nm.dds
 Alias  383   bricks2_nm           OPAQUE  WHOLE  brick
 
 AddTexture  ..\textures\normalmap\tile.dds
-Alias  384   tile           OPAQUE  WHOLE  tile
+Alias  384   tile           OPAQUE  WHOLE  tilebrown
 
 AddTexture  ..\textures\normalmap\tile_nm.dds
 Alias  385   tile_nm           OPAQUE  WHOLE  tile
