@@ -8,6 +8,7 @@ Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 * It is a complete game with level advancement and 19 levels.
 * Lighting uses blinn-phong pixel shaders.
 * DDS Texture mipmaps
+* Normal map textures
 * Fog, Alpha transparency and Alpha testing
 * XBOX game controller is supported.
 * Used "Introduction to 3D Game Programming with DirectX 12" by Frank Luna as a reference.
