@@ -692,7 +692,7 @@ void DungeonStompApp::ScanMod(float fElapsedTime)
 							//DisplayDialogText(levelmodify[counter].Text1, -20.0f);
 							int len = (int)strlen(levelmodify[counter].Text1);
 							len = len / 2;
-							RenderText(arialFont, charToWChar(levelmodify[counter].Text1), XMFLOAT2(0.5f - (len * 0.005f), 0.5f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+							RenderText(arialFont, charToWChar(levelmodify[counter].Text1), XMFLOAT2(0.5f - (len * 0.005f), 0.48f), XMFLOAT2(0.20f, 0.20f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
 						}
 						gotone = 1;
