@@ -157,7 +157,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 {
 	float t = gt.DeltaTime();
 
-	ScanMod(t);
+	//ScanMod(t);
 	UpdateControls();
 	FrameMove(0.0f, t);
 	UpdateWorld(t);
@@ -221,7 +221,7 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 
 	//opaque
 	mCommandList->SetPipelineState(mPSOs["opaque"].Get());
-	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
+	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
 
 	//mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
 	//DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::AlphaTested]);
@@ -1231,7 +1231,7 @@ void DungeonStompApp::BuildRenderItems()
 	mAllRitems.push_back(std::move(gridRitem));
 }
 
-void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
+void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, const GameTimer& gt)
 {
 	ProcessLights11();
 
@@ -1278,6 +1278,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	DisplayHud();
 	SetDungeonText();
+	ScanMod(gt.DeltaTime());
 
 	return;
 }
