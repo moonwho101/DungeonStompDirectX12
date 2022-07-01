@@ -1197,6 +1197,13 @@ Alias  397   floor01           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\normalmap\floor01_nm.dds
 Alias  398   floor01_nm           OPAQUE  WHOLE  stone
+
+AddTexture  ..\textures\normalmap\ceiling01.dds
+Alias  397   ceiling01           OPAQUE  WHOLE  stone
+
+AddTexture  ..\textures\normalmap\ceiling01_nm.dds
+Alias  398   ceiling01_nm           OPAQUE  WHOLE  stone
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
