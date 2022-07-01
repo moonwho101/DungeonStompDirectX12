@@ -1210,7 +1210,8 @@ Alias  397   tile02           OPAQUE  WHOLE  stone
 AddTexture  ..\textures\normalmap\tile02_nm.dds
 Alias  398   tile02_nm           OPAQUE  WHOLE  stone
 
-
+AddTexture  ..\textures\bluetile1_nm.dds
+Alias  398   bluetile1_nm           OPAQUE  WHOLE  stone
 
 END_FILE
 
