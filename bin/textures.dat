@@ -1191,6 +1191,12 @@ Alias  395   hex2b_nm           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\mtl10_nm.dds
 Alias  396   mtl10_nm           OPAQUE  WHOLE  stone
+
+AddTexture  ..\textures\normalmap\floor01.dds
+Alias  397   floor01           OPAQUE  WHOLE  stone
+
+AddTexture  ..\textures\normalmap\floor01_nm.dds
+Alias  398   floor01_nm           OPAQUE  WHOLE  stone
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
