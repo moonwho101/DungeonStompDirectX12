@@ -918,7 +918,7 @@ QUADTEX  160.00  0.00  40.00	0.0	0.0
 
 
 
-TEXTURE	floor01
+TEXTURE	tile
 TYPE	road_ceiling
 
 
