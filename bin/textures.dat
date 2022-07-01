@@ -1222,6 +1222,12 @@ Alias  405   magicceiling1_nm           OPAQUE  WHOLE  tile
 AddTexture  ..\textures\magictile1_nm.dds
 Alias  406   magictile1_nm          OPAQUE  WHOLE  tile
 
+AddTexture  ..\textures\brbrik3_nm.dds
+Alias  407   brbrik3_nm           OPAQUE  WHOLE  brick
+
+AddTexture  ..\textures\building3_nm.dds
+Alias  408   building3_nm           OPAQUE  WHOLE  brick
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
