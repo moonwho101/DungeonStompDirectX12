@@ -1573,8 +1573,7 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 			currentTex->Name = p;
 
 			if (exists) {
-				currentTex->Filename = charToWChar("../Textures/WoodCrate01.dds");
-				//currentTex->Filename = charToWChar(f);
+				currentTex->Filename = charToWChar(f);
 			}
 			else {
 				currentTex->Filename = charToWChar("../Textures/WoodCrate01.dds");
