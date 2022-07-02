@@ -1225,6 +1225,73 @@ Alias  406   magictile1_nm          OPAQUE  WHOLE  tile
 AddTexture  ..\textures\building3_nm.dds
 Alias  407   building3_nm           OPAQUE  WHOLE  brick
 
+AddTexture  ..\textures\doors\door2_nm.dds
+Alias  408   door2_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\doors\door3_nm.dds
+Alias  409   door3_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\doors\door4_nm.dds
+Alias  410   door4_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\doors\door5_nm.dds
+Alias  411   door5_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\doors\door6_nm.dds
+Alias  412   door6_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\doors\door7_nm.dds
+Alias  413   door7_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\doors\door8_nm.dds
+Alias  414   door8_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\doors\door9_nm.dds
+Alias  415   door9_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\doors\door10_nm.dds
+Alias  416   door10_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\doors\door11_nm.dds
+Alias  417   door11_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\doors\door12_nm.dds
+Alias  418   door12_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\doors\door13_nm.dds
+Alias  419   door13_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\doors\door14_nm.dds
+Alias  420   door14_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\doors\door15_nm.dds
+Alias  421   door15_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\doors\door16_nm.dds
+Alias  422   door16_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\doors\door17_nm.dds
+Alias  423   door17_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\doors\door18_nm.dds
+Alias  424   door18_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\doors\door19_nm.dds
+Alias  425   door19_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\doors\door20_nm.dds
+Alias  426   door20_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\doors\door21_nm.dds
+Alias  427   door21_nm           OPAQUE  WHOLE  metal
+
+
+
+
+
+
+
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
