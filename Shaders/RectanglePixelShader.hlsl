@@ -10,5 +10,11 @@ struct VS_OUTPUT
 
 float4 main(VS_OUTPUT input) : SV_TARGET
 {
-	return float4(  t1.Sample(s1, input.texCoord));
+
+	 float4 result = t1.Sample(s1, input.texCoord);
+	 
+	 //drop black alpha for dice and hud
+	 clip(result.a - 0.1f);
+
+	return result;
 }
