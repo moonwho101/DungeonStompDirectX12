@@ -604,7 +604,8 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 {
 	const D3D_SHADER_MACRO defines[] =
 	{
-		"FOG", "0",
+		"FOG", "1",
+		"ALPHA_TEST", "1",
 		NULL, NULL
 	};
 
@@ -618,6 +619,7 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	const D3D_SHADER_MACRO torchTestDefines[] =
 	{
 		"TORCH_TEST", "1",
+		"ALPHA_TEST", "1",
 		NULL, NULL
 	};
 

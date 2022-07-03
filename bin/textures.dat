@@ -1285,11 +1285,8 @@ Alias  426   door20_nm           OPAQUE  WHOLE  metal
 AddTexture  ..\textures\doors\door21_nm.dds
 Alias  427   door21_nm           OPAQUE  WHOLE  metal
 
-
-
-
-
-
+AddTexture  ..\textures\wirefence.dds
+Alias  428   wirefence           OPAQUE  WHOLE  metal
 
 
 END_FILE
