@@ -1573,6 +1573,7 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 			currentTex->Name = p;
 
 			if (exists) {
+				//currentTex->Filename = charToWChar("../Textures/ruin1.dds");
 				currentTex->Filename = charToWChar(f);
 			}
 			else {
