@@ -1,4 +1,3 @@
-#include "resource.h"
 #include "d3dtypes.h"
 #include "LoadWorld.hpp"
 #include "world.hpp"

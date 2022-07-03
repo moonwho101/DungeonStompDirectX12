@@ -1,6 +1,5 @@
 #define DIRECTINPUT_VERSION 0x0800
 
-#include "resource.h"
 #include "d3dtypes.h"
 #include "LoadWorld.hpp"
 #include "world.hpp"
