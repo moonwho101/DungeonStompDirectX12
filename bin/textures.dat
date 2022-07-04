@@ -1288,6 +1288,33 @@ Alias  427   door21_nm           OPAQUE  WHOLE  metal
 AddTexture  ..\textures\wirefence.dds
 Alias  428   wirefence           OPAQUE  WHOLE  metal
 
+AddTexture  ..\textures\chbrick4_nm.dds
+Alias  429   chbrick4_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\chbrick5_nm.dds
+Alias  430   chbrick5_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\egypt\eceiling1_nm.dds
+Alias  431   eceiling1_nm           OPAQUE  WHOLE  tile
+
+AddTexture  ..\textures\egypt\efloor_nm.dds
+Alias  432   efloor_nm           OPAQUE  WHOLE  tile
+
+AddTexture  ..\textures\egypt\efloor2_nm.dds
+Alias  433   efloor2_nm           OPAQUE  WHOLE  tile
+
+AddTexture  ..\textures\egypt\ewall1_nm.dds
+Alias  434   ewall1_nm           OPAQUE  WHOLE  brick
+
+AddTexture  ..\textures\egypt\ewall2_nm.dds
+Alias  435   ewall2_nm           OPAQUE  WHOLE  brick
+
+AddTexture  ..\textures\egypt\ewall3_nm.dds
+Alias  436   ewall3_nm           OPAQUE  WHOLE  brick
+
+AddTexture  ..\textures\egypt\ewall4_nm.dds
+Alias  437   ewall4_nm           OPAQUE  WHOLE  brick
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
