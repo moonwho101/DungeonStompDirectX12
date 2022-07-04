@@ -195,7 +195,6 @@
     <ClInclude Include="LoadWorld.hpp" />
     <ClInclude Include="Missle.hpp" />
     <ClInclude Include="ProcessModel.hpp" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="Dungeon.h" />
     <ClInclude Include="WAVFileReader.h" />
     <ClInclude Include="world.hpp" />
