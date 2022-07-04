@@ -1318,6 +1318,12 @@ Alias  437   ewall4_nm           OPAQUE  WHOLE  brick
 AddTexture  ..\Models\3ds\banner\banner1_nm.dds
 Alias  438  banner1_nm           OPAQUE  WHOLE  default
 
+AddTexture  ..\Models\3ds\circle\ruins_nm.dds
+Alias  439 ruins_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\Models\3ds\circle\ruinstn_nm.dds
+Alias  440 ruinstn_nm           OPAQUE  WHOLE  stone
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **

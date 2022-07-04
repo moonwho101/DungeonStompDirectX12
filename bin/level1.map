@@ -403,7 +403,7 @@ CO_ORDINATES 1660.000000 260.000000 5180.000000
 ROT_ANGLE 270 0 temple3 123 0
 OBJECT !monster1
 CO_ORDINATES 1820.000000 -170.000000 940.000000 
-ROT_ANGLE 180 circle -1 124 3
+ROT_ANGLE 180 circle 0 124 3
 OBJECT text
 CO_ORDINATES 1820.000000 -170.000000 940.000000 
 ROT_ANGLE 3 It is time to put an end to the marauders.<For years the villages of murk have been<attacked and looted.  The townsfolk have<been taken as slaves. You have been<recruited to root out and destroy the<source of these raids. Local wizards have<teleported you to the forgotten dungeons,<the last place the villagers were seen.
