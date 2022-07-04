@@ -1440,7 +1440,7 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	// Create the SRV heap.
 	//
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = 412;
+	srvHeapDesc.NumDescriptors = MAX_NUM_TEXTURES;
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
@@ -1603,6 +1603,9 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 
 			srvDesc.Format = currentTex->Resource->GetDesc().Format;
 			md3dDevice->CreateShaderResourceView(currentTex->Resource.Get(), &srvDesc, hDescriptor);
+
+
+			//auto a = mTextures[currentTex->Name].get();
 
 			mTextures[currentTex->Name] = std::move(currentTex);
 
