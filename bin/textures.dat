@@ -1315,6 +1315,9 @@ Alias  436   ewall3_nm           OPAQUE  WHOLE  brick
 AddTexture  ..\textures\egypt\ewall4_nm.dds
 Alias  437   ewall4_nm           OPAQUE  WHOLE  brick
 
+AddTexture  ..\Models\3ds\banner\banner1_nm.dds
+Alias  438  banner1_nm           OPAQUE  WHOLE  default
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **

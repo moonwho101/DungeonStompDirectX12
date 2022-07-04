@@ -1876,6 +1876,9 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 				src_v[cnt].ny = worky;
 				src_v[cnt].nz = workz;
 
+
+
+
 				counttri = 0;
 			}
 			else {
@@ -1898,6 +1901,8 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 
 			cnt++;
 			i_count++;
+
+			CalculateTangentBinormal(src_v[cnt - 3], src_v[cnt - 2], src_v[cnt - 1]);
 
 		} // end for j
 		ObjectsToDraw[number_of_polys_per_frame].srcfstart = cnt_f;
