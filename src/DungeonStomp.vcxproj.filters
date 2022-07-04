@@ -134,9 +134,6 @@
     <ClInclude Include="world.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Missle.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
