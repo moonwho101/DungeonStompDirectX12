@@ -829,7 +829,7 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 					x3.y = src_v[cnt].ny;
 					x3.z = src_v[cnt].nz;
 
-					CalculateTangentBinormal(src_v[cnt - 2], src_v[cnt - 1], src_v[cnt]);
+					
 
 					sum = XMLoadFloat3(&x1) + XMLoadFloat3(&x2) + XMLoadFloat3(&x3);
 
@@ -850,6 +850,9 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 					src_v[cnt - 1].nx = final2.x;
 					src_v[cnt - 1].ny = final2.y;
 					src_v[cnt - 1].nz = final2.z;
+
+
+					CalculateTangentBinormal(src_v[cnt - 2], src_v[cnt - 1], src_v[cnt]);
 
 
 
@@ -1193,6 +1196,8 @@ void ConvertTraingleFan(int fan_cnt) {
 			src_v[(fan_cnt + i)].ny = worky;
 			src_v[(fan_cnt + i)].nz = workz;
 
+
+			CalculateTangentBinormal(src_v[(fan_cnt + i) - 2], src_v[(fan_cnt + i) - 1], src_v[(fan_cnt + i)]);
 		}
 		else {
 			normal++;
@@ -1400,6 +1405,9 @@ void ConvertTraingleStrip(int fan_cnt) {
 			src_v[(fan_cnt + i)].nx = workx;
 			src_v[(fan_cnt + i)].ny = worky;
 			src_v[(fan_cnt + i)].nz = workz;
+
+
+			CalculateTangentBinormal(src_v[(fan_cnt + i) - 2], src_v[(fan_cnt + i) - 1], src_v[(fan_cnt + i)]);
 
 		}
 		else {
