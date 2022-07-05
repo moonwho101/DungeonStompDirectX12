@@ -812,52 +812,23 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 				if (firstcount == 1)
 				{
 
+
+					src_v[cnt - 2].nx = workx;
+					src_v[cnt - 2].ny = worky;
+					src_v[cnt - 2].nz = workz;
+
+
+					src_v[cnt - 1].nx = workx;
+					src_v[cnt - 1].ny = worky;
+					src_v[cnt - 1].nz = workz;
+
+
 					src_v[cnt].nx = workx;
 					src_v[cnt].ny = worky;
 					src_v[cnt].nz = workz;
 
-					//D3DXVECTOR3 sum = D3DXVECTOR3(0, 0, 0);
-					XMFLOAT3 x1, x2, x3;
-					XMVECTOR sum, average;
-
-					x1.x = src_v[cnt - 2].nx;
-					x1.y = src_v[cnt - 2].ny;
-					x1.z = src_v[cnt - 2].nz;
-
-					x2.x = src_v[cnt - 1].nx;
-					x2.y = src_v[cnt - 1].ny;
-					x2.z = src_v[cnt - 1].nz;
-
-					x3.x = src_v[cnt].nx;
-					x3.y = src_v[cnt].ny;
-					x3.z = src_v[cnt].nz;
-
-					
-
-					sum = XMLoadFloat3(&x1) + XMLoadFloat3(&x2) + XMLoadFloat3(&x3);
-
-					//sum = sum / 3;
-
-
-					//D3DXVec3Normalize(&average, &sum);
-
-					average = XMVector3Normalize(sum);
-
-					XMFLOAT3 final2;
-					XMStoreFloat3(&final2, average);
-
-					src_v[cnt].nx = final2.x;
-					src_v[cnt].ny = final2.y;
-					src_v[cnt].nz = final2.z;
-
-					src_v[cnt - 1].nx = final2.x;
-					src_v[cnt - 1].ny = final2.y;
-					src_v[cnt - 1].nz = final2.z;
-
 
 					CalculateTangentBinormal(src_v[cnt - 2], src_v[cnt - 1], src_v[cnt]);
-
-
 
 				}
 				else {
