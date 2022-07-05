@@ -638,7 +638,7 @@ AddTexture  ..\Models\3ds\OrnateBox\metal20.dds
 Alias  213   metal20           OPAQUE  WHOLE  metal
 
 AddTexture  ..\Models\3ds\OrnateBox\chest2.dds
-Alias  214   chest2           OPAQUE  WHOLE  metal
+Alias  214   chest2           OPAQUE  WHOLE  wood
 
 AddTexture  ..\Models\3ds\Goblet\goblet.dds
 Alias  215   GOBLET           OPAQUE  WHOLE  wood
@@ -1323,6 +1323,15 @@ Alias  439 ruins_nm           OPAQUE  WHOLE  default
 
 AddTexture  ..\Models\3ds\circle\ruinstn_nm.dds
 Alias  440 ruinstn_nm           OPAQUE  WHOLE  stone
+
+AddTexture  ..\Models\3ds\OrnateBox\chest2_nm.dds
+Alias  441   chest2_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\Models\3ds\eat\woodcup_nm.dds
+Alias  442 woodcup_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\Models\3ds\trough\twood_nm.dds
+Alias  443 twood_nm           OPAQUE  WHOLE  wood
 
 END_FILE
 
