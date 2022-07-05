@@ -80,7 +80,7 @@ int num_light_sources = 0;
 
 
 
-void CalculateTangentBinormal(D3DVERTEX2 &vertex1, D3DVERTEX2 &vertex2, D3DVERTEX2 &vertex3)
+void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTEX2& vertex3)
 {
 	float vector1[3], vector2[3];
 	float tuVector[2], tvVector[2];
@@ -112,6 +112,17 @@ void CalculateTangentBinormal(D3DVERTEX2 &vertex1, D3DVERTEX2 &vertex2, D3DVERTE
 	float result = (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
 
 	if (result == 0) {
+		vertex1.nmx = 0;
+		vertex1.nmy = 0;
+		vertex1.nmz = 0;
+
+		vertex2.nmx = 0;
+		vertex2.nmy = 0;
+		vertex2.nmz = 0;
+
+		vertex3.nmx = 0;
+		vertex3.nmy = 0;
+		vertex3.nmz = 0;
 		return;
 	}
 
@@ -624,10 +635,13 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 
 	if (pmdata[pmodel_id].use_indexed_primitive == TRUE)
 	{
+		//3ds models
 		PlayerToD3DIndexedVertList(pmodel_id, 0, angle, texture_alias, tex_flag, wx, wy, wz);
 		return;
 	}
 
+
+	//md2 models
 	float cosine = cos_table[angle];
 	float sine = sin_table[angle];
 
@@ -798,47 +812,22 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 				if (firstcount == 1)
 				{
 
+					src_v[cnt - 2].nx = workx;
+					src_v[cnt - 2].ny = worky;
+					src_v[cnt - 2].nz = workz;
+
+
+					src_v[cnt - 1].nx = workx;
+					src_v[cnt - 1].ny = worky;
+					src_v[cnt - 1].nz = workz;
+
+
 					src_v[cnt].nx = workx;
 					src_v[cnt].ny = worky;
 					src_v[cnt].nz = workz;
 
-					//D3DXVECTOR3 sum = D3DXVECTOR3(0, 0, 0);
-					XMFLOAT3 x1, x2, x3;
-					XMVECTOR sum, average;
 
-					x1.x = src_v[cnt - 2].nx;
-					x1.y = src_v[cnt - 2].ny;
-					x1.z = src_v[cnt - 2].nz;
-
-					x2.x = src_v[cnt - 1].nx;
-					x2.y = src_v[cnt - 1].ny;
-					x2.z = src_v[cnt - 1].nz;
-
-					x3.x = src_v[cnt].nx;
-					x3.y = src_v[cnt].ny;
-					x3.z = src_v[cnt].nz;
-
-					sum = XMLoadFloat3(&x1) + XMLoadFloat3(&x2) + XMLoadFloat3(&x3);
-
-					//sum = sum / 3;
-
-
-					//D3DXVec3Normalize(&average, &sum);
-
-					average = XMVector3Normalize(sum);
-
-					XMFLOAT3 final2;
-					XMStoreFloat3(&final2, average);
-
-					src_v[cnt].nx = final2.x;
-					src_v[cnt].ny = final2.y;
-					src_v[cnt].nz = final2.z;
-
-					src_v[cnt - 1].nx = final2.x;
-					src_v[cnt - 1].ny = final2.y;
-					src_v[cnt - 1].nz = final2.z;
-
-
+					CalculateTangentBinormal(src_v[cnt - 2], src_v[cnt - 1], src_v[cnt]);
 
 				}
 				else {
@@ -855,6 +844,8 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 					src_v[cnt].nx = workx;
 					src_v[cnt].ny = worky;
 					src_v[cnt].nz = workz;
+
+					CalculateTangentBinormal(src_v[cnt - 2], src_v[cnt - 1], src_v[cnt]);
 				}
 				firstcount = 1;
 				counttri = 0;
@@ -984,8 +975,9 @@ void SmoothNormals(int start_cnt) {
 
 				//D3DXVECTOR3 sum = D3DXVECTOR3(0, 0, 0);
 				XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
+				XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
 
-				XMFLOAT3 x1;
+				XMFLOAT3 x1,xtan;
 				XMVECTOR average;
 
 				for (int k = 0; k < scount; k++) {
@@ -993,19 +985,34 @@ void SmoothNormals(int start_cnt) {
 					x1.y = src_v[sharedv[k]].ny;
 					x1.z = src_v[sharedv[k]].nz;
 					sum = sum + XMLoadFloat3(&x1);
+
+					xtan.x = src_v[sharedv[k]].nmx;
+					xtan.y = src_v[sharedv[k]].nmy;
+					xtan.z = src_v[sharedv[k]].nmz;
+					sumtan = sumtan + XMLoadFloat3(&xtan);
+
 				}
 
 				sum = sum / (float)scount;
-				//D3DXVec3Normalize(&average, &sum);
+				sumtan = sumtan / (float)scount;
+
+				XMFLOAT3 final2, finaltan;
+
 				average = XMVector3Normalize(sum);
-				XMFLOAT3 final2;
 				XMStoreFloat3(&final2, average);
+
+				average = XMVector3Normalize(sumtan);
+				XMStoreFloat3(&finaltan, average);
 
 
 				for (int k = 0; k < scount; k++) {
 					src_v[sharedv[k]].nx = final2.x;
 					src_v[sharedv[k]].ny = final2.y;
 					src_v[sharedv[k]].nz = final2.z;
+
+					src_v[sharedv[k]].nmx = finaltan.x;
+					src_v[sharedv[k]].nmy = finaltan.y;
+					src_v[sharedv[k]].nmz = finaltan.z;
 				}
 			}
 		}
@@ -1117,34 +1124,8 @@ void ConvertTraingleFan(int fan_cnt) {
 			vCross = XMVector3Cross(vDiff, vDiff2);
 			final = XMVector3Normalize(vCross);
 
-
-
-			XMFLOAT3 x1, x2, x3;
-			XMVECTOR average;
-			XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
-
-			x1.x = src_v[(fan_cnt + i) - 2].nx;
-			x1.y = src_v[(fan_cnt + i) - 2].ny;
-			x1.z = src_v[(fan_cnt + i) - 2].nz;
-
-			x2.x = src_v[(fan_cnt + i) - 1].nx;
-			x2.y = src_v[(fan_cnt + i) - 1].ny;
-			x2.z = src_v[(fan_cnt + i) - 1].nz;
-
-			x3.x = src_v[(fan_cnt + i)].nx;
-			x3.y = src_v[(fan_cnt + i)].ny;
-			x3.z = src_v[(fan_cnt + i)].nz;
-
-			sum = XMLoadFloat3(&x1) + XMLoadFloat3(&x2) + XMLoadFloat3(&x3);
-
-			//sum = sum / 3;
-
-
-			//D3DXVec3Normalize(&average, &sum);
-
-			average = XMVector3Normalize(sum);
 			XMFLOAT3 final2;
-			XMStoreFloat3(&final2, average);
+			XMStoreFloat3(&final2, final);
 
 			float workx = (-final2.x);
 			float worky = (-final2.y);
@@ -1162,6 +1143,8 @@ void ConvertTraingleFan(int fan_cnt) {
 			src_v[(fan_cnt + i)].ny = worky;
 			src_v[(fan_cnt + i)].nz = workz;
 
+
+			CalculateTangentBinormal(src_v[(fan_cnt + i) - 2], src_v[(fan_cnt + i) - 1], src_v[(fan_cnt + i)]);
 		}
 		else {
 			normal++;
@@ -1327,32 +1310,9 @@ void ConvertTraingleStrip(int fan_cnt) {
 			final = XMVector3Normalize(vCross);
 
 
-			XMFLOAT3 x1, x2, x3;
-			XMVECTOR average;
-			XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
-
-
-			x1.x = src_v[(fan_cnt + i) - 2].nx;
-			x1.y = src_v[(fan_cnt + i) - 2].ny;
-			x1.z = src_v[(fan_cnt + i) - 2].nz;
-
-			x2.x = src_v[(fan_cnt + i) - 1].nx;
-			x2.y = src_v[(fan_cnt + i) - 1].ny;
-			x2.z = src_v[(fan_cnt + i) - 1].nz;
-
-			x3.x = src_v[(fan_cnt + i)].nx;
-			x3.y = src_v[(fan_cnt + i)].ny;
-			x3.z = src_v[(fan_cnt + i)].nz;
-
-			sum = XMLoadFloat3(&x1) + XMLoadFloat3(&x2) + XMLoadFloat3(&x3);
-
-			//sum = sum / 3;
-			//D3DXVec3Normalize(&average, &sum);
-
-			average = XMVector3Normalize(sum);
-
 			XMFLOAT3 final2;
-			XMStoreFloat3(&final2, average);
+			XMStoreFloat3(&final2, final);
+
 
 			float workx = (-final2.x);
 			float worky = (-final2.y);
@@ -1369,6 +1329,9 @@ void ConvertTraingleStrip(int fan_cnt) {
 			src_v[(fan_cnt + i)].nx = workx;
 			src_v[(fan_cnt + i)].ny = worky;
 			src_v[(fan_cnt + i)].nz = workz;
+
+
+			CalculateTangentBinormal(src_v[(fan_cnt + i) - 2], src_v[(fan_cnt + i) - 1], src_v[(fan_cnt + i)]);
 
 		}
 		else {
@@ -1876,6 +1839,9 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 				src_v[cnt].ny = worky;
 				src_v[cnt].nz = workz;
 
+
+				CalculateTangentBinormal(src_v[cnt -2 ], src_v[cnt - 1], src_v[cnt]);
+
 				counttri = 0;
 			}
 			else {
@@ -1898,6 +1864,8 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 
 			cnt++;
 			i_count++;
+
+			
 
 		} // end for j
 		ObjectsToDraw[number_of_polys_per_frame].srcfstart = cnt_f;

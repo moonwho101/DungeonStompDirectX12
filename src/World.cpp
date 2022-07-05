@@ -953,6 +953,8 @@ void display_message(float x, float y, char text[2048], int r, int g, int b, flo
 	return;
 }
 
+void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTEX2& vertex3);
+
 void DrawIndexedItems(int fakel, int vert_index)
 {
 	D3DPRIMITIVETYPE command;
@@ -1001,6 +1003,8 @@ void DrawIndexedItems(int fakel, int vert_index)
 				vw3.y = temp_v[t + 2].y;
 				vw3.z = temp_v[t + 2].z;
 
+				CalculateTangentBinormal(temp_v[t], temp_v[t + 1], temp_v[t + 2]);
+
 				// calculate the NORMAL for the road using the CrossProduct <-important!
 
 				XMVECTOR vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
@@ -1022,8 +1026,10 @@ void DrawIndexedItems(int fakel, int vert_index)
 			}
 
 			counttri++;
-			if (counttri > 2)
+			if (counttri > 2) {
 				counttri = 0;
+
+			}
 
 			temp_v[t].nx = workx;
 			temp_v[t].ny = worky;
@@ -1043,7 +1049,14 @@ void DrawIndexedItems(int fakel, int vert_index)
 			src_v[cnt].nx = temp_v[j].nx;
 			src_v[cnt].ny = temp_v[j].ny;
 			src_v[cnt].nz = temp_v[j].nz;
+
+			src_v[cnt].nmx = temp_v[j].nmx;
+			src_v[cnt].nmy = temp_v[j].nmy;
+			src_v[cnt].nmz = temp_v[j].nmz;
+
 			cnt++;
+
+			
 		}
 		SmoothNormals(start_cnt);
 	}

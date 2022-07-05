@@ -638,7 +638,7 @@ AddTexture  ..\Models\3ds\OrnateBox\metal20.dds
 Alias  213   metal20           OPAQUE  WHOLE  metal
 
 AddTexture  ..\Models\3ds\OrnateBox\chest2.dds
-Alias  214   chest2           OPAQUE  WHOLE  metal
+Alias  214   chest2           OPAQUE  WHOLE  wood
 
 AddTexture  ..\Models\3ds\Goblet\goblet.dds
 Alias  215   GOBLET           OPAQUE  WHOLE  wood
@@ -1315,6 +1315,38 @@ Alias  436   ewall3_nm           OPAQUE  WHOLE  brick
 AddTexture  ..\textures\egypt\ewall4_nm.dds
 Alias  437   ewall4_nm           OPAQUE  WHOLE  brick
 
+AddTexture  ..\Models\3ds\banner\banner1_nm.dds
+Alias  438  banner1_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\Models\3ds\circle\ruins_nm.dds
+Alias  439 ruins_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\Models\3ds\circle\ruinstn_nm.dds
+Alias  440 ruinstn_nm           OPAQUE  WHOLE  stone
+
+AddTexture  ..\Models\3ds\OrnateBox\chest2_nm.dds
+Alias  441   chest2_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\Models\3ds\eat\woodcup_nm.dds
+Alias  442 woodcup_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\Models\3ds\trough\twood_nm.dds
+Alias  443 twood_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\monster\goblin_nm.dds
+Alias  444   goblin_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\monster\corpse_nm.dds
+Alias  445   corpse_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\monster\tentacle_nm.dds
+Alias  446   tentacle_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\monster\cobra2_nm.dds
+Alias  447   cobra_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\monster\knight_nm.dds
+Alias  448   knight_nm           OPAQUE  WHOLE  default
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
