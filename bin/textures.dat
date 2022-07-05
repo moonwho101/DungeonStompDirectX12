@@ -1342,7 +1342,11 @@ Alias  445   corpse_nm           OPAQUE  WHOLE  default
 AddTexture  ..\textures\monster\tentacle_nm.dds
 Alias  446   tentacle_nm           OPAQUE  WHOLE  default
 
+AddTexture  ..\textures\monster\cobra2_nm.dds
+Alias  447   cobra_nm           OPAQUE  WHOLE  default
 
+AddTexture  ..\textures\monster\knight_nm.dds
+Alias  448   knight_nm           OPAQUE  WHOLE  default
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
