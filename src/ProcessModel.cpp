@@ -1338,7 +1338,7 @@ void ConvertTraingleStrip(int fan_cnt) {
 			normal++;
 		}
 	}
-	cnt = fan_cnt  +counter;
+	cnt = fan_cnt + counter;
 
 }
 
