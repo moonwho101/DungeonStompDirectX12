@@ -635,10 +635,13 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 
 	if (pmdata[pmodel_id].use_indexed_primitive == TRUE)
 	{
+		//3ds models
 		PlayerToD3DIndexedVertList(pmodel_id, 0, angle, texture_alias, tex_flag, wx, wy, wz);
 		return;
 	}
 
+
+	//md2 models
 	float cosine = cos_table[angle];
 	float sine = sin_table[angle];
 

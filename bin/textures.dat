@@ -1336,6 +1336,13 @@ Alias  443 twood_nm           OPAQUE  WHOLE  wood
 AddTexture  ..\textures\monster\goblin_nm.dds
 Alias  444   goblin_nm           OPAQUE  WHOLE  default
 
+AddTexture  ..\textures\monster\corpse_nm.dds
+Alias  445   corpse_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\monster\tentacle_nm.dds
+Alias  446   tentacle_nm           OPAQUE  WHOLE  default
+
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
