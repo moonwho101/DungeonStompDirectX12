@@ -175,7 +175,7 @@ float4 PS(VertexOut pin) : SV_Target
     //bumpedNormalW = pin.NormalW;
 
     // Dynamically look up the texture in the array.
-    diffuseAlbedo *= gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC);
+    diffuseAlbedo *= gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
 
     // Vector from point being lit to eye. 
     float3 toEyeW = gEyePosW - pin.PosW;

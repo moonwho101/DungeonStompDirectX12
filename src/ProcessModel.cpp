@@ -80,7 +80,7 @@ int num_light_sources = 0;
 
 
 
-void CalculateTangentBinormal(D3DVERTEX2 &vertex1, D3DVERTEX2 &vertex2, D3DVERTEX2 &vertex3)
+void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTEX2& vertex3)
 {
 	float vector1[3], vector2[3];
 	float tuVector[2], tvVector[2];
@@ -112,6 +112,17 @@ void CalculateTangentBinormal(D3DVERTEX2 &vertex1, D3DVERTEX2 &vertex2, D3DVERTE
 	float result = (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
 
 	if (result == 0) {
+		vertex1.nmx = 0;
+		vertex1.nmy = 0;
+		vertex1.nmz = 0;
+
+		vertex2.nmx = 0;
+		vertex2.nmy = 0;
+		vertex2.nmz = 0;
+
+		vertex3.nmx = 0;
+		vertex3.nmy = 0;
+		vertex3.nmz = 0;
 		return;
 	}
 
@@ -1877,7 +1888,7 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 				src_v[cnt].nz = workz;
 
 
-				CalculateTangentBinormal(src_v[cnt ], src_v[cnt - 1], src_v[cnt -2 ]);
+				CalculateTangentBinormal(src_v[cnt -2 ], src_v[cnt - 1], src_v[cnt]);
 
 				counttri = 0;
 			}
