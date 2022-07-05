@@ -1333,6 +1333,9 @@ Alias  442 woodcup_nm           OPAQUE  WHOLE  wood
 AddTexture  ..\Models\3ds\trough\twood_nm.dds
 Alias  443 twood_nm           OPAQUE  WHOLE  wood
 
+AddTexture  ..\textures\monster\goblin_nm.dds
+Alias  444   goblin_nm           OPAQUE  WHOLE  default
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
