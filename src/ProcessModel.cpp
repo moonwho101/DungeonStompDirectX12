@@ -995,8 +995,9 @@ void SmoothNormals(int start_cnt) {
 
 				//D3DXVECTOR3 sum = D3DXVECTOR3(0, 0, 0);
 				XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
+				XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
 
-				XMFLOAT3 x1;
+				XMFLOAT3 x1,xtan;
 				XMVECTOR average;
 
 				for (int k = 0; k < scount; k++) {
@@ -1004,19 +1005,34 @@ void SmoothNormals(int start_cnt) {
 					x1.y = src_v[sharedv[k]].ny;
 					x1.z = src_v[sharedv[k]].nz;
 					sum = sum + XMLoadFloat3(&x1);
+
+					xtan.x = src_v[sharedv[k]].nmx;
+					xtan.y = src_v[sharedv[k]].nmy;
+					xtan.z = src_v[sharedv[k]].nmz;
+					sumtan = sumtan + XMLoadFloat3(&xtan);
+
 				}
 
 				sum = sum / (float)scount;
-				//D3DXVec3Normalize(&average, &sum);
+				sumtan = sumtan / (float)scount;
+
+				XMFLOAT3 final2, finaltan;
+
 				average = XMVector3Normalize(sum);
-				XMFLOAT3 final2;
 				XMStoreFloat3(&final2, average);
+
+				average = XMVector3Normalize(sumtan);
+				XMStoreFloat3(&finaltan, average);
 
 
 				for (int k = 0; k < scount; k++) {
 					src_v[sharedv[k]].nx = final2.x;
 					src_v[sharedv[k]].ny = final2.y;
 					src_v[sharedv[k]].nz = final2.z;
+
+					src_v[sharedv[k]].nmx = finaltan.x;
+					src_v[sharedv[k]].nmy = finaltan.y;
+					src_v[sharedv[k]].nmz = finaltan.z;
 				}
 			}
 		}
