@@ -1347,6 +1347,19 @@ Alias  447   cobra_nm           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\monster\knight_nm.dds
 Alias  448   knight_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\monster\Sorcerer_nm.dds
+Alias  449   Sorcerer_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\monster\slave_nm.dds
+Alias  450   slave_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\monster\ogro_nm.dds
+Alias  451   ogro_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\monster\bauul_nm.dds
+Alias  452   bauul_nm           OPAQUE  WHOLE  default
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
