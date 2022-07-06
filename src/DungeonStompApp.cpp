@@ -1179,13 +1179,13 @@ void DungeonStompApp::BuildMaterials()
 	tilebrown->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
 	tilebrown->Roughness = 0.32f;
 
-	float factor = 122.0f;
+	
 	auto monster = std::make_unique<Material>();
 	monster->Name = "monster";
 	monster->MatCBIndex = 14;
 	monster->DiffuseSrvHeapIndex = 0;
 	monster->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	monster->FresnelR0 = XMFLOAT3(0.1f / factor, 0.1f / factor, 0.1f / factor);
+	monster->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	monster->Roughness = 0.5f;
 
 	//new material - increment MatCBIndex 
