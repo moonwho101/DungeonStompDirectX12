@@ -332,7 +332,7 @@ AddTexture  ..\textures\monster\Faerie.dds
 Alias  111   Faerie           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\monster\goblin.dds
-Alias  112   goblin           OPAQUE  WHOLE  default
+Alias  112   goblin           OPAQUE  WHOLE  flat
 
 AddTexture  ..\textures\monster\knight.dds
 Alias  113   knight           OPAQUE  WHOLE  default
@@ -638,7 +638,7 @@ AddTexture  ..\Models\3ds\OrnateBox\metal20.dds
 Alias  213   metal20           OPAQUE  WHOLE  metal
 
 AddTexture  ..\Models\3ds\OrnateBox\chest2.dds
-Alias  214   chest2           OPAQUE  WHOLE  wood
+Alias  214   chest2           OPAQUE  WHOLE  flat
 
 AddTexture  ..\Models\3ds\Goblet\goblet.dds
 Alias  215   GOBLET           OPAQUE  WHOLE  wood
