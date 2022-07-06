@@ -1179,7 +1179,7 @@ void DungeonStompApp::BuildMaterials()
 	tilebrown->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
 	tilebrown->Roughness = 0.32f;
 
-	float factor = 2.0f;
+	float factor = 122.0f;
 	auto monster = std::make_unique<Material>();
 	monster->Name = "monster";
 	monster->MatCBIndex = 14;
