@@ -494,7 +494,7 @@ AddTexture  ..\textures\flrtile1.dds
 Alias  165   flrtile1           OPAQUE  WHOLE  tile
 
 AddTexture  ..\textures\Goldplai.dds
-Alias  166   Goldplai           OPAQUE  WHOLE  metal
+Alias  166   Goldplai           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\grass.dds
 Alias  167   grass           OPAQUE  WHOLE  grass
@@ -1410,6 +1410,12 @@ Alias  467   weaponsorb_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\Weaponsorcerer_nm.dds
 Alias  468   Weaponsorcerer_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\ogre_nm.dds
+Alias  469   ogre_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\Goldplai_nm.dds
+Alias  470   Goldplai_nm           OPAQUE  WHOLE  metal
 
 END_FILE
 
