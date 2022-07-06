@@ -197,7 +197,7 @@ float4 PS(VertexOut pin) : SV_Target
     float3 r = reflect(-toEyeW, bumpedNormalW);
     //float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
     float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
-    litColor.rgb += shininess * fresnelFactor; // *reflectionColor.rgb;
+    litColor.rgb += shininess * (fresnelFactor / 1.5f); // *reflectionColor.rgb;
 
 #ifdef FOG
     float fogAmount = saturate((distToEye - gFogStart) / gFogRange);

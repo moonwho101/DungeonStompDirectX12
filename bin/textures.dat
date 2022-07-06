@@ -320,49 +320,49 @@ AddTexture  ..\textures\fonts\font_small.dds
 Alias  107   font_small           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\monster\bauul.dds
-Alias  108   bauul           OPAQUE  WHOLE  default
+Alias  108   bauul           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\corpse.dds
-Alias  109   corpse           OPAQUE  WHOLE  default
+Alias  109   corpse           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\demoness.dds
-Alias  110   demoness           OPAQUE  WHOLE  default
+Alias  110   demoness           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\Faerie.dds
-Alias  111   Faerie           OPAQUE  WHOLE  default
+Alias  111   Faerie           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\goblin.dds
-Alias  112   goblin           OPAQUE  WHOLE  flat
+Alias  112   goblin           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\knight.dds
-Alias  113   knight           OPAQUE  WHOLE  default
+Alias  113   knight           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\ogre.dds
-Alias  114   ogre           OPAQUE  WHOLE  default
+Alias  114   ogre           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\ogro.dds
-Alias  115   ogro           OPAQUE  WHOLE  default
+Alias  115   ogro           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\phantom.dds
-Alias  116   phantom           OPAQUE  WHOLE  default
+Alias  116   phantom           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\phantomw.dds
-Alias  117   phantomw           OPAQUE  WHOLE  default
+Alias  117   phantomw           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\skeleton2.dds
-Alias  118   skeleton2           OPAQUE  WHOLE  default
+Alias  118   skeleton2           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\Sorcerer.dds
-Alias  119   Sorcerer           OPAQUE  WHOLE  default
+Alias  119   Sorcerer           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\tentacle.dds
-Alias  120   tentacle           OPAQUE  WHOLE  default
+Alias  120   tentacle           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\WEAPONwraith.dds
-Alias  121   WEAPONwraith           OPAQUE  WHOLE  default
+Alias  121   WEAPONwraith           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\wraith.dds
-Alias  122   wraith           AlphaTransparent  WHOLE  default
+Alias  122   wraith           AlphaTransparent  WHOLE  monster
 
 AddTexture  ..\textures\screen1\button1.dds
 Alias  123   button1           OPAQUE  WHOLE  default
@@ -602,10 +602,10 @@ AddTexture  ..\textures\_lava1.dds
 Alias  201   _lava1           OPAQUE  WHOLE  glass
 
 AddTexture  ..\textures\monster\slave.dds
-Alias  202   slave           OPAQUE  WHOLE  default
+Alias  202   slave           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\wolf.dds
-Alias  203   wolf           OPAQUE  WHOLE  default
+Alias  203   wolf           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\screen1\button4.dds
 Alias  204   button4           OPAQUE  WHOLE  default
@@ -638,7 +638,7 @@ AddTexture  ..\Models\3ds\OrnateBox\metal20.dds
 Alias  213   metal20           OPAQUE  WHOLE  metal
 
 AddTexture  ..\Models\3ds\OrnateBox\chest2.dds
-Alias  214   chest2           OPAQUE  WHOLE  flat
+Alias  214   chest2           OPAQUE  WHOLE  wood
 
 AddTexture  ..\Models\3ds\Goblet\goblet.dds
 Alias  215   GOBLET           OPAQUE  WHOLE  wood
@@ -719,28 +719,28 @@ AddTexture  ..\textures\a.dds
 Alias  240 ali           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\monster\insect.dds
-Alias  241   insect           OPAQUE  WHOLE  default
+Alias  241   insect           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\massm.dds
-Alias  242   massm           OPAQUE  WHOLE  default
+Alias  242   massm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\oluve.dds
-Alias  243   oluve           OPAQUE  WHOLE  default
+Alias  243   oluve           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\goblin2.dds
-Alias  244   goblin2           OPAQUE  WHOLE  default
+Alias  244   goblin2           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\goblin3.dds
-Alias  245   goblin3           OPAQUE  WHOLE  default
+Alias  245   goblin3           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\goblin4.dds
-Alias  246   goblin4           OPAQUE  WHOLE  default
+Alias  246   goblin4           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\mummy.dds
-Alias  247   mummy           OPAQUE  WHOLE  default
+Alias  247   mummy           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\weaponmummy.dds
-Alias  248   weaponmummy           OPAQUE  WHOLE  default
+Alias  248   weaponmummy           OPAQUE  WHOLE  monster
 
 AddTexture  ..\Models\3ds\bucket\bucketi.dds
 Alias  249   bucketi           OPAQUE  WHOLE  wood
@@ -749,25 +749,25 @@ AddTexture  ..\textures\screen1\buttoncopy.dds
 Alias  250   buttoncopy           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\monster\hydra.dds
-Alias  251   hydra           OPAQUE  WHOLE  default
+Alias  251   hydra           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\hydraweapon.dds
-Alias  252   hydraweapon           OPAQUE  WHOLE  default
+Alias  252   hydraweapon           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\imp.dds
 Alias  253   imp           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\monster\necromancer.dds
-Alias  254   necromancer           OPAQUE  WHOLE  default
+Alias  254   necromancer           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\demon.dds
-Alias  255   demon           OPAQUE  WHOLE  default
+Alias  255   demon           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\cfloor.dds
 Alias  256   cfloor           OPAQUE  WHOLE  tile
 
 AddTexture  ..\textures\monster\fulimo.dds
-Alias  257   fulimo           OPAQUE  WHOLE  default
+Alias  257   fulimo           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\doors\door2.dds
 Alias  258   door2           OPAQUE  WHOLE  wood
@@ -1025,34 +1025,34 @@ AddTexture  ..\textures\screen1\pbmo0.dds
 Alias  340   pbmo0           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\monster\cobra2.dds
-Alias  341   cobra           OPAQUE  WHOLE  default
+Alias  341   cobra           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\dragon.dds
-Alias  342   dragon           OPAQUE  WHOLE  default
+Alias  342   dragon           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weapondragon.dds
-Alias  343   weapondragon           OPAQUE  WHOLE  default
+Alias  343   weapondragon           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weaponcobra.dds
-Alias  344   weaponcobra           OPAQUE  WHOLE  default
+Alias  344   weaponcobra           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\centaur.dds
-Alias  345   centaur           OPAQUE  WHOLE  default
+Alias  345   centaur           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\craz.dds
-Alias  346   craz           OPAQUE  WHOLE  default
+Alias  346   craz           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weaponcraz.dds
-Alias  347   weaponcraz           OPAQUE  WHOLE  default
+Alias  347   weaponcraz           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\rider.dds
-Alias  348   rider           OPAQUE  WHOLE  default
+Alias  348   rider           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\okta.dds
-Alias  349   okta           OPAQUE  WHOLE  default
+Alias  349   okta           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weaponsorb.dds
-Alias  350   weaponsorb           OPAQUE  WHOLE  default
+Alias  350   weaponsorb           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\screen1\pbm4.dds
 Alias  351   pbm4           OPAQUE  WHOLE  default
@@ -1109,7 +1109,7 @@ AddTexture  ..\textures\egypt\ewall4.dds
 Alias  368   ewall4           OPAQUE  WHOLE  brick
 
 AddTexture  ..\textures\monster\sorb.dds
-Alias  369   sorb           OPAQUE  WHOLE  default
+Alias  369   sorb           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\blood\blood@1.dds
 Alias  370   blood@1           AlphaTransparent  WHOLE  flat
@@ -1334,82 +1334,82 @@ AddTexture  ..\Models\3ds\trough\twood_nm.dds
 Alias  443 twood_nm           OPAQUE  WHOLE  wood
 
 AddTexture  ..\textures\monster\goblin_nm.dds
-Alias  444   goblin_nm           OPAQUE  WHOLE  default
+Alias  444   goblin_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\corpse_nm.dds
-Alias  445   corpse_nm           OPAQUE  WHOLE  default
+Alias  445   corpse_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\tentacle_nm.dds
-Alias  446   tentacle_nm           OPAQUE  WHOLE  default
+Alias  446   tentacle_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\cobra2_nm.dds
-Alias  447   cobra_nm           OPAQUE  WHOLE  default
+Alias  447   cobra_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\knight_nm.dds
-Alias  448   knight_nm           OPAQUE  WHOLE  default
+Alias  448   knight_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\Sorcerer_nm.dds
-Alias  449   Sorcerer_nm           OPAQUE  WHOLE  default
+Alias  449   Sorcerer_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\slave_nm.dds
-Alias  450   slave_nm           OPAQUE  WHOLE  default
+Alias  450   slave_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\ogro_nm.dds
-Alias  451   ogro_nm           OPAQUE  WHOLE  default
+Alias  451   ogro_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\bauul_nm.dds
-Alias  452   bauul_nm           OPAQUE  WHOLE  default
+Alias  452   bauul_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\axe_nm.dds
-Alias  453   axe_nm           OPAQUE  WHOLE  default
+Alias  453   axe_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\bastard_sword_nm.dds
-Alias  454   bastard_sword_nm           OPAQUE  WHOLE  default
+Alias  454   bastard_sword_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\battleaxe_nm.dds
-Alias  455   battleaxe_nm       OPAQUE  WHOLE  default
+Alias  455   battleaxe_nm       OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\flamesword_nm.dds
-Alias  456   flamesword_nm           OPAQUE  WHOLE  default
+Alias  456   flamesword_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\icesword_nm.dds
-Alias  457   icesword_nm           OPAQUE  WHOLE  default
+Alias  457   icesword_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\lightning_sword_nm.dds
-Alias  458   lightning_sword_nm           OPAQUE  WHOLE  default
+Alias  458   lightning_sword_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\morning_star_nm.dds
-Alias  459   morning_star_nm           OPAQUE  WHOLE  default
+Alias  459   morning_star_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\spiked_flail_nm.dds
-Alias  460   spiked_flail_nm           OPAQUE  WHOLE  default
+Alias  460   spiked_flail_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\split_sword_nm.dds
-Alias  461   split_sword_nm           OPAQUE  WHOLE  default
+Alias  461   split_sword_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\super_flamesword_nm.dds
-Alias  461   super_flamesword_nm           OPAQUE  WHOLE  default
+Alias  461   super_flamesword_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weaponbauul_nm.dds
-Alias  462   weaponbauul_nm           OPAQUE  WHOLE  default
+Alias  462   weaponbauul_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weaponcraz_nm.dds
-Alias  463   weaponcraz_nm           OPAQUE  WHOLE  default
+Alias  463   weaponcraz_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weapondemoness_nm.dds
-Alias  464   weapondemoness_nm           OPAQUE  WHOLE  default
+Alias  464   weapondemoness_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weapondragon_nm.dds
-Alias  465   weapondragon_nm           OPAQUE  WHOLE  default
+Alias  465   weapondragon_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weapongoblin_nm.dds
-Alias  466   weapongoblin_nm           OPAQUE  WHOLE  default
+Alias  466   weapongoblin_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weaponsorb_nm.dds
-Alias  467   weaponsorb_nm           OPAQUE  WHOLE  default
+Alias  467   weaponsorb_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\Weaponsorcerer_nm.dds
-Alias  468   Weaponsorcerer_nm           OPAQUE  WHOLE  default
+Alias  468   Weaponsorcerer_nm           OPAQUE  WHOLE  monster
 
 END_FILE
 
