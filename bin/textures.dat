@@ -889,7 +889,6 @@ Alias  295   explod@7           AlphaTransparent  WHOLE  default
 AddTexture  ..\textures\explosion\explod@8.dds
 Alias  296  explod@8           AlphaTransparent  WHOLE  default
 
-
 AddTexture  ..\textures\missle1.dds
 Alias  297  missle1           OPAQUE  WHOLE  default
 
@@ -1416,6 +1415,18 @@ Alias  469   ogre_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\Goldplai_nm.dds
 Alias  470   Goldplai_nm           OPAQUE  WHOLE  metal
+
+AddTexture  ..\textures\missle1_nm.dds
+Alias  471  missle1_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\missle2_nm.dds
+Alias  472  missle2_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\missle3_nm.dds
+Alias  473  missle3_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\missle4_nm.dds
+Alias  474  missle4_nm           OPAQUE  WHOLE  default
 
 END_FILE
 
