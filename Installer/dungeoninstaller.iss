@@ -899,6 +899,15 @@ Source: "c:\github\DungeonStompDirectX12\Textures\weapons\weapongoblin_nm.dds"; 
 Source: "c:\github\DungeonStompDirectX12\Textures\weapons\weaponsorb_nm.dds"; DestDir: "{app}\Textures\weapons\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\weapons\Weaponsorcerer_nm.dds"; DestDir: "{app}\Textures\weapons\"; Flags: ignoreversion
 
+Source: "c:\github\DungeonStompDirectX12\Models\3DS\Banner\Banner1_nm.dds"; DestDir: "{app}\Models\3DS\Banner\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Models\3DS\Circle\ruinstn_nm.dds"; DestDir: "{app}\Models\3DS\Circle\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Models\3DS\Circle\ruins_nm.dds"; DestDir: "{app}\Models\3DS\Circle\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Models\3DS\Eat\WoodCup_nm.dds"; DestDir: "{app}\Models\3DS\Eat\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Models\3DS\OrnateBox\chest2_nm.dds"; DestDir: "{app}\Models\3DS\OrnateBox\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Models\3DS\OrnateBox\metal20_nm.dds"; DestDir: "{app}\Models\3DS\OrnateBox\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Models\3DS\Trough\twood_nm.dds"; DestDir: "{app}\Models\3DS\Trough\"; Flags: ignoreversion
+
+
 
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
