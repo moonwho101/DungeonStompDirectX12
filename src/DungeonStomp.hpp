@@ -1,4 +1,5 @@
 #include "Font.hpp"
+#include "ShadowMap.h"
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -70,6 +71,7 @@ private:
 	void UpdateMaterialCBs(const GameTimer& gt);
 	void UpdateMainPassCB(const GameTimer& gt);
 	void UpdateDungeon(const GameTimer& gt);
+	void UpdateShadowPassCB(const GameTimer& gt);
 
 	void BuildRootSignature();
 	void BuildShadersAndInputLayout();
@@ -129,6 +131,7 @@ private:
 	std::unique_ptr<Dungeon> mDungeon;
 
 	PassConstants mMainPassCB;
+	PassConstants mShadowPassCB;// index 1 of pass cbuffer.
 
 	Light LightContainer[MaxLights];
 
@@ -152,7 +155,16 @@ private:
 	ID3D12Resource* rectangleVertexBuffer[MaxRectangle];
 	UINT8* rectangleVBGPUAddress[MaxRectangle];
 	D3D12_VERTEX_BUFFER_VIEW rectangleVertexBufferView[MaxRectangle]; // a view for our text vertex buffer
-	
+
+	std::unique_ptr<ShadowMap> mShadowMap;
+
+	float mLightNearZ = 0.0f;
+	float mLightFarZ = 0.0f;
+	XMFLOAT3 mLightPosW;
+	XMFLOAT4X4 mLightView = MathHelper::Identity4x4();
+	XMFLOAT4X4 mLightProj = MathHelper::Identity4x4();
+	XMFLOAT4X4 mShadowTransform = MathHelper::Identity4x4();
+
 
 };
 
