@@ -167,6 +167,7 @@
     <ClCompile Include="Missle.cpp" />
     <ClCompile Include="ProcessModel.cpp" />
     <ClCompile Include="Dungeon.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="WAVFileReader.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="XAudio2BasicSound.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="Missle.hpp" />
     <ClInclude Include="ProcessModel.hpp" />
     <ClInclude Include="Dungeon.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="WAVFileReader.h" />
     <ClInclude Include="world.hpp" />
     <ClInclude Include="XAudio2Versions.h" />
