@@ -210,5 +210,14 @@
     <Text Include="..\Shaders\NormalMap.hlsl">
       <Filter>Shaders</Filter>
     </Text>
+    <Text Include="..\Shaders\Shadows.hlsl">
+      <Filter>Shaders</Filter>
+    </Text>
+    <Text Include="..\Shaders\ShadowDebug.hlsl">
+      <Filter>Shaders</Filter>
+    </Text>
+    <Text Include="..\Shaders\Common.hlsl">
+      <Filter>Shaders</Filter>
+    </Text>
   </ItemGroup>
 </Project>

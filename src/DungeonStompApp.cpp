@@ -663,6 +663,11 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	mShaders["normalMapVS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["normalMapPS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", defines, "PS", "ps_5_1");
 
+	mShaders["shadowVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", nullptr, "VS", "vs_5_1");
+	mShaders["shadowOpaquePS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", nullptr, "PS", "ps_5_1");
+	mShaders["shadowAlphaTestedPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", alphaTestDefines, "PS", "ps_5_1");
+
+
 	// Text PSO
 	ID3DBlob* errorBuff; // a buffer holding the error data if any
 	// compile vertex shader
