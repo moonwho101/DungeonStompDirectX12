@@ -4,42 +4,41 @@
 
 // Defaults for number of lights.
 #ifndef NUM_DIR_LIGHTS
-    #define NUM_DIR_LIGHTS 3
+    #define NUM_DIR_LIGHTS 0
 #endif
 
 #ifndef NUM_POINT_LIGHTS
-    #define NUM_POINT_LIGHTS 0
+    #define NUM_POINT_LIGHTS 16
 #endif
 
 #ifndef NUM_SPOT_LIGHTS
-    #define NUM_SPOT_LIGHTS 0
+    #define NUM_SPOT_LIGHTS 5
 #endif
 
 // Include structures and functions for lighting.
 #include "LightingUtil.hlsl"
+
 
 struct MaterialData
 {
 	float4   DiffuseAlbedo;
 	float3   FresnelR0;
 	float    Roughness;
-	float4x4 MatTransform;
-	uint     DiffuseMapIndex;
-	uint     NormalMapIndex;
-	uint     MatPad1;
-	uint     MatPad2;
+    float4x4 MatTransform;
 };
 
-TextureCube gCubeMap : register(t0);
+//TextureCube gCubeMap : register(t0);
+Texture2D gTextureMap : register(t0);
 Texture2D gShadowMap : register(t1);
+
 
 // An array of textures, which is only supported in shader model 5.1+.  Unlike Texture2DArray, the textures
 // in this array can be different sizes and formats, making it more flexible than texture arrays.
-Texture2D gTextureMaps[10] : register(t2);
+//Texture2D gTextureMaps[10] : register(t2);
 
 // Put in space1, so the texture array does not overlap with these resources.  
 // The texture array will occupy registers t0, t1, ..., t3 in space0. 
-StructuredBuffer<MaterialData> gMaterialData : register(t0, space1);
+//StructuredBuffer<MaterialData> gMaterialData : register(t0, space1);
 
 
 SamplerState gsamPointWrap        : register(s0);
@@ -55,13 +54,18 @@ cbuffer cbPerObject : register(b0)
 {
     float4x4 gWorld;
 	float4x4 gTexTransform;
-	uint gMaterialIndex;
-	uint gObjPad0;
-	uint gObjPad1;
-	uint gObjPad2;
 };
 
-cbuffer cbPass : register(b1)
+cbuffer cbMaterial : register(b1)
+{
+    float4 gDiffuseAlbedo;
+    float3 gFresnelR0;
+    float  gRoughness;
+    float4x4 gMatTransform;
+};
+
+
+cbuffer cbPass : register(b2)
 {
     float4x4 gView;
     float4x4 gInvView;

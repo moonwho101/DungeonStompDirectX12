@@ -21,8 +21,11 @@ VertexOut VS(VertexIn vin)
 {
 	VertexOut vout = (VertexOut)0.0f;
 
-	MaterialData matData = gMaterialData[gMaterialIndex];
+	//MaterialData matData = gMaterialData[gMaterialIndex];
+
 	
+	MaterialData matData = { gDiffuseAlbedo, gFresnelR0, gRoughness, gMatTransform };
+
     // Transform to world space.
     float4 posW = mul(float4(vin.PosL, 1.0f), gWorld);
 
@@ -42,12 +45,14 @@ VertexOut VS(VertexIn vin)
 void PS(VertexOut pin) 
 {
 	// Fetch the material data.
-	MaterialData matData = gMaterialData[gMaterialIndex];
+	//MaterialData matData = gMaterialData[gMaterialIndex];
+	MaterialData matData = { gDiffuseAlbedo, gFresnelR0, gRoughness, gMatTransform };
+
 	float4 diffuseAlbedo = matData.DiffuseAlbedo;
-    uint diffuseMapIndex = matData.DiffuseMapIndex;
+    //uint diffuseMapIndex = matData.DiffuseMapIndex;
 	
 	// Dynamically look up the texture in the array.
-	diffuseAlbedo *= gTextureMaps[diffuseMapIndex].Sample(gsamAnisotropicWrap, pin.TexC);
+	diffuseAlbedo *= gTextureMap.Sample(gsamAnisotropicWrap, pin.TexC);
 
 #ifdef ALPHA_TEST
     // Discard pixel if texture alpha < 0.1.  We do this test as soon 
