@@ -99,6 +99,8 @@ private:
 	void SetTextureNormalMap();
 	void DrawSceneToShadowMap();
 
+	void CreateRtvAndDsvDescriptorHeaps();
+
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> GetStaticSamplers();
 
 	float GetHillsHeight(float x, float z)const;
