@@ -131,8 +131,18 @@ private:
 
 	std::unique_ptr<Dungeon> mDungeon;
 
+	UINT mSkyTexHeapIndex = 0;
+	UINT mShadowMapHeapIndex = 0;
+
+	UINT mNullCubeSrvIndex = 0;
+	UINT mNullTexSrvIndex = 0;
+
+	CD3DX12_GPU_DESCRIPTOR_HANDLE mNullSrv;
+
 	PassConstants mMainPassCB;
 	PassConstants mShadowPassCB;// index 1 of pass cbuffer.
+
+
 
 	Light LightContainer[MaxLights];
 
