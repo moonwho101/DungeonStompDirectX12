@@ -1524,6 +1524,10 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 				//tex2.Offset(386, mCbvSrvDescriptorSize);
 				tex2.Offset(normal_map_texture, mCbvSrvDescriptorSize);
 				cmdList->SetGraphicsRootDescriptorTable(4, tex2);
+
+
+				mCommandList->SetGraphicsRootDescriptorTable(4, mNullSrv);
+
 			}
 
 			if (dp_command_index_mode[i] == 1 && TexMap[texture_alias_number].is_alpha_texture == isAlpha) {  //USE_NON_INDEXED_DP
