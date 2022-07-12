@@ -101,7 +101,12 @@ bool DungeonStompApp::Initialize()
 
 	LoadTextures();
 	BuildRootSignature();
+
+
 	BuildDescriptorHeaps();
+
+	
+
 	BuildShadersAndInputLayout();
 	BuildLandGeometry();
 	BuildDungeonGeometryBuffers();
@@ -111,7 +116,7 @@ bool DungeonStompApp::Initialize()
 	BuildFrameResources();
 	BuildPSOs();
 
-	LoadRRTextures11("textures.dat");
+	
 
 	InitDS();
 
@@ -232,7 +237,9 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 
 
 	//opaque
-	mCommandList->SetPipelineState(mPSOs["opaque"].Get());
+	//mCommandList->SetPipelineState(mPSOs["opaque"].Get());
+
+	mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
 
 
@@ -613,7 +620,6 @@ void DungeonStompApp::DrawSceneToShadowMap(const GameTimer& gt)
 	//mCommandList->SetGraphicsRootConstantBufferView(1, passCBAddress);
 
 	mCommandList->SetPipelineState(mPSOs["shadow_opaque"].Get());
-
 
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
 
@@ -1406,7 +1412,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	tex.Offset(1, mCbvSrvDescriptorSize);
 	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-	mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
+	//mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 	//Draw dungeon, monsters and items with normal maps
 	DrawDungeon(cmdList, ritems, false, false, true);
 
@@ -1436,12 +1442,15 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	//	}
 	//}
 
-	//DisplayHud();
+	DisplayHud();
 	//SetDungeonText();
 	//ScanMod(gt.DeltaTime());
 
 	return;
 }
+
+
+
 
 
 void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch, bool normalMap) {
@@ -1521,10 +1530,6 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 				//tex2.Offset(386, mCbvSrvDescriptorSize);
 				tex2.Offset(normal_map_texture, mCbvSrvDescriptorSize);
 				cmdList->SetGraphicsRootDescriptorTable(4, tex2);
-
-
-				mCommandList->SetGraphicsRootDescriptorTable(4, mNullSrv);
-
 			}
 
 			if (dp_command_index_mode[i] == 1 && TexMap[texture_alias_number].is_alpha_texture == isAlpha) {  //USE_NON_INDEXED_DP
@@ -1655,6 +1660,9 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	md3dDevice->CreateShaderResourceView(grassTex.Get(), &srvDesc, hDescriptor);
 
 
+	LoadRRTextures11("textures.dat");
+
+
 	// create upload heap. We will fill this with data for our text
 	
 	HRESULT hr = md3dDevice->CreateCommittedResource(
@@ -1690,8 +1698,10 @@ void DungeonStompApp::BuildDescriptorHeaps()
 		hr = rectangleVertexBuffer[i]->Map(0, &readRange2, reinterpret_cast<void**>(&rectangleVBGPUAddress[i]));
 	}
 
+	int counttext = number_of_tex_aliases;
 
-	mSkyTexHeapIndex = (UINT) 1;
+
+	mSkyTexHeapIndex = (UINT)number_of_tex_aliases;
 	mShadowMapHeapIndex = mSkyTexHeapIndex + 1;
 
 	//mShadowMapHeapIndex = 3;
