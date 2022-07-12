@@ -223,7 +223,7 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	auto passCB = mCurrFrameResource->PassCB->Resource();
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
-	//DrawSceneToShadowMap();
+	DrawSceneToShadowMap(gt);
 
 	//opaque
 	mCommandList->SetPipelineState(mPSOs["opaque"].Get());
@@ -580,7 +580,7 @@ void DungeonStompApp::BuildRootSignature()
 		IID_PPV_ARGS(mRootSignature.GetAddressOf())));
 }
 
-void DungeonStompApp::DrawSceneToShadowMap()
+void DungeonStompApp::DrawSceneToShadowMap(const GameTimer& gt)
 {
 	mCommandList->RSSetViewports(1, &mShadowMap->Viewport());
 	mCommandList->RSSetScissorRects(1, &mShadowMap->ScissorRect());
@@ -606,6 +606,9 @@ void DungeonStompApp::DrawSceneToShadowMap()
 	//mCommandList->SetGraphicsRootConstantBufferView(1, passCBAddress);
 
 	mCommandList->SetPipelineState(mPSOs["shadow_opaque"].Get());
+
+
+	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
 
 	//DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 
@@ -1582,6 +1585,8 @@ void DungeonStompApp::CreateRtvAndDsvDescriptorHeaps()
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
 		&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
 }
+
+
 
 void DungeonStompApp::BuildDescriptorHeaps()
 {
