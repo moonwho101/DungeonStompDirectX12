@@ -198,7 +198,15 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	// Reusing the command list reuses memory.
 	ThrowIfFailed(mCommandList->Reset(cmdListAlloc.Get(), mPSOs["opaque"].Get()));
 
-	
+	ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
+	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
+
+	// Bind null SRV for shadow map pass.
+	mCommandList->SetGraphicsRootDescriptorTable(5, mNullSrv); 
+
+	DrawSceneToShadowMap(gt);
 
 	mCommandList->RSSetViewports(1, &mScreenViewport);
 	mCommandList->RSSetScissorRects(1, &mScissorRect);
@@ -215,19 +223,21 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	// Specify the buffers we are going to render to.
 	mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
 
-	ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
-	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
+	
 
 	auto passCB = mCurrFrameResource->PassCB->Resource();
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
-	DrawSceneToShadowMap(gt);
+	//DrawSceneToShadowMap(gt);
 
 	//opaque
 	mCommandList->SetPipelineState(mPSOs["opaque"].Get());
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
+
+	mCommandList->SetPipelineState(mPSOs["debug"].Get());
+	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
+
 
 	//mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
 	//DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::AlphaTested]);
@@ -725,6 +735,8 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	mShaders["shadowOpaquePS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", nullptr, "PS", "ps_5_1");
 	mShaders["shadowAlphaTestedPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", alphaTestDefines, "PS", "ps_5_1");
 
+	mShaders["debugVS"] = d3dUtil::CompileShader(L"..\\Shaders\\ShadowDebug.hlsl", nullptr, "VS", "vs_5_1");
+	mShaders["debugPS"] = d3dUtil::CompileShader(L"..\\Shaders\\ShadowDebug.hlsl", nullptr, "PS", "ps_5_1");
 
 	// Text PSO
 	ID3DBlob* errorBuff; // a buffer holding the error data if any
@@ -1075,6 +1087,25 @@ void DungeonStompApp::BuildPSOs()
 	smapPsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 	smapPsoDesc.NumRenderTargets = 0;
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&smapPsoDesc, IID_PPV_ARGS(&mPSOs["shadow_opaque"])));
+
+
+	//
+	// PSO for debug layer.
+	//
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC debugPsoDesc = opaquePsoDesc;
+	debugPsoDesc.pRootSignature = mRootSignature.Get();
+	debugPsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["debugVS"]->GetBufferPointer()),
+		mShaders["debugVS"]->GetBufferSize()
+	};
+	debugPsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["debugPS"]->GetBufferPointer()),
+		mShaders["debugPS"]->GetBufferSize()
+	};
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&debugPsoDesc, IID_PPV_ARGS(&mPSOs["debug"])));
+
 
 
 
@@ -1659,32 +1690,32 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	}
 
 
-	//mSkyTexHeapIndex = (UINT) 2;
-	////mShadowMapHeapIndex = mSkyTexHeapIndex + 1;
+	mSkyTexHeapIndex = (UINT) 2;
+	mShadowMapHeapIndex = mSkyTexHeapIndex + 1;
 
 	//mShadowMapHeapIndex = 3;
 
-	//mNullCubeSrvIndex = mShadowMapHeapIndex + 1;
-	//mNullTexSrvIndex = mNullCubeSrvIndex + 1;
+	mNullCubeSrvIndex = mShadowMapHeapIndex + 1;
+	mNullTexSrvIndex = mNullCubeSrvIndex + 1;
 
-	mShadowMapHeapIndex = 0;
+	//mShadowMapHeapIndex = 2;
 	auto srvCpuStart = mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	auto srvGpuStart = mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 	auto dsvCpuStart = mDsvHeap->GetCPUDescriptorHandleForHeapStart();
 
 
-	//auto nullSrv = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, mNullCubeSrvIndex, mCbvSrvUavDescriptorSize);
-	//mNullSrv = CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, mNullCubeSrvIndex, mCbvSrvUavDescriptorSize);
+	auto nullSrv = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, mNullCubeSrvIndex, mCbvSrvUavDescriptorSize);
+	mNullSrv = CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, mNullCubeSrvIndex, mCbvSrvUavDescriptorSize);
 
-	//md3dDevice->CreateShaderResourceView(nullptr, &srvDesc, nullSrv);
-	//nullSrv.Offset(1, mCbvSrvUavDescriptorSize);
+	md3dDevice->CreateShaderResourceView(nullptr, &srvDesc, nullSrv);
+	nullSrv.Offset(1, mCbvSrvUavDescriptorSize);
 
-	//srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	//srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	//srvDesc.Texture2D.MostDetailedMip = 0;
-	//srvDesc.Texture2D.MipLevels = 1;
-	//srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
-	//md3dDevice->CreateShaderResourceView(nullptr, &srvDesc, nullSrv);
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+	md3dDevice->CreateShaderResourceView(nullptr, &srvDesc, nullSrv);
 
 
 	mShadowMap->BuildDescriptors(
