@@ -229,13 +229,10 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	auto passCB = mCurrFrameResource->PassCB->Resource();
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
-	//DrawSceneToShadowMap(gt);
+
 
 	//opaque
 	mCommandList->SetPipelineState(mPSOs["opaque"].Get());
-	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
-
-	mCommandList->SetPipelineState(mPSOs["debug"].Get());
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
 
 
