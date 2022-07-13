@@ -6,15 +6,15 @@
 
 // Defaults for number of lights.
 #ifndef NUM_DIR_LIGHTS
-    #define NUM_DIR_LIGHTS 0
+    #define NUM_DIR_LIGHTS 3
 #endif
 
 #ifndef NUM_POINT_LIGHTS
-    #define NUM_POINT_LIGHTS 16
+    #define NUM_POINT_LIGHTS 0
 #endif
 
 #ifndef NUM_SPOT_LIGHTS
-    #define NUM_SPOT_LIGHTS 5
+    #define NUM_SPOT_LIGHTS 0
 #endif
 
 // Include structures and functions for lighting.
@@ -176,11 +176,12 @@ VertexOut VS(VertexIn vin)
     // Transform to homogeneous clip space.
     vout.PosH = mul(posW, gViewProj);
 
-    // Generate projective tex-coords to project shadow map onto scene.
-    vout.ShadowPosH = mul(posW, gShadowTransform);
     // Output vertex attributes for interpolation across triangle.
     float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform);
     vout.TexC = mul(texC, gMatTransform).xy;
+
+    // Generate projective tex-coords to project shadow map onto scene.
+    vout.ShadowPosH = mul(posW, gShadowTransform);
 
     return vout;
 }
@@ -230,7 +231,7 @@ float4 PS(VertexOut pin) : SV_Target
 
 
     float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
-        pin.NormalW, toEyeW, shadowFactor);
+        bumpedNormalW, toEyeW, shadowFactor);
 
     float4 litColor = ambient + directLight;
 
@@ -242,8 +243,8 @@ float4 PS(VertexOut pin) : SV_Target
     
 
 #ifdef FOG
-    float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
-    litColor = lerp(litColor, gFogColor, fogAmount);
+//    float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
+//    litColor = lerp(litColor, gFogColor, fogAmount);
 #endif
 
     // Common convention to take alpha from diffuse albedo.

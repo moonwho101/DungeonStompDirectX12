@@ -81,7 +81,10 @@ DungeonStompApp::DungeonStompApp(HINSTANCE hInstance)
 // the world space origin.  In general, you need to loop over every world space vertex
 // position and compute the bounding sphere.
 	mSceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mSceneBounds.Radius = sqrtf(110.0f * 110.0f + 115.0f * 115.0f);
+	//mSceneBounds.Radius = sqrtf(110.0f * 110.0f + 115.0f * 115.0f);
+
+	float scale = 215.0f;
+	mSceneBounds.Radius = sqrtf((10.0f * 10.0f) * scale + (15.0f * 15.0f) * scale);
 
 }
 
@@ -195,7 +198,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 
 
 
-	mLightRotationAngle += 0.1f * gt.DeltaTime();
+	mLightRotationAngle += 3.1f * gt.DeltaTime();
 
 	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
 	for (int i = 0; i < 3; ++i)
@@ -544,14 +547,25 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	//XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
 	//mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
 
-	for (int i = 0; i < MaxLights; i++) {
-		mMainPassCB.Lights[i].Direction = LightContainer[i].Direction;
-		mMainPassCB.Lights[i].Strength = LightContainer[i].Strength;
-		mMainPassCB.Lights[i].Position = LightContainer[i].Position;
-		mMainPassCB.Lights[i].FalloffEnd = LightContainer[i].FalloffEnd;
-		mMainPassCB.Lights[i].FalloffStart = LightContainer[i].FalloffStart;
-		mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
-	}
+
+	mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+	mMainPassCB.Lights[0].Direction = mRotatedLightDirections[0];
+	mMainPassCB.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };
+	mMainPassCB.Lights[1].Direction = mRotatedLightDirections[1];
+	mMainPassCB.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
+	mMainPassCB.Lights[2].Direction = mRotatedLightDirections[2];
+	mMainPassCB.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
+
+
+
+	//for (int i = 0; i < MaxLights; i++) {
+	//	mMainPassCB.Lights[i].Direction = LightContainer[i].Direction;
+	//	mMainPassCB.Lights[i].Strength = LightContainer[i].Strength;
+	//	mMainPassCB.Lights[i].Position = LightContainer[i].Position;
+	//	mMainPassCB.Lights[i].FalloffEnd = LightContainer[i].FalloffEnd;
+	//	mMainPassCB.Lights[i].FalloffStart = LightContainer[i].FalloffStart;
+	//	mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
+	//}
 
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
