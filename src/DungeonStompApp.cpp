@@ -638,12 +638,12 @@ void DungeonStompApp::BuildRootSignature()
 	CD3DX12_ROOT_PARAMETER slotRootParameter[6];
 
 	// Create root CBV.
-	slotRootParameter[0].InitAsConstantBufferView(0);
-	slotRootParameter[1].InitAsConstantBufferView(1);
-	slotRootParameter[2].InitAsConstantBufferView(2);
-	slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
-	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
-	slotRootParameter[5].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL);
+	slotRootParameter[0].InitAsConstantBufferView(0);  //cbuffer cbPerObject : register(b0)
+	slotRootParameter[1].InitAsConstantBufferView(1);  //cbuffer cbMaterial : register(b1)
+	slotRootParameter[2].InitAsConstantBufferView(2);  //cbuffer cbPass : register(b2) X 2
+	slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gDiffuseMap : register(t0);
+	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gNormalMap : register(t1);
+	slotRootParameter[5].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gShadowMap : register(t2);
 
 
 	auto staticSamplers = GetStaticSamplers();
