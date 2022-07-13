@@ -81,7 +81,7 @@ DungeonStompApp::DungeonStompApp(HINSTANCE hInstance)
 // the world space origin.  In general, you need to loop over every world space vertex
 // position and compute the bounding sphere.
 	mSceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mSceneBounds.Radius = sqrtf(10.0f * 10.0f + 15.0f * 15.0f);
+	mSceneBounds.Radius = sqrtf(110.0f * 110.0f + 115.0f * 115.0f);
 
 }
 
@@ -403,6 +403,8 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
 
 	XMStoreFloat4x4(&mView, view);
+
+	//mSceneBounds.Center = XMFLOAT3(mEyePos.x, mEyePos.y, mEyePos.z);
 	
 }
 
