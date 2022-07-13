@@ -98,7 +98,7 @@ private:
 	void DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch = false, bool normalMap = false);
 	void SetTextureNormalMap();
 	void DrawSceneToShadowMap(const GameTimer& gt);
-
+	void UpdateShadowTransform(const GameTimer& gt);
 	void CreateRtvAndDsvDescriptorHeaps();
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> GetStaticSamplers();
@@ -171,12 +171,22 @@ private:
 
 	std::unique_ptr<ShadowMap> mShadowMap;
 
+	DirectX::BoundingSphere mSceneBounds;
+
 	float mLightNearZ = 0.0f;
 	float mLightFarZ = 0.0f;
 	XMFLOAT3 mLightPosW;
 	XMFLOAT4X4 mLightView = MathHelper::Identity4x4();
 	XMFLOAT4X4 mLightProj = MathHelper::Identity4x4();
 	XMFLOAT4X4 mShadowTransform = MathHelper::Identity4x4();
+
+	float mLightRotationAngle = 0.0f;
+	XMFLOAT3 mBaseLightDirections[3] = {
+		XMFLOAT3(0.57735f, -0.57735f, 0.57735f),
+		XMFLOAT3(-0.57735f, -0.57735f, 0.57735f),
+		XMFLOAT3(0.0f, -0.707f, -0.707f)
+	};
+	XMFLOAT3 mRotatedLightDirections[3];
 
 
 };
