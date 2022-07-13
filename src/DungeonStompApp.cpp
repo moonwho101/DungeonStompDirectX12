@@ -694,7 +694,7 @@ void DungeonStompApp::DrawSceneToShadowMap(const GameTimer& gt)
 
 	// Bind the pass constant buffer for the shadow map pass.
 	auto passCB = mCurrFrameResource->PassCB->Resource();
-	D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() +1 * passCBByteSize;
+	D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
 	mCommandList->SetGraphicsRootConstantBufferView(1, passCBAddress);
 
 	mCommandList->SetPipelineState(mPSOs["shadow_opaque"].Get());
@@ -1285,7 +1285,7 @@ void DungeonStompApp::BuildFrameResources()
 	for (int i = 0; i < gNumFrameResources; ++i)
 	{
 		mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(),
-			1, (UINT)mAllRitems.size(), (UINT)mMaterials.size(), mDungeon->VertexCount()));
+			2, (UINT)mAllRitems.size(), (UINT)mMaterials.size(), mDungeon->VertexCount()));
 	}
 }
 
