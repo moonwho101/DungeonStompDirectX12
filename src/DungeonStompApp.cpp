@@ -198,7 +198,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 
 
 
-	mLightRotationAngle += 3.1f * gt.DeltaTime();
+	mLightRotationAngle += 0.1f * gt.DeltaTime();
 
 	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
 	for (int i = 0; i < 3; ++i)
