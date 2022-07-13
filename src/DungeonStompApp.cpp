@@ -407,7 +407,7 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 
 	XMStoreFloat4x4(&mView, view);
 
-	//mSceneBounds.Center = XMFLOAT3(mEyePos.x, mEyePos.y, mEyePos.z);
+	mSceneBounds.Center = XMFLOAT3(mEyePos.x, mEyePos.y, mEyePos.z);
 	
 }
 
@@ -1493,7 +1493,7 @@ void DungeonStompApp::BuildRenderItems()
 
 void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, const GameTimer& gt)
 {
-	ProcessLights11();
+	//ProcessLights11();
 
 	auto ri = ritems[2];
 
