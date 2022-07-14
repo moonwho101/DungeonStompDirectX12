@@ -198,7 +198,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 
 
 
-	//mLightRotationAngle += 0.1f * gt.DeltaTime();
+	mLightRotationAngle += 0.1f * gt.DeltaTime();
 
 	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
 	for (int i = 0; i < 3; ++i)
@@ -214,7 +214,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 	UpdateObjectCBs(gt);
 	UpdateMaterialCBs(gt);
 
-	UpdateShadowTransform(gt);
+	UpdateShadowTransform(gt,0);
 
 	UpdateMainPassCB(gt);
 
@@ -471,7 +471,7 @@ void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
 }
 
 
-void DungeonStompApp::UpdateShadowTransform(const GameTimer& gt)
+void DungeonStompApp::UpdateShadowTransform(const GameTimer& gt, int light)
 {
 	// Only the first "main" light casts a shadow.
 	XMVECTOR lightDir = XMLoadFloat3(&mRotatedLightDirections[0]);
