@@ -83,7 +83,7 @@ DungeonStompApp::DungeonStompApp(HINSTANCE hInstance)
 	mSceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	//mSceneBounds.Radius = sqrtf(110.0f * 110.0f + 115.0f * 115.0f);
 
-	float scale = 215.0f;
+	float scale = 1415.0f;
 	mSceneBounds.Radius = sqrtf((10.0f * 10.0f) * scale + (15.0f * 15.0f) * scale);
 
 }
@@ -198,7 +198,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 
 
 
-	mLightRotationAngle += 0.1f * gt.DeltaTime();
+	//mLightRotationAngle += 0.1f * gt.DeltaTime();
 
 	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
 	for (int i = 0; i < 3; ++i)
