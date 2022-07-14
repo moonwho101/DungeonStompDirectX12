@@ -198,7 +198,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 
 
 
-	//mLightRotationAngle += 0.1f * gt.DeltaTime();
+	mLightRotationAngle += 0.1f * gt.DeltaTime();
 
 	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
 	for (int i = 0; i < 3; ++i)
@@ -1511,34 +1511,34 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	DrawDungeon(cmdList, ritems, false, false, true);
 
 
-	//mCommandList->SetPipelineState(mPSOs["opaque"].Get());
-	////Draw dungeon, monsters and items without normal maps
-	//DrawDungeon(cmdList, ritems, false, false, false);
+	mCommandList->SetPipelineState(mPSOs["opaque"].Get());
+	//Draw dungeon, monsters and items without normal maps
+	DrawDungeon(cmdList, ritems, false, false, false);
 
 
-	//////Draw alpha transparent items
-	//mCommandList->SetPipelineState(mPSOs["transparent"].Get());
-	//DrawDungeon(cmdList, ritems, true);
+	////Draw alpha transparent items
+	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
+	DrawDungeon(cmdList, ritems, true);
 
-	////Draw the torches and effects
-	//mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
-	//DrawDungeon(cmdList, ritems, true, true);
+	//Draw the torches and effects
+	mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
+	DrawDungeon(cmdList, ritems, true, true);
 
-	////Draw the Monster Captions
-	//tex.Offset(377, mCbvSrvDescriptorSize);
-	//cmdList->SetGraphicsRootDescriptorTable(3, tex);
+	//Draw the Monster Captions
+	tex.Offset(377, mCbvSrvDescriptorSize);
+	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-	//cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	//for (int i = 0; i < displayCapture; i++) {
-	//	for (int j = 0; j < displayCaptureCount[i]; j++) {
-	//		cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
-	//	}
-	//}
+	for (int i = 0; i < displayCapture; i++) {
+		for (int j = 0; j < displayCaptureCount[i]; j++) {
+			cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
+		}
+	}
 
 	DisplayHud();
-	//SetDungeonText();
-	//ScanMod(gt.DeltaTime());
+	SetDungeonText();
+	ScanMod(gt.DeltaTime());
 
 	return;
 }
