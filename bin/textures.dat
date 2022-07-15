@@ -638,7 +638,7 @@ AddTexture  ..\Models\3ds\OrnateBox\metal20.dds
 Alias  213   metal20           OPAQUE  WHOLE  metal
 
 AddTexture  ..\Models\3ds\OrnateBox\chest2.dds
-Alias  214   chest2           OPAQUE  WHOLE  flat
+Alias  214   chest2           OPAQUE  WHOLE  wood
 
 AddTexture  ..\Models\3ds\Goblet\goblet.dds
 Alias  215   GOBLET           OPAQUE  WHOLE  wood
