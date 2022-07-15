@@ -182,6 +182,9 @@ float4 PS(VertexOut pin) : SV_Target
     float distToEye = length(toEyeW);
     toEyeW /= distToEye; // normalize
 
+    // Vector from point being lit to eye. 
+    float3 toEyeWNormal = normalize(gEyePosW - pin.PosW);
+
     // Light terms.
     float4 ambient = gAmbientLight * diffuseAlbedo;
 
@@ -189,12 +192,12 @@ float4 PS(VertexOut pin) : SV_Target
     Material mat = { diffuseAlbedo, gFresnelR0, shininess };
     float3 shadowFactor = 1.0f;
     float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
-        bumpedNormalW, toEyeW, shadowFactor);
+        bumpedNormalW, toEyeWNormal, shadowFactor);
 
     float4 litColor = ambient + directLight;
 
     // Add in specular reflections.
-    float3 r = reflect(-toEyeW, bumpedNormalW);
+    float3 r = reflect(-toEyeWNormal, bumpedNormalW);
     //float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
     float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
     litColor.rgb += shininess * fresnelFactor; // *reflectionColor.rgb;
