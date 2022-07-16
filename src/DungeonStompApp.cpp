@@ -198,7 +198,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 
 
 
-	mLightRotationAngle += 0.1f * gt.DeltaTime();
+	//mLightRotationAngle += 0.1f * gt.DeltaTime();
 
 	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
 	for (int i = 0; i < 3; ++i)
@@ -547,25 +547,23 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	//XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
 	//mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
 
+	for (int i = 0; i < MaxLights; i++) {
+		mMainPassCB.Lights[i].Direction = LightContainer[i].Direction;
+		mMainPassCB.Lights[i].Strength = LightContainer[i].Strength;
+		mMainPassCB.Lights[i].Position = LightContainer[i].Position;
+		mMainPassCB.Lights[i].FalloffEnd = LightContainer[i].FalloffEnd;
+		mMainPassCB.Lights[i].FalloffStart = LightContainer[i].FalloffStart;
+		mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
+	}
 
 	mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 	mMainPassCB.Lights[0].Direction = mRotatedLightDirections[0];
 	mMainPassCB.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };
-	mMainPassCB.Lights[1].Direction = mRotatedLightDirections[1];
-	mMainPassCB.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
-	mMainPassCB.Lights[2].Direction = mRotatedLightDirections[2];
-	mMainPassCB.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
+	//mMainPassCB.Lights[1].Direction = mRotatedLightDirections[1];
+	//mMainPassCB.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
+	//mMainPassCB.Lights[2].Direction = mRotatedLightDirections[2];
+	//mMainPassCB.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
 
-
-
-	//for (int i = 0; i < MaxLights; i++) {
-	//	mMainPassCB.Lights[i].Direction = LightContainer[i].Direction;
-	//	mMainPassCB.Lights[i].Strength = LightContainer[i].Strength;
-	//	mMainPassCB.Lights[i].Position = LightContainer[i].Position;
-	//	mMainPassCB.Lights[i].FalloffEnd = LightContainer[i].FalloffEnd;
-	//	mMainPassCB.Lights[i].FalloffStart = LightContainer[i].FalloffStart;
-	//	mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
-	//}
 
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
@@ -987,7 +985,7 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 		D3D12_BLEND_DESC rectangleBlendStateDesc = {};
 		rectangleBlendStateDesc.AlphaToCoverageEnable = FALSE;
 		rectangleBlendStateDesc.IndependentBlendEnable = FALSE;
-		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
+		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
 
 		rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
@@ -1493,7 +1491,7 @@ void DungeonStompApp::BuildRenderItems()
 
 void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, const GameTimer& gt)
 {
-	//ProcessLights11();
+	ProcessLights11();
 
 	auto ri = ritems[2];
 
