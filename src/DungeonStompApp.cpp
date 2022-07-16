@@ -556,10 +556,10 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 		mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
 	}
 
-	mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+	//mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 	mMainPassCB.Lights[0].Direction = mRotatedLightDirections[0];
 	//mMainPassCB.Lights[0].Strength = { 0.4f, 0.4f, 0.4f };
-	mMainPassCB.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };
+	//mMainPassCB.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };
 	//mMainPassCB.Lights[1].Direction = mRotatedLightDirections[1];
 	//mMainPassCB.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
 	//mMainPassCB.Lights[2].Direction = mRotatedLightDirections[2];
@@ -2180,8 +2180,8 @@ void DungeonStompApp::ProcessLights11()
 		int angle = (int)oblist[q].rot_angle;
 		int ob_type = oblist[q].type;
 		//LightContainer[i+1].Strength = { 1.5f, 1.5f, 1.5f };
-		LightContainer[i + 1].Strength = { 1.0f, 1.0f, 1.0f };
-		LightContainer[i+1].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 65.0f, oblist[q].z };
+		LightContainer[i].Strength = { 1.0f, 1.0f, 1.0f };
+		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 65.0f, oblist[q].z };
 	}
 
 	int count = 0;

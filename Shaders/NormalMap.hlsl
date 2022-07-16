@@ -6,7 +6,7 @@
 
 // Defaults for number of lights.
 #ifndef NUM_DIR_LIGHTS
-    #define NUM_DIR_LIGHTS 1
+    #define NUM_DIR_LIGHTS 0
 #endif
 
 #ifndef NUM_POINT_LIGHTS
@@ -14,7 +14,7 @@
 #endif
 
 #ifndef NUM_SPOT_LIGHTS
-    #define NUM_SPOT_LIGHTS 4
+    #define NUM_SPOT_LIGHTS 5
 #endif
 
 // Include structures and functions for lighting.
@@ -231,8 +231,8 @@ float4 PS(VertexOut pin) : SV_Target
     float result = CalcShadowFactor(pin.ShadowPosH);
 
     shadowFactor[0] = result;
-    shadowFactor[1] = result;
-    shadowFactor[2] = result;
+    //shadowFactor[1] = result;
+    //shadowFactor[2] = result;
 
 
     float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
