@@ -75,6 +75,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 DungeonStompApp::DungeonStompApp(HINSTANCE hInstance)
 	: D3DApp(hInstance)
 {
+
+	// Estimate the scene bounding sphere manually since we know how the scene was constructed.
+// The grid is the "widest object" with a width of 20 and depth of 30.0f, and centered at
+// the world space origin.  In general, you need to loop over every world space vertex
+// position and compute the bounding sphere.
+	mSceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	//mSceneBounds.Radius = sqrtf(110.0f * 110.0f + 115.0f * 115.0f);
+
+	float scale = 1415.0f;
+	mSceneBounds.Radius = sqrtf((10.0f * 10.0f) * scale + (15.0f * 15.0f) * scale);
+
 }
 
 DungeonStompApp::~DungeonStompApp()
@@ -97,9 +108,16 @@ bool DungeonStompApp::Initialize()
 
 	mDungeon = std::make_unique<Dungeon>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
 
+	mShadowMap = std::make_unique<ShadowMap>(md3dDevice.Get(), 2048, 2048);
+
 	LoadTextures();
 	BuildRootSignature();
+
+
 	BuildDescriptorHeaps();
+
+	
+
 	BuildShadersAndInputLayout();
 	BuildLandGeometry();
 	BuildDungeonGeometryBuffers();
@@ -109,7 +127,7 @@ bool DungeonStompApp::Initialize()
 	BuildFrameResources();
 	BuildPSOs();
 
-	LoadRRTextures11("textures.dat");
+	
 
 	InitDS();
 
@@ -178,10 +196,34 @@ void DungeonStompApp::Update(const GameTimer& gt)
 		CloseHandle(eventHandle);
 	}
 
+
+
+	//mLightRotationAngle += 0.1f * gt.DeltaTime();
+
+	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
+	for (int i = 0; i < 3; ++i)
+	{
+		XMVECTOR lightDir = XMLoadFloat3(&mBaseLightDirections[i]);
+		lightDir = XMVector3TransformNormal(lightDir, R);
+		XMStoreFloat3(&mRotatedLightDirections[i], lightDir);
+	}
+
+
+
+
 	UpdateObjectCBs(gt);
 	UpdateMaterialCBs(gt);
+
+	UpdateShadowTransform(gt,0);
+
 	UpdateMainPassCB(gt);
+
+	UpdateShadowPassCB(gt);
 	UpdateDungeon(gt);
+
+
+
+	
 }
 
 void DungeonStompApp::Draw(const GameTimer& gt)
@@ -195,6 +237,17 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
 	// Reusing the command list reuses memory.
 	ThrowIfFailed(mCommandList->Reset(cmdListAlloc.Get(), mPSOs["opaque"].Get()));
+
+	ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
+	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
+
+	// Bind null SRV for shadow map pass.
+	mCommandList->SetGraphicsRootDescriptorTable(5, mNullSrv); 
+
+
+	DrawSceneToShadowMap(gt);
 
 	mCommandList->RSSetViewports(1, &mScreenViewport);
 	mCommandList->RSSetScissorRects(1, &mScissorRect);
@@ -211,17 +264,20 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	// Specify the buffers we are going to render to.
 	mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
 
-	ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
-	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
+	
 
 	auto passCB = mCurrFrameResource->PassCB->Resource();
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
+
+
 	//opaque
-	mCommandList->SetPipelineState(mPSOs["opaque"].Get());
+	//mCommandList->SetPipelineState(mPSOs["opaque"].Get());
+
+	mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
+
 
 	//mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
 	//DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::AlphaTested]);
@@ -350,6 +406,9 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
 
 	XMStoreFloat4x4(&mView, view);
+
+	mSceneBounds.Center = XMFLOAT3(mEyePos.x, mEyePos.y, mEyePos.z);
+	
 }
 
 
@@ -412,6 +471,46 @@ void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
 }
 
 
+void DungeonStompApp::UpdateShadowTransform(const GameTimer& gt, int light)
+{
+	// Only the first "main" light casts a shadow.
+	XMVECTOR lightDir = XMLoadFloat3(&mRotatedLightDirections[0]);
+	XMVECTOR lightPos = -2.0f * mSceneBounds.Radius * lightDir;
+	XMVECTOR targetPos = XMLoadFloat3(&mSceneBounds.Center);
+	XMVECTOR lightUp = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	XMMATRIX lightView = XMMatrixLookAtLH(lightPos, targetPos, lightUp);
+
+	XMStoreFloat3(&mLightPosW, lightPos);
+
+	// Transform bounding sphere to light space.
+	XMFLOAT3 sphereCenterLS;
+	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView));
+
+	// Ortho frustum in light space encloses scene.
+	float l = sphereCenterLS.x - mSceneBounds.Radius;
+	float b = sphereCenterLS.y - mSceneBounds.Radius;
+	float n = sphereCenterLS.z - mSceneBounds.Radius;
+	float r = sphereCenterLS.x + mSceneBounds.Radius;
+	float t = sphereCenterLS.y + mSceneBounds.Radius;
+	float f = sphereCenterLS.z + mSceneBounds.Radius;
+
+	mLightNearZ = n;
+	mLightFarZ = f;
+	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
+
+	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
+	XMMATRIX T(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f);
+
+	XMMATRIX S = lightView * lightProj * T;
+	XMStoreFloat4x4(&mLightView, lightView);
+	XMStoreFloat4x4(&mLightProj, lightProj);
+	XMStoreFloat4x4(&mShadowTransform, S);
+}
+
 
 void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 {
@@ -423,12 +522,16 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
 	XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
 
+	XMMATRIX shadowTransform = XMLoadFloat4x4(&mShadowTransform);
+
 	XMStoreFloat4x4(&mMainPassCB.View, XMMatrixTranspose(view));
 	XMStoreFloat4x4(&mMainPassCB.InvView, XMMatrixTranspose(invView));
 	XMStoreFloat4x4(&mMainPassCB.Proj, XMMatrixTranspose(proj));
 	XMStoreFloat4x4(&mMainPassCB.InvProj, XMMatrixTranspose(invProj));
 	XMStoreFloat4x4(&mMainPassCB.ViewProj, XMMatrixTranspose(viewProj));
 	XMStoreFloat4x4(&mMainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+	XMStoreFloat4x4(&mMainPassCB.ShadowTransform, XMMatrixTranspose(shadowTransform));
+
 	mMainPassCB.EyePosW = mEyePos;
 	mMainPassCB.RenderTargetSize = XMFLOAT2((float)mClientWidth, (float)mClientHeight);
 	mMainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / mClientWidth, 1.0f / mClientHeight);
@@ -453,8 +556,48 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 		mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
 	}
 
+	//mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+	mMainPassCB.Lights[0].Direction = mRotatedLightDirections[0];
+	//mMainPassCB.Lights[0].Strength = { 0.4f, 0.4f, 0.4f };
+	//mMainPassCB.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };
+	//mMainPassCB.Lights[1].Direction = mRotatedLightDirections[1];
+	//mMainPassCB.Lights[1].Strength = { 0.4f, 0.4f, 0.4f };
+	//mMainPassCB.Lights[2].Direction = mRotatedLightDirections[2];
+	//mMainPassCB.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
+
+
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
+}
+
+
+void DungeonStompApp::UpdateShadowPassCB(const GameTimer& gt)
+{
+	XMMATRIX view = XMLoadFloat4x4(&mLightView);
+	XMMATRIX proj = XMLoadFloat4x4(&mLightProj);
+
+	XMMATRIX viewProj = XMMatrixMultiply(view, proj);
+	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
+	XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
+	XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
+
+	UINT w = mShadowMap->Width();
+	UINT h = mShadowMap->Height();
+
+	XMStoreFloat4x4(&mShadowPassCB.View, XMMatrixTranspose(view));
+	XMStoreFloat4x4(&mShadowPassCB.InvView, XMMatrixTranspose(invView));
+	XMStoreFloat4x4(&mShadowPassCB.Proj, XMMatrixTranspose(proj));
+	XMStoreFloat4x4(&mShadowPassCB.InvProj, XMMatrixTranspose(invProj));
+	XMStoreFloat4x4(&mShadowPassCB.ViewProj, XMMatrixTranspose(viewProj));
+	XMStoreFloat4x4(&mShadowPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+	mShadowPassCB.EyePosW = mLightPosW;
+	mShadowPassCB.RenderTargetSize = XMFLOAT2((float)w, (float)h);
+	mShadowPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / w, 1.0f / h);
+	mShadowPassCB.NearZ = mLightNearZ;
+	mShadowPassCB.FarZ = mLightFarZ;
+
+	auto currPassCB = mCurrFrameResource->PassCB.get();
+	currPassCB->CopyData(1, mShadowPassCB);
 }
 
 
@@ -502,22 +645,26 @@ void DungeonStompApp::BuildRootSignature()
 	CD3DX12_DESCRIPTOR_RANGE texTable1;
 	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0);
 
+	CD3DX12_DESCRIPTOR_RANGE texTable2;
+	texTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0);
+
 
 	// Root parameter can be a table, root descriptor or root constants.
-	CD3DX12_ROOT_PARAMETER slotRootParameter[5];
+	CD3DX12_ROOT_PARAMETER slotRootParameter[6];
 
 	// Create root CBV.
-	slotRootParameter[0].InitAsConstantBufferView(0);
-	slotRootParameter[1].InitAsConstantBufferView(1);
-	slotRootParameter[2].InitAsConstantBufferView(2);
-	slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
-	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
+	slotRootParameter[0].InitAsConstantBufferView(0);  //cbuffer cbPerObject : register(b0)
+	slotRootParameter[1].InitAsConstantBufferView(1);  //cbuffer cbMaterial : register(b1)
+	slotRootParameter[2].InitAsConstantBufferView(2);  //cbuffer cbPass : register(b2) X 2
+	slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gDiffuseMap : register(t0);
+	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gNormalMap : register(t1);
+	slotRootParameter[5].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gShadowMap : register(t2);
 
 
 	auto staticSamplers = GetStaticSamplers();
 
 	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(5, slotRootParameter,
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(6, slotRootParameter,
 		(UINT)staticSamplers.size(), staticSamplers.data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -540,8 +687,44 @@ void DungeonStompApp::BuildRootSignature()
 		IID_PPV_ARGS(mRootSignature.GetAddressOf())));
 }
 
+void DungeonStompApp::DrawSceneToShadowMap(const GameTimer& gt)
+{
+	mCommandList->RSSetViewports(1, &mShadowMap->Viewport());
+	mCommandList->RSSetScissorRects(1, &mShadowMap->ScissorRect());
 
-std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> DungeonStompApp::GetStaticSamplers()
+	// Change to DEPTH_WRITE.
+	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mShadowMap->Resource(),
+		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+
+	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
+
+	// Clear the back buffer and depth buffer.
+	mCommandList->ClearDepthStencilView(mShadowMap->Dsv(),
+		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+	// Set null render target because we are only going to draw to
+	// depth buffer.  Setting a null render target will disable color writes.
+	// Note the active PSO also must specify a render target count of 0.
+	mCommandList->OMSetRenderTargets(0, nullptr, false, &mShadowMap->Dsv());
+
+	// Bind the pass constant buffer for the shadow map pass.
+	auto passCB = mCurrFrameResource->PassCB->Resource();
+	D3D12_GPU_VIRTUAL_ADDRESS passCBAddress = passCB->GetGPUVirtualAddress() + 1 * passCBByteSize;
+	mCommandList->SetGraphicsRootConstantBufferView(2, passCBAddress);
+
+	mCommandList->SetPipelineState(mPSOs["shadow_opaque"].Get());
+
+	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
+
+	//DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
+
+	// Change back to GENERIC_READ so we can read the texture in a shader.
+	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mShadowMap->Resource(),
+		D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+}
+
+
+std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> DungeonStompApp::GetStaticSamplers()
 {
 	// Applications usually only need a handful of samplers.  So just define them all up front
 	// and keep them available as part of the root signature.  
@@ -592,10 +775,23 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 6> DungeonStompApp::GetStaticSampl
 		0.0f,                              // mipLODBias
 		8);                                // maxAnisotropy
 
+	const CD3DX12_STATIC_SAMPLER_DESC shadow(
+		6, // shaderRegister
+		D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressW
+		0.0f,                               // mipLODBias
+		16,                                 // maxAnisotropy
+		D3D12_COMPARISON_FUNC_LESS_EQUAL,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK);
+
 	return {
 		pointWrap, pointClamp,
 		linearWrap, linearClamp,
-		anisotropicWrap, anisotropicClamp };
+		anisotropicWrap, anisotropicClamp,
+		shadow
+	};
 }
 
 
@@ -630,6 +826,13 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 
 	mShaders["normalMapVS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["normalMapPS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", defines, "PS", "ps_5_1");
+
+	mShaders["shadowVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", nullptr, "VS", "vs_5_1");
+	mShaders["shadowOpaquePS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", nullptr, "PS", "ps_5_1");
+	mShaders["shadowAlphaTestedPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", alphaTestDefines, "PS", "ps_5_1");
+
+	mShaders["debugVS"] = d3dUtil::CompileShader(L"..\\Shaders\\ShadowDebug.hlsl", nullptr, "VS", "vs_5_1");
+	mShaders["debugPS"] = d3dUtil::CompileShader(L"..\\Shaders\\ShadowDebug.hlsl", nullptr, "PS", "ps_5_1");
 
 	// Text PSO
 	ID3DBlob* errorBuff; // a buffer holding the error data if any
@@ -783,7 +986,7 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 		D3D12_BLEND_DESC rectangleBlendStateDesc = {};
 		rectangleBlendStateDesc.AlphaToCoverageEnable = FALSE;
 		rectangleBlendStateDesc.IndependentBlendEnable = FALSE;
-		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
+		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
 
 		rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
@@ -957,6 +1160,50 @@ void DungeonStompApp::BuildPSOs()
 	opaquePsoDesc.DSVFormat = mDepthStencilFormat;
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
 
+	//
+	// PSO for shadow map pass.
+	//
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC smapPsoDesc = opaquePsoDesc;
+	smapPsoDesc.RasterizerState.DepthBias = 100000;
+	smapPsoDesc.RasterizerState.DepthBiasClamp = 0.0f;
+	smapPsoDesc.RasterizerState.SlopeScaledDepthBias = 1.0f;
+	smapPsoDesc.pRootSignature = mRootSignature.Get();
+	smapPsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["shadowVS"]->GetBufferPointer()),
+		mShaders["shadowVS"]->GetBufferSize()
+	};
+	smapPsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["shadowOpaquePS"]->GetBufferPointer()),
+		mShaders["shadowOpaquePS"]->GetBufferSize()
+	};
+
+	// Shadow map pass does not have a render target.
+	smapPsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
+	smapPsoDesc.NumRenderTargets = 0;
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&smapPsoDesc, IID_PPV_ARGS(&mPSOs["shadow_opaque"])));
+
+
+	//
+	// PSO for debug layer.
+	//
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC debugPsoDesc = opaquePsoDesc;
+	debugPsoDesc.pRootSignature = mRootSignature.Get();
+	debugPsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["debugVS"]->GetBufferPointer()),
+		mShaders["debugVS"]->GetBufferSize()
+	};
+	debugPsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["debugPS"]->GetBufferPointer()),
+		mShaders["debugPS"]->GetBufferSize()
+	};
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&debugPsoDesc, IID_PPV_ARGS(&mPSOs["debug"])));
+
+
+
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC normalMapPsoDesc;
 
@@ -1053,7 +1300,7 @@ void DungeonStompApp::BuildFrameResources()
 	for (int i = 0; i < gNumFrameResources; ++i)
 	{
 		mFrameResources.push_back(std::make_unique<FrameResource>(md3dDevice.Get(),
-			1, (UINT)mAllRitems.size(), (UINT)mMaterials.size(), mDungeon->VertexCount()));
+			2, (UINT)mAllRitems.size(), (UINT)mMaterials.size(), mDungeon->VertexCount()));
 	}
 }
 
@@ -1258,7 +1505,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	tex.Offset(1, mCbvSrvDescriptorSize);
 	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-	mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
+	//mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 	//Draw dungeon, monsters and items with normal maps
 	DrawDungeon(cmdList, ritems, false, false, true);
 
@@ -1294,6 +1541,9 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	return;
 }
+
+
+
 
 
 void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch, bool normalMap) {
@@ -1367,12 +1617,19 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			//tex.Offset(385, mCbvSrvDescriptorSize);
 			cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
+			CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+			//tex2.Offset(386, mCbvSrvDescriptorSize);
+			tex3.Offset(476, mCbvSrvDescriptorSize);
+			cmdList->SetGraphicsRootDescriptorTable(5, tex3);
+
 			if (normalMap) {
 
 				CD3DX12_GPU_DESCRIPTOR_HANDLE tex2(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 				//tex2.Offset(386, mCbvSrvDescriptorSize);
 				tex2.Offset(normal_map_texture, mCbvSrvDescriptorSize);
 				cmdList->SetGraphicsRootDescriptorTable(4, tex2);
+
+
 			}
 
 			if (dp_command_index_mode[i] == 1 && TexMap[texture_alias_number].is_alpha_texture == isAlpha) {  //USE_NON_INDEXED_DP
@@ -1444,6 +1701,30 @@ void DungeonStompApp::LoadTextures()
 }
 
 
+
+void DungeonStompApp::CreateRtvAndDsvDescriptorHeaps()
+{
+	// Add +6 RTV for cube render target.
+	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
+	rtvHeapDesc.NumDescriptors = SwapChainBufferCount;
+	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	rtvHeapDesc.NodeMask = 0;
+	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
+		&rtvHeapDesc, IID_PPV_ARGS(mRtvHeap.GetAddressOf())));
+
+	// Add +1 DSV for shadow map.
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc;
+	dsvHeapDesc.NumDescriptors = 2;
+	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	dsvHeapDesc.NodeMask = 0;
+	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
+		&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
+}
+
+
+
 void DungeonStompApp::BuildDescriptorHeaps()
 {
 	//
@@ -1477,6 +1758,9 @@ void DungeonStompApp::BuildDescriptorHeaps()
 
 	srvDesc.Format = grassTex->GetDesc().Format;
 	md3dDevice->CreateShaderResourceView(grassTex.Get(), &srvDesc, hDescriptor);
+
+
+	LoadRRTextures11("textures.dat");
 
 
 	// create upload heap. We will fill this with data for our text
@@ -1513,6 +1797,42 @@ void DungeonStompApp::BuildDescriptorHeaps()
 		// map the resource heap to get a gpu virtual address to the beginning of the heap
 		hr = rectangleVertexBuffer[i]->Map(0, &readRange2, reinterpret_cast<void**>(&rectangleVBGPUAddress[i]));
 	}
+
+	int counttext = number_of_tex_aliases;
+
+
+	mSkyTexHeapIndex = (UINT)number_of_tex_aliases;
+	mShadowMapHeapIndex = mSkyTexHeapIndex + 1;
+
+	//mShadowMapHeapIndex = 3;
+
+	mNullCubeSrvIndex = mShadowMapHeapIndex + 1;
+	mNullTexSrvIndex = mNullCubeSrvIndex + 1;
+
+	//mShadowMapHeapIndex = 2;
+	auto srvCpuStart = mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	auto srvGpuStart = mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	auto dsvCpuStart = mDsvHeap->GetCPUDescriptorHandleForHeapStart();
+
+	//mNullCubeSrvIndex = 3;
+	auto nullSrv = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, mNullCubeSrvIndex, mCbvSrvUavDescriptorSize);
+	mNullSrv = CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, mNullCubeSrvIndex, mCbvSrvUavDescriptorSize);
+
+	md3dDevice->CreateShaderResourceView(nullptr, &srvDesc, nullSrv);
+	nullSrv.Offset(1, mCbvSrvUavDescriptorSize);
+
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+	md3dDevice->CreateShaderResourceView(nullptr, &srvDesc, nullSrv);
+
+
+	mShadowMap->BuildDescriptors(
+		CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, mShadowMapHeapIndex, mCbvSrvUavDescriptorSize),
+		CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, mShadowMapHeapIndex, mCbvSrvUavDescriptorSize),
+		CD3DX12_CPU_DESCRIPTOR_HANDLE(dsvCpuStart, 1, mDsvDescriptorSize));
 }
 
 
@@ -1859,7 +2179,8 @@ void DungeonStompApp::ProcessLights11()
 
 		int angle = (int)oblist[q].rot_angle;
 		int ob_type = oblist[q].type;
-		LightContainer[i].Strength = { 1.5f, 1.5f, 1.5f };
+		//LightContainer[i+1].Strength = { 1.5f, 1.5f, 1.5f };
+		LightContainer[i].Strength = { 1.0f, 1.0f, 1.0f };
 		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 65.0f, oblist[q].z };
 	}
 

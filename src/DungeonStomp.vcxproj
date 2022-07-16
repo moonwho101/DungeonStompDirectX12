@@ -167,6 +167,7 @@
     <ClCompile Include="Missle.cpp" />
     <ClCompile Include="ProcessModel.cpp" />
     <ClCompile Include="Dungeon.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="WAVFileReader.cpp" />
     <ClCompile Include="World.cpp" />
     <ClCompile Include="XAudio2BasicSound.cpp" />
@@ -196,6 +197,7 @@
     <ClInclude Include="Missle.hpp" />
     <ClInclude Include="ProcessModel.hpp" />
     <ClInclude Include="Dungeon.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="WAVFileReader.h" />
     <ClInclude Include="world.hpp" />
     <ClInclude Include="XAudio2Versions.h" />
@@ -246,6 +248,27 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Shaders\Shadows.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Shaders\ShadowDebug.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Shaders\Common.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
