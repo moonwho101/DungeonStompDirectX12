@@ -206,8 +206,9 @@ float4 PS(VertexOut pin) : SV_Target
 
     // Only the first light casts a shadow.
     float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
-    shadowFactor[0] = CalcShadowFactor(pin.ShadowPosH);
 
+    float result = CalcShadowFactor(pin.ShadowPosH);
+    shadowFactor[0] = result;
 
 
     float4 directLight = ComputeLighting(gLights, mat, pin.PosW,
