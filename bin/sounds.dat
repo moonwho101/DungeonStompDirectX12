@@ -126,4 +126,6 @@ MID	home		..\midi\home.wav
 MID	time2		..\midi\time2.wav
 MID	corvalis	..\midi\corvalis.wav
 MID	pizza	..\midi\pizza.wav
+MID	walkmid	..\midi\walkmid.wav
+MID	day	..\midi\day.wav
 END_FILE
