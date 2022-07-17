@@ -24,8 +24,6 @@ struct Material
 };
 
 
-
-
 float CalcAttenuation(float d, float falloffStart, float falloffEnd)
 {
     // Linear falloff.
