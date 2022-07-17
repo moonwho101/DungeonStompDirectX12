@@ -34,7 +34,7 @@ int displayCaptureIndex[1000];
 int displayCaptureCount[1000];
 int displayCapture = 0;
 
-int displayShadowMap = 1;
+int displayShadowMap = 0;
 
 
 struct gametext
