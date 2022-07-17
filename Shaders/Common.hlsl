@@ -68,7 +68,7 @@ cbuffer cbPass : register(b2)
     float4 gAmbientLight;
 
     // Allow application to change fog parameters once per frame.
-// For example, we may only use fog for certain times of day.
+    // For example, we may only use fog for certain times of day.
     float4 gFogColor;
     float gFogStart;
     float gFogRange;

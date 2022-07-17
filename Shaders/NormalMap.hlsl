@@ -24,7 +24,6 @@ struct VertexOut
     float2 TexC    : TEXCOORD;
 };
 
-
 VertexOut VS(VertexIn vin)
 {
     VertexOut vout = (VertexOut)0.0f;
@@ -35,7 +34,6 @@ VertexOut VS(VertexIn vin)
 
     // Assumes nonuniform scaling; otherwise, need to use inverse-transpose of world matrix.
     vout.NormalW = mul(vin.NormalL, (float3x3)gWorld);
-
     vout.TangentW = mul(vin.TangentU, (float3x3)gWorld);
 
     // Transform to homogeneous clip space.
