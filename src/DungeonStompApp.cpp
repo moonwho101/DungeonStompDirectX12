@@ -41,6 +41,8 @@ extern int number_of_polys_per_frame;
 extern int displayCaptureIndex[1000];
 extern int displayCaptureCount[1000];
 extern int displayCapture;
+extern int displayShadowMap;
+int displayShadowMapKeyPress =0;
 
 std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
 extern int number_of_tex_aliases;
@@ -364,6 +366,22 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 			player_list[trueplayernum].health = player_list[trueplayernum].hp;
 		}
 	}
+
+	if (GetAsyncKeyState('M') && !displayShadowMapKeyPress) {
+	
+		if (displayShadowMap)
+			displayShadowMap = 0;
+		else 
+			displayShadowMap = 1;
+	}
+	
+	if (GetAsyncKeyState('M')) {
+		displayShadowMapKeyPress = 1;
+	}
+	else {
+		displayShadowMapKeyPress = 0;
+	}
+
 }
 
 void DungeonStompApp::UpdateCamera(const GameTimer& gt)

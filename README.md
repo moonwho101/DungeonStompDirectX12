@@ -35,6 +35,7 @@ Happy Dungeon Stomping - Breeyark!
 * P - Random music
 * X - Give experience points
 * K - Give all weapons and spells
+* M - Shadow map texture
 * ] = Next Dungeon Level
 * [ = Previous Dungeon Level
 

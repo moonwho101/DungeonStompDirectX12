@@ -34,6 +34,8 @@ int displayCaptureIndex[1000];
 int displayCaptureCount[1000];
 int displayCapture = 0;
 
+int displayShadowMap = 1;
+
 
 struct gametext
 {
@@ -456,11 +458,13 @@ void DungeonStompApp::DisplayHud() {
 	diceTexture = FindTextureAlias(dice[1].name);
 	RenderRectangle(arialFont, 2, diceTexture, XMFLOAT2(0.525f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
-	diceTexture = FindTextureAlias(dice[1].name);
-	diceTexture = 476;
-	//RenderRectangle(arialFont, 2, diceTexture, XMFLOAT2(0.525f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
-	RenderRectangle(arialFont, 3, diceTexture, XMFLOAT2(0.75f, 0.55f), XMFLOAT2(7.00f, 7.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
+
+	if (displayShadowMap) {
+		diceTexture = 476;
+		//RenderRectangle(arialFont, 2, diceTexture, XMFLOAT2(0.525f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+		RenderRectangle(arialFont, 3, diceTexture, XMFLOAT2(0.75f, 0.55f), XMFLOAT2(7.00f, 7.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	}
 
 
 	//diceTexture = FindTextureAlias(dice[1].name);
