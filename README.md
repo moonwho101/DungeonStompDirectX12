@@ -9,6 +9,7 @@ Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 * Lighting uses blinn-phong pixel shaders.
 * DDS Texture mipmaps
 * Normal map textures
+* Shadow Maps
 * Fog, Alpha transparency and Alpha testing
 * XBOX game controller is supported.
 * Used "Introduction to 3D Game Programming with DirectX 12" by Frank Luna as a reference.
@@ -74,4 +75,4 @@ Dungeon Stomp would not have been possible without the amazing MD2 models made b
 * Wraith [ Author: Burnt Kona ]
 
 
-![Dungeon Stomp](../main/Textures/screenshot3.jpg)
+![Dungeon Stomp](../main/Textures/screenshot5.jpg)
