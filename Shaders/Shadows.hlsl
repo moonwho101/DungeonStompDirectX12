@@ -5,6 +5,15 @@
 // Include common HLSL code.
 #include "Common.hlsl"
 
+struct MaterialData
+{
+	float4   DiffuseAlbedo;
+	float3   FresnelR0;
+	float    Roughness;
+	float4x4 MatTransform;
+};
+
+
 struct VertexIn
 {
 	float3 PosL    : POSITION;
@@ -52,7 +61,7 @@ void PS(VertexOut pin)
     //uint diffuseMapIndex = matData.DiffuseMapIndex;
 	
 	// Dynamically look up the texture in the array.
-	diffuseAlbedo *= gTextureMap.Sample(gsamAnisotropicWrap, pin.TexC);
+	diffuseAlbedo *= gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
 
 #ifdef ALPHA_TEST
     // Discard pixel if texture alpha < 0.1.  We do this test as soon 
