@@ -414,7 +414,7 @@ void InitDS()
 	strcpy_s(gActionMessage, "WASD to move. Press Q and Z to cycle weapons.");
 	UpdateScrollList(0, 255, 255);
 
-	strcpy_s(gActionMessage, "I=Music K=Weapons X=Experience P=Song G=Gravity (use + -).");
+	strcpy_s(gActionMessage, "I=Music K=Weapons X=Experience P=Song G=Gravity (+ -) M=ShadowMap.");
 	UpdateScrollList(0, 255, 255);
 
 	strcpy_s(gActionMessage, "Maximize screen then ALT+ENTER for Fullscreen. [=LevelUp ]=LevelDown");
