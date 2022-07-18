@@ -1431,6 +1431,21 @@ Alias  474  missle4_nm           OPAQUE  WHOLE  default
 AddTexture  ..\textures\yellowtile1_nm.dds
 Alias  475   yellowtile1_nm           OPAQUE  WHOLE  brick
 
+AddTexture  ..\textures\ik_concr1_nm.dds
+Alias  476   ik_concr1_nm           OPAQUE  WHOLE  stone
+
+AddTexture  ..\textures\temple3_nm.dds
+Alias  477   temple3_nm           OPAQUE  WHOLE  brick
+
+AddTexture  ..\textures\zoo1_nm.dds
+Alias  478   zoo1_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\brbrik3_nm.dds
+Alias  479   brbrik3_nm           OPAQUE  WHOLE  brick
+
+AddTexture  ..\textures\mossybri_nm.dds
+Alias  480   mossybri_nm           OPAQUE  WHOLE  brick
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
