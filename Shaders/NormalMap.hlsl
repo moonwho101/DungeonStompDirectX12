@@ -43,6 +43,9 @@ VertexOut VS(VertexIn vin)
     float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform);
     vout.TexC = mul(texC, gMatTransform).xy;
 
+    //float4x4 worldShadowTransform = mul(gWorld, gShadowTransform);  // normal-offset approach
+    //vout.ShadowPosH = mul(float4(vin.PosL + (vin.NormalL * 0.1f), 1.0f), worldShadowTransform);
+
     // Generate projective tex-coords to project shadow map onto scene.
     vout.ShadowPosH = mul(posW, gShadowTransform);
 
