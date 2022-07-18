@@ -1612,23 +1612,18 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			tex.Offset(texture_number, mCbvSrvDescriptorSize);
-			//tex.Offset(385, mCbvSrvDescriptorSize);
-			cmdList->SetGraphicsRootDescriptorTable(3, tex);
+			tex.Offset(texture_number, mCbvSrvDescriptorSize);  
+			cmdList->SetGraphicsRootDescriptorTable(3, tex); //Set the gDiffuseMap
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			//tex2.Offset(386, mCbvSrvDescriptorSize);
-			tex3.Offset(476, mCbvSrvDescriptorSize);
-			cmdList->SetGraphicsRootDescriptorTable(5, tex3);
+			//tex2.Offset(476, mCbvSrvDescriptorSize);
+			tex3.Offset(477, mCbvSrvDescriptorSize); 
+			cmdList->SetGraphicsRootDescriptorTable(5, tex3); //Set the gShadowMap
 
 			if (normalMap) {
-
 				CD3DX12_GPU_DESCRIPTOR_HANDLE tex2(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-				//tex2.Offset(386, mCbvSrvDescriptorSize);
 				tex2.Offset(normal_map_texture, mCbvSrvDescriptorSize);
-				cmdList->SetGraphicsRootDescriptorTable(4, tex2);
-
-
+				cmdList->SetGraphicsRootDescriptorTable(4, tex2); //Set the gNormalMap
 			}
 
 			if (dp_command_index_mode[i] == 1 && TexMap[texture_alias_number].is_alpha_texture == isAlpha) {  //USE_NON_INDEXED_DP

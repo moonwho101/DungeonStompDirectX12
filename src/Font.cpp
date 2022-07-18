@@ -17,6 +17,7 @@ using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
+extern int number_of_tex_aliases;
 extern int textcounter;
 extern char gfinaltext[2048];
 int numCharacters = 0;
@@ -461,11 +462,11 @@ void DungeonStompApp::DisplayHud() {
 
 
 	if (displayShadowMap) {
-		diceTexture = 476;
+		diceTexture = number_of_tex_aliases +1;
 		//RenderRectangle(arialFont, 2, diceTexture, XMFLOAT2(0.525f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 		RenderRectangle(arialFont, 3, diceTexture, XMFLOAT2(0.75f, 0.55f), XMFLOAT2(7.00f, 7.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 	}
-
+	
 
 	//diceTexture = FindTextureAlias(dice[1].name);
 	//RenderRectangle(arialFont, 3, diceTexture, XMFLOAT2(0.625f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));

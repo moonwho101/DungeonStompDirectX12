@@ -1428,6 +1428,9 @@ Alias  473  missle3_nm           OPAQUE  WHOLE  default
 AddTexture  ..\textures\missle4_nm.dds
 Alias  474  missle4_nm           OPAQUE  WHOLE  default
 
+AddTexture  ..\textures\yellowtile1_nm.dds
+Alias  475   yellowtile1_nm           OPAQUE  WHOLE  brick
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
