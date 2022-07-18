@@ -1617,7 +1617,7 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 			//tex2.Offset(476, mCbvSrvDescriptorSize);
-			tex3.Offset(477, mCbvSrvDescriptorSize); 
+			tex3.Offset(number_of_tex_aliases + 1, mCbvSrvDescriptorSize);
 			cmdList->SetGraphicsRootDescriptorTable(5, tex3); //Set the gShadowMap
 
 			if (normalMap) {

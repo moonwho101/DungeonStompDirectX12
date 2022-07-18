@@ -1446,6 +1446,9 @@ Alias  479   brbrik3_nm           OPAQUE  WHOLE  brick
 AddTexture  ..\textures\mossybri_nm.dds
 Alias  480   mossybri_nm           OPAQUE  WHOLE  brick
 
+AddTexture  ..\textures\redbrick1_nm.dds
+Alias  481   redbrick1_nm           OPAQUE  WHOLE  brick
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
