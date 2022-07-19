@@ -22,6 +22,8 @@
 Texture2D    gDiffuseMap : register(t0);
 Texture2D    gNormalMap : register(t1);
 Texture2D    gShadowMap : register(t2);
+TextureCube gCubeMap : register(t4);
+
 
 
 SamplerState gsamPointWrap        : register(s0);
