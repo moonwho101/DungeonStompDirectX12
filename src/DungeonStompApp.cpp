@@ -124,7 +124,7 @@ bool DungeonStompApp::Initialize()
 	BuildLandGeometry();
 	BuildDungeonGeometryBuffers();
 	BuildMaterials();
-	BuildRenderItems();
+	//BuildRenderItems();
 	BuildRenderItems();
 	BuildFrameResources();
 	BuildPSOs();
@@ -1547,7 +1547,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 {
 	ProcessLights11();
 
-	auto ri = ritems[2];
+	auto ri = ritems[0];
 
 	cmdList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
 	cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
@@ -1601,7 +1601,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch, bool normalMap) {
 
-	auto ri = ritems[2];
+	auto ri = ritems[0];
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 	UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
