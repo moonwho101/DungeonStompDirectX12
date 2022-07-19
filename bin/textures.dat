@@ -1457,6 +1457,10 @@ Alias  483   eye_nm           OPAQUE  WHOLE  wood
 
 AddTexture  ..\textures\grass2_nm.dds
 Alias  484   grass2_nm           OPAQUE  WHOLE  grass
+
+AddTexture  ..\textures\skymap\desertcube1024.dds
+Alias  485   desertcube1024           OPAQUE  WHOLE  flat
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **

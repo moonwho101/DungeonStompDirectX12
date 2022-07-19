@@ -216,5 +216,8 @@
     <Text Include="..\Shaders\Common.hlsl">
       <Filter>Shaders</Filter>
     </Text>
+    <Text Include="..\Shaders\Sky.hlsl">
+      <Filter>Shaders</Filter>
+    </Text>
   </ItemGroup>
 </Project>

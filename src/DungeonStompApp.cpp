@@ -849,6 +849,9 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	mShaders["shadowOpaquePS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", nullptr, "PS", "ps_5_1");
 	mShaders["shadowAlphaTestedPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", alphaTestDefines, "PS", "ps_5_1");
 
+	mShaders["skyVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Sky.hlsl", nullptr, "VS", "vs_5_1");
+	mShaders["skyPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Sky.hlsl", nullptr, "PS", "ps_5_1");
+
 
 	// Text PSO
 	ID3DBlob* errorBuff; // a buffer holding the error data if any
@@ -1292,6 +1295,34 @@ void DungeonStompApp::BuildPSOs()
 	};
 	torchPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&torchPsoDesc, IID_PPV_ARGS(&mPSOs["torchTested"])));
+
+
+	//
+	// PSO for sky.
+	//
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = opaquePsoDesc;
+
+	// The camera is inside the sky sphere, so just turn off culling.
+	skyPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+
+	// Make sure the depth function is LESS_EQUAL and not just LESS.  
+	// Otherwise, the normalized depth values at z = 1 (NDC) will 
+	// fail the depth test if the depth buffer was cleared to 1.
+	skyPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	skyPsoDesc.pRootSignature = mRootSignature.Get();
+	skyPsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["skyVS"]->GetBufferPointer()),
+		mShaders["skyVS"]->GetBufferSize()
+	};
+	skyPsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["skyPS"]->GetBufferPointer()),
+		mShaders["skyPS"]->GetBufferSize()
+	};
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&mPSOs["sky"])));
+
+
 }
 
 void DungeonStompApp::BuildFrameResources()
@@ -1791,6 +1822,23 @@ void DungeonStompApp::BuildDescriptorHeaps()
 		// map the resource heap to get a gpu virtual address to the beginning of the heap
 		hr = rectangleVertexBuffer[i]->Map(0, &readRange2, reinterpret_cast<void**>(&rectangleVBGPUAddress[i]));
 	}
+
+	//auto skyCubeMap = mTextures["skyCubeMap"]->Resource;
+	auto skyCubeMap = mTextures["desertcube1024"]->Resource;
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDescSkyMap = {};
+	srvDescSkyMap.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDescSkyMap.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDescSkyMap.Texture2D.MostDetailedMip = 0;
+	srvDescSkyMap.Texture2D.ResourceMinLODClamp = 0.0f;
+	srvDescSkyMap.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+	srvDescSkyMap.TextureCube.MostDetailedMip = 0;
+	srvDescSkyMap.TextureCube.MipLevels = skyCubeMap->GetDesc().MipLevels;
+	srvDescSkyMap.TextureCube.ResourceMinLODClamp = 0.0f;
+	srvDescSkyMap.Format = skyCubeMap->GetDesc().Format;
+	md3dDevice->CreateShaderResourceView(skyCubeMap.Get(), &srvDescSkyMap, hDescriptor);
+
+
 
 	int counttext = number_of_tex_aliases;
 
