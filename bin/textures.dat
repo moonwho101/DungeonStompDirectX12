@@ -1297,7 +1297,7 @@ AddTexture  ..\textures\egypt\eceiling1_nm.dds
 Alias  431   eceiling1_nm           OPAQUE  WHOLE  tile
 
 AddTexture  ..\textures\egypt\efloor_nm.dds
-Alias  432   efloor_nm           OPAQUE  WHOLE  tile
+Alias  432   efloor1_nm           OPAQUE  WHOLE  tile
 
 AddTexture  ..\textures\egypt\efloor2_nm.dds
 Alias  433   efloor2_nm           OPAQUE  WHOLE  tile
@@ -1449,6 +1449,14 @@ Alias  480   mossybri_nm           OPAQUE  WHOLE  brick
 AddTexture  ..\textures\redbrick1_nm.dds
 Alias  481   redbrick1_nm           OPAQUE  WHOLE  brick
 
+AddTexture  ..\textures\redtile1_nm.dds
+Alias  482   redtile1_nm           OPAQUE  WHOLE  brick
+
+AddTexture  ..\textures\eye_nm.dds
+Alias  483   eye_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\grass2_nm.dds
+Alias  484   grass2_nm           OPAQUE  WHOLE  grass
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
