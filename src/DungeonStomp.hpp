@@ -182,9 +182,10 @@ private:
 
 	float mLightRotationAngle = 0.0f;
 	XMFLOAT3 mBaseLightDirections[3] = {
-		XMFLOAT3(0.57735f, -0.57735f, 0.57735f),
+		XMFLOAT3(0.0f, -0.707f, -0.707f),
 		XMFLOAT3(-0.57735f, -0.57735f, 0.57735f),
-		XMFLOAT3(0.0f, -0.707f, -0.707f)
+		XMFLOAT3(0.57735f, -0.57735f, 0.57735f)
+
 	};
 	XMFLOAT3 mRotatedLightDirections[3];
 
