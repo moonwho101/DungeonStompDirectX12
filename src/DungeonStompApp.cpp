@@ -669,7 +669,7 @@ void DungeonStompApp::BuildRootSignature()
 	texTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0);
 
 	CD3DX12_DESCRIPTOR_RANGE texTable3;
-	texTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 3, 0);
+	texTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 3, 0);
 
 
 	// Root parameter can be a table, root descriptor or root constants.
@@ -1306,27 +1306,44 @@ void DungeonStompApp::BuildPSOs()
 	//
 	// PSO for sky.
 	//
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC skyPsoDesc = opaquePsoDesc;
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC cubePsoDesc;
+	ZeroMemory(&cubePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+	cubePsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
+	cubePsoDesc.pRootSignature = mRootSignature.Get();
+	cubePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	cubePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	cubePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	cubePsoDesc.SampleMask = UINT_MAX;
+	cubePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	cubePsoDesc.NumRenderTargets = 1;
+	cubePsoDesc.RTVFormats[0] = mBackBufferFormat;
+	cubePsoDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
+	cubePsoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+	cubePsoDesc.DSVFormat = mDepthStencilFormat;
+
 
 	// The camera is inside the sky sphere, so just turn off culling.
-	skyPsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+	cubePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
 
 	// Make sure the depth function is LESS_EQUAL and not just LESS.  
 	// Otherwise, the normalized depth values at z = 1 (NDC) will 
 	// fail the depth test if the depth buffer was cleared to 1.
-	skyPsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	skyPsoDesc.pRootSignature = mRootSignature.Get();
-	skyPsoDesc.VS =
+	cubePsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	cubePsoDesc.pRootSignature = mRootSignature.Get();
+	cubePsoDesc.VS =
 	{
 		reinterpret_cast<BYTE*>(mShaders["skyVS"]->GetBufferPointer()),
 		mShaders["skyVS"]->GetBufferSize()
 	};
-	skyPsoDesc.PS =
+	cubePsoDesc.PS =
 	{
 		reinterpret_cast<BYTE*>(mShaders["skyPS"]->GetBufferPointer()),
 		mShaders["skyPS"]->GetBufferSize()
 	};
-	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&skyPsoDesc, IID_PPV_ARGS(&mPSOs["sky"])));
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&cubePsoDesc, IID_PPV_ARGS(&mPSOs["sky"])));
+
+
 
 
 }
@@ -1834,7 +1851,7 @@ void DungeonStompApp::BuildDescriptorHeaps()
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDescSkyMap = {};
 	srvDescSkyMap.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDescSkyMap.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	//srvDescSkyMap.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDescSkyMap.Texture2D.MostDetailedMip = 0;
 	srvDescSkyMap.Texture2D.ResourceMinLODClamp = 0.0f;
 	srvDescSkyMap.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
@@ -1849,7 +1866,7 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	int counttext = number_of_tex_aliases;
 
 
-	mSkyTexHeapIndex = (UINT)number_of_tex_aliases;
+	mSkyTexHeapIndex = (UINT)485;
 	mShadowMapHeapIndex = mSkyTexHeapIndex + 1;
 
 	//mShadowMapHeapIndex = 3;
@@ -1948,6 +1965,11 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 			{
 				exists = false;
 			}
+
+			if (strcmp(p, "desertcube1024") == 0) {
+				int a = 1;
+			}
+
 
 			auto currentTex = std::make_unique<Texture>();
 			currentTex->Name = p;
