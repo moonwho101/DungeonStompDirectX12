@@ -1039,38 +1039,10 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 		hr = md3dDevice->CreateGraphicsPipelineState(&rectanglepsoDesc, IID_PPV_ARGS(&rectanglePSO[i]));
 	}
 }
-
 void DungeonStompApp::BuildLandGeometry()
 {
 	GeometryGenerator geoGen;
-	GeometryGenerator::MeshData grid = geoGen.CreateGrid(160.0f, 160.0f, 50, 50);
-	GeometryGenerator::MeshData sphere = geoGen.CreateSphere(0.5f, 20, 20);
-
-	//
-// We are concatenating all the geometry into one big vertex/index buffer.  So
-// define the regions in the buffer each submesh covers.
-//
-
-// Cache the vertex offsets to each object in the concatenated vertex buffer.
-	
-	UINT gridVertexOffset = (UINT)0;
-	UINT sphereVertexOffset = gridVertexOffset + (UINT)grid.Vertices.size();
-
-	// Cache the starting index for each object in the concatenated index buffer.
-	UINT gridIndexOffset = 0;
-	UINT sphereIndexOffset = gridIndexOffset + (UINT)grid.Indices32.size();
-
-
-	SubmeshGeometry gridSubmesh;
-	gridSubmesh.IndexCount = (UINT)grid.Indices32.size();
-	gridSubmesh.StartIndexLocation = gridIndexOffset;
-	gridSubmesh.BaseVertexLocation = gridVertexOffset;
-
-	SubmeshGeometry sphereSubmesh;
-	sphereSubmesh.IndexCount = (UINT)sphere.Indices32.size();
-	sphereSubmesh.StartIndexLocation = sphereIndexOffset;
-	sphereSubmesh.BaseVertexLocation = sphereVertexOffset;
-
+	GeometryGenerator::MeshData grid = geoGen.CreateSphere(0.5f, 20, 20);
 
 	//
 	// Extract the vertex elements we are interested and apply the height function to
@@ -1078,61 +1050,27 @@ void DungeonStompApp::BuildLandGeometry()
 	// sandy looking beaches, grassy low hills, and snow mountain peaks.
 	//
 
-	//std::vector<Vertex> vertices(grid.Vertices.size());
-
-
-	auto totalVertexCount = grid.Vertices.size() +
-		sphere.Vertices.size();
-
-	std::vector<Vertex> vertices(totalVertexCount);
-
-	int k = 0;
-
-	for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
+	std::vector<Vertex> vertices(grid.Vertices.size());
+	for (size_t i = 0; i < grid.Vertices.size(); ++i)
 	{
-		vertices[k].Pos = grid.Vertices[i].Position;
-		vertices[k].Normal = grid.Vertices[i].Normal;
-		vertices[k].TexC = grid.Vertices[i].TexC;
-		vertices[k].TangentU = grid.Vertices[i].TangentU;
+		//auto& p = grid.Vertices[i].Position;
+		//vertices[i].Pos = p;
+		//vertices[i].Pos.y = GetHillsHeight(p.x, p.z);
+		//vertices[i].Normal = GetHillsNormal(p.x, p.z);
+		vertices[i].Pos = grid.Vertices[i].Position;
+		vertices[i].Normal = grid.Vertices[i].Normal;
+		vertices[i].TexC = grid.Vertices[i].TexC;
 	}
 
-	for (size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
-	{
-		vertices[k].Pos = sphere.Vertices[i].Position;
-		vertices[k].Normal = sphere.Vertices[i].Normal;
-		vertices[k].TexC = sphere.Vertices[i].TexC;
-		vertices[k].TangentU = sphere.Vertices[i].TangentU;
-	}
-
-
-	//for (size_t i = 0; i < grid.Vertices.size(); ++i)
-	//{
-	//	auto& p = grid.Vertices[i].Position;
-	//	vertices[i].Pos = p;
-	//	vertices[i].Pos.y = GetHillsHeight(p.x, p.z);
-	//	vertices[i].Normal = GetHillsNormal(p.x, p.z);
-	//}
-
-	//for (size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
-	//{
-	//	vertices[k].Pos = sphere.Vertices[i].Position;
-	//	vertices[k].Normal = sphere.Vertices[i].Normal;
-	//	vertices[k].TexC = sphere.Vertices[i].TexC;
-	//	vertices[k].TangentU = sphere.Vertices[i].TangentU;
-	//}
 	
-
-	//const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-	std::vector<std::uint16_t> indices = grid.GetIndices16();
-	//const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-
+	
 	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
+	std::vector<std::uint16_t> indices = grid.GetIndices16();
+	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
 	auto geo = std::make_unique<MeshGeometry>();
 	geo->Name = "landGeo";
-
 
 	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
 	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
@@ -1151,13 +1089,12 @@ void DungeonStompApp::BuildLandGeometry()
 	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
 	geo->IndexBufferByteSize = ibByteSize;
 
-	//SubmeshGeometry submesh;
-	//submesh.IndexCount = (UINT)indices.size();
-	//submesh.StartIndexLocation = 0;
-	//submesh.BaseVertexLocation = 0;
+	SubmeshGeometry submesh;
+	submesh.IndexCount = (UINT)indices.size();
+	submesh.StartIndexLocation = 0;
+	submesh.BaseVertexLocation = 0;
 
-	geo->DrawArgs["grid"] = gridSubmesh;
-	geo->DrawArgs["sphere"] = sphereSubmesh;
+	geo->DrawArgs["grid"] = submesh;
 
 	mGeometries["landGeo"] = std::move(geo);
 }
@@ -1218,6 +1155,34 @@ void DungeonStompApp::BuildDungeonGeometryBuffers()
 
 	mGeometries["waterGeo"] = std::move(geo);
 }
+
+void DungeonStompApp::DrawRenderItemsFL(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
+{
+	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+
+	auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+
+	// For each render item...
+	for (size_t i = 0; i < ritems.size(); ++i)
+	{
+		auto ri = ritems[i];
+
+		cmdList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
+		cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
+		cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
+
+		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
+
+		cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+
+		CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		tex3.Offset(485, mCbvSrvDescriptorSize);
+		cmdList->SetGraphicsRootDescriptorTable(6, tex3); //Set the gShadowMap
+
+		cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+	}
+}
+
 
 void DungeonStompApp::BuildPSOs()
 {
@@ -1604,7 +1569,7 @@ void DungeonStompApp::BuildRenderItems()
 	gridRitem->StartIndexLocation = gridRitem->Geo->DrawArgs["grid"].StartIndexLocation;
 	gridRitem->BaseVertexLocation = gridRitem->Geo->DrawArgs["grid"].BaseVertexLocation;
 
-	mRitemLayer[(int)RenderLayer::Opaque].push_back(gridRitem.get());
+	mRitemLayer[(int)RenderLayer::Transparent].push_back(gridRitem.get());
 
 	mAllRitems.push_back(std::move(dungeonRitem));
 	mAllRitems.push_back(std::move(gridRitem));
@@ -1635,6 +1600,13 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	DrawDungeon(cmdList, ritems, false, false, false);
 
 
+
+
+	mCommandList->SetPipelineState(mPSOs["sky"].Get());
+	DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Transparent]);
+
+
+
 	////Draw alpha transparent items
 	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
 	DrawDungeon(cmdList, ritems, true);
@@ -1654,6 +1626,9 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 			cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
 		}
 	}
+
+
+
 
 	DisplayHud();
 	SetDungeonText();
@@ -1737,7 +1712,6 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			cmdList->SetGraphicsRootDescriptorTable(3, tex); //Set the gDiffuseMap
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			//tex2.Offset(476, mCbvSrvDescriptorSize);
 			tex3.Offset(number_of_tex_aliases + 1, mCbvSrvDescriptorSize);
 			cmdList->SetGraphicsRootDescriptorTable(5, tex3); //Set the gShadowMap
 

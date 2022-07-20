@@ -43,7 +43,8 @@ enum class RenderLayer : int
 	Opaque = 0,
 	Transparent,
 	AlphaTested,
-	Count
+	Count,
+	Sky
 };
 
 class DungeonStompApp : public D3DApp
@@ -87,6 +88,8 @@ private:
 	void BuildDescriptorHeaps();
 	BOOL LoadRRTextures11(char* filename);
 	void ProcessLights11();
+
+	void DrawRenderItemsFL(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
 	//void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	void RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
 	void RenderRectangle(Font font, int index, int textureid, XMFLOAT2 pos, XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f), XMFLOAT2 padding = XMFLOAT2(0.5f, 0.0f), XMFLOAT4 color = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f));
