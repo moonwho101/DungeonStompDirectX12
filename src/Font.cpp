@@ -461,11 +461,11 @@ void DungeonStompApp::DisplayHud() {
 
 
 
-	//if (displayShadowMap) {
-		diceTexture = 485 ;
+	if (displayShadowMap) {
+		diceTexture = 487 ;
 		//RenderRectangle(arialFont, 2, diceTexture, XMFLOAT2(0.525f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 		RenderRectangle(arialFont, 3, diceTexture, XMFLOAT2(0.75f, 0.55f), XMFLOAT2(7.00f, 7.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
-	//}
+	}
 	
 
 	//diceTexture = FindTextureAlias(dice[1].name);
