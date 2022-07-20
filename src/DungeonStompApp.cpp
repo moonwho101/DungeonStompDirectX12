@@ -558,8 +558,8 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.TotalTime = gt.TotalTime();
 	mMainPassCB.DeltaTime = gt.DeltaTime();
 	//mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.25f, 1.0f };
-	//mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
-	mMainPassCB.AmbientLight = { 0.00f, 0.00f, 0.00f, 0.00f };
+	mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
+	//mMainPassCB.AmbientLight = { 0.00f, 0.00f, 0.00f, 0.00f };
 
 	//XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
 	//XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
@@ -1104,25 +1104,28 @@ void DungeonStompApp::BuildDungeonGeometryBuffers()
 	std::vector<std::uint16_t> indices(3 * mDungeon->TriangleCount()); // 3 indices per face
 	assert(mDungeon->VertexCount() < 0x0000ffff);
 
-	// Iterate over each quad.
-	int m = mDungeon->RowCount();
-	int n = mDungeon->ColumnCount();
-	int k = 0;
-	for (int i = 0; i < m - 1; ++i)
-	{
-		for (int j = 0; j < n - 1; ++j)
-		{
-			indices[k] = i * n + j;
-			indices[k + 1] = i * n + j + 1;
-			indices[k + 2] = (i + 1) * n + j;
+	//// Iterate over each quad.
+	//int m = mDungeon->RowCount();
+	//int n = mDungeon->ColumnCount();
+	//int k = 0;
+	//for (int i = 0; i < m - 1; ++i)
+	//{
+	//	for (int j = 0; j < n - 1; ++j)
+	//	{
+	//		indices[k] = i * n + j;
+	//		indices[k + 1] = i * n + j + 1;
+	//		indices[k + 2] = (i + 1) * n + j;
 
-			indices[k + 3] = (i + 1) * n + j;
-			indices[k + 4] = i * n + j + 1;
-			indices[k + 5] = (i + 1) * n + j + 1;
+	//		indices[k + 3] = (i + 1) * n + j;
+	//		indices[k + 4] = i * n + j + 1;
+	//		indices[k + 5] = (i + 1) * n + j + 1;
 
-			k += 6; // next quad
-		}
-	}
+	//		k += 6; // next quad
+	//	}
+	//}
+
+
+	
 
 	//UINT vbByteSize = mDungeon->VertexCount() * sizeof(Vertex);
 	UINT vbByteSize = MAX_NUM_QUADS * sizeof(Vertex);
@@ -1159,13 +1162,21 @@ void DungeonStompApp::BuildDungeonGeometryBuffers()
 void DungeonStompApp::DrawRenderItemsFL(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
 {
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
 
 	auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+	auto matCB = mCurrFrameResource->MaterialCB->Resource();
+	CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	tex3.Offset(484, mCbvSrvDescriptorSize);
+	cmdList->SetGraphicsRootDescriptorTable(6, tex3); //Set the gShadowMap
+
+
+	//auto ri = ritems[1];
 
 	// For each render item...
-	for (size_t i = 0; i < ritems.size(); ++i)
-	{
-		auto ri = ritems[i];
+	//for (size_t i = 0; i < ritems.size(); ++i)
+	//{
+		auto ri = ritems[1];
 
 		cmdList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
 		cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
@@ -1173,14 +1184,18 @@ void DungeonStompApp::DrawRenderItemsFL(ID3D12GraphicsCommandList* cmdList, cons
 
 		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
 
+		UINT materialIndex = mMaterials["flat"].get()->MatCBIndex;
+
+
+		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + materialIndex * matCBByteSize;
+		
+
 		cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+		cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
-		CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-		tex3.Offset(485, mCbvSrvDescriptorSize);
-		cmdList->SetGraphicsRootDescriptorTable(6, tex3); //Set the gShadowMap
-
+		
 		cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
-	}
+	//}
 }
 
 
@@ -1546,6 +1561,8 @@ void DungeonStompApp::BuildMaterials()
 void DungeonStompApp::BuildRenderItems()
 {
 	auto dungeonRitem = std::make_unique<RenderItem>();
+
+
 	dungeonRitem->World = MathHelper::Identity4x4();
 	dungeonRitem->ObjCBIndex = 0;
 	dungeonRitem->Mat = mMaterials["water"].get();
@@ -1561,6 +1578,11 @@ void DungeonStompApp::BuildRenderItems()
 
 	auto gridRitem = std::make_unique<RenderItem>();
 	gridRitem->World = MathHelper::Identity4x4();
+	
+	
+	//XMStoreFloat4x4(&gridRitem->World, XMMatrixScaling(5000.0f, 5000.0f, 5000.0f));
+
+
 	gridRitem->ObjCBIndex = 1;
 	gridRitem->Mat = mMaterials["grass"].get();
 	gridRitem->Geo = mGeometries["landGeo"].get();
@@ -1569,7 +1591,7 @@ void DungeonStompApp::BuildRenderItems()
 	gridRitem->StartIndexLocation = gridRitem->Geo->DrawArgs["grid"].StartIndexLocation;
 	gridRitem->BaseVertexLocation = gridRitem->Geo->DrawArgs["grid"].BaseVertexLocation;
 
-	mRitemLayer[(int)RenderLayer::Transparent].push_back(gridRitem.get());
+	mRitemLayer[(int)RenderLayer::Opaque].push_back(gridRitem.get());
 
 	mAllRitems.push_back(std::move(dungeonRitem));
 	mAllRitems.push_back(std::move(gridRitem));
@@ -1603,7 +1625,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 
 	mCommandList->SetPipelineState(mPSOs["sky"].Get());
-	DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Transparent]);
+	DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 
 
 
@@ -2007,9 +2029,6 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 				exists = false;
 			}
 
-			if (strcmp(p, "desertcube1024") == 0) {
-				int a = 1;
-			}
 
 
 			auto currentTex = std::make_unique<Texture>();
@@ -2041,6 +2060,19 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 			srvDesc.Texture2D.MostDetailedMip = 0;
 			srvDesc.Texture2D.MipLevels = currentTex->Resource->GetDesc().MipLevels;
 			srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+			if (strcmp(p, "desertcube1024") == 0) {
+
+				srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+				srvDesc.TextureCube.MostDetailedMip = 0;
+				srvDesc.TextureCube.MipLevels = currentTex->Resource->GetDesc().MipLevels;
+				srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+				srvDesc.Format = currentTex->Resource->GetDesc().Format;
+			}
+			else {
+
+			}
+
 
 			srvDesc.Format = currentTex->Resource->GetDesc().Format;
 			md3dDevice->CreateShaderResourceView(currentTex->Resource.Get(), &srvDesc, hDescriptor);
