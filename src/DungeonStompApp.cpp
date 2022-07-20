@@ -1622,8 +1622,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	DrawDungeon(cmdList, ritems, false, false, false);
 
 
-	mCommandList->SetPipelineState(mPSOs["sky"].Get());
-	DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 
 
 
@@ -1647,6 +1645,8 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		}
 	}
 
+	mCommandList->SetPipelineState(mPSOs["sky"].Get());
+	DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 
 
 
