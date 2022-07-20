@@ -558,8 +558,8 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.TotalTime = gt.TotalTime();
 	mMainPassCB.DeltaTime = gt.DeltaTime();
 	//mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.25f, 1.0f };
-	mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
-	//mMainPassCB.AmbientLight = { 0.00f, 0.00f, 0.00f, 0.00f };
+	//mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
+	mMainPassCB.AmbientLight = { 0.00f, 0.00f, 0.00f, 0.00f };
 
 	//XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
 	//XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
@@ -1622,8 +1622,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	DrawDungeon(cmdList, ritems, false, false, false);
 
 
-
-
 	mCommandList->SetPipelineState(mPSOs["sky"].Get());
 	DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 
@@ -1929,7 +1927,7 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	int counttext = number_of_tex_aliases;
 
 
-	mSkyTexHeapIndex = (UINT)485;
+	mSkyTexHeapIndex = (UINT)number_of_tex_aliases;
 	mShadowMapHeapIndex = mSkyTexHeapIndex + 1;
 
 	//mShadowMapHeapIndex = 3;
