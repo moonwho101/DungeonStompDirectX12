@@ -9,6 +9,7 @@ Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 * Lighting uses blinn-phong pixel shaders.
 * DDS Texture mipmaps
 * Normal map textures
+* Cube Maps (Skybox)
 * Shadow Maps
 * Fog, Alpha transparency and Alpha testing
 * XBOX game controller is supported.
