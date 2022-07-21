@@ -1719,7 +1719,7 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			draw = false;
 		}
 
-		if (currentObject >= playerObjectStart && currentObject <= playerObjectEnd && !drawingShadowMap) {
+		if (currentObject >= playerObjectStart && currentObject < playerObjectEnd && !drawingShadowMap) {
 			draw = false;
 		}
 
