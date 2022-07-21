@@ -78,7 +78,8 @@ extern int src_collide[MAX_NUM_VERTICES];
 extern LEVELMOD* levelmodify;
 extern SWITCHMOD* switchmodify;
 float fDot2last = 0;
-
+int playerObjectStart = 0;
+int playerObjectEnd = 0;
 void PlaySong();
 void ComputeMissles();
 void DrawMissle();
@@ -491,6 +492,16 @@ void UpdateWorld(float fElapsedTime) {
 	DrawModel();
 	DrawItems();
 	DrawPlayerGun();
+
+
+
+
+	//PlayerToD3DVertList(player_list[trueplayernum].model_id,
+	//	player_list[trueplayernum].current_frame, angy,
+	//	player_list[trueplayernum].skin_tex_id,
+	//	0, player_list[trueplayernum].x + 200.0f, player_list[trueplayernum].y, player_list[trueplayernum].z);
+
+
 	MakeBoundingBox();
 
 	//TODO: fix this
@@ -520,6 +531,15 @@ void UpdateWorld(float fElapsedTime) {
 	}
 
 	num_light_sources = 0;
+
+	//Draw player model
+	playerObjectStart = number_of_polys_per_frame;
+	PlayerToD3DVertList(0,
+		player_list[trueplayernum].current_frame, player_list[trueplayernum].gunangle,
+		112,
+		0, player_list[trueplayernum].x, player_list[trueplayernum].y - 30.0f, player_list[trueplayernum].z);
+	playerObjectEnd = number_of_polys_per_frame;
+
 }
 
 

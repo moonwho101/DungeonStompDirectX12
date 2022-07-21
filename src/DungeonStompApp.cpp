@@ -43,6 +43,10 @@ extern int displayCaptureCount[1000];
 extern int displayCapture;
 extern int displayShadowMap;
 int displayShadowMapKeyPress =0;
+extern int playerObjectStart;
+extern int playerObjectEnd;
+
+bool drawingShadowMap = false;
 
 std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
 extern int number_of_tex_aliases;
@@ -738,8 +742,9 @@ void DungeonStompApp::DrawSceneToShadowMap(const GameTimer& gt)
 
 	mCommandList->SetPipelineState(mPSOs["shadow_opaque"].Get());
 
+	drawingShadowMap = true;
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
-
+	drawingShadowMap = false;
 	//DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 
 	// Change back to GENERIC_READ so we can read the texture in a shader.
@@ -1688,6 +1693,7 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 
 		draw = true;
 
+
 		if (isAlpha) {
 			if (texture_number >= 94 && texture_number <= 101 ||
 				texture_number >= 289 - 1 && texture_number <= 296 - 1 ||
@@ -1713,6 +1719,9 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			draw = false;
 		}
 
+		if (currentObject >= playerObjectStart && currentObject <= playerObjectEnd && !drawingShadowMap) {
+			draw = false;
+		}
 
 		if (draw) {
 
