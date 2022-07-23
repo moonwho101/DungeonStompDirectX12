@@ -62,9 +62,7 @@ float4 PS(VertexOut pin) : SV_Target
 #endif
 
 #ifdef TORCH_TEST
-    // Discard pixel if texture alpha < 0.1.  We do this test as soon 
-    // as possible in the shader so that we can potentially exit the
-    // shader early, thereby skipping the rest of the shader code.
+    // Make the torches bright by just returning the texture.
     return diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
 #endif
 

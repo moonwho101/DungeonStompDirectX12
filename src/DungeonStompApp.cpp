@@ -42,7 +42,7 @@ extern int displayCaptureIndex[1000];
 extern int displayCaptureCount[1000];
 extern int displayCapture;
 extern int displayShadowMap;
-int displayShadowMapKeyPress =0;
+int displayShadowMapKeyPress = 0;
 extern int playerObjectStart;
 extern int playerObjectEnd;
 
@@ -118,22 +118,14 @@ bool DungeonStompApp::Initialize()
 
 	LoadTextures();
 	BuildRootSignature();
-
-
 	BuildDescriptorHeaps();
-
-	
-
 	BuildShadersAndInputLayout();
 	BuildLandGeometry();
 	BuildDungeonGeometryBuffers();
 	BuildMaterials();
-	//BuildRenderItems();
 	BuildRenderItems();
 	BuildFrameResources();
 	BuildPSOs();
-
-	
 
 	InitDS();
 
@@ -180,8 +172,6 @@ void UpdateWorld(float fElapsedTime);
 void DungeonStompApp::Update(const GameTimer& gt)
 {
 	float t = gt.DeltaTime();
-
-	//ScanMod(t);
 	UpdateControls();
 	FrameMove(0.0f, t);
 	UpdateWorld(t);
@@ -202,10 +192,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 		CloseHandle(eventHandle);
 	}
 
-
-
 	//mLightRotationAngle += 0.1f * gt.DeltaTime();
-
 	XMMATRIX R = XMMatrixRotationY(mLightRotationAngle);
 	for (int i = 0; i < 3; ++i)
 	{
@@ -214,22 +201,13 @@ void DungeonStompApp::Update(const GameTimer& gt)
 		XMStoreFloat3(&mRotatedLightDirections[i], lightDir);
 	}
 
-
-
-
 	UpdateObjectCBs(gt);
 	UpdateMaterialCBs(gt);
-
-	UpdateShadowTransform(gt,0);
-
+	UpdateShadowTransform(gt, 0);
 	UpdateMainPassCB(gt);
-
 	UpdateShadowPassCB(gt);
 	UpdateDungeon(gt);
 
-
-
-	
 }
 
 void DungeonStompApp::Draw(const GameTimer& gt)
@@ -250,9 +228,9 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
 	// Bind null SRV for shadow map pass.
-	mCommandList->SetGraphicsRootDescriptorTable(5, mNullSrv); 
+	mCommandList->SetGraphicsRootDescriptorTable(5, mNullSrv);
 
-
+	//Render shadow map to texture.
 	DrawSceneToShadowMap(gt);
 
 	mCommandList->RSSetViewports(1, &mScreenViewport);
@@ -270,26 +248,12 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	// Specify the buffers we are going to render to.
 	mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
 
-
-	
-
 	auto passCB = mCurrFrameResource->PassCB->Resource();
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
-
-
-	//opaque
-	//mCommandList->SetPipelineState(mPSOs["opaque"].Get());
-
+	//Render the main scene
 	mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
-
-
-	//mCommandList->SetPipelineState(mPSOs["alphaTested"].Get());
-	//DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::AlphaTested]);
-
-	//mCommandList->SetPipelineState(mPSOs["transparent"].Get());
-	//DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Transparent]);
 
 	// Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -358,7 +322,7 @@ void DungeonStompApp::OnMouseMove(WPARAM btnState, int x, int y)
 	//}
 
 	//mLastMousePos.x = x;
-	//mLastMousePos.y = y;ssssss
+	//mLastMousePos.y = y;
 }
 
 void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
@@ -372,13 +336,13 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 	}
 
 	if (GetAsyncKeyState('M') && !displayShadowMapKeyPress) {
-	
+
 		if (displayShadowMap)
 			displayShadowMap = 0;
-		else 
+		else
 			displayShadowMap = 1;
 	}
-	
+
 	if (GetAsyncKeyState('M')) {
 		displayShadowMapKeyPress = 1;
 	}
@@ -430,7 +394,7 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	XMStoreFloat4x4(&mView, view);
 
 	mSceneBounds.Center = XMFLOAT3(mEyePos.x, mEyePos.y, mEyePos.z);
-	
+
 }
 
 
@@ -459,7 +423,6 @@ void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
 	}
 
 }
-
 
 
 
@@ -587,7 +550,6 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	//mMainPassCB.Lights[2].Direction = mRotatedLightDirections[2];
 	//mMainPassCB.Lights[2].Strength = { 0.2f, 0.2f, 0.2f };
 
-
 	auto currPassCB = mCurrFrameResource->PassCB.get();
 	currPassCB->CopyData(0, mMainPassCB);
 }
@@ -675,19 +637,17 @@ void DungeonStompApp::BuildRootSignature()
 	CD3DX12_DESCRIPTOR_RANGE texTable3;
 	texTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 3, 0);
 
-
 	// Root parameter can be a table, root descriptor or root constants.
 	CD3DX12_ROOT_PARAMETER slotRootParameter[rootItems];
 
 	// Create root CBV.
 	slotRootParameter[0].InitAsConstantBufferView(0);  //cbuffer cbPerObject : register(b0)
 	slotRootParameter[1].InitAsConstantBufferView(1);  //cbuffer cbMaterial : register(b1)
-	slotRootParameter[2].InitAsConstantBufferView(2);  //cbuffer cbPass : register(b2) X 2
+	slotRootParameter[2].InitAsConstantBufferView(2);  //cbuffer cbPass : register(b2) X 2 locations
 	slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gDiffuseMap : register(t0);
-	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gNormalMap : register(t1);
-	slotRootParameter[5].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gShadowMap : register(t2);
-	slotRootParameter[6].InitAsDescriptorTable(1, &texTable3, D3D12_SHADER_VISIBILITY_PIXEL);
-
+	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gNormalMap  : register(t1);
+	slotRootParameter[5].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gShadowMap  : register(t2);
+	slotRootParameter[6].InitAsDescriptorTable(1, &texTable3, D3D12_SHADER_VISIBILITY_PIXEL);  //TextureCube  gCubeMap    : register(t4);
 
 	auto staticSamplers = GetStaticSamplers();
 
@@ -1049,12 +1009,6 @@ void DungeonStompApp::BuildLandGeometry()
 	GeometryGenerator geoGen;
 	GeometryGenerator::MeshData grid = geoGen.CreateSphere(0.5f, 20, 20);
 
-	//
-	// Extract the vertex elements we are interested and apply the height function to
-	// each vertex.  In addition, color the vertices based on their height so we have
-	// sandy looking beaches, grassy low hills, and snow mountain peaks.
-	//
-
 	std::vector<Vertex> vertices(grid.Vertices.size());
 	for (size_t i = 0; i < grid.Vertices.size(); ++i)
 	{
@@ -1067,8 +1021,7 @@ void DungeonStompApp::BuildLandGeometry()
 		vertices[i].TexC = grid.Vertices[i].TexC;
 	}
 
-	
-	
+
 	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
 
 	std::vector<std::uint16_t> indices = grid.GetIndices16();
@@ -1129,9 +1082,6 @@ void DungeonStompApp::BuildDungeonGeometryBuffers()
 	//	}
 	//}
 
-
-	
-
 	//UINT vbByteSize = mDungeon->VertexCount() * sizeof(Vertex);
 	UINT vbByteSize = MAX_NUM_QUADS * sizeof(Vertex);
 	UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
@@ -1175,31 +1125,30 @@ void DungeonStompApp::DrawRenderItemsFL(ID3D12GraphicsCommandList* cmdList, cons
 	tex3.Offset(484, mCbvSrvDescriptorSize);
 	cmdList->SetGraphicsRootDescriptorTable(6, tex3); //Set the gShadowMap
 
-
 	//auto ri = ritems[1];
 
 	// For each render item...
 	//for (size_t i = 0; i < ritems.size(); ++i)
 	//{
-		auto ri = ritems[1];
+	auto ri = ritems[1];
 
-		cmdList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
-		cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
-		cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
+	cmdList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
+	cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
+	cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
 
-		D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
+	D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
 
-		UINT materialIndex = mMaterials["flat"].get()->MatCBIndex;
+	UINT materialIndex = mMaterials["flat"].get()->MatCBIndex;
 
 
-		D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + materialIndex * matCBByteSize;
-		
+	D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + materialIndex * matCBByteSize;
 
-		cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-		cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
-		
-		cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+	cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+	cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
+
+
+	cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
 	//}
 }
 
@@ -1260,9 +1209,6 @@ void DungeonStompApp::BuildPSOs()
 	smapPsoDesc.RTVFormats[0] = DXGI_FORMAT_UNKNOWN;
 	smapPsoDesc.NumRenderTargets = 0;
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&smapPsoDesc, IID_PPV_ARGS(&mPSOs["shadow_opaque"])));
-
-
-
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC normalMapPsoDesc;
@@ -1394,9 +1340,6 @@ void DungeonStompApp::BuildPSOs()
 		mShaders["skyPS"]->GetBufferSize()
 	};
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&cubePsoDesc, IID_PPV_ARGS(&mPSOs["sky"])));
-
-
-
 
 }
 
@@ -1531,7 +1474,7 @@ void DungeonStompApp::BuildMaterials()
 	tilebrown->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
 	tilebrown->Roughness = 0.32f;
 
-	
+
 	auto monster = std::make_unique<Material>();
 	monster->Name = "monster";
 	monster->MatCBIndex = 14;
@@ -1583,8 +1526,8 @@ void DungeonStompApp::BuildRenderItems()
 
 	auto gridRitem = std::make_unique<RenderItem>();
 	gridRitem->World = MathHelper::Identity4x4();
-	
-	
+
+
 	//XMStoreFloat4x4(&gridRitem->World, XMMatrixScaling(5000.0f, 5000.0f, 5000.0f));
 
 
@@ -1621,14 +1564,9 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	//Draw dungeon, monsters and items with normal maps
 	DrawDungeon(cmdList, ritems, false, false, true);
 
-
 	mCommandList->SetPipelineState(mPSOs["opaque"].Get());
 	//Draw dungeon, monsters and items without normal maps
 	DrawDungeon(cmdList, ritems, false, false, false);
-
-
-
-
 
 	////Draw alpha transparent items
 	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
@@ -1653,17 +1591,12 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	mCommandList->SetPipelineState(mPSOs["sky"].Get());
 	DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 
-
-
 	DisplayHud();
 	SetDungeonText();
 	ScanMod(gt.DeltaTime());
 
 	return;
 }
-
-
-
 
 
 void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch, bool normalMap) {
@@ -1693,7 +1626,6 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 
 		draw = true;
 
-
 		if (isAlpha) {
 			if (texture_number >= 94 && texture_number <= 101 ||
 				texture_number >= 289 - 1 && texture_number <= 296 - 1 ||
@@ -1715,7 +1647,7 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			//normal_map_texture = 1;
 		}
 
-		if (!normalMap  && normal_map_texture  != -1 ) {
+		if (!normalMap && normal_map_texture != -1) {
 			draw = false;
 		}
 
@@ -1737,7 +1669,7 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			tex.Offset(texture_number, mCbvSrvDescriptorSize);  
+			tex.Offset(texture_number, mCbvSrvDescriptorSize);
 			cmdList->SetGraphicsRootDescriptorTable(3, tex); //Set the gDiffuseMap
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
@@ -1819,7 +1751,6 @@ void DungeonStompApp::LoadTextures()
 }
 
 
-
 void DungeonStompApp::CreateRtvAndDsvDescriptorHeaps()
 {
 	// Add +6 RTV for cube render target.
@@ -1840,7 +1771,6 @@ void DungeonStompApp::CreateRtvAndDsvDescriptorHeaps()
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
 		&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
 }
-
 
 
 void DungeonStompApp::BuildDescriptorHeaps()
@@ -1882,7 +1812,7 @@ void DungeonStompApp::BuildDescriptorHeaps()
 
 
 	// create upload heap. We will fill this with data for our text
-	
+
 	HRESULT hr = md3dDevice->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
 		D3D12_HEAP_FLAG_NONE, // no flags
@@ -1899,7 +1829,6 @@ void DungeonStompApp::BuildDescriptorHeaps()
 
 	for (int i = 0; i < MaxRectangle; ++i)
 	{
-
 		// create upload heap. We will fill this with data for our text
 		hr = md3dDevice->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD), // upload heap
@@ -1931,25 +1860,18 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	srvDescSkyMap.Format = skyCubeMap->GetDesc().Format;
 	md3dDevice->CreateShaderResourceView(skyCubeMap.Get(), &srvDescSkyMap, hDescriptor);
 
-
-
 	int counttext = number_of_tex_aliases;
-
 
 	mSkyTexHeapIndex = (UINT)number_of_tex_aliases;
 	mShadowMapHeapIndex = mSkyTexHeapIndex + 1;
 
-	//mShadowMapHeapIndex = 3;
-
 	mNullCubeSrvIndex = mShadowMapHeapIndex + 1;
 	mNullTexSrvIndex = mNullCubeSrvIndex + 1;
 
-	//mShadowMapHeapIndex = 2;
 	auto srvCpuStart = mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	auto srvGpuStart = mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
 	auto dsvCpuStart = mDsvHeap->GetCPUDescriptorHandleForHeapStart();
 
-	//mNullCubeSrvIndex = 3;
 	auto nullSrv = CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, mNullCubeSrvIndex, mCbvSrvUavDescriptorSize);
 	mNullSrv = CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, mNullCubeSrvIndex, mCbvSrvUavDescriptorSize);
 
@@ -1962,7 +1884,6 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	srvDesc.Texture2D.MipLevels = 1;
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	md3dDevice->CreateShaderResourceView(nullptr, &srvDesc, nullSrv);
-
 
 	mShadowMap->BuildDescriptors(
 		CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, mShadowMapHeapIndex, mCbvSrvUavDescriptorSize),
@@ -2016,7 +1937,7 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 		{
 			fscanf_s(fp, "%s", &p, 256);
 			//remember the file
-			strcpy_s(f,256, p);
+			strcpy_s(f, 256, p);
 			tex_counter++;
 		}
 
@@ -2252,7 +2173,7 @@ void DungeonStompApp::SetTextureNormalMap() {
 		sprintf_s(junk, "%s_nm", TexMap[i].tex_alias_name);
 
 		int normalmap = -1;
-		
+
 		for (int j = 0; j < number_of_tex_aliases; j++) {
 			if (strstr(TexMap[j].tex_alias_name, "_nm") != 0) {
 
