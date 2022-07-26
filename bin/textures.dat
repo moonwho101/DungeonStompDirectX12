@@ -1461,13 +1461,6 @@ Alias  484   grass2_nm           OPAQUE  WHOLE  grass
 AddTexture  ..\textures\skymap\desertcube1024.dds
 Alias  485   desertcube1024           OPAQUE  WHOLE  flat
 
-AddTexture  ..\textures\normalmap\brick8.dds
-Alias  486   brick8           OPAQUE  WHOLE  flat
-
-AddTexture  ..\textures\normalmap\brick8_nm.dds
-Alias  487   brick8_nm           OPAQUE  WHOLE  grass
-
-
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
