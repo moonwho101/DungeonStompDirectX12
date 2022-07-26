@@ -449,7 +449,7 @@ void DungeonStompApp::DisplayHud() {
 	//RenderText(arialFont, charToWChar(junk), XMFLOAT2(-0.45f, 0.35f), XMFLOAT2(34.00f, 34.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 	RenderRectangle(arialFont, 0, 355, XMFLOAT2(0.02f, 0.74f), XMFLOAT2(6.00f, 6.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
-	MakeDamageDice();
+	
 	SetDiceTexture(false);
 
 	int diceTexture = FindTextureAlias(dice[0].name);

@@ -69,6 +69,7 @@ MSOUNDLIST slist[500];
 
 CLoadWorld* pCWorld;
 int load_level(char* filename);
+void MakeDamageDice();
 /*
 struct doors
 {
@@ -2043,7 +2044,7 @@ int load_game(char* filename)
 		usespell = 0;
 	}
 
-	//MakeDamageDice();
+	
 
 	fread(&countswitches, sizeof(int), 1, fp);
 	for (montry = 0; montry < countswitches; montry++)
@@ -2063,12 +2064,15 @@ int load_game(char* filename)
 
 	fclose(fp);
 
+	MakeDamageDice();
+
 	return 1;
 	//}
 	//return 0;
 }
 
 void ClearObjectList();
+
 
 int load_level(char* filename)
 {
