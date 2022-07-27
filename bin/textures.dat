@@ -991,7 +991,7 @@ AddTexture  ..\textures\barrel\woodf.dds
 Alias  329   woodf           OPAQUE  WHOLE  wood
 
 AddTexture  ..\textures\barrel\rust.dds
-Alias  330   rust           OPAQUE  WHOLE  metal
+Alias  330   rust           OPAQUE  WHOLE  wood
 
 AddTexture  ..\textures\box1.dds
 Alias  331   box1           AlphaTransparent  WHOLE  default
