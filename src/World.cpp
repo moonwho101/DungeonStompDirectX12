@@ -7,6 +7,7 @@
 #include "GameLogic.hpp"
 #include "Missle.hpp"
 
+int endc = 0;
 
 //TODO: fix
 float wWidth = 1;
@@ -454,6 +455,9 @@ void UpdateWorld(float fElapsedTime) {
 		CheckMidiMusic();
 	}
 
+
+
+
 	for (int q = 0; q < oblist_length; q++)
 	{
 		int angle = (int)oblist[q].rot_angle;
@@ -482,6 +486,8 @@ void UpdateWorld(float fElapsedTime) {
 			}
 		}
 	}
+
+	endc = cnt;
 
 	FreeSlave();
 	ApplyMissleDamage(1);

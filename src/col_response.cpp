@@ -244,7 +244,7 @@ XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity)
 
 	return collideWithWorld(newP, newV);
 }
-
+extern int endc;
 void ObjectCollision()
 {
 
@@ -268,7 +268,11 @@ void ObjectCollision()
 
 	vertnum = verts_per_poly[vertcount];
 
-	for (i = 0; i < g_ob_vert_count; i++)
+	vertnum = 3;
+
+	int test = endc / 3;
+
+	for (i = 0; i < endc; i++)
 	{
 		if (count == 0 && src_collide[i] == 1)
 		{
@@ -299,7 +303,7 @@ void ObjectCollision()
 			{
 				calculate_block_location();
 			}
-			if (vertnum == 4)
+			/*if (vertnum == 4)
 			{
 				mxc[0] = src_v[i + 1].x;
 				myc[0] = src_v[i + 1].y;
@@ -324,14 +328,15 @@ void ObjectCollision()
 
 				if (qdist < collisiondist)
 					calculate_block_location();
-			}
+			}*/
 		}
 		count++;
 		if (count > vertnum - 1)
 		{
 			count = 0;
-			vertcount++;
-			vertnum = verts_per_poly[vertcount];
+			//vertcount++;
+			//vertnum = verts_per_poly[vertcount];
+			vertnum = 3;
 		}
 	}
 
@@ -339,7 +344,7 @@ void ObjectCollision()
 	count = 0;
 
 	count = 0;
-	vertnum = 4;
+	vertnum = 3;
 
 	for (i = 0; i < countboundingbox; i++)
 	{
@@ -373,7 +378,7 @@ void ObjectCollision()
 			if (qdist < collisiondist + 200.0f)
 				calculate_block_location();
 
-			if (vertnum == 4)
+		/*	if (vertnum == 4)
 			{
 				mxc[0] = boundingbox[i + 1].x;
 				myc[0] = boundingbox[i + 1].y;
@@ -398,10 +403,10 @@ void ObjectCollision()
 
 				if (qdist < collisiondist + 200.0f)
 					calculate_block_location();
-			}
+			}*/
 		}
 		count++;
-		if (count > vertnum - 1)
+		if (count > vertnum )
 		{
 			count = 0;
 		}

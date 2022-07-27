@@ -223,6 +223,12 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 		zaveragedist = 0.0f;
 		int ctext;
 
+		int fan_cnt = -1;
+
+		//if (p_command == D3DPT_TRIANGLEFAN) {
+		fan_cnt = cnt;
+
+
 		if (strstr(oblist[oblist_index].name, "!") != NULL)
 		{
 			ObjectsToDraw[number_of_polys_per_frame].texture = oblist[oblist_index].monstertexture;
@@ -451,8 +457,10 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 		dp_command_index_mode[number_of_polys_per_frame] = USE_NON_INDEXED_DP;
 		number_of_polys_per_frame++;
 
-		if ((poly_command == D3DPT_TRIANGLESTRIP) || (poly_command == D3DPT_TRIANGLEFAN))
+		if ((poly_command == D3DPT_TRIANGLESTRIP) || (poly_command == D3DPT_TRIANGLEFAN)) {
+			ConvertTraingleStrip(fan_cnt);
 			num_triangles_in_scene += (num_vert - 2);
+		}
 
 		if (poly_command == D3DPT_TRIANGLELIST)
 			num_triangles_in_scene += (num_vert / 3);
