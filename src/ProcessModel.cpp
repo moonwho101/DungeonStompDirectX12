@@ -455,18 +455,28 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 
 		dp_commands[number_of_polys_per_frame] = poly_command;
 		dp_command_index_mode[number_of_polys_per_frame] = USE_NON_INDEXED_DP;
-		number_of_polys_per_frame++;
+		
 
 		if ((poly_command == D3DPT_TRIANGLESTRIP) || (poly_command == D3DPT_TRIANGLEFAN)) {
 			ConvertTraingleStrip(fan_cnt);
 
+			//dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
+
 			dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
+
+			if (num_vert > 3) {
+				num_vert = (num_vert - 3) * 3;
+				verts_per_poly[number_of_polys_per_frame] = (num_vert + 3);
+			}
+
+
+
 			num_triangles_in_scene += (num_vert - 2);
 		}
-
+		
 		if (poly_command == D3DPT_TRIANGLELIST)
 			num_triangles_in_scene += (num_vert / 3);
-
+		number_of_polys_per_frame++;
 		num_verts_in_scene += num_vert;
 		num_dp_commands_in_scene++;
 

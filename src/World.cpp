@@ -546,8 +546,6 @@ void UpdateWorld(float fElapsedTime) {
 
 	num_light_sources = 0;
 
-	
-
 }
 
 
