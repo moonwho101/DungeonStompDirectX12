@@ -344,7 +344,7 @@ void ObjectCollision()
 	count = 0;
 
 	count = 0;
-	vertnum = 3;
+	vertnum = 4;
 
 	for (i = 0; i < countboundingbox; i++)
 	{
@@ -378,7 +378,7 @@ void ObjectCollision()
 			if (qdist < collisiondist + 200.0f)
 				calculate_block_location();
 
-		/*	if (vertnum == 4)
+			if (vertnum == 4)
 			{
 				mxc[0] = boundingbox[i + 1].x;
 				myc[0] = boundingbox[i + 1].y;
@@ -403,10 +403,10 @@ void ObjectCollision()
 
 				if (qdist < collisiondist + 200.0f)
 					calculate_block_location();
-			}*/
+			}
 		}
 		count++;
-		if (count > vertnum )
+		if (count > vertnum -1 )
 		{
 			count = 0;
 		}
