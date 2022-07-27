@@ -991,7 +991,7 @@ AddTexture  ..\textures\barrel\woodf.dds
 Alias  329   woodf           OPAQUE  WHOLE  wood
 
 AddTexture  ..\textures\barrel\rust.dds
-Alias  330   rust           OPAQUE  WHOLE  brick
+Alias  330   rust           OPAQUE  WHOLE  metal
 
 AddTexture  ..\textures\box1.dds
 Alias  331   box1           AlphaTransparent  WHOLE  default
@@ -1473,7 +1473,11 @@ Alias  488   rock09           OPAQUE  WHOLE  stone
 AddTexture  ..\textures\normalmap\rock09_nm.dds
 Alias  489   rock09_nm           OPAQUE  WHOLE  stone
 
+AddTexture  ..\textures\barrel\rust_nm.dds
+Alias  490   rust_nm           OPAQUE  WHOLE  brick
 
+AddTexture  ..\textures\barrel\woodf_nm.dds
+Alias  491   woodf_nm           OPAQUE  WHOLE  wood
 
 END_FILE
 
