@@ -459,6 +459,8 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 
 		if ((poly_command == D3DPT_TRIANGLESTRIP) || (poly_command == D3DPT_TRIANGLEFAN)) {
 			ConvertTraingleStrip(fan_cnt);
+
+			dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
 			num_triangles_in_scene += (num_vert - 2);
 		}
 
