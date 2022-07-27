@@ -1467,6 +1467,14 @@ Alias  486   brick8           OPAQUE  WHOLE  brick
 AddTexture  ..\textures\normalmap\brick8_nm.dds
 Alias  487   brick8_nm           OPAQUE  WHOLE  brick
 
+AddTexture  ..\textures\normalmap\rock09.dds
+Alias  488   rock09           OPAQUE  WHOLE  stone
+
+AddTexture  ..\textures\normalmap\rock09_nm.dds
+Alias  489   rock09_nm           OPAQUE  WHOLE  stone
+
+
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
