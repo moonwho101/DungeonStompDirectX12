@@ -713,7 +713,7 @@ AddTexture  ..\Models\3ds\Stone\stones3.dds
 Alias  238 stones3           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\ruin1.dds
-Alias  239 ruin1           OPAQUE  WHOLE  stone
+Alias  239 ruin1           OPAQUE  WHOLE  wood
 
 AddTexture  ..\textures\a.dds
 Alias  240 ali           OPAQUE  WHOLE  default
@@ -1478,6 +1478,9 @@ Alias  490   rust_nm           OPAQUE  WHOLE  brick
 
 AddTexture  ..\textures\barrel\woodf_nm.dds
 Alias  491   woodf_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\ruin1_nm.dds
+Alias  492 ruin1_nm           OPAQUE  WHOLE  stone
 
 END_FILE
 
