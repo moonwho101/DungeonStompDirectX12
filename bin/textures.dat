@@ -1482,6 +1482,13 @@ Alias  491   woodf_nm           OPAQUE  WHOLE  wood
 AddTexture  ..\textures\ruin1_nm.dds
 Alias  492 ruin1_nm           OPAQUE  WHOLE  stone
 
+AddTexture  ..\textures\normalmap\cobblestone4.dds
+Alias  493   cobblestone4           OPAQUE  WHOLE  stone
+
+AddTexture  ..\textures\normalmap\cobblestone4_nm.dds
+Alias  494   cobblestone4_nm           OPAQUE  WHOLE  stone
+
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
