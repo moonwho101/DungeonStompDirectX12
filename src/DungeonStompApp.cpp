@@ -2355,8 +2355,8 @@ void DungeonStompApp::ProcessLights11()
 		}
 	}
 
-	if (dcount > 5) {
-		dcount = 5;
+	if (dcount > 10) {
+		dcount = 10;
 	}
 
 	for (int i = 0; i < dcount; i++)
