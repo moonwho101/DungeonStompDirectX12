@@ -1126,11 +1126,11 @@ void DungeonStompApp::DrawRenderItemsFL(ID3D12GraphicsCommandList* cmdList, cons
 	auto matCB = mCurrFrameResource->MaterialCB->Resource();
 
 
-	if (!gravityon || outside) {
-		CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-		tex3.Offset(484, mCbvSrvDescriptorSize);
-		cmdList->SetGraphicsRootDescriptorTable(6, tex3); //Set the gCubeMap
-	}
+	
+	CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	tex3.Offset(484, mCbvSrvDescriptorSize);
+	cmdList->SetGraphicsRootDescriptorTable(6, tex3); //Set the gCubeMap
+
 
 	//auto ri = ritems[1];
 
@@ -1595,8 +1595,10 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		}
 	}
 
-	mCommandList->SetPipelineState(mPSOs["sky"].Get());
-	DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
+	if (!gravityon || outside) {
+		mCommandList->SetPipelineState(mPSOs["sky"].Get());
+		DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
+	}
 
 	DisplayHud();
 	SetDungeonText();
