@@ -902,10 +902,10 @@ AddTexture  ..\textures\missle4.dds
 Alias  300  missle4           OPAQUE  WHOLE  default
 
 AddTexture  ..\Models\3ds\scroll\scroll1.dds
-Alias  301   scroll1           OPAQUE  WHOLE  bone
+Alias  301   scroll1           OPAQUE  WHOLE  default
 
 AddTexture  ..\Models\3ds\scroll\scroll2.dds
-Alias  302   scroll2           OPAQUE  WHOLE  bone
+Alias  302   scroll2           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\house1\housef.dds
 Alias  303   housef           OPAQUE  WHOLE  wood

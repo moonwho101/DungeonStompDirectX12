@@ -509,7 +509,7 @@ extern XMFLOAT3 GunTruesave;
 extern float wWidth;
 extern float wHeight;
 extern int objectcollide;
-
+extern int outside;
 
 
 

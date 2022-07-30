@@ -456,6 +456,11 @@ void UpdateWorld(float fElapsedTime) {
 	}
 
 
+	float distance = 1500.0f;
+
+	if (outside) {
+		distance = 3000.0f;
+	}
 
 
 	for (int q = 0; q < oblist_length; q++)
@@ -480,7 +485,7 @@ void UpdateWorld(float fElapsedTime) {
 				objectcollide = 0;
 			}
 
-			if (qdist < 1500)
+			if (qdist < distance)
 			{
 				ObjectToD3DVertList(ob_type, angle, q);
 			}

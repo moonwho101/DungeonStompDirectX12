@@ -58,6 +58,7 @@ int addanewplayer = 0;
 char g_model_filename[256];
 float monx, mony, monz;
 int totalmod;
+int outside = 0;
 
 extern int usespell;
 extern struct gametext gtext[200];
@@ -172,7 +173,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 	//PrintMessage(hwnd, "Loading map ", filename, SCN_AND_FILE);
 	int num_light_sources_in_map = 0;
 	int num_light_sources = 0;
-	int outside = 0;
+	outside = 0;
 	while (done == 0)
 	{
 		fscanf_s(fp, "%s", &s, 256);
@@ -324,7 +325,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 					strcpy_s(globaltext, bigbuf2);
 					if (strstr(bigbuf2, "outside") != NULL)
 					{
-						//outside = 1;
+						outside = 1;
 					}
 
 					oblist[object_count].rot_angle = (float)0;

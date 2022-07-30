@@ -45,6 +45,9 @@ extern int displayShadowMap;
 int displayShadowMapKeyPress = 0;
 extern int playerObjectStart;
 extern int playerObjectEnd;
+extern int gravityon;
+extern int outside;
+
 
 bool drawingShadowMap = false;
 
@@ -1121,9 +1124,13 @@ void DungeonStompApp::DrawRenderItemsFL(ID3D12GraphicsCommandList* cmdList, cons
 
 	auto objectCB = mCurrFrameResource->ObjectCB->Resource();
 	auto matCB = mCurrFrameResource->MaterialCB->Resource();
-	CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-	tex3.Offset(484, mCbvSrvDescriptorSize);
-	cmdList->SetGraphicsRootDescriptorTable(6, tex3); //Set the gShadowMap
+
+
+	if (!gravityon || outside) {
+		CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		tex3.Offset(484, mCbvSrvDescriptorSize);
+		cmdList->SetGraphicsRootDescriptorTable(6, tex3); //Set the gCubeMap
+	}
 
 	//auto ri = ritems[1];
 
