@@ -1368,7 +1368,7 @@ void DungeonStompApp::BuildMaterials()
 	default->Name = "default";
 	default->MatCBIndex = 0;
 	default->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	default->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	default->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	default->Roughness = 0.5f;
 
 	auto grass = std::make_unique<Material>();
@@ -1423,7 +1423,7 @@ void DungeonStompApp::BuildMaterials()
 	ice->MatCBIndex = 7;
 	ice->DiffuseSrvHeapIndex = 0;
 	ice->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	ice->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	ice->FresnelR0 = XMFLOAT3(0.2f, 0.2f, 0.2f);
 	ice->Roughness = 0.0325f;
 
 	auto bone = std::make_unique<Material>();
@@ -1431,7 +1431,7 @@ void DungeonStompApp::BuildMaterials()
 	bone->MatCBIndex = 8;
 	bone->DiffuseSrvHeapIndex = 0;
 	bone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	bone->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	bone->FresnelR0 = XMFLOAT3(0.15f, 0.15f, 0.15f);
 	bone->Roughness = 0.1f;
 
 	auto metal = std::make_unique<Material>();
@@ -1439,7 +1439,7 @@ void DungeonStompApp::BuildMaterials()
 	metal->MatCBIndex = 9;
 	metal->DiffuseSrvHeapIndex = 0;
 	metal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	metal->FresnelR0 = XMFLOAT3(0.12f, 0.12f, 0.12f);
+	metal->FresnelR0 = XMFLOAT3(0.95f, 0.73f, 0.88f);
 	metal->Roughness = 0.14f;
 
 	auto glass = std::make_unique<Material>();
@@ -1480,7 +1480,7 @@ void DungeonStompApp::BuildMaterials()
 	monster->MatCBIndex = 14;
 	monster->DiffuseSrvHeapIndex = 0;
 	monster->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	monster->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	monster->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
 	monster->Roughness = 0.5f;
 
 	//new material - increment MatCBIndex 
