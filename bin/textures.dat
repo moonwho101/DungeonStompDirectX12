@@ -1488,6 +1488,13 @@ Alias  493   cobblestone4           OPAQUE  WHOLE  stone
 AddTexture  ..\textures\normalmap\cobblestone4_nm.dds
 Alias  494   cobblestone4_nm           OPAQUE  WHOLE  stone
 
+AddTexture  ..\Models\3ds\scroll\scroll1_nm.dds
+Alias  495   scroll1_nm           OPAQUE  WHOLE  bone
+
+AddTexture  ..\Models\3ds\scroll\scroll2_nm.dds
+Alias  496   scroll2_nm           OPAQUE  WHOLE  bone
+
+
 
 END_FILE
 
