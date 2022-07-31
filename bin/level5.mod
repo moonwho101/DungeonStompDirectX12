@@ -1,6 +1,7 @@
-1	314	1	IsSwitch	2	Press Button
-2	313	0	MoveUp		0	170
-3	158	1	SetHitPoints	0	60
-4	157	1	SetHitPoints	0	60
-5	333	1	SetHitPoints	0	60
+1	213	1	SetHitPoints	0	70
+2	214	1	SetHitPoints	0	75
+3	215	1	SetHitPoints	0	70
+4	216	1	SetHitPoints	0	65
+5	217	1	SetHitPoints	0	65
+6	218	1	SetHitPoints	0	70
 END_FILE

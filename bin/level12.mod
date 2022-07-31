@@ -1,10 +1,7 @@
-1	15	1	IsDeadText	2	You have defeated the doppleganger! 700 xp.
-2	14	0	MoveUp		3	220	
-3	13	0	MoveUp		4	240
-4	26	0	MoveUp		5	120
-5	27	0	MoveUp		6	120
-6	28	0	MoveUp		7	120
-7	45	0	MoveUp		0	80
-8	15	1	SetHitPoints	0	110
-9	15	1	XPPoints	0	700
+1	82	1	SetHitPoints	0	180
+2	83	1	SetHitPoints	0	100
+3	84	1	SetHitPoints	0	100
+4	85	1	SetHitPoints	0	100
+5	82	1	IsDeadText	6	You have deafeated the dragon warrior!
+6	90	0	MoveUp		0	400
 END_FILE
