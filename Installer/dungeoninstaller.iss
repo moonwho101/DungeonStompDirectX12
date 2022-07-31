@@ -62,18 +62,6 @@ Source: "c:\github\DungeonStompDirectX12\bin\level14.mod"; DestDir: "{app}\bin";
 Source: "c:\github\DungeonStompDirectX12\bin\level15.cmp"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\bin\level15.map"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\bin\level15.mod"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level16.cmp"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level16.map"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level16.mod"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level17.cmp"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level17.map"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level17.mod"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level18.cmp"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level18.map"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level18.mod"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level19.cmp"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level19.map"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "c:\github\DungeonStompDirectX12\bin\level19.mod"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\bin\level2.cmp"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\bin\level2.map"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\bin\level2.mod"; DestDir: "{app}\bin"; Flags: ignoreversion
@@ -106,14 +94,19 @@ Source: "c:\github\DungeonStompDirectX12\bin\ui\dxutcontrols.dds"; DestDir: "{ap
 Source: "c:\github\DungeonStompDirectX12\bin\ui\DXUTShared.fx"; DestDir: "{app}\bin\ui"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\bin\ui\Font.dds"; DestDir: "{app}\bin\ui"; Flags: ignoreversion
 
-
+Source: "c:\github\DungeonStompDirectX12\Shaders\Common.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Shaders\Default.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Shaders\NormalMap.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Shaders\LightingUtil.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Shaders\Shadows.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Shaders\Sky.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
+
 Source: "c:\github\DungeonStompDirectX12\Shaders\RectanglePixelShader.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Shaders\RectangleVertexShader.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Shaders\TextPixelShader.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Shaders\TextVertexShader.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
+
+
 
 
 Source: "c:\github\DungeonStompDirectX12\bin\soundsInstaller.dat"; DestDir: "{app}\bin";DestName: "sounds.dat"; Flags: ignoreversion

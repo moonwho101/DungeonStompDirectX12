@@ -3452,15 +3452,13 @@ void ClearObjectList()
 int XpPoints(int hd, int hp)
 {
 
-	int bxp;
-	int hpxp;
-	int xp;
+	int bxp = 0;
+	int hpxp = 0;
+	int xp = 0;
 
 	switch (hd)
 	{
-
 	case 1:
-
 		bxp = 10;
 		hpxp = 1 * hp;
 		xp = bxp + hpxp;
@@ -3469,65 +3467,100 @@ int XpPoints(int hd, int hp)
 		bxp = 20;
 		hpxp = 2 * hp;
 		xp = bxp + hpxp;
-
 		break;
 	case 3:
 		bxp = 35;
 		hpxp = 3 * hp;
 		xp = bxp + hpxp;
-
 		break;
 	case 4:
 		bxp = 60;
 		hpxp = 4 * hp;
 		xp = bxp + hpxp;
-
 		break;
 	case 5:
 		bxp = 90;
 		hpxp = 5 * hp;
 		xp = bxp + hpxp;
-
 		break;
 	case 6:
 		bxp = 150;
 		hpxp = 6 * hp;
 		xp = bxp + hpxp;
-
 		break;
 	case 7:
 		bxp = 225;
 		hpxp = 8 * hp;
 		xp = bxp + hpxp;
-
 		break;
 	case 8:
 		bxp = 375;
 		hpxp = 10 * hp;
 		xp = bxp + hpxp;
-
 		break;
 	case 9:
 		bxp = 600;
 		hpxp = 12 * hp;
 		xp = bxp + hpxp;
-
 		break;
 	case 10:
 		bxp = 900;
 		hpxp = 14 * hp;
+		xp = bxp + hpxp;
+	case 11:
+		bxp = 900;
+		hpxp = 15 * hp;
+		xp = bxp + hpxp;
+	case 12:
+		bxp = 1200;
+		hpxp = 16 * hp;
+		xp = bxp + hpxp;
+	case 13:
+		bxp = 1500;
+		hpxp = 17 * hp;
+		xp = bxp + hpxp;
+	case 14:
+		bxp = 1800;
+		hpxp = 18 * hp;
+		xp = bxp + hpxp;
+	case 15:
+		bxp = 2100;
+		hpxp = 19 * hp;
+		xp = bxp + hpxp;
+	case 16:
+		bxp = 2400;
+		hpxp = 20 * hp;
+		xp = bxp + hpxp;
+	case 17:
+		bxp = 2700;
+		hpxp = 21 * hp;
+		xp = bxp + hpxp;
+	case 18:
+		bxp = 3000;
+		hpxp = 22 * hp;
+		xp = bxp + hpxp;
+	case 19:
+		bxp = 3300;
+		hpxp = 23 * hp;
+		xp = bxp + hpxp;
+	case 20:
+		bxp = 4000;
+		hpxp = 24 * hp;
 		xp = bxp + hpxp;
 	case 99:
 		bxp = 200;
 		hpxp = 0;
 		xp = hd * bxp;
 		break;
+	default:
+		bxp = 0;
+		hpxp = 0;
+		xp = 10;
+		break;
 	}
 
 	return xp;
 }
-
-
 
 
 
