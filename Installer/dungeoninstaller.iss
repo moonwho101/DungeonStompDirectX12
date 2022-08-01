@@ -785,9 +785,44 @@ Source: "c:\github\DungeonStompDirectX12\Textures\zoo1.dds"; DestDir: "{app}\Tex
 Source: "c:\github\DungeonStompDirectX12\Textures\WoodCrate01.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\bricks2.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
 
+
+Source: "c:\github\DungeonStompDirectX12\Textures\ceiling_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\pave1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\road1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\redtile1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\yellowtile1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\mtl10_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\bluetile1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\magicbrick1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\magicceiling1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\magictile1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\brbrik3_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\building3_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\door1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\hex2b_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\chbrick4_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\chbrick5_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\Goldplai_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\missle2_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\missle1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\missle3_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\missle4_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\redbrick1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\eye_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\ik_concr1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\grass2_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\mossybri_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\zoo1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\temple3_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\ruin1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\brelab_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+
+
+
+Source: "c:\github\DungeonStompDirectX12\Textures\barrel\rust_nm.dds"; DestDir: "{app}\Textures\barrel\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\barrel\woodf_nm.dds"; DestDir: "{app}\Textures\barrel\"; Flags: ignoreversion
+
+
 Source: "c:\github\DungeonStompDirectX12\Textures\building3_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\ceiling_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\chbrick4_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
@@ -808,6 +843,7 @@ Source: "c:\github\DungeonStompDirectX12\Textures\pave1_nm.dds"; DestDir: "{app}
 Source: "c:\github\DungeonStompDirectX12\Textures\redtile1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\road1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\yellowtile1_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+
 
 
 Source: "c:\github\DungeonStompDirectX12\Textures\doors\door2_nm.dds"; DestDir: "{app}\Textures\doors\"; Flags: ignoreversion
@@ -899,6 +935,8 @@ Source: "c:\github\DungeonStompDirectX12\Models\3DS\Eat\WoodCup_nm.dds"; DestDir
 Source: "c:\github\DungeonStompDirectX12\Models\3DS\OrnateBox\chest2_nm.dds"; DestDir: "{app}\Models\3DS\OrnateBox\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Models\3DS\OrnateBox\metal20_nm.dds"; DestDir: "{app}\Models\3DS\OrnateBox\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Models\3DS\Trough\twood_nm.dds"; DestDir: "{app}\Models\3DS\Trough\"; Flags: ignoreversion
+
+
 
 
 
