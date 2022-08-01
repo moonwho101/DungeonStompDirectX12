@@ -937,7 +937,7 @@ Source: "c:\github\DungeonStompDirectX12\Models\3DS\OrnateBox\metal20_nm.dds"; D
 Source: "c:\github\DungeonStompDirectX12\Models\3DS\Trough\twood_nm.dds"; DestDir: "{app}\Models\3DS\Trough\"; Flags: ignoreversion
 
 
-
+Source: "c:\github\DungeonStompDirectX12\Textures\skymap\desertcube1024.dds"; DestDir: "{app}\Textures\skymap\"; Flags: ignoreversion
 
 
 
