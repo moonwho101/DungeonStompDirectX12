@@ -517,10 +517,12 @@ void UpdateWorld(float fElapsedTime) {
 
 	//TODO: fix this
 	DirectX::XMFLOAT3 em = { 0.0f, 0.0f, 0.0f };
+	
+	float wx = player_list[trueplayernum].x;
+	float wy = player_list[trueplayernum].y;
+	float wz = player_list[trueplayernum].z;
 
-	FirePlayerMissle(player_list[trueplayernum].x, player_list[trueplayernum].y,
-		player_list[trueplayernum].z,
-		angy, trueplayernum, 0, em, look_up_ang, fElapsedTime);
+	FirePlayerMissle(wx,wy,wz, angy, trueplayernum, 0, em, look_up_ang, fElapsedTime);
 
 	DrawMissle();
 
@@ -529,7 +531,7 @@ void UpdateWorld(float fElapsedTime) {
 	PlayerToD3DVertList(0,
 		player_list[trueplayernum].current_frame, player_list[trueplayernum].gunangle,
 		112,
-		0, player_list[trueplayernum].x, player_list[trueplayernum].y - 30.0f, player_list[trueplayernum].z);
+		0, player_list[trueplayernum].x, player_list[trueplayernum].y -40.0f, player_list[trueplayernum].z);
 	playerObjectEnd = number_of_polys_per_frame;
 
 	int lsort = 0;
