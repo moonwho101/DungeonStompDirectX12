@@ -890,6 +890,7 @@ Source: "c:\github\DungeonStompDirectX12\Textures\monster\Tentacle_nm.dds"; Dest
 
 
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\brick03.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\brick8.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\bricks2.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\bricks.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\ceiling01.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
@@ -898,16 +899,23 @@ Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\floord.dds"; DestDir
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\stones.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\tile02.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\tile.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\cobblestone4.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
+
+
 
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\brick03_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\brick8_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\bricks2_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\bricks_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\ceiling01_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\cobblestone4_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\floor01_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\floord_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\stones_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\tile02_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\tile_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
+
+
 
 
 Source: "c:\github\DungeonStompDirectX12\Textures\weapons\axe_nm.dds"; DestDir: "{app}\Textures\weapons\"; Flags: ignoreversion
