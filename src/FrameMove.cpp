@@ -205,9 +205,11 @@ void PlayerJump(const FLOAT& fTimeKey)
 void PlayerAnimation()
 {
 
-	// 1 = forward = 4 backward 2 = left 3 = right 
-
-	if (playermove == 2 || playermove == 3 || savelastmove == 2 || savelastmove == 3) {
+	// 1 = forward
+	// 2 = left 
+	// 3 = right
+	// 4 = backward  
+	if ( (playermove == 2 || playermove == 3) && (savelastmove == 2 || savelastmove == 3)) {
 
 	}
 	else if (player_list[trueplayernum].current_sequence != 2)
