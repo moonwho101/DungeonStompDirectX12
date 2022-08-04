@@ -915,7 +915,8 @@ Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\stones_nm.dds"; Dest
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\tile02_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\normalmap\tile_nm.dds"; DestDir: "{app}\Textures\normalmap\"; Flags: ignoreversion
 
-
+Source: "c:\github\DungeonStompDirectX12\Models\3ds\scroll\Scroll1_nm.dds"; DestDir: "{app}\Models\3ds\scroll"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Models\3ds\scroll\Scroll2_nm.dds"; DestDir: "{app}\Models\3ds\scroll"; Flags: ignoreversion
 
 
 Source: "c:\github\DungeonStompDirectX12\Textures\weapons\axe_nm.dds"; DestDir: "{app}\Textures\weapons\"; Flags: ignoreversion
