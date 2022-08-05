@@ -9,6 +9,7 @@
 #include "FrameMove.hpp"
 
 extern int gravityon;
+int movement = 1;
 void PlayerJump(const FLOAT& fTimeKey);
 void FindDoors(const FLOAT& fTimeKey);
 void GameTimers(const FLOAT& fTimeKey);
@@ -202,47 +203,38 @@ void PlayerJump(const FLOAT& fTimeKey)
 	}
 }
 
+
+
 void PlayerAnimation()
 {
-
 	// 1 = forward
 	// 2 = left 
 	// 3 = right
 	// 4 = backward  
-	if ( (playermove == 2 || playermove == 3) && (savelastmove == 2 || savelastmove == 3)) {
 
-	}
-	else if (player_list[trueplayernum].current_sequence != 2)
+	if (player_list[trueplayernum].current_sequence != 2)
 	{
-		if (playermove == 0)
-		{
-			if (savelastmove != playermove && jump == 0)
-			{
-				SetPlayerAnimationSequence(trueplayernum, 0);
-			}
-		}
-		else if (playermove == 1 || playermove == 4)
+
+		if ((playermove == 1 || playermove == 4) && movement == 0)
 		{
 			if (savelastmove != playermove && jump == 0)
 			{
 				SetPlayerAnimationSequence(trueplayernum, 1);
 			}
-		}
 
-		//if (playermovestrife == 0)
-		//{
-		//	if (playermovestrife != savelaststrifemove && jump == 0)
-		//	{
-		//		if (playermove == 0 && (savelastmove != 2 && savelastmove != 3))
-		//			SetPlayerAnimationSequence(trueplayernum, 0);
-		//	}
-		//}
-		//else
-		//{
-		//	if (playermovestrife != savelaststrifemove && jump == 0)
-		//		SetPlayerAnimationSequence(trueplayernum, 1);
-		//}
+			movement = 1;
+		}
+		else if (playermove == 0 && movement == 1)
+		{
+			if (savelastmove != playermove && jump == 0)
+			{
+				SetPlayerAnimationSequence(trueplayernum, 0);
+			}
+
+			movement = 0;
+		}
 	}
+
 }
 
 void StrifePlayer(FLOAT& fTimeKey, bool addVel)
