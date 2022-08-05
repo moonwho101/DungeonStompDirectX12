@@ -2067,6 +2067,8 @@ int load_game(char* filename)
 
 	MakeDamageDice();
 
+	SetPlayerAnimationSequence(trueplayernum, 0);
+
 	return 1;
 	//}
 	//return 0;
@@ -2110,6 +2112,7 @@ int load_level(char* filename)
 	num_players2 = 0;
 	itemlistcount = 0;
 	num_monsters = 0;
+	
 
 	ClearObjectList();
 	ResetSound();
@@ -2185,6 +2188,8 @@ int load_level(char* filename)
 	strcat_s(level, ".mod");
 
 	pCWorld->LoadMod(level);
+
+
 
 	return 1;
 }
