@@ -155,7 +155,8 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 	doorcounter = 0;
 	textcounter = 0;
 	startposcounter = 0;
-	//int countswitches = 0;
+	countswitches = 0;
+
 	BYTE red, green, blue;
 
 	char path[255];

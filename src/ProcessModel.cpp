@@ -26,7 +26,7 @@ int track[60000];
 
 void SmoothNormals(int start_cnt);
 extern SWITCHMOD* switchmodify;
-int countswitches;
+int countswitches = 0;
 
 int* verts_per_poly;
 int number_of_polys_per_frame;

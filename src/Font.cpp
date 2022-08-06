@@ -60,7 +60,7 @@ void AddTreasureDrop(float x, float y, float z, int raction);
 void ScanModJump(int jump);
 extern int countmodtime;
 extern FLOAT LevelModLastTime;
-extern int countswitches;
+
 extern SWITCHMOD* switchmodify;
 void SetDiceTexture(bool showroll);
 int FindTextureAlias(char* alias);
