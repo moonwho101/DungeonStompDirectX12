@@ -883,6 +883,7 @@ Source: "c:\github\DungeonStompDirectX12\Textures\monster\corpse_nm.dds"; DestDi
 Source: "c:\github\DungeonStompDirectX12\Textures\monster\goblin_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\monster\knight_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\monster\ogre_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Textures\monster\ogro_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\monster\slave_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\monster\Sorcerer_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Textures\monster\Tentacle_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
