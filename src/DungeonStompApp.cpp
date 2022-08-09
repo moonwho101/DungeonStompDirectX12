@@ -121,6 +121,7 @@ bool DungeonStompApp::Initialize()
 
 	LoadTextures();
 	BuildRootSignature();
+	BuildSsaoRootSignature();
 	BuildDescriptorHeaps();
 	BuildShadersAndInputLayout();
 	BuildLandGeometry();
