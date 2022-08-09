@@ -75,6 +75,7 @@ private:
 	void UpdateMainPassCB(const GameTimer& gt);
 	void UpdateDungeon(const GameTimer& gt);
 	void UpdateShadowPassCB(const GameTimer& gt);
+	void UpdateSsaoCB(const GameTimer& gt);
 
 	void BuildRootSignature();
 	void BuildSsaoRootSignature();
