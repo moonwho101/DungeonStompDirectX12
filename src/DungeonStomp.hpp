@@ -110,6 +110,7 @@ private:
 	void DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch = false, bool normalMap = false);
 	void SetTextureNormalMap();
 	void DrawSceneToShadowMap(const GameTimer& gt);
+	void DrawNormalsAndDepth(const GameTimer& gt);
 	void UpdateShadowTransform(const GameTimer& gt, int light);
 	void CreateRtvAndDsvDescriptorHeaps();
 
