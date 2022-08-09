@@ -53,6 +53,26 @@ struct Vertex
     DirectX::XMFLOAT3 TangentU;
 };
 
+struct SsaoConstants
+{
+    DirectX::XMFLOAT4X4 Proj;
+    DirectX::XMFLOAT4X4 InvProj;
+    DirectX::XMFLOAT4X4 ProjTex;
+    DirectX::XMFLOAT4   OffsetVectors[14];
+
+    // For SsaoBlur.hlsl
+    DirectX::XMFLOAT4 BlurWeights[3];
+
+    DirectX::XMFLOAT2 InvRenderTargetSize = { 0.0f, 0.0f };
+
+    // Coordinates given in view space.
+    float OcclusionRadius = 0.5f;
+    float OcclusionFadeStart = 0.2f;
+    float OcclusionFadeEnd = 2.0f;
+    float SurfaceEpsilon = 0.05f;
+};
+
+
 // Stores the resources needed for the CPU to build the command lists
 // for a frame.  
 struct FrameResource
@@ -74,11 +94,12 @@ public:
     std::unique_ptr<UploadBuffer<PassConstants>> PassCB = nullptr;
     std::unique_ptr<UploadBuffer<MaterialConstants>> MaterialCB = nullptr;
     std::unique_ptr<UploadBuffer<ObjectConstants>> ObjectCB = nullptr;
+    std::unique_ptr<UploadBuffer<SsaoConstants>> SsaoCB = nullptr;
 
     // We cannot update a dynamic vertex buffer until the GPU is done processing
     // the commands that reference it.  So each frame needs their own.
     std::unique_ptr<UploadBuffer<Vertex>> DungeonVB = nullptr;
-
+    
     // Fence value to mark commands up to this fence point.  This lets us
     // check if these frame resources are still in use by the GPU.
     UINT64 Fence = 0;

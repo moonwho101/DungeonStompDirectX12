@@ -14,6 +14,7 @@
 #include "Missle.hpp"
 #include "GameLogic.hpp"
 #include "DungeonStomp.hpp"
+#include "Ssao.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -1437,6 +1438,88 @@ void DungeonStompApp::BuildPSOs()
 		mShaders["skyPS"]->GetBufferSize()
 	};
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&cubePsoDesc, IID_PPV_ARGS(&mPSOs["sky"])));
+
+
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC basePsoDesc;
+
+
+	ZeroMemory(&basePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+	basePsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
+	basePsoDesc.pRootSignature = mRootSignature.Get();
+	
+	basePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	basePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	basePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	basePsoDesc.SampleMask = UINT_MAX;
+	basePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	basePsoDesc.NumRenderTargets = 1;
+	basePsoDesc.RTVFormats[0] = mBackBufferFormat;
+	basePsoDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
+	basePsoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+	basePsoDesc.DSVFormat = mDepthStencilFormat;
+
+	//
+  // PSO for drawing normals.
+  //
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC drawNormalsPsoDesc = basePsoDesc;
+	drawNormalsPsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["drawNormalsVS"]->GetBufferPointer()),
+		mShaders["drawNormalsVS"]->GetBufferSize()
+	};
+	drawNormalsPsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["drawNormalsPS"]->GetBufferPointer()),
+		mShaders["drawNormalsPS"]->GetBufferSize()
+	};
+	drawNormalsPsoDesc.RTVFormats[0] = Ssao::NormalMapFormat;
+	drawNormalsPsoDesc.SampleDesc.Count = 1;
+	drawNormalsPsoDesc.SampleDesc.Quality = 0;
+	drawNormalsPsoDesc.DSVFormat = mDepthStencilFormat;
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&drawNormalsPsoDesc, IID_PPV_ARGS(&mPSOs["drawNormals"])));
+
+	//
+	// PSO for SSAO.
+	//
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC ssaoPsoDesc = basePsoDesc;
+	ssaoPsoDesc.InputLayout = { nullptr, 0 };
+	ssaoPsoDesc.pRootSignature = mSsaoRootSignature.Get();
+	ssaoPsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["ssaoVS"]->GetBufferPointer()),
+		mShaders["ssaoVS"]->GetBufferSize()
+	};
+	ssaoPsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["ssaoPS"]->GetBufferPointer()),
+		mShaders["ssaoPS"]->GetBufferSize()
+	};
+
+	// SSAO effect does not need the depth buffer.
+	ssaoPsoDesc.DepthStencilState.DepthEnable = false;
+	ssaoPsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	ssaoPsoDesc.RTVFormats[0] = Ssao::AmbientMapFormat;
+	ssaoPsoDesc.SampleDesc.Count = 1;
+	ssaoPsoDesc.SampleDesc.Quality = 0;
+	ssaoPsoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&ssaoPsoDesc, IID_PPV_ARGS(&mPSOs["ssao"])));
+
+	//
+	// PSO for SSAO blur.
+	//
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC ssaoBlurPsoDesc = ssaoPsoDesc;
+	ssaoBlurPsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["ssaoBlurVS"]->GetBufferPointer()),
+		mShaders["ssaoBlurVS"]->GetBufferSize()
+	};
+	ssaoBlurPsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["ssaoBlurPS"]->GetBufferPointer()),
+		mShaders["ssaoBlurPS"]->GetBufferSize()
+	};
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&ssaoBlurPsoDesc, IID_PPV_ARGS(&mPSOs["ssaoBlur"])));
 
 
 

@@ -96,6 +96,9 @@
     <ClCompile Include="ShadowMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Ssao.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameResource.h">
@@ -181,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="ShadowMap.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ssao.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
