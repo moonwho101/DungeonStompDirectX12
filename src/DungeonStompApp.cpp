@@ -228,6 +228,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 	UpdateShadowTransform(gt, 0);
 	UpdateMainPassCB(gt);
 	UpdateShadowPassCB(gt);
+	UpdateSsaoCB(gt);
 	UpdateDungeon(gt);
 
 }
