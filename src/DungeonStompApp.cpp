@@ -826,6 +826,15 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	mShaders["skyVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Sky.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["skyPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Sky.hlsl", nullptr, "PS", "ps_5_1");
 
+	mShaders["drawNormalsVS"] = d3dUtil::CompileShader(L"..\\Shaders\\DrawNormals.hlsl", nullptr, "VS", "vs_5_1");
+	mShaders["drawNormalsPS"] = d3dUtil::CompileShader(L"..\\Shaders\\DrawNormals.hlsl", nullptr, "PS", "ps_5_1");
+
+	//mShaders["ssaoVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Ssao.hlsl", nullptr, "VS", "vs_5_1");
+	//mShaders["ssaoPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Ssao.hlsl", nullptr, "PS", "ps_5_1");
+
+	//mShaders["ssaoBlurVS"] = d3dUtil::CompileShader(L"..\\Shaders\\SsaoBlur.hlsl", nullptr, "VS", "vs_5_1");
+	//mShaders["ssaoBlurPS"] = d3dUtil::CompileShader(L"..\\Shaders\\SsaoBlur.hlsl", nullptr, "PS", "ps_5_1");
+
 
 	// Text PSO
 	ID3DBlob* errorBuff; // a buffer holding the error data if any

@@ -82,6 +82,15 @@ cbuffer cbPass : register(b2)
     Light gLights[MaxLights];
 };
 
+struct MaterialData
+{
+    float4   DiffuseAlbedo;
+    float3   FresnelR0;
+    float    Roughness;
+    float4x4 MatTransform;
+};
+
+
 //---------------------------------------------------------------------------------------
 // Transforms a normal map sample to world space.
 //---------------------------------------------------------------------------------------

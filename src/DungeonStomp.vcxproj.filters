@@ -219,5 +219,14 @@
     <Text Include="..\Shaders\Sky.hlsl">
       <Filter>Shaders</Filter>
     </Text>
+    <Text Include="..\Shaders\DrawNormals.hlsl">
+      <Filter>Shaders</Filter>
+    </Text>
+    <Text Include="..\Shaders\Ssao.hlsl">
+      <Filter>Shaders</Filter>
+    </Text>
+    <Text Include="..\Shaders\SsaoBlur.hlsl">
+      <Filter>Shaders</Filter>
+    </Text>
   </ItemGroup>
 </Project>
