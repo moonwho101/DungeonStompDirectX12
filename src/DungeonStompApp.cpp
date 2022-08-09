@@ -120,6 +120,11 @@ bool DungeonStompApp::Initialize()
 
 	mShadowMap = std::make_unique<ShadowMap>(md3dDevice.Get(), 2048, 2048);
 
+	mSsao = std::make_unique<Ssao>(
+		md3dDevice.Get(),
+		mCommandList.Get(),
+		mClientWidth, mClientHeight);
+
 	LoadTextures();
 	BuildRootSignature();
 	BuildSsaoRootSignature();
@@ -131,6 +136,9 @@ bool DungeonStompApp::Initialize()
 	BuildRenderItems();
 	BuildFrameResources();
 	BuildPSOs();
+
+	mSsao->SetPSOs(mPSOs["ssao"].Get(), mPSOs["ssaoBlur"].Get());
+
 
 	InitDS();
 

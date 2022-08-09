@@ -1,5 +1,7 @@
 #include "Font.hpp"
 #include "ShadowMap.h"
+#include "Ssao.h"
+
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -175,6 +177,7 @@ private:
 	D3D12_VERTEX_BUFFER_VIEW rectangleVertexBufferView[MaxRectangle]; // a view for our text vertex buffer
 
 	std::unique_ptr<ShadowMap> mShadowMap;
+	std::unique_ptr<Ssao> mSsao;
 
 	DirectX::BoundingSphere mSceneBounds;
 
