@@ -75,6 +75,7 @@ private:
 	void UpdateShadowPassCB(const GameTimer& gt);
 
 	void BuildRootSignature();
+	void BuildSsaoRootSignature();
 	void BuildShadersAndInputLayout();
 	void BuildLandGeometry();
 	void BuildDungeonGeometryBuffers();
@@ -117,6 +118,7 @@ private:
 	UINT mCbvSrvDescriptorSize = 0;
 
 	ComPtr<ID3D12RootSignature> mRootSignature = nullptr;
+	ComPtr<ID3D12RootSignature> mSsaoRootSignature = nullptr;
 
 	std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
 	std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
