@@ -38,6 +38,7 @@ Happy Dungeon Stomping - Breeyark!
 * X - Give experience points
 * K - Give all weapons and spells
 * M - Shadow map texture
+* O - Toggle SSAO (Screen space ambient occlusion)
 * ] = Next Dungeon Level
 * [ = Previous Dungeon Level
 

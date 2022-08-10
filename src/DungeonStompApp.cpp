@@ -44,6 +44,11 @@ extern int displayCaptureCount[1000];
 extern int displayCapture;
 extern int displayShadowMap;
 int displayShadowMapKeyPress = 0;
+
+bool enableSSao = false;
+bool enableSSaoKey = false;
+
+
 extern int playerObjectStart;
 extern int playerObjectEnd;
 extern int gravityon;
@@ -257,22 +262,16 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	//Render shadow map to texture.
 	DrawSceneToShadowMap(gt);
 
-	//
-	// Normal/depth pass.
-	//
+	if (enableSSao) {
+		// Normal/depth pass.
+		DrawNormalsAndDepth(gt);
 
-	DrawNormalsAndDepth(gt);
+		// Compute SSAO.
+		mCommandList->SetGraphicsRootSignature(mSsaoRootSignature.Get());
+		mSsao->ComputeSsao(mCommandList.Get(), mCurrFrameResource, 3);
+	}
 
-	//
-	// Compute SSAO.
-	// 
-
-	mCommandList->SetGraphicsRootSignature(mSsaoRootSignature.Get());
-	mSsao->ComputeSsao(mCommandList.Get(), mCurrFrameResource, 3);
-
-	//
 	// Main rendering pass.
-	//
 
 	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
@@ -392,6 +391,29 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 	else {
 		displayShadowMapKeyPress = 0;
 	}
+
+
+	if (GetAsyncKeyState('O') && !enableSSaoKey) {
+
+		if (enableSSao) {
+			enableSSao = 0;
+			strcpy_s(gActionMessage, "SSAO Disabled");
+			UpdateScrollList(0, 255, 255);
+		}
+		else {
+			strcpy_s(gActionMessage, "SSAO Enabled");
+			UpdateScrollList(0, 255, 255);
+			enableSSao = 1;
+		}
+	}
+
+	if (GetAsyncKeyState('O')) {
+		enableSSaoKey = 1;
+	}
+	else {
+		enableSSaoKey = 0;
+	}
+
 
 }
 
