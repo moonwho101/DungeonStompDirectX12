@@ -56,6 +56,7 @@ extern int outside;
 
 
 bool drawingShadowMap = false;
+bool drawingSSAO = false;
 
 std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
 extern int number_of_tex_aliases;
@@ -251,6 +252,8 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	// Reusing the command list reuses memory.
 	ThrowIfFailed(mCommandList->Reset(cmdListAlloc.Get(), mPSOs["opaque"].Get()));
 
+	ProcessLights11();
+
 	ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
 	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
@@ -263,9 +266,11 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	DrawSceneToShadowMap(gt);
 
 	if (enableSSao) {
+
+		drawingSSAO = true;
 		// Normal/depth pass.
 		DrawNormalsAndDepth(gt);
-
+		drawingSSAO = false;
 		// Compute SSAO.
 		mCommandList->SetGraphicsRootSignature(mSsaoRootSignature.Get());
 		mSsao->ComputeSsao(mCommandList.Get(), mCurrFrameResource, 3);
@@ -1882,7 +1887,7 @@ void DungeonStompApp::BuildRenderItems()
 
 void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, const GameTimer& gt)
 {
-	ProcessLights11();
+	
 
 	auto ri = ritems[0];
 
@@ -1911,25 +1916,33 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
 	DrawDungeon(cmdList, ritems, true, true);
 
-	//Draw the Monster Captions
-	tex.Offset(377, mCbvSrvDescriptorSize);
-	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-	cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	if (drawingSSAO || drawingShadowMap) {
 
-	for (int i = 0; i < displayCapture; i++) {
-		for (int j = 0; j < displayCaptureCount[i]; j++) {
-			cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
+	}
+	else {
+
+		//Draw the Monster Captions
+		tex.Offset(377, mCbvSrvDescriptorSize);
+		cmdList->SetGraphicsRootDescriptorTable(3, tex);
+
+		cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+		for (int i = 0; i < displayCapture; i++) {
+			for (int j = 0; j < displayCaptureCount[i]; j++) {
+				cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
+			}
 		}
-	}
 
-	if (!gravityon || outside) {
-		mCommandList->SetPipelineState(mPSOs["sky"].Get());
-		DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
-	}
+		if (!gravityon || outside) {
+			mCommandList->SetPipelineState(mPSOs["sky"].Get());
+			DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
+		}
 
-	DisplayHud();
-	SetDungeonText();
+
+		DisplayHud();
+		SetDungeonText();
+	}
 	ScanMod(gt.DeltaTime());
 
 	return;
