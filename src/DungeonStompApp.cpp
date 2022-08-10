@@ -256,7 +256,24 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	//Render shadow map to texture.
 	DrawSceneToShadowMap(gt);
 
+	//
+	// Normal/depth pass.
+	//
+
 	DrawNormalsAndDepth(gt);
+
+	//
+	// Compute SSAO.
+	// 
+
+	mCommandList->SetGraphicsRootSignature(mSsaoRootSignature.Get());
+	mSsao->ComputeSsao(mCommandList.Get(), mCurrFrameResource, 3);
+
+	//
+	// Main rendering pass.
+	//
+
+	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
 	mCommandList->RSSetViewports(1, &mScreenViewport);
 	mCommandList->RSSetScissorRects(1, &mScissorRect);
