@@ -456,6 +456,7 @@ void DungeonStompApp::DisplayHud() {
 	RenderRectangle(arialFont, 1, diceTexture, XMFLOAT2(0.475f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	diceTexture = FindTextureAlias(dice[1].name);
+	diceTexture = number_of_tex_aliases + 1;
 	RenderRectangle(arialFont, 2, diceTexture, XMFLOAT2(0.525f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 

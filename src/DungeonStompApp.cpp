@@ -227,8 +227,9 @@ void DungeonStompApp::Update(const GameTimer& gt)
 	UpdateMaterialCBs(gt);
 	UpdateShadowTransform(gt, 0);
 	UpdateMainPassCB(gt);
-	UpdateShadowPassCB(gt);
 	UpdateSsaoCB(gt);
+	UpdateShadowPassCB(gt);
+	
 	UpdateDungeon(gt);
 
 }
@@ -909,7 +910,7 @@ void DungeonStompApp::DrawNormalsAndDepth(const GameTimer& gt)
 
 	// Bind the constant buffer for this pass.
 	auto passCB = mCurrFrameResource->PassCB->Resource();
-	mCommandList->SetGraphicsRootConstantBufferView(1, passCB->GetGPUVirtualAddress());
+	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
 	mCommandList->SetPipelineState(mPSOs["drawNormals"].Get());
 
@@ -2207,10 +2208,16 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	md3dDevice->CreateShaderResourceView(nullptr, &srvDesc, nullSrv);
 
+
 	mShadowMap->BuildDescriptors(
+		GetCpuSrv(mShadowMapHeapIndex),
+		GetGpuSrv(mShadowMapHeapIndex),
+		GetDsv(1));
+
+	/*mShadowMap->BuildDescriptors(
 		CD3DX12_CPU_DESCRIPTOR_HANDLE(srvCpuStart, mShadowMapHeapIndex, mCbvSrvUavDescriptorSize),
 		CD3DX12_GPU_DESCRIPTOR_HANDLE(srvGpuStart, mShadowMapHeapIndex, mCbvSrvUavDescriptorSize),
-		CD3DX12_CPU_DESCRIPTOR_HANDLE(dsvCpuStart, 1, mDsvDescriptorSize));
+		CD3DX12_CPU_DESCRIPTOR_HANDLE(dsvCpuStart, 1, mDsvDescriptorSize));*/
 
 
 	mSsao->BuildDescriptors(
@@ -2220,6 +2227,9 @@ void DungeonStompApp::BuildDescriptorHeaps()
 		GetRtv(SwapChainBufferCount),
 		mCbvSrvUavDescriptorSize,
 		mRtvDescriptorSize);
+
+	nullSrv.Offset(1, mCbvSrvUavDescriptorSize);
+	md3dDevice->CreateShaderResourceView(nullptr, &srvDesc, nullSrv);
 }
 
 
