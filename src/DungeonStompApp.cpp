@@ -577,8 +577,8 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.TotalTime = gt.TotalTime();
 	mMainPassCB.DeltaTime = gt.DeltaTime();
 	//mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.25f, 1.0f };
-	//mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
-	mMainPassCB.AmbientLight = { 0.00f, 0.00f, 0.00f, 0.00f };
+	mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
+	//mMainPassCB.AmbientLight = { 0.00f, 0.00f, 0.00f, 0.00f };
 
 	//XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
 	//XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
