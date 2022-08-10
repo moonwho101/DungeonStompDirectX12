@@ -99,9 +99,13 @@ float4 PS(VertexOut pin) : SV_Target
     float distToEye = length(toEyeW);
     toEyeW /= distToEye; // normalize
 
+    // Finish texture projection and sample SSAO map.
+    pin.SsaoPosH /= pin.SsaoPosH.w;
+    float ambientAccess = gSsaoMap.Sample(gsamLinearClamp, pin.SsaoPosH.xy, 0.0f).r;
 
     // Light terms.
-    float4 ambient = gAmbientLight * diffuseAlbedo;
+    float4 ambient = ambientAccess * gAmbientLight * diffuseAlbedo;
+
 
     const float shininess = (1.0f - roughness) * normalMapSample.a;
     Material mat = { diffuseAlbedo, gFresnelR0, shininess };
