@@ -256,6 +256,8 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	//Render shadow map to texture.
 	DrawSceneToShadowMap(gt);
 
+	DrawNormalsAndDepth(gt);
+
 	mCommandList->RSSetViewports(1, &mScreenViewport);
 	mCommandList->RSSetScissorRects(1, &mScissorRect);
 
