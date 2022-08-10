@@ -704,7 +704,7 @@ void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 void DungeonStompApp::BuildRootSignature()
 {
 
-	const int rootItems = 7;
+	const int rootItems = 8;
 
 	CD3DX12_DESCRIPTOR_RANGE texTable0;
 	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
@@ -718,6 +718,9 @@ void DungeonStompApp::BuildRootSignature()
 	CD3DX12_DESCRIPTOR_RANGE texTable3;
 	texTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 3, 0);
 
+	CD3DX12_DESCRIPTOR_RANGE texTable4;
+	texTable4.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5, 0);
+
 	// Root parameter can be a table, root descriptor or root constants.
 	CD3DX12_ROOT_PARAMETER slotRootParameter[rootItems];
 
@@ -729,6 +732,7 @@ void DungeonStompApp::BuildRootSignature()
 	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gNormalMap  : register(t1);
 	slotRootParameter[5].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gShadowMap  : register(t2);
 	slotRootParameter[6].InitAsDescriptorTable(1, &texTable3, D3D12_SHADER_VISIBILITY_PIXEL);  //TextureCube  gCubeMap    : register(t4);
+	slotRootParameter[7].InitAsDescriptorTable(1, &texTable4, D3D12_SHADER_VISIBILITY_PIXEL);  //TextureCube  gSsaoMap    : register(t5);
 
 	auto staticSamplers = GetStaticSamplers();
 
@@ -1971,6 +1975,10 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 			tex3.Offset(number_of_tex_aliases + 1, mCbvSrvDescriptorSize);
 			cmdList->SetGraphicsRootDescriptorTable(5, tex3); //Set the gShadowMap
+
+			CD3DX12_GPU_DESCRIPTOR_HANDLE tex4(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+			tex4.Offset(number_of_tex_aliases + 2, mCbvSrvDescriptorSize);
+			cmdList->SetGraphicsRootDescriptorTable(7, tex4); //Set the gSsaoMap
 
 			if (normalMap) {
 				CD3DX12_GPU_DESCRIPTOR_HANDLE tex2(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
