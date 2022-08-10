@@ -18,11 +18,14 @@ struct VertexOut
 {
     float4 PosH    : SV_POSITION;
     float4 ShadowPosH : POSITION0;
-    float3 PosW    : POSITION1;
+    float4 SsaoPosH   : POSITION1;
+    float3 PosW    : POSITION2;
     float3 NormalW : NORMAL;
     float3 TangentW : TANGENT;
     float2 TexC    : TEXCOORD;
 };
+
+
 
 VertexOut VS(VertexIn vin)
 {
@@ -39,6 +42,9 @@ VertexOut VS(VertexIn vin)
     // Transform to homogeneous clip space.
     vout.PosH = mul(posW, gViewProj);
 
+    // Generate projective tex-coords to project SSAO map onto scene.
+    vout.SsaoPosH = mul(posW, gViewProjTex);
+
     // Output vertex attributes for interpolation across triangle.
     float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform);
     vout.TexC = mul(texC, gMatTransform).xy;
@@ -48,6 +54,9 @@ VertexOut VS(VertexIn vin)
 
     // Generate projective tex-coords to project shadow map onto scene.
     vout.ShadowPosH = mul(posW, gShadowTransform);
+
+
+
 
     return vout;
 }
@@ -89,6 +98,7 @@ float4 PS(VertexOut pin) : SV_Target
     float3 toEyeW = gEyePosW - pin.PosW;
     float distToEye = length(toEyeW);
     toEyeW /= distToEye; // normalize
+
 
     // Light terms.
     float4 ambient = gAmbientLight * diffuseAlbedo;

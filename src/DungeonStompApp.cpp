@@ -549,6 +549,15 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
 	XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
 
+	// Transform NDC space [-1,+1]^2 to texture space [0,1]^2
+	XMMATRIX T(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f);
+
+	XMMATRIX viewProjTex = XMMatrixMultiply(viewProj, T);
+
 	XMMATRIX shadowTransform = XMLoadFloat4x4(&mShadowTransform);
 
 	XMStoreFloat4x4(&mMainPassCB.View, XMMatrixTranspose(view));
@@ -557,8 +566,9 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	XMStoreFloat4x4(&mMainPassCB.InvProj, XMMatrixTranspose(invProj));
 	XMStoreFloat4x4(&mMainPassCB.ViewProj, XMMatrixTranspose(viewProj));
 	XMStoreFloat4x4(&mMainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
+	XMStoreFloat4x4(&mMainPassCB.ViewProjTex, XMMatrixTranspose(viewProjTex));
 	XMStoreFloat4x4(&mMainPassCB.ShadowTransform, XMMatrixTranspose(shadowTransform));
-
+	
 	mMainPassCB.EyePosW = mEyePos;
 	mMainPassCB.RenderTargetSize = XMFLOAT2((float)mClientWidth, (float)mClientHeight);
 	mMainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / mClientWidth, 1.0f / mClientHeight);
