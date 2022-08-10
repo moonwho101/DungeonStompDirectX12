@@ -577,9 +577,11 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.FarZ = 1000.0f;
 	mMainPassCB.TotalTime = gt.TotalTime();
 	mMainPassCB.DeltaTime = gt.DeltaTime();
-	//mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.25f, 1.0f };
-	mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
+	
+	mMainPassCB.AmbientLight = { 0.05f, 0.05f, 0.05f, 1.0f };
+	//mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
 	//mMainPassCB.AmbientLight = { 0.00f, 0.00f, 0.00f, 0.00f };
+	
 
 	//XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
 	//XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
@@ -1195,7 +1197,7 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 		D3D12_BLEND_DESC rectangleBlendStateDesc = {};
 		rectangleBlendStateDesc.AlphaToCoverageEnable = FALSE;
 		rectangleBlendStateDesc.IndependentBlendEnable = FALSE;
-		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
+		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
 
 		rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
@@ -1407,6 +1409,8 @@ void DungeonStompApp::BuildPSOs()
 	opaquePsoDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
 	opaquePsoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
 	opaquePsoDesc.DSVFormat = mDepthStencilFormat;
+
+
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
 
 	//

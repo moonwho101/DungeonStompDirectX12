@@ -18,7 +18,8 @@ struct VertexOut
 {
     float4 PosH    : SV_POSITION;
     float4 ShadowPosH : POSITION0;
-    float3 PosW    : POSITION1;
+    float4 SsaoPosH   : POSITION1;
+    float3 PosW    : POSITION2;
     float3 NormalW : NORMAL;
     float3 TangentW : TANGENT;
     float2 TexC    : TEXCOORD;
@@ -38,6 +39,9 @@ VertexOut VS(VertexIn vin)
  
     // Transform to homogeneous clip space.
     vout.PosH = mul(posW, gViewProj);
+
+    // Generate projective tex-coords to project SSAO map onto scene.
+    vout.SsaoPosH = mul(posW, gViewProjTex);
 
     // Output vertex attributes for interpolation across triangle.
     float4 texC = mul(float4(vin.TexC, 0.0f, 1.0f), gTexTransform);
@@ -74,8 +78,12 @@ float4 PS(VertexOut pin) : SV_Target
     float distToEye = length(toEyeW);
     toEyeW /= distToEye; // normalize
 
+    // Finish texture projection and sample SSAO map.
+    pin.SsaoPosH /= pin.SsaoPosH.w;
+    float ambientAccess = gSsaoMap.Sample(gsamLinearClamp, pin.SsaoPosH.xy, 0.0f).r;
+
     // Light terms.
-    float4 ambient = gAmbientLight * diffuseAlbedo;
+    float4 ambient = ambientAccess * gAmbientLight * diffuseAlbedo;
 
     const float shininess = 1.0f - gRoughness;
     Material mat = { diffuseAlbedo, gFresnelR0, shininess };
