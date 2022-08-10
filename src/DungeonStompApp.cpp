@@ -1180,7 +1180,7 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 		D3D12_BLEND_DESC rectangleBlendStateDesc = {};
 		rectangleBlendStateDesc.AlphaToCoverageEnable = FALSE;
 		rectangleBlendStateDesc.IndependentBlendEnable = FALSE;
-		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
+		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
 
 		rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
