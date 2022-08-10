@@ -11,6 +11,7 @@ Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 * Normal map textures
 * Cube Maps (Skybox)
 * Shadow Maps
+* Screen space ambient occlusion (ssao)
 * Fog, Alpha transparency and Alpha testing
 * XBOX game controller is supported.
 * Used "Introduction to 3D Game Programming with DirectX 12" by Frank Luna as a reference.
