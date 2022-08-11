@@ -1989,7 +1989,14 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
 
-	if (!drawingShadowMap) {
+	bool enablePSO = true;
+
+	if (drawingShadowMap ) {
+		enablePSO = false;
+	}
+	
+
+	if (enablePSO) {
 		if (enableSSao) {
 			mCommandList->SetPipelineState(mPSOs["normalMapSsao"].Get());
 		}
@@ -2002,7 +2009,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	DrawDungeon(cmdList, ritems, false, false, true);
 
 
-	if (!drawingShadowMap) {
+	if (enablePSO) {
 		if (enableSSao) {
 			mCommandList->SetPipelineState(mPSOs["opaqueSsao"].Get());
 		}
@@ -2016,13 +2023,13 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	////Draw alpha transparent items
 
-	if (!drawingShadowMap) {
+	if (enablePSO) {
 		mCommandList->SetPipelineState(mPSOs["transparent"].Get());
 	}
 	DrawDungeon(cmdList, ritems, true);
 
 	//Draw the torches and effects
-	if (!drawingShadowMap) {
+	if (enablePSO) {
 		mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
 	}
 	DrawDungeon(cmdList, ritems, true, true);
