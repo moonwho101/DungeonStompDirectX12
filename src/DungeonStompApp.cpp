@@ -1031,7 +1031,6 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	{
 		"FOG", "1",
 		"ALPHA_TEST", "1",
-		"SASO", "1",
 		NULL, NULL
 	};
 
@@ -1039,6 +1038,7 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	{
 		"FOG", "1",
 		"ALPHA_TEST", "1",
+		"SSAO", "1",
 		NULL, NULL
 	};
 
@@ -1059,6 +1059,8 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 
 	mShaders["standardVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["opaquePS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
+	mShaders["opaqueSsaoPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", sasoDefines, "PS", "ps_5_1");
+
 	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_1");
 	mShaders["torchPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", torchTestDefines, "PS", "ps_5_1");
 
@@ -1451,6 +1453,41 @@ void DungeonStompApp::BuildPSOs()
 
 
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
+
+	
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaqueSsaoPsoDesc;
+
+	//
+	// PSO for opaqueSsao objects.
+	//
+	ZeroMemory(&opaqueSsaoPsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+	opaqueSsaoPsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
+	opaqueSsaoPsoDesc.pRootSignature = mRootSignature.Get();
+	opaqueSsaoPsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["standardVS"]->GetBufferPointer()),
+		mShaders["standardVS"]->GetBufferSize()
+	};
+	opaqueSsaoPsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["opaqueSsaoPS"]->GetBufferPointer()),
+		mShaders["opaqueSsaoPS"]->GetBufferSize()
+	};
+	opaqueSsaoPsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	opaqueSsaoPsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	opaqueSsaoPsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	opaqueSsaoPsoDesc.SampleMask = UINT_MAX;
+	opaqueSsaoPsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	opaqueSsaoPsoDesc.NumRenderTargets = 1;
+	opaqueSsaoPsoDesc.RTVFormats[0] = mBackBufferFormat;
+	opaqueSsaoPsoDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
+	opaqueSsaoPsoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+	opaqueSsaoPsoDesc.DSVFormat = mDepthStencilFormat;
+
+
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaqueSsaoPsoDesc, IID_PPV_ARGS(&mPSOs["opaqueSsao"])));
+
+
 
 	//
 	// PSO for shadow map pass.
@@ -1952,7 +1989,13 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	//Draw dungeon, monsters and items with normal maps
 	DrawDungeon(cmdList, ritems, false, false, true);
 
-	mCommandList->SetPipelineState(mPSOs["opaque"].Get());
+	if (enableSSao) {
+		mCommandList->SetPipelineState(mPSOs["opaqueSsao"].Get());
+	}
+	else {
+		mCommandList->SetPipelineState(mPSOs["opaque"].Get());
+	}
+
 	//Draw dungeon, monsters and items without normal maps
 	DrawDungeon(cmdList, ritems, false, false, false);
 
