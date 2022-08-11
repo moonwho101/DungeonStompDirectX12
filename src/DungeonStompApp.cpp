@@ -299,7 +299,7 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
 	//Render the main scene
-	mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
+	//mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
 
 	// Indicate a state transition on the resource usage.
@@ -1026,12 +1026,22 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> DungeonStompApp::GetStaticSampl
 
 void DungeonStompApp::BuildShadersAndInputLayout()
 {
+
 	const D3D_SHADER_MACRO defines[] =
+	{
+		"FOG", "1",
+		"ALPHA_TEST", "1",
+		"SASO", "1",
+		NULL, NULL
+	};
+
+	const D3D_SHADER_MACRO sasoDefines[] =
 	{
 		"FOG", "1",
 		"ALPHA_TEST", "1",
 		NULL, NULL
 	};
+
 
 	const D3D_SHADER_MACRO alphaTestDefines[] =
 	{
@@ -1054,6 +1064,8 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 
 	mShaders["normalMapVS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["normalMapPS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", defines, "PS", "ps_5_1");
+	
+	mShaders["normalMapSsaoPS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", sasoDefines, "PS", "ps_5_1");
 
 	mShaders["shadowVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["shadowOpaquePS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", nullptr, "PS", "ps_5_1");
@@ -1495,6 +1507,36 @@ void DungeonStompApp::BuildPSOs()
 	normalMapPsoDesc.DSVFormat = mDepthStencilFormat;
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&normalMapPsoDesc, IID_PPV_ARGS(&mPSOs["normalMap"])));
 
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC normalMapSsaoPSoDesc;
+
+	//
+	// PSO for normalSasoMap objects.
+	//
+	ZeroMemory(&normalMapSsaoPSoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+	normalMapSsaoPSoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
+	normalMapSsaoPSoDesc.pRootSignature = mRootSignature.Get();
+	normalMapSsaoPSoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["normalMapVS"]->GetBufferPointer()),
+		mShaders["normalMapVS"]->GetBufferSize()
+	};
+	normalMapSsaoPSoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["normalMapSsaoPS"]->GetBufferPointer()),
+		mShaders["normalMapSsaoPS"]->GetBufferSize()
+	};
+	normalMapSsaoPSoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	normalMapSsaoPSoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	normalMapSsaoPSoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	normalMapSsaoPSoDesc.SampleMask = UINT_MAX;
+	normalMapSsaoPSoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	normalMapSsaoPSoDesc.NumRenderTargets = 1;
+	normalMapSsaoPSoDesc.RTVFormats[0] = mBackBufferFormat;
+	normalMapSsaoPSoDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
+	normalMapSsaoPSoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+	normalMapSsaoPSoDesc.DSVFormat = mDepthStencilFormat;
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&normalMapSsaoPSoDesc, IID_PPV_ARGS(&mPSOs["normalMapSsao"])));
+
 
 	//
 	// PSO for transparent objects
@@ -1900,7 +1942,13 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	tex.Offset(1, mCbvSrvDescriptorSize);
 	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-	//mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
+	if (enableSSao) {
+		mCommandList->SetPipelineState(mPSOs["normalMapSsao"].Get());
+	}
+	else {
+		mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
+	}
+
 	//Draw dungeon, monsters and items with normal maps
 	DrawDungeon(cmdList, ritems, false, false, true);
 
