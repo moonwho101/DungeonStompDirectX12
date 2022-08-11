@@ -80,8 +80,12 @@ float4 PS(VertexOut pin) : SV_Target
 
     // Finish texture projection and sample SSAO map.
     pin.SsaoPosH /= pin.SsaoPosH.w;
-    float ambientAccess = gSsaoMap.Sample(gsamLinearClamp, pin.SsaoPosH.xy, 0.0f).r;
 
+    float ambientAccess = 1.0f;
+
+#ifdef SSAO    
+    ambientAccess = gSsaoMap.Sample(gsamLinearClamp, pin.SsaoPosH.xy, 0.0f).r;
+#endif
     // Light terms.
     float4 ambient = ambientAccess * gAmbientLight * diffuseAlbedo;
 
