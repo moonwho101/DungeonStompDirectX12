@@ -300,6 +300,15 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 
 	//Render the main scene
 	//mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
+
+	if (enableSSao) {
+		mCommandList->SetPipelineState(mPSOs["normalMapSsao"].Get());
+	}
+	else {
+		mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
+	}
+
+
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
 
 	// Indicate a state transition on the resource usage.
@@ -1985,6 +1994,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	else {
 		mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 	}
+
 
 	//Draw dungeon, monsters and items with normal maps
 	DrawDungeon(cmdList, ritems, false, false, true);
