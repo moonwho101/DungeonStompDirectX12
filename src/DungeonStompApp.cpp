@@ -1975,7 +1975,7 @@ void DungeonStompApp::BuildRenderItems()
 
 void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, const GameTimer& gt)
 {
-	
+
 
 	auto ri = ritems[0];
 
@@ -1988,33 +1988,43 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	tex.Offset(1, mCbvSrvDescriptorSize);
 	cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-	if (enableSSao) {
-		mCommandList->SetPipelineState(mPSOs["normalMapSsao"].Get());
-	}
-	else {
-		mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
-	}
 
+	if (!drawingShadowMap) {
+		if (enableSSao) {
+			mCommandList->SetPipelineState(mPSOs["normalMapSsao"].Get());
+		}
+		else {
+			mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
+		}
+	}
 
 	//Draw dungeon, monsters and items with normal maps
 	DrawDungeon(cmdList, ritems, false, false, true);
 
-	if (enableSSao) {
-		mCommandList->SetPipelineState(mPSOs["opaqueSsao"].Get());
-	}
-	else {
-		mCommandList->SetPipelineState(mPSOs["opaque"].Get());
+
+	if (!drawingShadowMap) {
+		if (enableSSao) {
+			mCommandList->SetPipelineState(mPSOs["opaqueSsao"].Get());
+		}
+		else {
+			mCommandList->SetPipelineState(mPSOs["opaque"].Get());
+		}
 	}
 
 	//Draw dungeon, monsters and items without normal maps
 	DrawDungeon(cmdList, ritems, false, false, false);
 
 	////Draw alpha transparent items
-	mCommandList->SetPipelineState(mPSOs["transparent"].Get());
+
+	if (!drawingShadowMap) {
+		mCommandList->SetPipelineState(mPSOs["transparent"].Get());
+	}
 	DrawDungeon(cmdList, ritems, true);
 
 	//Draw the torches and effects
-	mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
+	if (!drawingShadowMap) {
+		mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
+	}
 	DrawDungeon(cmdList, ritems, true, true);
 
 
