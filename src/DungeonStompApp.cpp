@@ -1984,10 +1984,8 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
 
 	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-
-	tex.Offset(1, mCbvSrvDescriptorSize);
-	cmdList->SetGraphicsRootDescriptorTable(3, tex);
-
+	//tex.Offset(1, mCbvSrvDescriptorSize);
+	//cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
 	bool enablePSO = true;
 
