@@ -106,7 +106,9 @@ Source: "c:\github\DungeonStompDirectX12\Shaders\RectangleVertexShader.hlsl"; De
 Source: "c:\github\DungeonStompDirectX12\Shaders\TextPixelShader.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
 Source: "c:\github\DungeonStompDirectX12\Shaders\TextVertexShader.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
 
-
+Source: "c:\github\DungeonStompDirectX12\Shaders\DrawNormals.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Shaders\Ssao.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
+Source: "c:\github\DungeonStompDirectX12\Shaders\SsaoBlur.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
 
 
 Source: "c:\github\DungeonStompDirectX12\bin\soundsInstaller.dat"; DestDir: "{app}\bin";DestName: "sounds.dat"; Flags: ignoreversion
