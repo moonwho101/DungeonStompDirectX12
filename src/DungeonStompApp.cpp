@@ -1989,7 +1989,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	bool enablePSO = true;
 
-	if (drawingShadowMap ) {
+	if (drawingShadowMap || drawingSSAO ) {
 		enablePSO = false;
 	}
 	
