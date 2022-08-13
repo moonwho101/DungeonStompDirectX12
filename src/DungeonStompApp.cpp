@@ -2024,11 +2024,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	//Draw the torches and effects
 	DrawDungeon(cmdList, ritems, true, true);
 
-	if (drawingSSAO || drawingShadowMap) {
-
-	}
-	else {
-
+	if (enablePSO) {
 		//Draw the Monster Captions
 		tex.Offset(377, mCbvSrvDescriptorSize);
 		cmdList->SetGraphicsRootDescriptorTable(3, tex);
