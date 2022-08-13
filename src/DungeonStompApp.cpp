@@ -288,8 +288,8 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
 	// Clear the back buffer and depth buffer.
-	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), (float*)&mMainPassCB.FogColor, 0, nullptr);
-	//mCommandList->ClearRenderTargetView(CurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+	//mCommandList->ClearRenderTargetView(CurrentBackBufferView(), (float*)&mMainPassCB.FogColor, 0, nullptr);  //Colors::LightSteelBlue
+	
 	mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
 	// Specify the buffers we are going to render to.
@@ -1247,7 +1247,7 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 		D3D12_BLEND_DESC rectangleBlendStateDesc = {};
 		rectangleBlendStateDesc.AlphaToCoverageEnable = FALSE;
 		rectangleBlendStateDesc.IndependentBlendEnable = FALSE;
-		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
+		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
 
 		rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
@@ -1460,6 +1460,8 @@ void DungeonStompApp::BuildPSOs()
 	opaquePsoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
 	opaquePsoDesc.DSVFormat = mDepthStencilFormat;
 
+	opaquePsoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_EQUAL;
+	opaquePsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
 
