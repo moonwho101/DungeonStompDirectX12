@@ -304,16 +304,6 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
 	//Render the main scene
-	//mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
-
-	if (enableSSao) {
-		mCommandList->SetPipelineState(mPSOs["normalMapSsao"].Get());
-	}
-	else {
-		mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
-	}
-
-
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
 
 	// Indicate a state transition on the resource usage.
@@ -1983,7 +1973,6 @@ void DungeonStompApp::BuildRenderItems()
 void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, const GameTimer& gt)
 {
 
-
 	auto ri = ritems[0];
 
 	cmdList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
@@ -1999,7 +1988,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	if (drawingShadowMap || drawingSSAO ) {
 		enablePSO = false;
 	}
-	
 
 	if (enablePSO) {
 		if (enableSSao) {
@@ -2009,10 +1997,8 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 			mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 		}
 	}
-
 	//Draw dungeon, monsters and items with normal maps
 	DrawDungeon(cmdList, ritems, false, false, true);
-
 
 	if (enablePSO) {
 		if (enableSSao) {
@@ -2022,23 +2008,21 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 			mCommandList->SetPipelineState(mPSOs["opaque"].Get());
 		}
 	}
-
 	//Draw dungeon, monsters and items without normal maps
 	DrawDungeon(cmdList, ritems, false, false, false);
-
-	////Draw alpha transparent items
 
 	if (enablePSO) {
 		mCommandList->SetPipelineState(mPSOs["transparent"].Get());
 	}
+	//Draw alpha transparent items
 	DrawDungeon(cmdList, ritems, true);
 
-	//Draw the torches and effects
+	
 	if (enablePSO) {
 		mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
 	}
+	//Draw the torches and effects
 	DrawDungeon(cmdList, ritems, true, true);
-
 
 	if (drawingSSAO || drawingShadowMap) {
 
