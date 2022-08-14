@@ -1163,6 +1163,24 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	rectanglePixelShaderBytecode.BytecodeLength = rectanglePixelShader->GetBufferSize();
 	rectanglePixelShaderBytecode.pShaderBytecode = rectanglePixelShader->GetBufferPointer();
 
+	// compile pixel shader
+	ID3DBlob* rectanglePixelMapShader;
+	hr = D3DCompileFromFile(L"..\\Shaders\\rectanglePixelMapShader.hlsl",
+		nullptr,
+		nullptr,
+		"main",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&rectanglePixelMapShader,
+		&errorBuff);
+
+	// fill out shader bytecode structure for pixel shader
+	D3D12_SHADER_BYTECODE rectanglePixelMapShaderBytecode = {};
+	rectanglePixelMapShaderBytecode.BytecodeLength = rectanglePixelMapShader->GetBufferSize();
+	rectanglePixelMapShaderBytecode.pShaderBytecode = rectanglePixelMapShader->GetBufferPointer();
+
+
 
 	mInputLayout =
 	{
@@ -1244,6 +1262,12 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 		rectangleBlendStateDesc.IndependentBlendEnable = FALSE;
 		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
 
+		if (i == MaxRectangle - 1) {
+			//shadowmap/ssoa texture - make it not transparent
+			rectangleBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
+			rectanglepsoDesc.PS = rectanglePixelMapShaderBytecode;
+		}
+
 		rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
 		rectangleBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
@@ -1253,6 +1277,8 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 			rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_COLOR;
 			rectangleBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 		}
+
+
 
 		rectangleBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
 		rectangleBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
