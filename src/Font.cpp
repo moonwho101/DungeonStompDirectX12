@@ -39,6 +39,10 @@ int displayCapture = 0;
 
 int displayShadowMap = 0;
 
+extern bool drawingShadowMap;
+extern bool drawingSSAO;
+
+
 
 struct gametext
 {
@@ -332,6 +336,10 @@ void DungeonStompApp::RenderRectangle(Font font, int index, int textureid, XMFLO
 
 void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
 {
+
+	if (drawingShadowMap || drawingSSAO)
+		return;
+
 	// clear the depth buffer so we can draw over everything
 	//mCommandList->ClearDepthStencilView(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
