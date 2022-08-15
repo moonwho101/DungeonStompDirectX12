@@ -691,7 +691,7 @@ void DungeonStompApp::UpdateSsaoCB(const GameTimer& gt)
 
 	mSsao->GetOffsetVectors(ssaoCB.OffsetVectors);
 
-	auto blurWeights = mSsao->CalcGaussWeights(2.5f);
+	auto blurWeights = mSsao->CalcGaussWeights(12.5f);
 	ssaoCB.BlurWeights[0] = XMFLOAT4(&blurWeights[0]);
 	ssaoCB.BlurWeights[1] = XMFLOAT4(&blurWeights[4]);
 	ssaoCB.BlurWeights[2] = XMFLOAT4(&blurWeights[8]);
@@ -699,9 +699,9 @@ void DungeonStompApp::UpdateSsaoCB(const GameTimer& gt)
 	ssaoCB.InvRenderTargetSize = XMFLOAT2(1.0f / mSsao->SsaoMapWidth(), 1.0f / mSsao->SsaoMapHeight());
 
 	// Coordinates given in view space.
-	ssaoCB.OcclusionRadius = 0.5f;
-	ssaoCB.OcclusionFadeStart = 0.2f;
-	ssaoCB.OcclusionFadeEnd = 1.0f;
+	ssaoCB.OcclusionRadius = 10.5f;
+	ssaoCB.OcclusionFadeStart = 0.3f;
+	ssaoCB.OcclusionFadeEnd = 2.0f;
 	ssaoCB.SurfaceEpsilon = 0.05f;
 
 	auto currSsaoCB = mCurrFrameResource->SsaoCB.get();
