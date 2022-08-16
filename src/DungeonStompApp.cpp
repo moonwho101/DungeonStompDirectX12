@@ -1268,6 +1268,12 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 			rectanglepsoDesc.PS = rectanglePixelMapShaderBytecode;
 		}
 
+
+		//if (i == MaxRectangle - 2 || i == MaxRectangle - 3) {
+		//	//make the dice not transparent
+		//	rectangleBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
+		//}
+
 		rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
 		rectangleBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
