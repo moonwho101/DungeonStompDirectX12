@@ -691,7 +691,7 @@ void DungeonStompApp::UpdateSsaoCB(const GameTimer& gt)
 
 	mSsao->GetOffsetVectors(ssaoCB.OffsetVectors);
 
-	auto blurWeights = mSsao->CalcGaussWeights(12.5f);
+	auto blurWeights = mSsao->CalcGaussWeights(2.5f);
 	ssaoCB.BlurWeights[0] = XMFLOAT4(&blurWeights[0]);
 	ssaoCB.BlurWeights[1] = XMFLOAT4(&blurWeights[4]);
 	ssaoCB.BlurWeights[2] = XMFLOAT4(&blurWeights[8]);
