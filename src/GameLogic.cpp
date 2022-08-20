@@ -488,7 +488,7 @@ void MoveMonsters(float fElapsedTime)
 
 					if (monster_list[i].dist > 200.0f)
 					{
-						if (monster_list[i].firespeed == 0 && firetype > 0 && monster_list[i].ability !=7)
+						if (monster_list[i].firespeed == 0 && firetype > 0 && monster_list[i].ability != 7)
 						{
 							mspeed = (int)25 - (int)monster_list[i].hd;
 
@@ -1307,16 +1307,17 @@ int OpenDoor(int doornum, float dist, FLOAT fTimeKey)
 				up = 10.0f;
 				if (maingameloop)
 				{
+					//Moveup - door goes upward
+					up = (350.0f * fTimeKey);
 
 					oblist[doornum].y = oblist[doornum].y + up;
 					door[i].up += up;
 				}
 				if (door[i].up > 160.0f)
 				{
-
 					senddoorinfo = 0;
 					door[i].open = -100;
-					door[i].y = (int) oblist[doornum].y;
+					door[i].y = (int)oblist[doornum].y;
 				}
 			}
 			else
@@ -2000,7 +2001,7 @@ void MonsterHit()
 		dice[0].roll = 0;
 		sprintf_s(dice[0].name, "%ss%d", dice[0].prefix, action);
 
-		
+
 
 		if (!hitmonster) {
 			dice[1].roll = 0;
@@ -2135,7 +2136,7 @@ void MonsterHit()
 				int weapondamage = your_gun[gunmodel].damage2;
 				action = action + attackbonus;
 				//No damage if the mosnter is already in pain.
-				if (action >= player_list[trueplayernum].thaco - monster_list[i].ac) 
+				if (action >= player_list[trueplayernum].thaco - monster_list[i].ac)
 				{
 					monster_list[i].takedamageonce = 1;
 
