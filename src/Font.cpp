@@ -928,7 +928,8 @@ void DungeonStompApp::ScanMod(float fElapsedTime)
 					ScanModJump(levelmodify[counter].jump);
 					if (item_list[j].y - levelmodify[counter].currentheight <= atoi(levelmodify[counter].Text1))
 					{
-						item_list[j].y++;
+						item_list[j].y = item_list[j].y + (50.0f * fElapsedTime);
+
 						qdist = FastDistance(
 							player_list[trueplayernum].x - item_list[j].x,
 							player_list[trueplayernum].y - item_list[j].y,
