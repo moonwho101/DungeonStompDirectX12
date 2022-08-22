@@ -154,8 +154,8 @@ bool DungeonStompApp::Initialize()
 
 	InitDS();
 	
-	bobY.SinWave(1.0f, 14.0f, 13.0f);
-	bobX.SinWave(1.0f, 24.0f, 26.0f);
+	bobY.SinWave(1.0f, 14.0f, 5.0f);
+	bobX.SinWave(1.0f, 14.0f, 10.0f);
 
 
 
@@ -455,9 +455,12 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 
 
 	float adjust = 50.0f;
+	float adjust2 = 0.0f;
 
 	//if (savelastmove == 1) {
-		adjust = 50.0f + bobY.getY();
+	//adjust = 50.0f + bobY.getY();
+	adjust2 = bobY.getY();
+	float adjust3 = bobX.getY();
 	//}
 
 	if (player_list[trueplayernum].bIsPlayerAlive == FALSE) {
@@ -469,14 +472,14 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	mEyePos.y = m_vEyePt.y + adjust;
 	mEyePos.z = m_vEyePt.z;
 
-	player_list[trueplayernum].x = m_vEyePt.x;
+	player_list[trueplayernum].x = m_vEyePt.x ;
 	player_list[trueplayernum].y = m_vEyePt.y + adjust;
 	player_list[trueplayernum].z = m_vEyePt.z;
 
 	// Build the view matrix.
-	XMVECTOR pos = XMVectorSet(mEyePos.x, mEyePos.y, mEyePos.z, 1.0f);
+	XMVECTOR pos = XMVectorSet(mEyePos.x + adjust2, mEyePos.y + adjust3, mEyePos.z, 1.0f);
 	//XMVECTOR target = XMVectorZero();
-	XMVECTOR target = XMVectorSet(m_vLookatPt.x, m_vLookatPt.y + adjust, m_vLookatPt.z, 1.0f);
+	XMVECTOR target = XMVectorSet(m_vLookatPt.x + adjust2, m_vLookatPt.y + adjust + adjust3, m_vLookatPt.z, 1.0f);
 
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
