@@ -99,6 +99,9 @@
     <ClCompile Include="Ssao.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CameraBob.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameResource.h">
@@ -187,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="Ssao.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraBob.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

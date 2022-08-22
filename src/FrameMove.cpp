@@ -7,6 +7,7 @@
 #include "GameLogic.hpp"
 #include "Missle.hpp"
 #include "FrameMove.hpp"
+#include "CameraBob.hpp"
 
 extern int gravityon;
 int movement = 1;
@@ -17,6 +18,8 @@ bool MovePlayer(const FLOAT& fTimeKey);
 void StrifePlayer(FLOAT& fTimeKey, bool addVel);
 void PlayerAnimation();
 void CheckAngle();
+
+extern CameraBob bobY;
 
 HRESULT FrameMove(double fTime, FLOAT fTimeKey)
 {

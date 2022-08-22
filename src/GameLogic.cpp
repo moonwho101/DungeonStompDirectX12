@@ -9,6 +9,7 @@
 #include "Dice.hpp"
 #include <timeapi.h>
 #include <DirectXMath.h>
+#include "CameraBob.hpp"
 using namespace DirectX;
 
 #pragma comment( lib, "Winmm.lib" )
@@ -2255,7 +2256,7 @@ void MonsterHit()
 
 }
 
-
+extern CameraBob bobY;
 void DrawPlayerGun()
 {
 	// DRAW YOUR GUN ///////////////////////////////////////////
@@ -2307,9 +2308,9 @@ void DrawPlayerGun()
 			}
 			else
 			{
-
+				
 				wx = GunTruesave.x;
-				wy = GunTruesave.y + 10.0f;
+				wy = GunTruesave.y + 10.0f + bobY.getY();
 				wz = GunTruesave.z;
 				//wx = m_vEyePt.x;
 				//wy = m_vEyePt.y + 50.0f;

@@ -15,6 +15,7 @@
 #include "GameLogic.hpp"
 #include "DungeonStomp.hpp"
 #include "Ssao.h"
+#include "CameraBob.hpp"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -38,6 +39,7 @@ extern BOOL* dp_command_index_mode;
 extern int cnt;
 extern D3DVERTEX2* src_v;
 extern int number_of_polys_per_frame;
+extern int savelastmove;
 
 extern int displayCaptureIndex[1000];
 extern int displayCaptureCount[1000];
@@ -53,6 +55,10 @@ extern int playerObjectStart;
 extern int playerObjectEnd;
 extern int gravityon;
 extern int outside;
+
+
+CameraBob bobY;
+CameraBob bobX;
 
 
 bool drawingShadowMap = false;
@@ -147,8 +153,14 @@ bool DungeonStompApp::Initialize()
 
 
 	InitDS();
+	
+	bobY.SinWave(1.0f, 14.0f, 13.0f);
+	bobX.SinWave(1.0f, 24.0f, 26.0f);
+
+
 
 	arialFont = LoadFont(L"Arial.fnt", 800, 600);
+	
 
 	// Execute the initialization commands.
 	ThrowIfFailed(mCommandList->Close());
@@ -204,7 +216,15 @@ void DungeonStompApp::Update(const GameTimer& gt)
 	FrameMove(0.0f, t);
 	UpdateWorld(t);
 	OnKeyboardInput(gt);
+
+	bobY.update(t);
+	bobX.update(t);
+
 	UpdateCamera(gt);
+
+	
+	
+
 
 	// Cycle through the circular frame resource array.
 	mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % gNumFrameResources;
@@ -433,7 +453,12 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	//mEyePos.z = mRadius * sinf(mPhi) * sinf(mTheta);
 	//mEyePos.y = mRadius * cosf(mPhi);
 
+
 	float adjust = 50.0f;
+
+	//if (savelastmove == 1) {
+		adjust = 50.0f + bobY.getY();
+	//}
 
 	if (player_list[trueplayernum].bIsPlayerAlive == FALSE) {
 		//Dead on floor
