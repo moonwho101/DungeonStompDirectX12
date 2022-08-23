@@ -494,7 +494,10 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 			XMFLOAT3 newspot;
 			XMFLOAT3 newspot2;
 
-
+			if (savelastmove == 0) {
+				r = 1.0f;
+				adjust3 = 0.0f;
+			}
 
 
 			newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
@@ -509,7 +512,7 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 			newspot2.x = newspot.x + cameradist * sinf(newangle * k) * sinf(angy * k);
 			newspot2.y = newspot.y + cameradist * cosf(newangle * k);
 			newspot2.z = newspot.z + cameradist * sinf(newangle * k) * cosf(angy * k);
-
+			
 
 
 	// Build the view matrix.
