@@ -508,7 +508,7 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 
 			newspot2.x = newspot.x + cameradist * sinf(newangle * k) * sinf(angy * k);
 			newspot2.y = newspot.y + cameradist * cosf(newangle * k);
-			newspot2.z = newspot.z + cameradist * cosf(angy * k);
+			newspot2.z = newspot.z + cameradist * sinf(newangle * k) * cosf(angy * k);
 
 
 
