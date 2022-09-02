@@ -751,7 +751,7 @@ void CheckMidiMusic()
         raction = random_num(2);
         skipmusic = 0;
 
-        PlaySong();
+        //PlaySong();
     }
 }
 
