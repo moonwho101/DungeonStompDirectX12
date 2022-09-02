@@ -500,10 +500,10 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 				by = 0.0f;
 			}*/
 
-			by = 0.0f;
+			//by = 0.0f;
 
 			newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
-			newspot.y = player_list[trueplayernum].y + 0.0f;
+			newspot.y = player_list[trueplayernum].y + by;
 			newspot.z = player_list[trueplayernum].z + r * cosf(step_left_angy * k);
 
 			float cameradist = 50.0f;
@@ -512,15 +512,15 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 			newangle = fixangle(look_up_ang, 90);
 
 			newspot2.x = newspot.x + cameradist * sinf(newangle * k) * sinf(angy * k);
-			newspot2.y = newspot.y + cameradist * cosf(newangle * k);
+			newspot2.y = newspot.y + cameradist * cosf(newangle * k) ;
 			newspot2.z = newspot.z + cameradist * sinf(newangle * k) * cosf(angy * k);
 			
 
 			mEyePos = newspot;
 	// Build the view matrix.
 	//XMVECTOR pos = XMVectorSet(mEyePos.x + adjust2, mEyePos.y + adjust3, mEyePos.z, 1.0f);
-	XMVECTOR pos = XMVectorSet(newspot.x , newspot.y + by, newspot.z, 1.0f);
-	XMVECTOR target = XMVectorSet(newspot2.x, newspot2.y + by, newspot2.z, 1.0f);
+	XMVECTOR pos = XMVectorSet(newspot.x , newspot.y , newspot.z, 1.0f);
+	XMVECTOR target = XMVectorSet(newspot2.x, newspot2.y , newspot2.z, 1.0f);
 
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
