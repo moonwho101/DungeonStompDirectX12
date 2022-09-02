@@ -516,7 +516,7 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 			newspot2.z = newspot.z + cameradist * sinf(newangle * k) * cosf(angy * k);
 			
 
-
+			mEyePos = newspot;
 	// Build the view matrix.
 	//XMVECTOR pos = XMVectorSet(mEyePos.x + adjust2, mEyePos.y + adjust3, mEyePos.z, 1.0f);
 	XMVECTOR pos = XMVectorSet(newspot.x , newspot.y + by, newspot.z, 1.0f);
