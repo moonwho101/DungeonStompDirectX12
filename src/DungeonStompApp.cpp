@@ -514,6 +514,8 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 				bobY.setY(0);
 			}
 
+			//by = 0.0f;
+
 			newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
 			newspot.y = player_list[trueplayernum].y + by;
 			newspot.z = player_list[trueplayernum].z + r * cosf(step_left_angy * k);

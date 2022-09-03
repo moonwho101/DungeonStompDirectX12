@@ -2257,6 +2257,7 @@ void MonsterHit()
 }
 
 extern CameraBob bobY;
+
 void DrawPlayerGun()
 {
 	// DRAW YOUR GUN ///////////////////////////////////////////
@@ -2310,7 +2311,7 @@ void DrawPlayerGun()
 			{
 				
 				wx = GunTruesave.x;
-				wy = GunTruesave.y + 10.0f + bobY.getY();
+				wy = GunTruesave.y + 10.0f;// +bobY.getY();
 				wz = GunTruesave.z;
 				//wx = m_vEyePt.x;
 				//wy = m_vEyePt.y + 50.0f;

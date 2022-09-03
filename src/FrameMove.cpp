@@ -79,7 +79,7 @@ HRESULT FrameMove(double fTime, FLOAT fTimeKey)
 	cameraf.y = LookTrue.y;
 	cameraf.z = LookTrue.z;
 
-	GunTruesave = EyeTrue;
+	//GunTruesave = EyeTrue;
 
 	return S_OK;
 }
