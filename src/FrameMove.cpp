@@ -20,6 +20,8 @@ void PlayerAnimation();
 void CheckAngle();
 
 extern CameraBob bobY;
+int playercurrentmove = 0;
+
 
 HRESULT FrameMove(double fTime, FLOAT fTimeKey)
 {
@@ -62,6 +64,7 @@ HRESULT FrameMove(double fTime, FLOAT fTimeKey)
 	m_vLookatPt.y = m_vEyePt.y + cameradist * cosf(newangle * k);
 	m_vLookatPt.z = m_vEyePt.z + cameradist * sinf(newangle * k) * cosf(angy * k);
 
+	playercurrentmove = playermove;
 	playermove = 0;
 	playermovestrife = 0;
 

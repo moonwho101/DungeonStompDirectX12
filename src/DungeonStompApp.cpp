@@ -45,6 +45,9 @@ extern int displayCaptureIndex[1000];
 extern int displayCaptureCount[1000];
 extern int displayCapture;
 extern int displayShadowMap;
+
+extern int playercurrentmove;
+
 int displayShadowMapKeyPress = 0;
 
 bool enableSSao = false;
@@ -495,12 +498,21 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 			XMFLOAT3 newspot;
 			XMFLOAT3 newspot2;
 
-	/*		if (savelastmove == 0) {
+
+			if (playercurrentmove == 1 || playercurrentmove == 4) {
+
+			}
+			else 
+			{
 				r = 1.0f;
 				by = 0.0f;
-			}*/
 
-			//by = 0.0f;
+				bobX.setX(0);
+				bobX.setY(0);
+
+				bobY.setX(0);
+				bobY.setY(0);
+			}
 
 			newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
 			newspot.y = player_list[trueplayernum].y + by;
@@ -517,6 +529,9 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 			
 
 			mEyePos = newspot;
+
+			GunTruesave = newspot;
+
 	// Build the view matrix.
 	//XMVECTOR pos = XMVectorSet(mEyePos.x + adjust2, mEyePos.y + adjust3, mEyePos.z, 1.0f);
 	XMVECTOR pos = XMVectorSet(newspot.x , newspot.y , newspot.z, 1.0f);
