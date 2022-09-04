@@ -449,6 +449,12 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 
 }
 
+float centrex = 0;
+float centrey = 0;
+bool centre = false;
+bool stopx = false;
+bool stopy = false;
+
 void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 {
 	// Convert Spherical to Cartesian coordinates.
@@ -497,24 +503,67 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 
 			XMFLOAT3 newspot;
 			XMFLOAT3 newspot2;
-
+			
 
 			if (playercurrentmove == 1 || playercurrentmove == 4) {
-
+				centre = false;
+				stopx = false;
+				stopy = false;
 			}
-			else 
-			{
-				r = 1.0f;
+			//else
+			//{
+
+				if (playercurrentmove == 0) {
+					if (!centre) {
+						centre = true;
+						centrex = bobX.getY();
+						centrey = bobY.getY();
+					}
+				}
+			//}
+
+			//by = 0.0f;
+			//r = 1.0f;
+
+			if (centre) {
+				//Y bob 
+				if (centrey <= 0) {
+					if (bobY.getY() >= 0) {
+
+						stopx = true;
+					}
+				}
+				else if (centrey > 0) {
+					if (bobY.getY() < 0) {
+
+						stopx = true;
+					}
+				}
+
+				//X bob
+				if (centrex <= 0) {
+					if (bobX.getY() >= 0) {
+						stopy = true;
+					}
+				}
+				else if (centrex > 0) {
+					if (bobX.getY() < 0) {
+						stopy = true;
+					}
+				}
+			}
+
+			if (stopx) {
 				by = 0.0f;
-
-				bobX.setX(0);
-				bobX.setY(0);
-
 				bobY.setX(0);
 				bobY.setY(0);
 			}
 
-			//by = 0.0f;
+			if (stopy) {
+				r = 1.0f;
+				bobY.setX(0);
+				bobY.setY(0);
+			}
 
 			newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
 			newspot.y = player_list[trueplayernum].y + by;
