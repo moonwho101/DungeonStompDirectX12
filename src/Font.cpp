@@ -496,7 +496,8 @@ void DungeonStompApp::DisplayHud() {
 	//display_message(0.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 0, 12.5, 16, 0);
 	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.0f, 0.82f), XMFLOAT2(0.30f, 0.30f));
 
-	sprintf_s(junk, "%f4.2/%f4.2", bobX.getY() , bobY.getY());
+	//sprintf_s(junk, "%f4.2/%f4.2", bobX.getY() , bobY.getY());
+	sprintf_s(junk, "%d/%d", player_list[trueplayernum].health, player_list[trueplayernum].hp);
 	//display_message(0.0f + 110.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 255, 12.5, 16, 0);
 	RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.07f, 0.82f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
 
