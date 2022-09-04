@@ -157,8 +157,8 @@ bool DungeonStompApp::Initialize()
 
 	InitDS();
 	
-	bobX.SinWave(2.0f, 2.0f, 2.0f);
-	bobY.SinWave(2.0f, 2.0f, 4.0f);
+	bobX.SinWave(4.0f, 2.0f, 2.0f);
+	bobY.SinWave(4.0f, 2.0f, 4.0f);
 
 
 	arialFont = LoadFont(L"Arial.fnt", 800, 600);
