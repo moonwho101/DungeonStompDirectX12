@@ -157,9 +157,8 @@ bool DungeonStompApp::Initialize()
 
 	InitDS();
 	
-	bobX.SinWave(1.0f, 20.0f, 5.0f);
-	bobY.SinWave(1.0f, 20.0f, 10.0f);
-
+	bobX.SinWave(2.0f, 2.0f, 2.0f);
+	bobY.SinWave(2.0f, 2.0f, 4.0f);
 
 
 	arialFont = LoadFont(L"Arial.fnt", 800, 600);
@@ -526,43 +525,43 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 			//r = 1.0f;
 
 			if (centre) {
-				//Y bob 
-				if (centrey <= 0) {
-					if (bobY.getY() >= 0) {
-
-						stopx = true;
-					}
-				}
-				else if (centrey > 0) {
-					if (bobY.getY() < 0) {
-
-						stopx = true;
-					}
-				}
 
 				//X bob
 				if (centrex <= 0) {
 					if (bobX.getY() >= 0) {
-						stopy = true;
+						stopx = true;
 					}
 				}
 				else if (centrex > 0) {
-					if (bobX.getY() < 0) {
+					if (bobX.getY() <= 0) {
+						stopx = true;
+					}
+				}
+
+				//Y bob 
+				if (centrey <= 0) {
+					if (bobY.getY() >= 0) {
 						stopy = true;
 					}
 				}
+				else if (centrey > 0) {
+					if (bobY.getY() <= 0) {
+						stopy = true;
+					}
+				}
+
 			}
 
-			if (stopx) {
+			if (stopy) {
 				by = 0.0f;
 				bobY.setX(0);
 				bobY.setY(0);
 			}
 
-			if (stopy) {
+			if (stopx) {
 				r = 1.0f;
-				bobY.setX(0);
-				bobY.setY(0);
+				bobX.setX(0);
+				bobX.setY(0);
 			}
 
 			newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
