@@ -53,16 +53,18 @@ int displayShadowMapKeyPress = 0;
 bool enableSSao = false;
 bool enableSSaoKey = false;
 
-
 extern int playerObjectStart;
 extern int playerObjectEnd;
 extern int gravityon;
 extern int outside;
 
-
 CameraBob bobY;
 CameraBob bobX;
-
+float centrex = 0;
+float centrey = 0;
+bool centre = false;
+bool stopx = false;
+bool stopy = false;
 
 bool drawingShadowMap = false;
 bool drawingSSAO = false;
@@ -102,9 +104,9 @@ DungeonStompApp::DungeonStompApp(HINSTANCE hInstance)
 {
 
 	// Estimate the scene bounding sphere manually since we know how the scene was constructed.
-// The grid is the "widest object" with a width of 20 and depth of 30.0f, and centered at
-// the world space origin.  In general, you need to loop over every world space vertex
-// position and compute the bounding sphere.
+	// The grid is the "widest object" with a width of 20 and depth of 30.0f, and centered at
+	// the world space origin.  In general, you need to loop over every world space vertex
+	// position and compute the bounding sphere.
 	mSceneBounds.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	//mSceneBounds.Radius = sqrtf(110.0f * 110.0f + 115.0f * 115.0f);
 
@@ -151,18 +153,15 @@ bool DungeonStompApp::Initialize()
 	BuildRenderItems();
 	BuildFrameResources();
 	BuildPSOs();
-
 	mSsao->SetPSOs(mPSOs["ssao"].Get(), mPSOs["ssaoBlur"].Get());
 
-
 	InitDS();
-	
+
+	//Set headbob
 	bobX.SinWave(4.0f, 2.0f, 2.0f);
 	bobY.SinWave(4.0f, 2.0f, 4.0f);
 
-
 	arialFont = LoadFont(L"Arial.fnt", 800, 600);
-	
 
 	// Execute the initialization commands.
 	ThrowIfFailed(mCommandList->Close());
@@ -175,7 +174,6 @@ bool DungeonStompApp::Initialize()
 	textVertexBufferView.SizeInBytes = maxNumTextCharacters * sizeof(TextVertex);
 
 	//Set the Rectangle Buffer
-
 	for (int i = 0; i < MaxRectangle; ++i)
 	{
 		rectangleVertexBufferView[i].BufferLocation = rectangleVertexBuffer[i]->GetGPUVirtualAddress();
@@ -224,10 +222,6 @@ void DungeonStompApp::Update(const GameTimer& gt)
 
 	UpdateCamera(gt);
 
-	
-	
-
-
 	// Cycle through the circular frame resource array.
 	mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % gNumFrameResources;
 	mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
@@ -257,7 +251,7 @@ void DungeonStompApp::Update(const GameTimer& gt)
 	UpdateMainPassCB(gt);
 	UpdateSsaoCB(gt);
 	UpdateShadowPassCB(gt);
-	
+
 	UpdateDungeon(gt);
 
 }
@@ -314,9 +308,9 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 		// SO DO NOT CLEAR DEPTH.
 
 		// Clear the back buffer and depth buffer.
-		mCommandList->ClearRenderTargetView(CurrentBackBufferView(), (float*)&mMainPassCB.FogColor, 0, nullptr);  //Colors::LightSteelBlue
+	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), (float*)&mMainPassCB.FogColor, 0, nullptr);  //Colors::LightSteelBlue
 	//}
-	
+
 	mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
 	// Specify the buffers we are going to render to.
@@ -448,29 +442,15 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 
 }
 
-float centrex = 0;
-float centrey = 0;
-bool centre = false;
-bool stopx = false;
-bool stopy = false;
 
 void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 {
-	// Convert Spherical to Cartesian coordinates.
-	//mEyePos.x = mRadius * sinf(mPhi) * cosf(mTheta);
-	//mEyePos.z = mRadius * sinf(mPhi) * sinf(mTheta);
-	//mEyePos.y = mRadius * cosf(mPhi);
-
-
 	float adjust = 50.0f;
 	float bx = 0.0f;
+	float by = 0.0f;
 
-	//if (savelastmove == 1) {
-	//adjust = 50.0f + bobY.getY();
 	bx = bobX.getY();
-	float by = bobY.getY();
-
-	//}
+	by = bobY.getY();
 
 	if (player_list[trueplayernum].bIsPlayerAlive == FALSE) {
 		//Dead on floor
@@ -481,111 +461,102 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	mEyePos.y = m_vEyePt.y + adjust;
 	mEyePos.z = m_vEyePt.z;
 
-	player_list[trueplayernum].x = m_vEyePt.x ;
+	player_list[trueplayernum].x = m_vEyePt.x;
 	player_list[trueplayernum].y = m_vEyePt.y + adjust;
 	player_list[trueplayernum].z = m_vEyePt.z;
-
 
 	float step_left_angy = 0;
 	float r = 15.0f;
 
-		step_left_angy = angy - 90;
+	step_left_angy = angy - 90;
 
-		if (step_left_angy < 0)
-			step_left_angy += 360;
+	if (step_left_angy < 0)
+		step_left_angy += 360;
 
-		if (step_left_angy >= 360)
-			step_left_angy = step_left_angy - 360;
+	if (step_left_angy >= 360)
+		step_left_angy = step_left_angy - 360;
 
-			r = bx;
+	r = bx;
 
+	XMFLOAT3 newspot;
+	XMFLOAT3 newspot2;
 
-			XMFLOAT3 newspot;
-			XMFLOAT3 newspot2;
-			
+	if (playercurrentmove == 1 || playercurrentmove == 4) {
+		centre = false;
+		stopx = false;
+		stopy = false;
+	}
 
-			if (playercurrentmove == 1 || playercurrentmove == 4) {
-				centre = false;
-				stopx = false;
-				stopy = false;
+	if (playercurrentmove == 0) {
+		if (!centre) {
+			centre = true;
+			centrex = bobX.getY();
+			centrey = bobY.getY();
+		}
+	}
+
+	if (centre) {
+
+		//X bob bring to centre
+		if (centrex <= 0) {
+			if (bobX.getY() >= 0) {
+				stopx = true;
 			}
-			//else
-			//{
-
-				if (playercurrentmove == 0) {
-					if (!centre) {
-						centre = true;
-						centrex = bobX.getY();
-						centrey = bobY.getY();
-					}
-				}
-			//}
-
-			//by = 0.0f;
-			//r = 1.0f;
-
-			if (centre) {
-
-				//X bob
-				if (centrex <= 0) {
-					if (bobX.getY() >= 0) {
-						stopx = true;
-					}
-				}
-				else if (centrex > 0) {
-					if (bobX.getY() <= 0) {
-						stopx = true;
-					}
-				}
-
-				//Y bob 
-				if (centrey <= 0) {
-					if (bobY.getY() >= 0) {
-						stopy = true;
-					}
-				}
-				else if (centrey > 0) {
-					if (bobY.getY() <= 0) {
-						stopy = true;
-					}
-				}
-
+		}
+		else if (centrex > 0) {
+			if (bobX.getY() <= 0) {
+				stopx = true;
 			}
+		}
 
-			if (stopy) {
-				by = 0.0f;
-				bobY.setX(0);
-				bobY.setY(0);
+		//Y bob 
+		if (centrey <= 0) {
+			if (bobY.getY() >= 0) {
+				stopy = true;
 			}
-
-			if (stopx) {
-				r = 1.0f;
-				bobX.setX(0);
-				bobX.setY(0);
+		}
+		else if (centrey > 0) {
+			if (bobY.getY() <= 0) {
+				stopy = true;
 			}
+		}
 
-			newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
-			newspot.y = player_list[trueplayernum].y + by;
-			newspot.z = player_list[trueplayernum].z + r * cosf(step_left_angy * k);
+	}
 
-			float cameradist = 50.0f;
+	if (stopy) {
+		by = 0.0f;
+		bobY.setX(0);
+		bobY.setY(0);
+	}
 
-			float newangle = 0;
-			newangle = fixangle(look_up_ang, 90);
+	if (stopx) {
+		r = 1.0f;
+		bobX.setX(0);
+		bobX.setY(0);
+	}
 
-			newspot2.x = newspot.x + cameradist * sinf(newangle * k) * sinf(angy * k);
-			newspot2.y = newspot.y + cameradist * cosf(newangle * k) ;
-			newspot2.z = newspot.z + cameradist * sinf(newangle * k) * cosf(angy * k);
-			
+	newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
+	newspot.y = player_list[trueplayernum].y + by;
+	newspot.z = player_list[trueplayernum].z + r * cosf(step_left_angy * k);
 
-			mEyePos = newspot;
+	float cameradist = 50.0f;
 
-			GunTruesave = newspot;
+	float newangle = 0;
+	newangle = fixangle(look_up_ang, 90);
+
+	newspot2.x = newspot.x + cameradist * sinf(newangle * k) * sinf(angy * k);
+	newspot2.y = newspot.y + cameradist * cosf(newangle * k);
+	newspot2.z = newspot.z + cameradist * sinf(newangle * k) * cosf(angy * k);
+
+
+	mEyePos = newspot;
+
+	GunTruesave = newspot;
 
 	// Build the view matrix.
 	//XMVECTOR pos = XMVectorSet(mEyePos.x + adjust2, mEyePos.y + adjust3, mEyePos.z, 1.0f);
-	XMVECTOR pos = XMVectorSet(newspot.x , newspot.y , newspot.z, 1.0f);
-	XMVECTOR target = XMVectorSet(newspot2.x, newspot2.y , newspot2.z, 1.0f);
+	XMVECTOR pos = XMVectorSet(newspot.x, newspot.y, newspot.z, 1.0f);
+	XMVECTOR target = XMVectorSet(newspot2.x, newspot2.y, newspot2.z, 1.0f);
 
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -631,7 +602,6 @@ void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
 	}
 
 }
-
 
 
 void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
@@ -734,7 +704,7 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	XMStoreFloat4x4(&mMainPassCB.InvViewProj, XMMatrixTranspose(invViewProj));
 	XMStoreFloat4x4(&mMainPassCB.ViewProjTex, XMMatrixTranspose(viewProjTex));
 	XMStoreFloat4x4(&mMainPassCB.ShadowTransform, XMMatrixTranspose(shadowTransform));
-	
+
 	mMainPassCB.EyePosW = mEyePos;
 	mMainPassCB.RenderTargetSize = XMFLOAT2((float)mClientWidth, (float)mClientHeight);
 	mMainPassCB.InvRenderTargetSize = XMFLOAT2(1.0f / mClientWidth, 1.0f / mClientHeight);
@@ -742,7 +712,7 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.FarZ = 1000.0f;
 	mMainPassCB.TotalTime = gt.TotalTime();
 	mMainPassCB.DeltaTime = gt.DeltaTime();
-	
+
 	mMainPassCB.AmbientLight = { 0.1f, 0.1f, 0.1f, 1.0f };
 	//mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
 	//mMainPassCB.AmbientLight = { 0.00f, 0.00f, 0.00f, 1.00f };
@@ -1081,7 +1051,7 @@ void DungeonStompApp::DrawNormalsAndDepth(const GameTimer& gt)
 
 	mCommandList->SetPipelineState(mPSOs["drawNormals"].Get());
 
-	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque],gt);
+	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
 
 	// Change back to GENERIC_READ so we can read the texture in a shader.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(normalMap,
@@ -1204,7 +1174,7 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 
 	mShaders["normalMapVS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["normalMapPS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", defines, "PS", "ps_5_1");
-	
+
 	mShaders["normalMapSsaoPS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", sasoDefines, "PS", "ps_5_1");
 
 	mShaders["shadowVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", nullptr, "VS", "vs_5_1");
@@ -1555,7 +1525,7 @@ void DungeonStompApp::DrawRenderItemsFL(ID3D12GraphicsCommandList* cmdList, cons
 	auto matCB = mCurrFrameResource->MaterialCB->Resource();
 
 
-	
+
 	CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 	tex3.Offset(484, mCbvSrvDescriptorSize);
 	cmdList->SetGraphicsRootDescriptorTable(6, tex3); //Set the gCubeMap
@@ -1626,7 +1596,7 @@ void DungeonStompApp::BuildPSOs()
 
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&mPSOs["opaque"])));
 
-	
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC opaqueSsaoPsoDesc;
 
 	//
@@ -1854,7 +1824,7 @@ void DungeonStompApp::BuildPSOs()
 	ZeroMemory(&basePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 	basePsoDesc.InputLayout = { mInputLayout.data(), (UINT)mInputLayout.size() };
 	basePsoDesc.pRootSignature = mRootSignature.Get();
-	
+
 	basePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	basePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	basePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
@@ -2151,7 +2121,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	bool enablePSO = true;
 
-	if (drawingShadowMap || drawingSSAO ) {
+	if (drawingShadowMap || drawingSSAO) {
 		enablePSO = false;
 	}
 
@@ -2183,7 +2153,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	//Draw alpha transparent items
 	DrawDungeon(cmdList, ritems, true);
 
-	
+
 	if (enablePSO) {
 		mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
 	}
