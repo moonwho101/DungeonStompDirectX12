@@ -124,6 +124,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -142,6 +143,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <OutputFile>..\bin\DungeonStomp.exe</OutputFile>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

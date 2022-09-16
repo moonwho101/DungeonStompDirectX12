@@ -53,6 +53,9 @@ int displayShadowMapKeyPress = 0;
 bool enableSSao = false;
 bool enableSSaoKey = false;
 
+bool enableCameraBob = true;
+bool enableCameraBobKey = false;
+
 extern int playerObjectStart;
 extern int playerObjectEnd;
 extern int gravityon;
@@ -440,6 +443,28 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 	}
 
 
+	if (GetAsyncKeyState('B') && !enableCameraBobKey) {
+
+		if (enableCameraBob) {
+			enableCameraBob = false;
+			strcpy_s(gActionMessage, "Camera bob Disabled");
+			UpdateScrollList(0, 255, 255);
+		}
+		else {
+			strcpy_s(gActionMessage, "Camera bob Enabled");
+			UpdateScrollList(0, 255, 255);
+			enableCameraBob = true;
+		}
+	}
+
+	if (GetAsyncKeyState('B')) {
+		enableCameraBobKey = 1;
+	}
+	else {
+		enableCameraBobKey = 0;
+	}
+
+
 }
 
 
@@ -465,98 +490,113 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 	player_list[trueplayernum].y = m_vEyePt.y + adjust;
 	player_list[trueplayernum].z = m_vEyePt.z;
 
-	float step_left_angy = 0;
-	float r = 15.0f;
-
-	step_left_angy = angy - 90;
-
-	if (step_left_angy < 0)
-		step_left_angy += 360;
-
-	if (step_left_angy >= 360)
-		step_left_angy = step_left_angy - 360;
-
-	r = bx;
+	XMVECTOR pos, target;
 
 	XMFLOAT3 newspot;
 	XMFLOAT3 newspot2;
 
-	if (playercurrentmove == 1 || playercurrentmove == 4) {
-		centre = false;
-		stopx = false;
-		stopy = false;
-	}
+	if (enableCameraBob) {
+		float step_left_angy = 0;
+		float r = 15.0f;
 
-	if (playercurrentmove == 0) {
-		if (!centre) {
-			centre = true;
-			centrex = bobX.getY();
-			centrey = bobY.getY();
-		}
-	}
+		step_left_angy = angy - 90;
 
-	if (centre) {
+		if (step_left_angy < 0)
+			step_left_angy += 360;
 
-		//X bob bring to centre
-		if (centrex <= 0) {
-			if (bobX.getY() >= 0) {
-				stopx = true;
-			}
-		}
-		else if (centrex > 0) {
-			if (bobX.getY() <= 0) {
-				stopx = true;
-			}
+		if (step_left_angy >= 360)
+			step_left_angy = step_left_angy - 360;
+
+		r = bx;
+
+
+		if (playercurrentmove == 1 || playercurrentmove == 4) {
+			centre = false;
+			stopx = false;
+			stopy = false;
 		}
 
-		//Y bob 
-		if (centrey <= 0) {
-			if (bobY.getY() >= 0) {
-				stopy = true;
-			}
-		}
-		else if (centrey > 0) {
-			if (bobY.getY() <= 0) {
-				stopy = true;
+		if (playercurrentmove == 0) {
+			if (!centre) {
+				centre = true;
+				centrex = bobX.getY();
+				centrey = bobY.getY();
 			}
 		}
 
+		if (centre) {
+
+			//X bob bring to centre
+			if (centrex <= 0) {
+				if (bobX.getY() >= 0) {
+					stopx = true;
+				}
+			}
+			else if (centrex > 0) {
+				if (bobX.getY() <= 0) {
+					stopx = true;
+				}
+			}
+
+			//Y bob 
+			if (centrey <= 0) {
+				if (bobY.getY() >= 0) {
+					stopy = true;
+				}
+			}
+			else if (centrey > 0) {
+				if (bobY.getY() <= 0) {
+					stopy = true;
+				}
+			}
+
+		}
+
+		if (stopy) {
+			by = 0.0f;
+			bobY.setX(0);
+			bobY.setY(0);
+		}
+
+		if (stopx) {
+			r = 1.0f;
+			bobX.setX(0);
+			bobX.setY(0);
+		}
+
+		newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
+		newspot.y = player_list[trueplayernum].y + by;
+		newspot.z = player_list[trueplayernum].z + r * cosf(step_left_angy * k);
+
+		float cameradist = 50.0f;
+
+		float newangle = 0;
+		newangle = fixangle(look_up_ang, 90);
+
+		newspot2.x = newspot.x + cameradist * sinf(newangle * k) * sinf(angy * k);
+		newspot2.y = newspot.y + cameradist * cosf(newangle * k);
+		newspot2.z = newspot.z + cameradist * sinf(newangle * k) * cosf(angy * k);
+
+
+		mEyePos = newspot;
+
+		GunTruesave = newspot;
+
+
+		// Build the view matrix.
+
+		pos = XMVectorSet(newspot.x, newspot.y, newspot.z, 1.0f);
+		target = XMVectorSet(newspot2.x, newspot2.y, newspot2.z, 1.0f);
+	}
+	else {
+		// Build the view matrix.
+		pos = XMVectorSet(mEyePos.x, mEyePos.y, mEyePos.z, 1.0f);
+		target = XMVectorSet(m_vLookatPt.x, m_vLookatPt.y + adjust, m_vLookatPt.z, 1.0f);
+
+		GunTruesave = mEyePos;
 	}
 
-	if (stopy) {
-		by = 0.0f;
-		bobY.setX(0);
-		bobY.setY(0);
-	}
 
-	if (stopx) {
-		r = 1.0f;
-		bobX.setX(0);
-		bobX.setY(0);
-	}
-
-	newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
-	newspot.y = player_list[trueplayernum].y + by;
-	newspot.z = player_list[trueplayernum].z + r * cosf(step_left_angy * k);
-
-	float cameradist = 50.0f;
-
-	float newangle = 0;
-	newangle = fixangle(look_up_ang, 90);
-
-	newspot2.x = newspot.x + cameradist * sinf(newangle * k) * sinf(angy * k);
-	newspot2.y = newspot.y + cameradist * cosf(newangle * k);
-	newspot2.z = newspot.z + cameradist * sinf(newangle * k) * cosf(angy * k);
-
-
-	mEyePos = newspot;
-
-	GunTruesave = newspot;
-
-	// Build the view matrix.
-	//XMVECTOR pos = XMVectorSet(mEyePos.x + adjust2, mEyePos.y + adjust3, mEyePos.z, 1.0f);
-	XMVECTOR pos = XMVectorSet(newspot.x, newspot.y, newspot.z, 1.0f);
-	XMVECTOR target = XMVectorSet(newspot2.x, newspot2.y, newspot2.z, 1.0f);
 
 	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 

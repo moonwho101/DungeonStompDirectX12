@@ -410,16 +410,16 @@ void InitDS()
 
 	strcpy_s(gActionMessage, "Dungeon Stomp 1.91. Copyright 2022 www.Aptisense.com");
 	UpdateScrollList(0, 255, 255);
-	strcpy_s(gActionMessage, "Press SPACE to open things. Press E to jump.");
+	strcpy_s(gActionMessage, "Maximize screen then ALT+ENTER for Fullscreen.  Press SPACE to open things.");
 	UpdateScrollList(0, 255, 255);
 
-	strcpy_s(gActionMessage, "WASD to move. Press Q and Z to cycle weapons.");
+	strcpy_s(gActionMessage, "WASD to move. Press Q and Z to cycle weapons. Press E to jump.");
 	UpdateScrollList(0, 255, 255);
 
-	strcpy_s(gActionMessage, "I=Music K=Weapons X=Experience P=Song G=Gravity (+ -) M=ShadowMap. O=ssao");
+	strcpy_s(gActionMessage, "I=Music K=Weapons X=Experience P=Song G=Gravity (+ -) M=ShadowMap");
 	UpdateScrollList(0, 255, 255);
 
-	strcpy_s(gActionMessage, "Maximize screen then ALT+ENTER for Fullscreen. [=LevelUp ]=LevelDown");
+	strcpy_s(gActionMessage, "[=LevelUp ]=LevelDown B=HeadBob O=ssao");
 	UpdateScrollList(0, 255, 255);
 
 	strcpy_s(gActionMessage, "F5=Load F6=Save. Created by Mark Longo. Good luck!");
