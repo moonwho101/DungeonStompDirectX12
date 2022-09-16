@@ -39,6 +39,7 @@ Happy Dungeon Stomping - Breeyark!
 * K - Give all weapons and spells
 * M - Shadow map/ssao texture
 * O - Toggle SSAO (Screen space ambient occlusion)
+* B - Toggle Camera head bob
 * ] = Next Dungeon Level
 * [ = Previous Dungeon Level
 
