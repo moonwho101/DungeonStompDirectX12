@@ -72,6 +72,8 @@ extern int totalmod;
 extern LEVELMOD* levelmodify;
 extern int countswitches;
 extern SWITCHMOD* switchmodify;
+extern CameraBob bobY;
+
 void ScanModJump(int jump);
 void AddTreasureDrop(float x, float y, float z, int raction);
 void FireMonsterMissle(int monsterid, int type);
@@ -666,7 +668,6 @@ XMFLOAT3 RadiusMultiply(XMFLOAT3  eRadius, XMFLOAT3 vector) {
 	return result;
 }
 
-
 int CalculateView(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, bool distancecheck)
 {
 
@@ -772,7 +773,6 @@ int CalculateView(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, bool distan
 	return monsteron;
 }
 
-
 int CalculateViewMonster(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, float angy)
 {
 
@@ -875,8 +875,6 @@ int CalculateViewMonster(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, floa
 
 	return monsteron;
 }
-
-
 
 void WakeUpMonsters()
 {
@@ -1158,7 +1156,6 @@ int SceneInBox(D3DVECTOR point)
 	return 0;
 }
 
-
 int pnpoly(int npol, float* xp, float* yp, float x, float y)
 {
 	int i, j, c = 0;
@@ -1173,7 +1170,6 @@ int pnpoly(int npol, float* xp, float* yp, float x, float y)
 	}
 	return c;
 }
-
 
 int OpenDoor(int doornum, float dist, FLOAT fTimeKey)
 {
@@ -1417,7 +1413,6 @@ int OpenDoor(int doornum, float dist, FLOAT fTimeKey)
 	return 1;
 }
 
-
 void MakeBoundingBox()
 {
 
@@ -1513,7 +1508,6 @@ void MakeBoundingBox()
 		//}
 	}
 }
-
 
 void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float wy, float wz)
 {
@@ -2256,8 +2250,6 @@ void MonsterHit()
 
 }
 
-extern CameraBob bobY;
-
 void DrawPlayerGun()
 {
 	// DRAW YOUR GUN ///////////////////////////////////////////
@@ -2383,7 +2375,6 @@ void DrawPlayerGun()
 		}
 	}
 }
-
 
 void AddTreasure(float x, float y, float z, int gold)
 {
@@ -2532,7 +2523,6 @@ void AddTreasure(float x, float y, float z, int gold)
 	}
 }
 
-
 int UpdateScrollList(int r, int g, int b)
 {
 	strcpy_s(scrolllist1[slistcounter].text, gActionMessage);
@@ -2551,9 +2541,6 @@ int UpdateScrollList(int r, int g, int b)
 
 	return 1;
 }
-
-
-
 
 void DrawModel()
 {
@@ -2716,11 +2703,6 @@ void ApplyPlayerDamage(int playerid, int damage)
 
 }
 
-
-
-
-
-
 void ScanModJump(int jump)
 {
 
@@ -2789,8 +2771,6 @@ void ActivateSwitch()
 		}
 	}
 }
-
-
 
 void AddTreasureDrop(float x, float y, float z, int raction)
 {
@@ -2887,8 +2867,6 @@ void AddTreasureDrop(float x, float y, float z, int raction)
 	}
 }
 
-
-
 int DisplayDialogText(char* text, float yloc)
 {
 	int i;
@@ -2949,8 +2927,6 @@ int DisplayDialogText(char* text, float yloc)
 	return 1;
 }
 
-
-
 int FreeSlave()
 {
 
@@ -2984,8 +2960,6 @@ int FreeSlave()
 	}
 	return 0;
 }
-
-
 
 int DisplayDamage(float x, float y, float z, int owner, int id, bool criticalhit)
 {
@@ -3046,8 +3020,6 @@ int DisplayDamage(float x, float y, float z, int owner, int id, bool criticalhit
 
 	return misslespot;
 }
-
-
 
 void GetItem()
 {
@@ -3361,9 +3333,6 @@ void GetItem()
 	}
 }
 
-
-
-
 int ResetPlayer()
 {
 
@@ -3399,9 +3368,6 @@ int ResetPlayer()
 	return 0;
 
 }
-
-
-
 
 void ClearObjectList()
 {
@@ -3448,9 +3414,6 @@ void ClearObjectList()
 		strcpy_s(item_list[i].name, "Dungeon Stomp");
 	}
 }
-
-
-
 
 int XpPoints(int hd, int hp)
 {
@@ -3564,8 +3527,6 @@ int XpPoints(int hd, int hp)
 
 	return xp;
 }
-
-
 
 int LevelUp(int xp)
 {
@@ -3847,8 +3808,6 @@ int LevelUp(int xp)
 	return xp;
 }
 
-
-
 int LevelUpXPNeeded(int xp)
 {
 
@@ -4104,7 +4063,6 @@ int LevelUpXPNeeded(int xp)
 
 }
 
-
 void statusbardisplay(float x, float length, int type)
 {
 
@@ -4130,3 +4088,4 @@ void statusbardisplay(float x, float length, int type)
 			strcat_s(statusbar, "|");
 	}
 }
+

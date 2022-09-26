@@ -78,8 +78,6 @@ extern TEXTUREMAPPING  TexMap[MAX_NUM_TEXTURES];
 void DrawModel();
 int num_light_sources = 0;
 
-
-
 void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTEX2& vertex3)
 {
 	float vector1[3], vector2[3];
@@ -168,8 +166,6 @@ void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTE
 
 	return;
 }
-
-
 
 void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 {
@@ -494,7 +490,6 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 	//return;
 }
 
-
 /*
 void AddWorldLight(int ob_type, int angle, int oblist_index, IDirect3DDevice9* pd3dDevice) {
 
@@ -605,11 +600,6 @@ void AddWorldLight(int ob_type, int angle, int oblist_index, IDirect3DDevice9* p
 
 
 */
-
-
-
-
-
 
 void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_alias, int tex_flag, float xt, float yt, float zt)
 {
@@ -1174,7 +1164,6 @@ void ConvertTraingleFan(int fan_cnt) {
 
 }
 
-
 void ConvertTraingleStrip(int fan_cnt) {
 
 
@@ -1362,10 +1351,6 @@ void ConvertTraingleStrip(int fan_cnt) {
 
 }
 
-
-
-
-
 void DrawMonsters()
 {
 	int cullflag = 0;
@@ -1456,7 +1441,6 @@ void DrawMonsters()
 	}
 }
 
-
 int FindModelID(char* p)
 {
 	int i = 0;
@@ -1479,9 +1463,6 @@ int FindModelID(char* p)
 
 	return 0;
 }
-
-
-
 
 void AddItem(float x, float y, float z, float rot_angle, float monsterid, float monstertexture, float monnum, char modelid[80], char modeltexture[80], int ability)
 {
@@ -1511,7 +1492,6 @@ void AddItem(float x, float y, float z, float rot_angle, float monsterid, float 
 
 	itemlistcount++;
 }
-
 
 void DrawItems()
 {
@@ -1670,7 +1650,6 @@ void DrawItems()
 		}
 	}
 }
-
 
 void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int texture_alias, int tex_flag, float xt, float yt, float zt)
 {
@@ -1951,7 +1930,6 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 	return;
 }
 
-
 void AddModel(float x, float y, float z, float rot_angle, float monsterid, float monstertexture, float monnum, char modelid[80], char modeltexture[80], int ability)
 {
 
@@ -2015,8 +1993,6 @@ void AddModel(float x, float y, float z, float rot_angle, float monsterid, float
 	num_players2++;
 
 }
-
-
 
 int FindGunTexture(char* p)
 {
@@ -2106,7 +2082,6 @@ void DrawBoundingBox(IDirect3DDevice9* pd3dDevice)
 	}
 }
 */
-
 
 /*
 void FlashLight(IDirect3DDevice9* pd3dDevice) {

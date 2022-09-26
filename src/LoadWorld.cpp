@@ -96,6 +96,16 @@ typedef struct startposition
 	float angle;
 } startpos2;
 
+extern char levelname[80];
+int current_level;
+extern D3DVALUE angy;
+extern D3DVALUE look_up_ang;
+
+extern PLAYER* item_list;
+extern PLAYER* player_list2;
+extern PLAYER* player_list;
+extern int num_monsters;
+extern int countswitches;
 
 //typedef enum _D3DPRIMITIVETYPE {
 //	D3DPT_POINTLIST = 1,
@@ -107,10 +117,7 @@ typedef struct startposition
 //	D3DPT_FORCE_DWORD = 0x7fffffff, /* force 32-bit size enum */
 //} D3DPRIMITIVETYPE;
 
-
 struct startposition startpos[200];
-//extern struct doors door[200];
-
 
 LEVELMOD* levelmodify;
 SWITCHMOD* switchmodify;
@@ -573,7 +580,6 @@ int CLoadWorld::CheckObjectId(char* p)
 	return -1; //error
 }
 
-
 BOOL CLoadWorld::LoadObjectData(char* filename)
 {
 	FILE* fp;
@@ -921,7 +927,6 @@ BOOL CLoadWorld::ReadObDataVert(FILE* fp, int object_id, int vert_count, float d
 	return TRUE;
 }
 
-
 /*
 BOOL CLoadWorld::LoadRRTextures(char* filename, IDirect3DDevice9* pd3dDevice)
 {
@@ -1185,9 +1190,6 @@ BOOL CLoadWorld::LoadRRTextures(char* filename, IDirect3DDevice9* pd3dDevice)
 
 */
 
-
-
-
 int CheckValidTextureAlias(char* alias)
 {
 	int i;
@@ -1224,8 +1226,6 @@ int FindTextureAlias(char* alias)
 	return -1; //error
 }
 
-
-
 int random_num(int num)
 {
 
@@ -1235,9 +1235,6 @@ int random_num(int num)
 
 	return rndNum;
 }
-
-
-
 
 BOOL CLoadWorld::LoadImportedModelList(char* filename)
 {
@@ -1527,9 +1524,6 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 	return TRUE;
 }
 
-
-
-
 int CLoadWorld::FindModelID(char* p)
 {
 
@@ -1555,6 +1549,7 @@ int CLoadWorld::FindModelID(char* p)
 
 	return 0;
 }
+
 void CLoadWorld::AddMonster(float x, float y, float z, float rot_angle, float monsterid, float monstertexture, float monnum, int s1, int s2, int s3, int s4, int s5, int s6, char damage[80], int thaco, char name[80], float speed, int ability)
 {
 
@@ -1674,9 +1669,6 @@ void CLoadWorld::AddMonster(float x, float y, float z, float rot_angle, float mo
 	//countplayers++;
 }
 
-
-
-
 void CLoadWorld::LoadPlayerAnimationSequenceList(int model_id)
 {
 	int i;
@@ -1733,8 +1725,6 @@ void CLoadWorld::LoadPlayerAnimationSequenceList(int model_id)
 	//190-197
 }
 
-
-
 void SetStartSpot()
 {
 
@@ -1772,8 +1762,6 @@ void SetStartSpot()
 	//UpdateMainPlayer();
 
 }
-
-
 
 BOOL CLoadWorld::LoadMod(char* filename)
 {
@@ -1837,18 +1825,6 @@ BOOL CLoadWorld::LoadMod(char* filename)
 	totalmod = counter - 1;
 	return TRUE;
 }
-
-extern char levelname[80];
-int current_level;
-extern D3DVALUE angy;
-extern D3DVALUE look_up_ang;
-
-extern PLAYER* item_list;
-extern PLAYER* player_list2;
-extern PLAYER* player_list;
-extern int num_monsters;
-extern int countswitches;
-
 
 int save_game(char* filename)
 {
@@ -2077,7 +2053,6 @@ int load_game(char* filename)
 
 void ClearObjectList();
 
-
 int load_level(char* filename)
 {
 
@@ -2194,6 +2169,4 @@ int load_level(char* filename)
 
 	return 1;
 }
-
-
 

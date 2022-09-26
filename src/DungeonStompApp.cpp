@@ -79,6 +79,10 @@ ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
 extern ID3D12PipelineState* textPSO; // pso containing a pipeline state
 extern ID3D12PipelineState* rectanglePSO[MaxRectangle]; // pso containing a pipeline state
 
+VOID UpdateControls();
+HRESULT FrameMove(double fTime, FLOAT fTimeKey);
+void UpdateWorld(float fElapsedTime);
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
 {
@@ -207,10 +211,6 @@ void DungeonStompApp::OnResize()
 	}
 
 }
-
-VOID UpdateControls();
-HRESULT FrameMove(double fTime, FLOAT fTimeKey);
-void UpdateWorld(float fElapsedTime);
 
 void DungeonStompApp::Update(const GameTimer& gt)
 {
@@ -467,7 +467,6 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 
 }
 
-
 void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 {
 	float adjust = 50.0f;
@@ -616,7 +615,6 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 
 }
 
-
 void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
 {
 	auto currObjectCB = mCurrFrameResource->ObjectCB.get();
@@ -642,7 +640,6 @@ void DungeonStompApp::UpdateObjectCBs(const GameTimer& gt)
 	}
 
 }
-
 
 void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
 {
@@ -672,7 +669,6 @@ void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
 		}
 	}
 }
-
 
 void DungeonStompApp::UpdateShadowTransform(const GameTimer& gt, int light)
 {
@@ -713,7 +709,6 @@ void DungeonStompApp::UpdateShadowTransform(const GameTimer& gt, int light)
 	XMStoreFloat4x4(&mLightProj, lightProj);
 	XMStoreFloat4x4(&mShadowTransform, S);
 }
-
 
 void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 {
@@ -784,7 +779,6 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	currPassCB->CopyData(0, mMainPassCB);
 }
 
-
 void DungeonStompApp::UpdateShadowPassCB(const GameTimer& gt)
 {
 	XMMATRIX view = XMLoadFloat4x4(&mLightView);
@@ -852,8 +846,6 @@ void DungeonStompApp::UpdateSsaoCB(const GameTimer& gt)
 	currSsaoCB->CopyData(0, ssaoCB);
 }
 
-
-
 void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 {
 
@@ -889,6 +881,7 @@ void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 	// Set the dynamic VB of the dungeon renderitem to the current frame VB.
 	mDungeonRitem->Geo->VertexBufferGPU = currDungeonVB->Resource();
 }
+
 void DungeonStompApp::BuildRootSignature()
 {
 
@@ -947,7 +940,6 @@ void DungeonStompApp::BuildRootSignature()
 		serializedRootSig->GetBufferSize(),
 		IID_PPV_ARGS(mRootSignature.GetAddressOf())));
 }
-
 
 void DungeonStompApp::BuildSsaoRootSignature()
 {
@@ -1027,7 +1019,6 @@ void DungeonStompApp::BuildSsaoRootSignature()
 		IID_PPV_ARGS(mSsaoRootSignature.GetAddressOf())));
 }
 
-
 void DungeonStompApp::DrawSceneToShadowMap(const GameTimer& gt)
 {
 	mCommandList->RSSetViewports(1, &mShadowMap->Viewport());
@@ -1098,8 +1089,6 @@ void DungeonStompApp::DrawNormalsAndDepth(const GameTimer& gt)
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
 }
 
-
-
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> DungeonStompApp::GetStaticSamplers()
 {
 	// Applications usually only need a handful of samplers.  So just define them all up front
@@ -1169,8 +1158,6 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> DungeonStompApp::GetStaticSampl
 		shadow
 	};
 }
-
-
 
 void DungeonStompApp::BuildShadersAndInputLayout()
 {
@@ -1446,6 +1433,7 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 		hr = md3dDevice->CreateGraphicsPipelineState(&rectanglepsoDesc, IID_PPV_ARGS(&rectanglePSO[i]));
 	}
 }
+
 void DungeonStompApp::BuildLandGeometry()
 {
 	GeometryGenerator geoGen;
@@ -1597,7 +1585,6 @@ void DungeonStompApp::DrawRenderItemsFL(ID3D12GraphicsCommandList* cmdList, cons
 	cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
 	//}
 }
-
 
 void DungeonStompApp::BuildPSOs()
 {
@@ -2227,7 +2214,6 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	return;
 }
 
-
 void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch, bool normalMap) {
 
 	auto ri = ritems[0];
@@ -2383,7 +2369,6 @@ void DungeonStompApp::LoadTextures()
 
 }
 
-
 void DungeonStompApp::CreateRtvAndDsvDescriptorHeaps()
 {
 	// Add +6 RTV for cube render target.
@@ -2404,7 +2389,6 @@ void DungeonStompApp::CreateRtvAndDsvDescriptorHeaps()
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(
 		&dsvHeapDesc, IID_PPV_ARGS(mDsvHeap.GetAddressOf())));
 }
-
 
 void DungeonStompApp::BuildDescriptorHeaps()
 {
@@ -2550,7 +2534,6 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	md3dDevice->CreateShaderResourceView(nullptr, &srvDesc, nullSrv);
 }
 
-
 CD3DX12_CPU_DESCRIPTOR_HANDLE DungeonStompApp::GetCpuSrv(int index)const
 {
 	auto srv = CD3DX12_CPU_DESCRIPTOR_HANDLE(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
@@ -2578,7 +2561,6 @@ CD3DX12_CPU_DESCRIPTOR_HANDLE DungeonStompApp::GetRtv(int index)const
 	rtv.Offset(index, mRtvDescriptorSize);
 	return rtv;
 }
-
 
 BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 {
@@ -2872,7 +2854,6 @@ void DungeonStompApp::SetTextureNormalMap() {
 		}
 	}
 }
-
 
 void DungeonStompApp::ProcessLights11()
 {
