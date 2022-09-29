@@ -2463,7 +2463,7 @@ void DungeonStompApp::BuildDescriptorHeaps()
 	}
 
 	//auto skyCubeMap = mTextures["skyCubeMap"]->Resource;
-	auto skyCubeMap = mTextures["desertcube1024"]->Resource;
+	auto skyCubeMap = mTextures["sunsetcube1024"]->Resource;
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDescSkyMap = {};
 	srvDescSkyMap.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -2659,7 +2659,7 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 			srvDesc.Texture2D.MipLevels = currentTex->Resource->GetDesc().MipLevels;
 			srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-			if (strcmp(p, "desertcube1024") == 0) {
+			if (strcmp(p, "sunsetcube1024") == 0) {
 
 				srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 				srvDesc.TextureCube.MostDetailedMip = 0;
