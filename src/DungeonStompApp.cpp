@@ -913,7 +913,7 @@ void DungeonStompApp::BuildRootSignature()
 	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gNormalMap  : register(t1);
 	slotRootParameter[5].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D    gShadowMap  : register(t2);
 	slotRootParameter[6].InitAsDescriptorTable(1, &texTable3, D3D12_SHADER_VISIBILITY_PIXEL);  //TextureCube  gCubeMap    : register(t4);
-	slotRootParameter[7].InitAsDescriptorTable(1, &texTable4, D3D12_SHADER_VISIBILITY_PIXEL);  //TextureCube  gSsaoMap    : register(t5);
+	slotRootParameter[7].InitAsDescriptorTable(1, &texTable4, D3D12_SHADER_VISIBILITY_PIXEL);  //Texture2D	 gSsaoMap    : register(t5);
 
 	auto staticSamplers = GetStaticSamplers();
 
@@ -2259,7 +2259,6 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 
 		if (normal_map_texture == -1 && normalMap) {
 			draw = false;
-			//normal_map_texture = 1;
 		}
 
 		if (!normalMap && normal_map_texture != -1) {
@@ -2280,39 +2279,38 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ri->ObjCBIndex * objCBByteSize;
 			D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + materialIndex * matCBByteSize;
 
-			cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress);
-			cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress);
+			cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress); //Set cbPerObject
+			cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress); //Set cbMaterial
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 			tex.Offset(texture_number, mCbvSrvDescriptorSize);
-			cmdList->SetGraphicsRootDescriptorTable(3, tex); //Set the gDiffuseMap
+			cmdList->SetGraphicsRootDescriptorTable(3, tex); //Set gDiffuseMap
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 			tex3.Offset(number_of_tex_aliases + 1, mCbvSrvDescriptorSize);
-			cmdList->SetGraphicsRootDescriptorTable(5, tex3); //Set the gShadowMap
+			cmdList->SetGraphicsRootDescriptorTable(5, tex3); //Set gShadowMap
 
 			CD3DX12_GPU_DESCRIPTOR_HANDLE tex4(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 			tex4.Offset(number_of_tex_aliases + 2, mCbvSrvDescriptorSize);
-			cmdList->SetGraphicsRootDescriptorTable(7, tex4); //Set the gSsaoMap
+			cmdList->SetGraphicsRootDescriptorTable(7, tex4); //Set gSsaoMap
 
 			if (normalMap) {
 				CD3DX12_GPU_DESCRIPTOR_HANDLE tex2(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 				tex2.Offset(normal_map_texture, mCbvSrvDescriptorSize);
-				cmdList->SetGraphicsRootDescriptorTable(4, tex2); //Set the gNormalMap
+				cmdList->SetGraphicsRootDescriptorTable(4, tex2); //Set gNormalMap
 			}
 
 			if (dp_command_index_mode[i] == 1 && TexMap[texture_alias_number].is_alpha_texture == isAlpha) {  //USE_NON_INDEXED_DP
 				int  v = verts_per_poly[currentObject];
 
-				if (dp_commands[currentObject] == D3DPT_TRIANGLESTRIP)
-				{
-					cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-				}
-				else if (dp_commands[currentObject] == D3DPT_TRIANGLELIST)
+				if (dp_commands[currentObject] == D3DPT_TRIANGLELIST)
 				{
 					cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 				}
-
+				else if (dp_commands[currentObject] == D3DPT_TRIANGLESTRIP)
+				{
+					cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+				}
 				cmdList->DrawInstanced(v, 1, vert_index, 0);
 			}
 		}
