@@ -103,6 +103,7 @@ extern int nojumpallow;
 int gravitydropcount = 0;
 extern int jump;
 
+void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTEX2& vertex3);
 
 void InitDS()
 {
@@ -426,7 +427,6 @@ void InitDS()
 	UpdateScrollList(0, 255, 255);
 }
 
-
 void UpdateWorld(float fElapsedTime) {
 
 	number_of_polys_per_frame = 0;
@@ -554,7 +554,6 @@ void UpdateWorld(float fElapsedTime) {
 	num_light_sources = 0;
 
 }
-
 
 void SetMonsterAnimationSequence(int player_number, int sequence_number)
 {
@@ -806,7 +805,6 @@ HRESULT AnimateCharacters()
 	return 0;
 }
 
-
 float fixangle(float angle, float adjust)
 {
 
@@ -860,7 +858,6 @@ int initDSTimer()
 
 	return 1;
 }
-
 
 void ComputeMissles()
 {
@@ -986,8 +983,6 @@ void display_message(float x, float y, char text[2048], int r, int g, int b, flo
 	return;
 }
 
-void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTEX2& vertex3);
-
 void DrawIndexedItems(int fakel, int vert_index)
 {
 	D3DPRIMITIVETYPE command;
@@ -1094,7 +1089,6 @@ void DrawIndexedItems(int fakel, int vert_index)
 		SmoothNormals(start_cnt);
 	}
 }
-
 
 wchar_t* charToWChar(const char* text)
 {

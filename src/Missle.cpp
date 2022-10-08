@@ -369,7 +369,6 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 	}
 }
 
-
 D3DVECTOR calculatemisslelength(XMFLOAT3 velocity)
 {
 	//todo: fix this
@@ -387,7 +386,6 @@ D3DVECTOR calculatemisslelength(XMFLOAT3 velocity)
 	result.z = v.z;
 	return result;
 }
-
 
 void DrawMissle()
 {
@@ -414,7 +412,6 @@ void DrawMissle()
 		}
 	}
 }
-
 
 void ApplyMissleDamage(int playernum)
 {
@@ -707,7 +704,6 @@ void ApplyMissleDamage(int playernum)
 		}
 	}
 }
-
 
 int SavingThrow(int damage, int player, int level, int missleid, int isplayer, int id)
 {

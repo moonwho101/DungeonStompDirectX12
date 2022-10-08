@@ -17,6 +17,13 @@ int showsavingthrow = 0;
 extern int d20roll;
 extern int damageroll;
 
+extern int usespell;
+extern int hitmonster;
+extern int savefailed;
+extern int criticalhiton;
+int spellhiton = 0;
+
+
 D3DVERTEX2 MakeVertex(float x, float y, float z) {
 
 	D3DVERTEX2 d;
@@ -241,15 +248,6 @@ void MakeDamageDice()
 	dice[1].dicebox[2].y = wHeight - y2;
 
 }
-
-
-
-extern int usespell;
-//extern int spellhiton;
-extern int hitmonster;
-extern int savefailed;
-extern int criticalhiton;
-int spellhiton = 0;
 
 void SetDiceTexture(bool showroll)
 {

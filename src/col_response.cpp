@@ -89,7 +89,6 @@ void checkCollision()
 	}
 }
 
-
 XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity)
 {
 

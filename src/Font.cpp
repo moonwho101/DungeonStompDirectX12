@@ -236,7 +236,6 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 	return font;
 }
 
-
 void DungeonStompApp::RenderRectangle(Font font, int index, int textureid, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
 {
 	// clear the depth buffer so we can draw over everything
@@ -332,7 +331,6 @@ void DungeonStompApp::RenderRectangle(Font font, int index, int textureid, XMFLO
 	// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
 	mCommandList->DrawInstanced(4, numCharacters, 0, 0);
 }
-
 
 void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
 {
@@ -431,8 +429,6 @@ void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMF
 	// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
 	mCommandList->DrawInstanced(4, numCharacters, 0, 0);
 }
-
-
 
 void DungeonStompApp::DisplayHud() {
 
@@ -957,7 +953,6 @@ void DungeonStompApp::ScanMod(float fElapsedTime)
 	}
 }
 
-
 void DungeonStompApp::SetDungeonText()
 {
 
@@ -999,8 +994,6 @@ void DungeonStompApp::SetDungeonText()
 		}
 	}
 }
-
-
 
 void DungeonStompApp::DisplayPlayerCaption() {
 
@@ -1188,8 +1181,6 @@ void DungeonStompApp::DisplayPlayerCaption() {
 		}
 	}
 }
-
-
 
 void display_font(float x, float y, char text[1000], int r, int g, int b)
 {
@@ -1825,3 +1816,4 @@ void display_font(float x, float y, char text[1000], int r, int g, int b)
 		}
 	}
 }
+

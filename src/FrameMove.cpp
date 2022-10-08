@@ -22,7 +22,6 @@ void CheckAngle();
 extern CameraBob bobY;
 int playercurrentmove = 0;
 
-
 HRESULT FrameMove(double fTime, FLOAT fTimeKey)
 {
 	float cameradist = 50.0f;
@@ -208,8 +207,6 @@ void PlayerJump(const FLOAT& fTimeKey)
 		modellocation = m_vEyePt;
 	}
 }
-
-
 
 void PlayerAnimation()
 {

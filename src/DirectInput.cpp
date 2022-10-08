@@ -153,7 +153,6 @@ HRESULT CreateDInput(HWND hWnd)
 	return S_OK;
 }
 
-
 //-----------------------------------------------------------------------------
 // Name: DestroyDInput()
 // Desc: Terminate our usage of DirectInput
@@ -166,7 +165,6 @@ VOID DestroyDInput()
 	g_pDI = NULL;
 }
 
-
 //-----------------------------------------------------------------------------
 // Name: EnumJoysticksCallback()
 // Desc: Called once for each enumerated joystick. If we find one,
@@ -178,7 +176,6 @@ BOOL CALLBACK EnumJoysticksCallback(LPCDIDEVICEINSTANCE pInst, VOID* pvContext)
 
 	return DIENUM_STOP;
 }
-
 
 VOID UpdateControls()
 {
@@ -788,13 +785,11 @@ VOID WalkMode(CONTROLS* Controls)
 	}
 }
 
-
 VOID MovePlayer(CONTROLS* Controls)
 {
 	// Update the variables for the player
 	WalkMode(Controls);
 }
-
 
 //-----------------------------------------------------------------------------
 // Name: CreateInputDevice()
@@ -841,7 +836,6 @@ HRESULT CreateInputDevice(IDirectInput8* pDI, IDirectInputDevice8* pDIdDevice, G
 	return S_OK;
 }
 
-
 void DestroyInputDevice()
 {
 	// Unacquire and release the device's interfaces
@@ -860,7 +854,6 @@ void DestroyInputDevice()
 	}
 
 }
-
 
 HRESULT SelectInputDevice()
 {
@@ -940,14 +933,12 @@ HRESULT SelectInputDevice()
 	return 1;
 }
 
-
 LONGLONG DSTimer()
 {
 	LONGLONG cur_time;
 	QueryPerformanceCounter((LARGE_INTEGER*)&cur_time);
 	return cur_time;
 }
-
 
 void SwitchGun(int gun)
 {
@@ -965,7 +956,6 @@ void SwitchGun(int gun)
 		MakeDamageDice();
 	}
 }
-
 
 void CyclePreviousWeapon()
 {
@@ -1039,7 +1029,6 @@ void CycleNextWeapon()
 	MakeDamageDice();
 }
 
-
 void GiveWeapons()
 {
 	strcpy_s(gActionMessage, "Give all weapons.");
@@ -1064,7 +1053,6 @@ void GiveWeapons()
 	your_gun[21].active = 1;
 }
 
-
 void smooth_mouse(float time_d, float realx, float realy) {
 	double d = 1 - exp(log(0.5) * springiness * time_d);
 
@@ -1077,7 +1065,6 @@ void smooth_mouse(float time_d, float realx, float realy) {
 	filterx = use_x;
 	filtery = use_y;
 }
-
 
 void level() {
 	if (currentlevel < 1)
@@ -1129,4 +1116,5 @@ void level() {
 	SetStartSpot();
 	PlayWavSound(SoundID("goal2"), 100);
 }
+
 

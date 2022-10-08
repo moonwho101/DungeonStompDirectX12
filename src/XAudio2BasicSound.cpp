@@ -326,7 +326,6 @@ HRESULT PlayWave(LPCWSTR szFilename)
     return hr;
 }
 
-
 //--------------------------------------------------------------------------------------
 // Helper function to try to find the location of a media file
 //--------------------------------------------------------------------------------------
@@ -588,7 +587,6 @@ void PlayWavSound(int id, int volume)
     hr = sound_list[id].pSourceVoice->Start(0);
 }
 
-
 int DSound_Delete_Sound(int id)
 {
     //sound_list[id].pSourceVoice->Stop(0);
@@ -602,7 +600,6 @@ int DSound_Delete_Sound(int id)
     return (1);
 
 } // end DSound_Delete_Sound
-
 
 int  DSound_Replicate_Sound(int id) {
 
@@ -639,7 +636,6 @@ int FindSoundSlot() {
     return currentsound;
 }
 
-
 void PlaySong() {
 
     int raction = random_num(nummidi);
@@ -672,8 +668,6 @@ void StopMusic() {
     }
 }
 
-
-
 int WaveSongPlaying(int id) {
 
     bool isRunning;
@@ -691,7 +685,6 @@ int WaveSongPlaying(int id) {
 
     return isRunning;
 }
-
 
 int WavePlaying(int id) {
 
@@ -754,7 +747,6 @@ void CheckMidiMusic()
         PlaySong();
     }
 }
-
 
 int ResetSound()
 {
