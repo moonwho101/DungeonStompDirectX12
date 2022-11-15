@@ -1,6 +1,6 @@
 # Dungeon Stomp DirectX12
 
-![Dungeon Stomp](../main/Textures/screenshot7.jpg)
+![Dungeon Stomp](../main/Textures/screenshot8.jpg)
 
 Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 
@@ -42,6 +42,8 @@ Happy Dungeon Stomping - Breeyark!
 * B - Toggle Camera head bob
 * ] = Next Dungeon Level
 * [ = Previous Dungeon Level
+
+![Dungeon Stomp](../main/Textures/screenshot7.jpg)
 
 ## MD2 Models
 Dungeon Stomp would not have been possible without the amazing MD2 models made by the following authors:
