@@ -1,6 +1,6 @@
 # Dungeon Stomp DirectX12
 
-![Dungeon Stomp](../main/Textures/screenshot8.jpg)
+![Dungeon Stomp](../main/Textures/screenshot9.jpg)
 
 Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 
