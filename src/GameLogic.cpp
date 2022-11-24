@@ -2239,7 +2239,7 @@ void MonsterHit()
 						player_list[trueplayernum].thaco - monster_list[i].ac,
 						monster_list[i].health, savehp);
 
-					return;
+					//return;
 				}
 			}
 		}
