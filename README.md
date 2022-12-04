@@ -4,17 +4,19 @@
 
 Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 
-* Dungeon Stomp is a DirectX12 3D dungeon game that uses Direct3D, DirectInput and XAudio2.
-* It is a complete game with level advancement and 15 levels.
-* Lighting uses blinn-phong pixel shaders.
+* Dungeon Stomp is a DirectX12 3D dungeon game that uses Direct3D, DirectInput and XAudio2
+* It is a complete game with level advancement and 15 levels
+* Lighting uses blinn-phong pixel shaders
 * DDS Texture mipmaps
 * Normal map textures
 * Cube Maps (Skybox)
 * Shadow Maps
 * Screen space ambient occlusion (ssao)
 * Fog, Alpha transparency and Alpha testing
-* XBOX game controller is supported.
-* Used "Introduction to 3D Game Programming with DirectX 12" by Frank Luna as a reference.
+* Head bob using two sine waves
+* XBOX game controller is supported
+* Used "Introduction to 3D Game Programming with DirectX 12" by Frank Luna as a reference
+* Written in Microsoft C++
 
 It will compile using Microsoft Visual Studio 2022 community edition.
 
@@ -25,14 +27,15 @@ Happy Dungeon Stomping - Breeyark!
 ## Controls
 
 * WSAD to move, E to JUMP
-* SPACE to open doors.
+* SPACE to open doors
 * Q/Z to cycle weapons/spells
-* MOUSE Left button = attack, MOUSE Right button move forward
+* Left mouse button to attack, right mouse button to move forward
 * Maximize screen then press ALT+ENTER to enter FULLSCREEN mode
+* Press F5 to Load game, F6 to Save game
 
 ## Debug Controls
 
-* G - Toggle gravity (+/- move up, move down)
+* G - Toggle gravity (Keypad +/- move up, move down)
 * I - Disable music
 * P - Random music
 * X - Give experience points
@@ -40,8 +43,8 @@ Happy Dungeon Stomping - Breeyark!
 * M - Shadow map/ssao texture
 * O - Toggle SSAO (Screen space ambient occlusion)
 * B - Toggle Camera head bob
-* ] = Next Dungeon Level
-* [ = Previous Dungeon Level
+* ] - Next Dungeon Level
+* [ - Previous Dungeon Level
 
 ![Dungeon Stomp](../main/Textures/screenshot7.jpg)
 
@@ -74,7 +77,7 @@ Dungeon Stomp would not have been possible without the amazing MD2 models made b
 * Phantom [ Author: Burnt Kona ]
 * Purgatori [ Author: Tom Colby ]
 * Rider [ Author: Blake ]
-* Sorcerer [ Author: E. Villiers ]s
+* Sorcerer [ Author: E. Villiers ]
 * Tentacle [ Author: Marcus Lutz ]
 * Troll [ Author: Thargar ]
 * Werewolf [ Author: Brian Yee ]
