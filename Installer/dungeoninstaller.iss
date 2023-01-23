@@ -950,7 +950,7 @@ Source: "..\Models\3DS\OrnateBox\metal20_nm.dds"; DestDir: "{app}\Models\3DS\Orn
 Source: "..\Models\3DS\Trough\twood_nm.dds"; DestDir: "{app}\Models\3DS\Trough\"; Flags: ignoreversion
 
 
-Source: "..\Textures\skymap\desertcube1024.dds"; DestDir: "{app}\Textures\skymap\"; Flags: ignoreversion
+Source: "..\Textures\skymap\sunsetcube1024.dds"; DestDir: "{app}\Textures\skymap\"; Flags: ignoreversion
 
 
 
