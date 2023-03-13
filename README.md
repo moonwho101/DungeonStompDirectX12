@@ -87,5 +87,5 @@ Dungeon Stomp would not have been possible without the amazing MD2 models made b
 
 ![Dungeon Stomp](../main/Textures/screenshot5.jpg)
 
-![Dungeon Stomp](../main/Textures/screen1/pb0.jpg)
+![Dungeon Stomp](../main/Textures/screen1/ds.jpg)
 
