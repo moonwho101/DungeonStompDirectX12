@@ -1473,39 +1473,39 @@ void MakeBoundingBox()
 	}
 
 	//heee
-	//if (excludebox == 0)
-	for (i = 0; i < num_monsters; i++)
-	{
-		cullflag = 0;
-		for (cullloop = 0; cullloop < monstercount; cullloop++)
+	if (excludebox == 0) {
+		for (i = 0; i < num_monsters; i++)
 		{
-
-			if (monstercull[cullloop] == monster_list[i].monsterid)
+			cullflag = 0;
+			for (cullloop = 0; cullloop < monstercount; cullloop++)
 			{
 
-				if (monster_list[i].bIsPlayerAlive == TRUE &&
-					monster_list[i].bIsPlayerValid == TRUE)
+				if (monstercull[cullloop] == monster_list[i].monsterid)
 				{
 
-					if (monstertype[cullloop] == 0 && currentmonstercollisionid != monster_list[i].monsterid)
-						//if (monstertype[cullloop] == 0 )
+					if (monster_list[i].bIsPlayerAlive == TRUE &&
+						monster_list[i].bIsPlayerValid == TRUE)
 					{
 
-						float wx = monster_list[i].x;
-						float wy = monster_list[i].y;
-						float wz = monster_list[i].z;
+						if (monstertype[cullloop] == 0 && currentmonstercollisionid != monster_list[i].monsterid)
+							//if (monstertype[cullloop] == 0 )
+						{
 
-						PlayerNonIndexedBox(monsterobject[cullloop], 0, (int)monster_list[i].rot_angle, wx, wy, wz);
-						//monstertrueheight[cullloop] = objecttrueheight;
-						//monsterheight[cullloop] = objectheight;
-						//monsterx[cullloop] = objectx;
-						//monsterz[cullloop] = objectz;
+							float wx = monster_list[i].x;
+							float wy = monster_list[i].y;
+							float wz = monster_list[i].z;
+
+							PlayerNonIndexedBox(monsterobject[cullloop], 0, (int)monster_list[i].rot_angle, wx, wy, wz);
+							//monstertrueheight[cullloop] = objecttrueheight;
+							//monsterheight[cullloop] = objectheight;
+							//monsterx[cullloop] = objectx;
+							//monsterz[cullloop] = objectz;
+						}
 					}
+					break;
 				}
-				break;
 			}
 		}
-		//}
 	}
 }
 
