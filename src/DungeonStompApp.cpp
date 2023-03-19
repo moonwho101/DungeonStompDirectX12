@@ -281,8 +281,6 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	// Bind null SRV for shadow map pass.
 	mCommandList->SetGraphicsRootDescriptorTable(5, mNullSrv);
 
-	ScanMod(gt.DeltaTime());
-
 	//Render shadow map to texture.
 	DrawSceneToShadowMap(gt);
 
@@ -2207,9 +2205,10 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 			DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 		}
 
-
 		DisplayHud();
 		SetDungeonText();
+
+		ScanMod(gt.DeltaTime());
 	}
 
 	return;
