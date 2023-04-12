@@ -2271,9 +2271,10 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 
 
 		if (drawingShadowMap) {
-			if (strstr(TexMap[texture_alias_number].tex_alias_name, "floor") != 0 // ||
+			if (strstr(TexMap[texture_alias_number].tex_alias_name, "floor01") != 0  ||
+				strstr(TexMap[texture_alias_number].tex_alias_name, "floord") != 0 ||
+				strstr(TexMap[texture_alias_number].tex_alias_name, "tile") != 0
 				//strstr(TexMap[texture_alias_number].tex_alias_name, "brick") != 0 ||
-				//strstr(TexMap[texture_alias_number].tex_alias_name, "tile") != 0 ||
 				//strstr(TexMap[texture_alias_number].tex_alias_name, "stone") != 0
 				) {
 				draw = false;
