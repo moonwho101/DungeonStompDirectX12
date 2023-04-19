@@ -170,7 +170,7 @@ void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTE
 
 bool ObjectHasShadow(int object_id) {
 
-	if (object_id == -1) {
+	if (object_id == -99 || object_id == -111 || object_id == -1) {
 		return false;
 	}
 
@@ -244,14 +244,14 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 			ObjectsToDraw[number_of_polys_per_frame].texture = oblist[oblist_index].monstertexture;
 			ctext = oblist[oblist_index].monstertexture;
 
-			ObjectsToDraw[number_of_polys_per_frame].objectId = -111;
+			ObjectsToDraw[number_of_polys_per_frame].objectId = ob_type;
 		}
 		else
 		{
 			ObjectsToDraw[number_of_polys_per_frame].texture = obdata[ob_type].tex[w];
 			ctext = obdata[ob_type].tex[w];
 
-			ObjectsToDraw[number_of_polys_per_frame].objectId = -99;
+			ObjectsToDraw[number_of_polys_per_frame].objectId = ob_type;// -99;
 		}
 
 

@@ -2286,7 +2286,8 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			
 			oid = ObjectsToDraw[currentObject].objectId;
 
-			if (oid != -99 && oid != -111) {
+			
+			if (oid == -1) {
 
 				draw = true;
 				/*if (ObjectHasShadow(oid)) {
@@ -2296,6 +2297,15 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			else {
 				draw = false;
 			}
+
+			if (oid == 121) {
+				int z = 1;
+			}
+
+			if (ObjectHasShadow(oid)) {
+				draw = true;
+			}
+
 
 			//if (ObjectHasShadow(ObjectsToDraw[currentObject].objectId)) {
 				//draw = true;
