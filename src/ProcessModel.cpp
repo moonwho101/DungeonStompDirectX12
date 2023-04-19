@@ -167,6 +167,20 @@ void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTE
 	return;
 }
 
+
+bool ObjectHasShadow(int object_id) {
+
+	if (object_id == -1) {
+		return false;
+	}
+
+	if (obdata[object_id].shadow) {
+		return true;
+	}
+
+	return false;
+}
+
 void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 {
 
@@ -229,12 +243,19 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 		{
 			ObjectsToDraw[number_of_polys_per_frame].texture = oblist[oblist_index].monstertexture;
 			ctext = oblist[oblist_index].monstertexture;
+
+			ObjectsToDraw[number_of_polys_per_frame].objectId = -111;
 		}
 		else
 		{
 			ObjectsToDraw[number_of_polys_per_frame].texture = obdata[ob_type].tex[w];
 			ctext = obdata[ob_type].tex[w];
+
+			ObjectsToDraw[number_of_polys_per_frame].objectId = -99;
 		}
+
+
+		
 
 		texture_list_buffer[number_of_polys_per_frame] = ctext;
 
@@ -672,6 +693,8 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 		count_v = 0;
 
 		ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
+
+		ObjectsToDraw[number_of_polys_per_frame].objectId = -1;
 
 		int counttri = 0;
 		int firstcount = 0;
@@ -1702,6 +1725,7 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 	num_poly = pmdata[pmodel_id].num_polys_per_frame;
 
 	ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
+	ObjectsToDraw[number_of_polys_per_frame].objectId = -1;
 
 	int start_cnt = cnt;
 

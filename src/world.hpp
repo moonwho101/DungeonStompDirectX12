@@ -302,6 +302,7 @@ typedef struct objectdata_typ
 	int ac;
 	int hp;
 	int damage;
+	int shadow = 0;
 
 } OBJECTDATA, * objectdata_ptr;
 typedef struct modellistdisplay
@@ -380,6 +381,7 @@ typedef struct poly_sort
 	int vertsperpoly;
 	int facesperpoly;
 	int texture;
+	int objectId = -1;
 
 } POLY_SORT;
 

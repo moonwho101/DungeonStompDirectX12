@@ -2214,6 +2214,8 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	return;
 }
 
+extern bool ObjectHasShadow(int object_id);
+
 void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch, bool normalMap) {
 
 	auto ri = ritems[0];
@@ -2239,6 +2241,8 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 
 		int normal_map_texture = TexMap[texture_alias_number].normalmaptextureid;
 
+
+
 		draw = true;
 
 		if (isAlpha) {
@@ -2257,6 +2261,8 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			}
 		}
 
+
+
 		if (normal_map_texture == -1 && normalMap) {
 			draw = false;
 		}
@@ -2265,21 +2271,47 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			draw = false;
 		}
 
+		int oid = 0;
+
+
+
 		if (currentObject >= playerObjectStart && currentObject < playerObjectEnd && !drawingShadowMap) {
 			draw = false;
 		}
 
 
+
 		if (drawingShadowMap) {
-			if (strstr(TexMap[texture_alias_number].tex_alias_name, "floor01") != 0  ||
-				strstr(TexMap[texture_alias_number].tex_alias_name, "floord") != 0 ||
-				strstr(TexMap[texture_alias_number].tex_alias_name, "tile") != 0
-				//strstr(TexMap[texture_alias_number].tex_alias_name, "brick") != 0 ||
-				//strstr(TexMap[texture_alias_number].tex_alias_name, "stone") != 0
-				) {
+
+			
+			oid = ObjectsToDraw[currentObject].objectId;
+
+			if (oid != -99 && oid != -111) {
+
+				draw = true;
+				/*if (ObjectHasShadow(oid)) {
+					draw = true;
+				}*/
+			}
+			else {
 				draw = false;
 			}
+
+			//if (ObjectHasShadow(ObjectsToDraw[currentObject].objectId)) {
+				//draw = true;
+			//}
+
+			//if (strstr(TexMap[texture_alias_number].tex_alias_name, "floor01") != 0  ||
+			//	strstr(TexMap[texture_alias_number].tex_alias_name, "floord") != 0 ||
+			//	strstr(TexMap[texture_alias_number].tex_alias_name, "tile") != 0
+			//	//strstr(TexMap[texture_alias_number].tex_alias_name, "brick") != 0 ||
+			//	//strstr(TexMap[texture_alias_number].tex_alias_name, "stone") != 0
+			//	) {
+			//	draw = false;
+			//}
 		}
+
+
 
 		if (draw) {
 
@@ -2306,7 +2338,7 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			tex4.Offset(number_of_tex_aliases + 2, mCbvSrvDescriptorSize);
 			cmdList->SetGraphicsRootDescriptorTable(7, tex4); //Set gSsaoMap
 
-			if (normalMap) {
+			if (normalMap && !drawingShadowMap) {
 				CD3DX12_GPU_DESCRIPTOR_HANDLE tex2(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 				tex2.Offset(normal_map_texture, mCbvSrvDescriptorSize);
 				cmdList->SetGraphicsRootDescriptorTable(4, tex2); //Set gNormalMap

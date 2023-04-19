@@ -678,6 +678,16 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 			command_error = FALSE;
 		}
 
+		if (strcmp(s, "SHADOW") == 0)
+		{
+			fscanf_s(fp, "%s", &p, 256);
+			int shadow = (float)atof(p);
+			
+			obdata[object_id].shadow = shadow;
+
+			command_error = FALSE;
+		}
+
 		if (strcmp(s, "TEXTURE") == 0)
 		{
 			fscanf_s(fp, "%s", &p, 256);
