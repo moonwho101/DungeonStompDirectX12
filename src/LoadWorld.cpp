@@ -681,7 +681,7 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 		if (strcmp(s, "SHADOW") == 0)
 		{
 			fscanf_s(fp, "%s", &p, 256);
-			int shadow = (float)atof(p);
+			int shadow = (int)atoi(p);
 			
 			obdata[object_id].shadow = shadow;
 
