@@ -2271,57 +2271,31 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			draw = false;
 		}
 
-		int oid = 0;
-
-
 
 		if (currentObject >= playerObjectStart && currentObject < playerObjectEnd && !drawingShadowMap) {
 			draw = false;
 		}
 
-
+		int oid = 0;
 
 		if (drawingShadowMap) {
-
-			
 			oid = ObjectsToDraw[currentObject].objectId;
 
-			
 			if (oid == -1) {
-
+				//Draw 3DS and MD2 Shadows
 				draw = true;
-				/*if (ObjectHasShadow(oid)) {
-					draw = true;
-				}*/
 			}
 			else {
 				draw = false;
 			}
 
-			if (oid == 121) {
-				int z = 1;
+			if (oid > 0) {
+				//Draw objects.dat that have SHADOW attribute set to 1
+				if (ObjectHasShadow(oid)) {
+					draw = true;
+				}
 			}
-
-			if (ObjectHasShadow(oid)) {
-				draw = true;
-			}
-
-
-			//if (ObjectHasShadow(ObjectsToDraw[currentObject].objectId)) {
-				//draw = true;
-			//}
-
-			//if (strstr(TexMap[texture_alias_number].tex_alias_name, "floor01") != 0  ||
-			//	strstr(TexMap[texture_alias_number].tex_alias_name, "floord") != 0 ||
-			//	strstr(TexMap[texture_alias_number].tex_alias_name, "tile") != 0
-			//	//strstr(TexMap[texture_alias_number].tex_alias_name, "brick") != 0 ||
-			//	//strstr(TexMap[texture_alias_number].tex_alias_name, "stone") != 0
-			//	) {
-			//	draw = false;
-			//}
 		}
-
-
 
 		if (draw) {
 
