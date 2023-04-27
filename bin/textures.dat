@@ -728,13 +728,13 @@ AddTexture  ..\textures\monster\oluve.dds
 Alias  243   oluve           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\goblin2.dds
-Alias  244   goblin2           OPAQUE  WHOLE  monster
+Alias  244   goblin2           OPAQUE  WHOLE  flat
 
 AddTexture  ..\textures\monster\goblin3.dds
-Alias  245   goblin3           OPAQUE  WHOLE  monster
+Alias  245   goblin3           OPAQUE  WHOLE  flat
 
 AddTexture  ..\textures\monster\goblin4.dds
-Alias  246   goblin4           OPAQUE  WHOLE  monster
+Alias  246   goblin4           OPAQUE  WHOLE  flat
 
 AddTexture  ..\textures\monster\mummy.dds
 Alias  247   mummy           OPAQUE  WHOLE  monster
@@ -1495,13 +1495,13 @@ AddTexture  ..\Models\3ds\scroll\scroll2_nm.dds
 Alias  496   scroll2_nm           OPAQUE  WHOLE  bone
 
 AddTexture  ..\textures\monster\goblin2_nm.dds
-Alias  497   goblin2_nm           OPAQUE  WHOLE  flat
+Alias  497   goblin2_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\goblin3_nm.dds
-Alias  498   goblin3_nm           OPAQUE  WHOLE  flat
+Alias  498   goblin3_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\goblin4_nm.dds
-Alias  499   goblin4_nm           OPAQUE  WHOLE  flat
+Alias  499   goblin4_nm           OPAQUE  WHOLE  monster
 
 END_FILE
 
