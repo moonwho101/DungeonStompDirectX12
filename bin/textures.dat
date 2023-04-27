@@ -1494,7 +1494,14 @@ Alias  495   scroll1_nm           OPAQUE  WHOLE  bone
 AddTexture  ..\Models\3ds\scroll\scroll2_nm.dds
 Alias  496   scroll2_nm           OPAQUE  WHOLE  bone
 
+AddTexture  ..\textures\monster\goblin2_nm.dds
+Alias  497   goblin2_nm           OPAQUE  WHOLE  flat
 
+AddTexture  ..\textures\monster\goblin3_nm.dds
+Alias  498   goblin3_nm           OPAQUE  WHOLE  flat
+
+AddTexture  ..\textures\monster\goblin4_nm.dds
+Alias  499   goblin4_nm           OPAQUE  WHOLE  flat
 
 END_FILE
 
