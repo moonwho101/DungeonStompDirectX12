@@ -884,6 +884,10 @@ Source: "..\Textures\monster\bauul_nm.dds"; DestDir: "{app}\Textures\monster\"; 
 Source: "..\Textures\monster\cobra2_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
 Source: "..\Textures\monster\corpse_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
 Source: "..\Textures\monster\goblin_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
+Source: "..\Textures\monster\goblin2_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
+Source: "..\Textures\monster\goblin3_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
+Source: "..\Textures\monster\goblin4_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
+
 Source: "..\Textures\monster\knight_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
 Source: "..\Textures\monster\ogre_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
 Source: "..\Textures\monster\ogro_nm.dds"; DestDir: "{app}\Textures\monster\"; Flags: ignoreversion
