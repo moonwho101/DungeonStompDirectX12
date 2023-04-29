@@ -80,6 +80,7 @@ extern LEVELMOD* levelmodify;
 extern SWITCHMOD* switchmodify;
 float fDot2last = 0;
 int playerObjectStart = 0;
+int playerGunObjectStart = 0;
 int playerObjectEnd = 0;
 void PlaySong();
 void ComputeMissles();
@@ -502,7 +503,7 @@ void UpdateWorld(float fElapsedTime) {
 	DrawMonsters();
 	DrawModel();
 	DrawItems();
-	DrawPlayerGun();
+	
 
 
 
@@ -526,14 +527,6 @@ void UpdateWorld(float fElapsedTime) {
 
 	DrawMissle();
 
-	//Draw player model
-	playerObjectStart = number_of_polys_per_frame;
-	PlayerToD3DVertList(0,
-		player_list[trueplayernum].current_frame, player_list[trueplayernum].gunangle,
-		112,
-		0, player_list[trueplayernum].x, player_list[trueplayernum].y -35.0f, player_list[trueplayernum].z);
-	playerObjectEnd = number_of_polys_per_frame;
-
 	int lsort = 0;
 	for (lsort = 0; lsort < number_of_polys_per_frame; lsort++)
 	{
@@ -550,6 +543,23 @@ void UpdateWorld(float fElapsedTime) {
 			DrawIndexedItems(lsort, vert_index);
 		}
 	}
+
+
+	playerGunObjectStart = number_of_polys_per_frame;
+	DrawPlayerGun(0);
+
+	//Draw player model
+	
+	playerObjectStart = number_of_polys_per_frame;
+	PlayerToD3DVertList(0,
+		player_list[trueplayernum].current_frame, player_list[trueplayernum].gunangle,
+		112,
+		0, player_list[trueplayernum].x, player_list[trueplayernum].y - 55.0f, player_list[trueplayernum].z);
+	playerObjectEnd = number_of_polys_per_frame;
+
+
+
+	DrawPlayerGun(1);
 
 	num_light_sources = 0;
 

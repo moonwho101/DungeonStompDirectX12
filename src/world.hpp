@@ -539,7 +539,7 @@ XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity);
 float FastDistance(float fx, float fy, float fz);
 void WakeUpMonsters();
 void MonsterHit();
-void DrawPlayerGun();
+void DrawPlayerGun(int sshadow);
 XMFLOAT3 RadiusMultiply(XMFLOAT3 vector, XMFLOAT3 eRadius);
 XMFLOAT3 RadiusDivide(XMFLOAT3 vector, XMFLOAT3 eRadius);
 void display_message(float x, float y, char text[2048], int r, int g, int b, float fontx, float fonty, int fonttype);

@@ -2250,7 +2250,7 @@ void MonsterHit()
 
 }
 
-void DrawPlayerGun()
+void DrawPlayerGun(int shadow)
 {
 	// DRAW YOUR GUN ///////////////////////////////////////////
 
@@ -2301,9 +2301,15 @@ void DrawPlayerGun()
 			}
 			else
 			{
+				float adjust = 10.0f;
+
+				if (shadow == 1) {
+					adjust = -15.0f;
+					fDot2 = 0.0f;
+				}
 				
 				wx = GunTruesave.x;
-				wy = GunTruesave.y + 10.0f;// +bobY.getY();
+				wy = GunTruesave.y + adjust;// +bobY.getY();
 				wz = GunTruesave.z;
 				//wx = m_vEyePt.x;
 				//wy = m_vEyePt.y + 50.0f;

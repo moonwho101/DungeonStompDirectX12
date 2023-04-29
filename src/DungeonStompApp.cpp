@@ -57,6 +57,7 @@ bool enableCameraBob = true;
 bool enableCameraBobKey = false;
 
 extern int playerObjectStart;
+extern int playerGunObjectStart;
 extern int playerObjectEnd;
 extern int gravityon;
 extern int outside;
@@ -2272,7 +2273,8 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 		}
 
 
-		if (currentObject >= playerObjectStart && currentObject < playerObjectEnd && !drawingShadowMap) {
+		//if (currentObject >= playerObjectStart && currentObject < playerObjectEnd && !drawingShadowMap) {
+		if (currentObject >= playerObjectStart && !drawingShadowMap) {
 			draw = false;
 		}
 
@@ -2296,6 +2298,16 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 				}
 			}
 		}
+
+		if (currentObject >= playerGunObjectStart && currentObject < playerObjectStart && drawingShadowMap) {
+			//don't draw the onscreen player weapon
+			draw = false;
+		}
+
+		if (currentObject >= playerObjectStart && drawingShadowMap) {
+			draw = true;
+		}
+
 
 		if (draw) {
 
