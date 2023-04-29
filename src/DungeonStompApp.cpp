@@ -2273,10 +2273,6 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 		}
 
 
-		//if (currentObject >= playerObjectStart && currentObject < playerObjectEnd && !drawingShadowMap) {
-		if (currentObject >= playerObjectStart && !drawingShadowMap) {
-			draw = false;
-		}
 
 		int oid = 0;
 
@@ -2304,10 +2300,13 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			draw = false;
 		}
 
-		if (currentObject >= playerObjectStart && drawingShadowMap) {
-			draw = true;
+		if (currentObject >= playerObjectStart && currentObject < playerObjectEnd && !drawingShadowMap) {
+			draw = false;
 		}
 
+		if (currentObject >= playerObjectStart && currentObject < playerObjectEnd && drawingShadowMap) {
+			draw = true;
+		}
 
 		if (draw) {
 

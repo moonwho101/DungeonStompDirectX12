@@ -527,6 +527,22 @@ void UpdateWorld(float fElapsedTime) {
 
 	DrawMissle();
 
+
+	playerGunObjectStart = number_of_polys_per_frame;
+	DrawPlayerGun(0);
+
+	//Draw player model
+	
+	playerObjectStart = number_of_polys_per_frame;
+	PlayerToD3DVertList(0,
+		player_list[trueplayernum].current_frame, player_list[trueplayernum].gunangle,
+		112,
+		0, player_list[trueplayernum].x, player_list[trueplayernum].y - 55.0f, player_list[trueplayernum].z);
+	//playerObjectEnd = number_of_polys_per_frame;
+
+	DrawPlayerGun(1);
+	playerObjectEnd = number_of_polys_per_frame;
+
 	int lsort = 0;
 	for (lsort = 0; lsort < number_of_polys_per_frame; lsort++)
 	{
@@ -545,21 +561,6 @@ void UpdateWorld(float fElapsedTime) {
 	}
 
 
-	playerGunObjectStart = number_of_polys_per_frame;
-	DrawPlayerGun(0);
-
-	//Draw player model
-	
-	playerObjectStart = number_of_polys_per_frame;
-	PlayerToD3DVertList(0,
-		player_list[trueplayernum].current_frame, player_list[trueplayernum].gunangle,
-		112,
-		0, player_list[trueplayernum].x, player_list[trueplayernum].y - 55.0f, player_list[trueplayernum].z);
-	playerObjectEnd = number_of_polys_per_frame;
-
-
-
-	DrawPlayerGun(1);
 
 	num_light_sources = 0;
 
