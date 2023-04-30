@@ -8,9 +8,10 @@ Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 * It is a complete game with level advancement and 15 levels
 * Lighting uses blinn-phong pixel shaders
 * DDS Texture mipmaps
-* Normal map textures
+* Normal Maps
 * Cube Maps (Skybox)
 * Shadow Maps
+* Materials (Diffuse Albedo, Fresnel, Roughness)
 * Screen space ambient occlusion (ssao)
 * Fog, Alpha transparency and Alpha testing
 * Head bob using two sine waves
