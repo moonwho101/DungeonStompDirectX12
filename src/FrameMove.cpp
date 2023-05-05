@@ -397,22 +397,53 @@ void FindDoors(const FLOAT& fTimeKey)
 
 void GameTimers(const FLOAT& fTimeKey)
 {
+
+	static float elapsedTime = 0.0f;
+	static float lastTime = 0.0f;
+	float kAnimationSpeed = 1.0f;
+
+
+
+	// Get the current time in milliseconds
+	float time = (float)GetTickCount();
+
+	// Find the time that has elapsed since the last time that was stored
+	elapsedTime = time - lastTime;
+
+	// To find the current t we divide the elapsed time by the ratio of 1 second / our anim speed.
+	// Since we aren't using 1 second as our t = 1, we need to divide the speed by 1000
+	// milliseconds to get our new ratio, which is a 5th of a second.
+	float t = elapsedTime / (1000.0f / kAnimationSpeed);
+	gametimerAnimation = t;
+	// If our elapsed time goes over a 5th of a second, we start over and go to the next key frame
+	if (elapsedTime >= (1000.0f / kAnimationSpeed))
+	{
+		//Animation Cycle
+		maingameloop3 = 1;
+		lastTime = (float)GetTickCount();
+
+	}
+	else {
+		maingameloop3 = 0;
+	}
+
+
 	if (maingameloop3) {
 		AnimateCharacters();
 	}
 
-	gametimer3 = DSTimer();
 
-	if ((gametimer3 - gametimerlast3) * time_factor >= 110.0f / 1000.0f)
-	{
-		//Animation Cycle
-		maingameloop3 = 1;
-		gametimerlast3 = DSTimer();
-	}
-	else
-	{
-		maingameloop3 = 0;
-	}
+	//gametimerAnimation
+
+		// To find the current t we divide the elapsed time by the ratio of 1 second / our anim speed.
+	// Since we aren't using 1 second as our t = 1, we need to divide the speed by 1000
+	// milliseconds to get our new ratio, which is a 5th of a second.
+	
+
+
+	//if ((gametimer3 - gametimerlast3) * time_factor >= 110.0f / 1000.0f)
+
+
 
 	gametimer2 = DSTimer();
 

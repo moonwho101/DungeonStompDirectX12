@@ -622,7 +622,9 @@ void AddWorldLight(int ob_type, int angle, int oblist_index, IDirect3DDevice9* p
 
 */
 
-void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_alias, int tex_flag, float xt, float yt, float zt)
+extern float gametimerAnimation;
+
+void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_alias, int tex_flag, float xt, float yt, float zt, int nextFrame)
 {
 
 
@@ -639,6 +641,7 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 	int count_v;
 
 	vert_ptr tp;
+	vert_ptr tpNextFrame;
 	DWORD r, g, b;
 	D3DPRIMITIVETYPE p_command;
 	BOOL error = TRUE;
@@ -647,6 +650,8 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 	float mz[224];
 
 
+
+	float t;
 
 	XMFLOAT3 vw1, vw2, vw3;
 	float workx, worky, workz;
@@ -685,6 +690,10 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 
 	int start_cnt = cnt;
 
+	int startFrame = pmdata[pmodel_id].sequence_start_frame[0];
+	int endFrame = pmdata[pmodel_id].sequence_stop_frame[0];
+
+
 	for (i = 0; i < num_poly; i++)
 	{
 		p_command = pmdata[pmodel_id].poly_cmd[i];
@@ -710,18 +719,49 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 
 			tp = &pmdata[pmodel_id].w[curr_frame][v_index];
 
-			if (weapondrop == 1)
-			{
-				x = tp->x + x_off;
-				z = tp->y + y_off;
-				y = (tp->z + z_off) - 40.0f;
+
+			if (nextFrame != -1) {
+
+				tpNextFrame = &pmdata[pmodel_id].w[nextFrame][v_index];
+
+
+				if (gametimerAnimation > 0.0f && gametimerAnimation < 1.0f ) {
+
+					x = tp->x + gametimerAnimation * (tpNextFrame->x - tp->x);
+					z = tp->y + gametimerAnimation * (tpNextFrame->y - tp->y);
+					y = tp->z + gametimerAnimation * (tpNextFrame->z - tp->z);
+				}
+				else {
+					x = tp->x + x_off;
+					z = tp->y + y_off;
+					y = (tp->z + z_off);
+
+				}
+
+				if (weapondrop == 1)
+				{
+					z = z - 40.0f;
+				}
+
 			}
-			else
-			{
-				x = tp->x + x_off;
-				z = tp->y + y_off;
-				y = (tp->z + z_off);
+			else {
+
+				if (weapondrop == 1)
+				{
+					x = tp->x + x_off;
+					z = tp->y + y_off;
+					y = (tp->z + z_off) - 40.0f;
+				}
+				else
+				{
+					x = tp->x + x_off;
+					z = tp->y + y_off;
+					y = (tp->z + z_off);
+				}
+
 			}
+
+
 
 			if (weapondrop == 0)
 			{
@@ -1374,6 +1414,8 @@ void ConvertTraingleStrip(int fan_cnt) {
 
 }
 
+int GetNextFrame(int monsterId);
+
 void DrawMonsters()
 {
 	int cullflag = 0;
@@ -1430,12 +1472,15 @@ void DrawMonsters()
 				{
 
 					use_player_skins_flag = 0;
-					int current_frame = monster_list[i].current_frame;
+
+					
+
+					int nextFrame = GetNextFrame(i);
 
 					PlayerToD3DVertList(monster_list[i].model_id,
 						monster_list[i].current_frame, (int)monster_list[i].rot_angle,
 						monster_list[i].skin_tex_id,
-						USE_PLAYERS_SKIN, monster_list[i].x, monster_list[i].y, monster_list[i].z);
+						USE_PLAYERS_SKIN, monster_list[i].x, monster_list[i].y, monster_list[i].z, nextFrame);
 
 					for (int q = 0; q < countmodellist; q++)
 					{
@@ -1462,6 +1507,32 @@ void DrawMonsters()
 			}
 		}
 	}
+}
+
+int GetNextFrame(int monsterId) {
+
+
+	int mod_id = monster_list[monsterId].model_id;
+	int curr_frame = monster_list[monsterId].current_frame;
+	int sequence = monster_list[monsterId].current_sequence;
+	int stop_frame = pmdata[mod_id].sequence_stop_frame[monster_list[monsterId].current_sequence];
+	int startframe = pmdata[mod_id].sequence_start_frame[monster_list[monsterId].current_sequence];
+	int nextFrame = 0;
+
+
+	if (curr_frame >= stop_frame)
+	{
+
+		nextFrame = pmdata[mod_id].sequence_start_frame[sequence];
+		
+	}
+	else
+	{
+		nextFrame = curr_frame + 1;
+
+	}
+
+	return nextFrame;
 }
 
 int FindModelID(char* p)

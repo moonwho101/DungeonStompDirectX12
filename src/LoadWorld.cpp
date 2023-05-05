@@ -1589,8 +1589,8 @@ void CLoadWorld::AddMonster(float x, float y, float z, float rot_angle, float mo
 	monster_list[num_monsters].current_frame = (int)40 + gd;
 	monster_list[num_monsters].animationdir = 0;
 
-	if (gd == 1 || gd == 2)
-		monster_list[num_monsters].animationdir = 1;
+	//if (gd == 1 || gd == 2)
+		//monster_list[num_monsters].animationdir = 1;
 
 	strcpy_s(monster_list[num_monsters].rname, name);
 	monster_list[num_monsters].speed = speed;

@@ -20,8 +20,9 @@ extern LONGLONG gametimer;
 extern LONGLONG gametimerlast;
 extern int maingameloop;
 
-extern LONGLONG gametimer3;
-extern LONGLONG gametimerlast3;
+extern float gametimerAnimation;
+extern float gametimer3;
+extern float gametimerlast3;
 extern int maingameloop3;
 extern FLOAT fTimeKeysave;
 extern float playerspeed;

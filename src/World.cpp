@@ -28,8 +28,9 @@ LONGLONG gametimer = 0;
 LONGLONG gametimerlast = 0;
 int maingameloop = 0;
 
-LONGLONG gametimer3 = 0;
-LONGLONG gametimerlast3 = 0;
+float gametimerAnimation = 0;
+float gametimer3 = 0;
+float gametimerlast3 = 0;
 int maingameloop3 = 0;
 
 FLOAT elapsegametimersave = 0;
@@ -642,8 +643,8 @@ HRESULT AnimateCharacters()
 		if (player_list[i].bStopAnimating == FALSE)
 		{
 
-			if (player_list[i].animationdir == 0)
-			{
+			//if (player_list[i].animationdir == 0)
+			//{
 				if (curr_frame >= stop_frame)
 				{
 					curr_seq = player_list[i].current_sequence;
@@ -735,20 +736,20 @@ HRESULT AnimateCharacters()
 				{
 					player_list[i].current_frame++;
 				}
-			}
-			else
-			{
-				if (curr_frame <= startframe)
-				{
-					curr_seq = player_list[i].current_sequence;
-					player_list[i].current_frame = pmdata[mod_id].sequence_start_frame[curr_seq];
-					player_list[i].animationdir = 0;
-				}
-				else
-				{
-					player_list[i].current_frame--;
-				}
-			}
+			//}
+			//else
+			//{
+			//	if (curr_frame <= startframe)
+			//	{
+			//		curr_seq = player_list[i].current_sequence;
+			//		player_list[i].current_frame = pmdata[mod_id].sequence_start_frame[curr_seq];
+			//		player_list[i].animationdir = 0;
+			//	}
+			//	else
+			//	{
+			//		player_list[i].current_frame--;
+			//	}
+			//}
 		}
 	}
 
@@ -767,13 +768,8 @@ HRESULT AnimateCharacters()
 				{
 					curr_seq = monster_list[i].current_sequence;
 					monster_list[i].current_frame = pmdata[mod_id].sequence_stop_frame[curr_seq];
-					monster_list[i].animationdir = 1;
-					if (curr_seq == 1)
-					{
-					}
-					else
-					{
-					}
+					//monster_list[i].animationdir = 1;
+
 					SetMonsterAnimationSequence(i, 0);
 
 					if (monster_list[i].current_frame == 183 || monster_list[i].current_frame == 189 || monster_list[i].current_frame == 197)
