@@ -648,7 +648,7 @@ HRESULT AnimateCharacters()
 				if (curr_frame >= stop_frame)
 				{
 					curr_seq = player_list[i].current_sequence;
-					player_list[i].current_frame = pmdata[mod_id].sequence_stop_frame[curr_seq];
+					player_list[i].current_frame = pmdata[mod_id].sequence_start_frame[curr_seq];
 					player_list[i].animationdir = 1;
 
 					if (player_list[i].current_frame == 71)
