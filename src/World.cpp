@@ -648,7 +648,7 @@ HRESULT AnimateCharacters()
 				if (curr_frame >= stop_frame)
 				{
 					curr_seq = player_list[i].current_sequence;
-					player_list[i].current_frame = pmdata[mod_id].sequence_start_frame[curr_seq];
+					
 					player_list[i].animationdir = 1;
 
 					if (player_list[i].current_frame == 71)
@@ -673,9 +673,11 @@ HRESULT AnimateCharacters()
 						else
 						{
 
-							SetPlayerAnimationSequence(i, 0);
+							//SetPlayerAnimationSequence(i, 0);
 						}
 					}
+
+					player_list[i].current_frame = pmdata[mod_id].sequence_start_frame[curr_seq];
 
 					if (player_list[i].current_frame == 183 || player_list[i].current_frame == 189 || player_list[i].current_frame == 197)
 					{
