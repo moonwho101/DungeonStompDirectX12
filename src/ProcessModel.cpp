@@ -740,7 +740,7 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 
 				if (weapondrop == 1)
 				{
-					z = z - 40.0f;
+					y = y - 40.0f;
 				}
 
 			}
@@ -1498,7 +1498,7 @@ void DrawMonsters()
 						PlayerToD3DVertList(FindModelID(model_list[getgunid].monsterweapon),
 							monster_list[i].current_frame, (int)monster_list[i].rot_angle,
 							FindGunTexture(model_list[getgunid].monsterweapon),
-							USE_PLAYERS_SKIN, monster_list[i].x, monster_list[i].y, monster_list[i].z);
+							USE_PLAYERS_SKIN, monster_list[i].x, monster_list[i].y, monster_list[i].z, nextFrame);
 					}
 				}
 				else
@@ -1524,7 +1524,7 @@ int GetNextFrame(int monsterId) {
 	{
 
 		nextFrame = pmdata[mod_id].sequence_start_frame[sequence];
-		
+
 	}
 	else
 	{
@@ -1533,6 +1533,32 @@ int GetNextFrame(int monsterId) {
 	}
 
 	return nextFrame;
+}
+
+
+int GetNextFramePlayer() {
+
+	for (int i = 0; i < 1; i++)
+	{
+		int mod_id = player_list[i].model_id;
+		int curr_frame = player_list[i].current_frame;
+		int stop_frame = pmdata[mod_id].sequence_stop_frame[player_list[i].current_sequence];
+		int startframe = pmdata[mod_id].sequence_start_frame[player_list[i].current_sequence];
+		int nextFrame = 0;
+
+		if (curr_frame >= stop_frame)
+		{
+			int curr_seq = player_list[i].current_sequence;
+			nextFrame = pmdata[mod_id].sequence_start_frame[curr_seq];
+			player_list[i].animationdir = 1;
+		}
+		else
+		{
+			nextFrame = curr_frame + 1;
+
+		}
+		return nextFrame;
+	}
 }
 
 int FindModelID(char* p)

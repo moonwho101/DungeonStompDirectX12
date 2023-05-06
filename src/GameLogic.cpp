@@ -2250,6 +2250,8 @@ void MonsterHit()
 
 }
 
+int GetNextFramePlayer();
+
 void DrawPlayerGun(int shadow)
 {
 	// DRAW YOUR GUN ///////////////////////////////////////////
@@ -2316,13 +2318,13 @@ void DrawPlayerGun(int shadow)
 				//wz = m_vEyePt.z;
 			}
 
-
+			int nextFrame = GetNextFramePlayer();
 
 			PlayerToD3DVertList(ob_type,
 				current_frame,
 				angle,
 				player_list[trueplayernum].guntex,
-				USE_DEFAULT_MODEL_TEX, wx, wy, wz);
+				USE_DEFAULT_MODEL_TEX, wx, wy, wz, nextFrame);
 			fDot2 = 0.0f;
 			weapondrop = 0;
 

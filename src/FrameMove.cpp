@@ -400,7 +400,7 @@ void GameTimers(const FLOAT& fTimeKey)
 
 	static float elapsedTime = 0.0f;
 	static float lastTime = 0.0f;
-	float kAnimationSpeed = 1.0f;
+	float kAnimationSpeed = 5.0f;
 
 
 
