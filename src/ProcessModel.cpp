@@ -1520,6 +1520,9 @@ int GetNextFrame(int monsterId) {
 	int nextFrame = 0;
 
 
+	if (monster_list[monsterId].bStopAnimating)
+		return -1;
+
 	if (curr_frame >= stop_frame)
 	{
 
