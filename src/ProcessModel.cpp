@@ -649,10 +649,6 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 	float my[224];
 	float mz[224];
 
-
-
-	float t;
-
 	XMFLOAT3 vw1, vw2, vw3;
 	float workx, worky, workz;
 

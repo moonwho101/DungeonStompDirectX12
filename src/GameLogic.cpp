@@ -2250,7 +2250,7 @@ void MonsterHit()
 
 }
 
-int GetNextFramePlayer();
+
 
 void DrawPlayerGun(int shadow)
 {

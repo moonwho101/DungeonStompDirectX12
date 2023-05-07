@@ -533,12 +533,13 @@ void UpdateWorld(float fElapsedTime) {
 	DrawPlayerGun(0);
 
 	//Draw player model
-	
+	int nextFrame = GetNextFramePlayer();
+
 	playerObjectStart = number_of_polys_per_frame;
 	PlayerToD3DVertList(0,
 		player_list[trueplayernum].current_frame, player_list[trueplayernum].gunangle,
 		112,
-		0, player_list[trueplayernum].x, player_list[trueplayernum].y - 55.0f, player_list[trueplayernum].z);
+		0, player_list[trueplayernum].x, player_list[trueplayernum].y - 55.0f, player_list[trueplayernum].z, nextFrame);
 	//playerObjectEnd = number_of_polys_per_frame;
 
 	DrawPlayerGun(1);

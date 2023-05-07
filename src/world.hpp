@@ -553,5 +553,6 @@ int FreeSlave();
 void CheckMidiMusic();
 int MakeDice();
 wchar_t* charToWChar(const char* text);
+int GetNextFramePlayer();
 
 #endif // __WORLD_H__
