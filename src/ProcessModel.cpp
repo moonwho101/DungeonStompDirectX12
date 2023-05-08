@@ -1536,20 +1536,18 @@ int GetNextFrame(int monsterId) {
 
 
 int GetNextFramePlayer() {
-
-	for (int i = 0; i < 1; i++)
-	{
-		int mod_id = player_list[i].model_id;
-		int curr_frame = player_list[i].current_frame;
-		int stop_frame = pmdata[mod_id].sequence_stop_frame[player_list[i].current_sequence];
-		int startframe = pmdata[mod_id].sequence_start_frame[player_list[i].current_sequence];
+	
+		int mod_id = player_list[trueplayernum].model_id;
+		int curr_frame = player_list[trueplayernum].current_frame;
+		int stop_frame = pmdata[mod_id].sequence_stop_frame[player_list[trueplayernum].current_sequence];
+		int startframe = pmdata[mod_id].sequence_start_frame[player_list[trueplayernum].current_sequence];
 		int nextFrame = 0;
 
 		if (curr_frame >= stop_frame)
 		{
-			int curr_seq = player_list[i].current_sequence;
+			int curr_seq = player_list[trueplayernum].current_sequence;
 			nextFrame = pmdata[mod_id].sequence_start_frame[curr_seq];
-			player_list[i].animationdir = 1;
+			player_list[trueplayernum].animationdir = 1;
 		}
 		else
 		{
@@ -1557,7 +1555,7 @@ int GetNextFramePlayer() {
 
 		}
 		return nextFrame;
-	}
+	
 }
 
 int FindModelID(char* p)
