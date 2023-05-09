@@ -503,7 +503,7 @@ void UpdateWorld(float fElapsedTime) {
 	MoveMonsters(fElapsedTime);
 	DrawMonsters();
 	DrawModel();
-	DrawItems();
+	DrawItems(fElapsedTime);
 	
 
 

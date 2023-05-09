@@ -1610,11 +1610,12 @@ void AddItem(float x, float y, float z, float rot_angle, float monsterid, float 
 	itemlistcount++;
 }
 
-void DrawItems()
+void DrawItems(float fElapsedTime)
 {
 	BOOL use_player_skins_flag = false;
 	int cullflag = 0;
 	int monsteron = 0;
+	float rotateSpeed = +190.0f * fElapsedTime;
 
 	for (int i = 0; i < itemlistcount; i++)
 	{
@@ -1672,8 +1673,8 @@ void DrawItems()
 						if (strcmp(item_list[i].rname, "COIN") == 0)
 						{
 
-							if (maingameloop)
-								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, +10.0f);
+							//if (maingameloop)
+								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, rotateSpeed);
 
 
 							PlayerToD3DVertList(item_list[i].model_id,
@@ -1684,8 +1685,8 @@ void DrawItems()
 						else if (strcmp(item_list[i].rname, "diamond") == 0)
 						{
 
-							if (maingameloop)
-								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, +10.0f);
+							//if (maingameloop)
+								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, rotateSpeed);
 							PlayerToD3DVertList(item_list[i].model_id,
 								item_list[i].current_frame, (int)item_list[i].rot_angle,
 								1,
@@ -1697,8 +1698,9 @@ void DrawItems()
 							strcmp(item_list[i].rname, "SCROLL-HEALING-") == 0)
 						{
 
-							if (maingameloop && item_list[i].monsterid == 9999)
-								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, +10.0f);
+							//if (maingameloop && item_list[i].monsterid == 9999)
+							if (item_list[i].monsterid == 9999)
+								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, rotateSpeed);
 
 							PlayerToD3DVertList(item_list[i].model_id,
 								item_list[i].current_frame, (int)item_list[i].rot_angle,
@@ -1708,8 +1710,8 @@ void DrawItems()
 						else if (strcmp(item_list[i].rname, "KEY2") == 0)
 						{
 
-							if (maingameloop)
-								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, +10.0f);
+							//if (maingameloop)
+								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, rotateSpeed);
 							PlayerToD3DVertList(item_list[i].model_id,
 								item_list[i].current_frame, (int)item_list[i].rot_angle,
 								1,
@@ -1738,8 +1740,8 @@ void DrawItems()
 						}
 						else if (strcmp(item_list[i].rname, "POTION") == 0)
 						{
-							if (maingameloop)
-								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, +10.0f);
+							//if (maingameloop)
+								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, rotateSpeed);
 
 							PlayerToD3DVertList(item_list[i].model_id,
 								item_list[i].current_frame, (int)item_list[i].rot_angle,

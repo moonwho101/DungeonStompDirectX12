@@ -517,7 +517,7 @@ extern int countswitches;
 
 void DrawMonsters();
 void DrawModel();
-void DrawItems();
+void DrawItems(float fElapsedTime);
 void DrawIndexedItems(int fakel, int vert_index);
 void UpdateWorld(float fElapsedTime);
 int random_num(int num);
