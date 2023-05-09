@@ -2266,7 +2266,7 @@ void DrawPlayerGun(int shadow)
 	int i = 0;
 	float skx, sky;
 	int ob_type;
-	int angle;
+	float angle;
 
 	float wx = 0;
 	float wy = 0;
@@ -2289,7 +2289,7 @@ void DrawPlayerGun(int shadow)
 
 			ob_type = player_list[trueplayernum].gunid;
 			current_frame = player_list[trueplayernum].current_frame;
-			angle = (int)player_list[trueplayernum].gunangle;
+			angle = player_list[trueplayernum].gunangle;
 
 			if (perspectiveview == 1)
 			{
@@ -2344,7 +2344,7 @@ void DrawPlayerGun(int shadow)
 
 		ob_type = player_list[trueplayernum].gunid;
 		current_frame = player_list[trueplayernum].current_frame;
-		angle = (int)player_list[trueplayernum].gunangle;
+		angle = player_list[trueplayernum].gunangle;
 
 
 		if (perspectiveview == 1)
@@ -2645,7 +2645,7 @@ void DrawModel()
 					}
 
 					PlayerToD3DVertList(player_list2[i].model_id,
-						player_list2[i].current_frame, (int)player_list2[i].rot_angle,
+						player_list2[i].current_frame, player_list2[i].rot_angle,
 						player_list2[i].skin_tex_id,
 						USE_DEFAULT_MODEL_TEX, wx, wy, wz);
 				}

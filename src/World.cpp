@@ -441,8 +441,8 @@ void UpdateWorld(float fElapsedTime) {
 	num_light_sources = 0;
 	g_ob_vert_count = 0;
 
-	int gun_angle;
-	gun_angle = -(int)angy + (int)90;
+	float gun_angle;
+	gun_angle = -angy + 90;
 
 	if (gun_angle >= 360)
 		gun_angle = gun_angle - 360;
@@ -962,7 +962,7 @@ void ComputeMissles()
 
 			PlayerToD3DVertList(bloodmodel,
 				0,
-				(int)fixangle(fDot, 180),
+				fixangle(fDot, 180),
 				tex,
 				USE_PLAYERS_SKIN, wx, wy, wz);
 

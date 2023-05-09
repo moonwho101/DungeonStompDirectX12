@@ -215,7 +215,7 @@ typedef struct player_typ
 	float gunz;
 	int gunid;
 	int guntex;
-	int gunangle;
+	float gunangle;
 	int animationdir;
 	int volume;
 	char chatstr[180];
