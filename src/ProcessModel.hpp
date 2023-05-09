@@ -27,13 +27,13 @@ extern int num_verts_in_scene;
 extern int num_dp_commands_in_scene;
 extern int cnt;
 
-void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int texture_alias, int tex_flag, float xt, float yt, float zt);
+void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, float angle, int texture_alias, int tex_flag, float xt, float yt, float zt);
 int FindModelID(char* p);
 void AddModel(float x, float y, float z, float rot_angle, float monsterid, float monstertexture, float monnum, char modelid[80], char modeltexture[80], int ability);
 int FindGunTexture(char* p);
 int CycleBitMap(int i);
 int CalculateView(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle);
-void ObjectToD3DVertList(int ob_type, int angle, int oblist_index);
+void ObjectToD3DVertList(int ob_type, float angle, int oblist_index);
 
 
 #endif 

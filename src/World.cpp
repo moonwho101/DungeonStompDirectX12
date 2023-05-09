@@ -467,7 +467,7 @@ void UpdateWorld(float fElapsedTime) {
 
 	for (int q = 0; q < oblist_length; q++)
 	{
-		int angle = (int)oblist[q].rot_angle;
+		float angle = oblist[q].rot_angle;
 		int ob_type = oblist[q].type;
 
 		//120 text   //6 lamp post

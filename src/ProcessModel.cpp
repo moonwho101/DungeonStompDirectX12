@@ -181,7 +181,7 @@ bool ObjectHasShadow(int object_id) {
 	return false;
 }
 
-void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
+void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 {
 
 	int ob_vert_count = 0;
@@ -205,8 +205,11 @@ void ObjectToD3DVertList(int ob_type, int angle, int oblist_index)
 	float  wy = oblist[oblist_index].y;
 	float  wz = oblist[oblist_index].z;
 
-	float cosine = cos_table[angle];
-	float sine = sin_table[angle];
+	//float cosine = cos_table[angle];
+	//float sine = sin_table[angle];
+
+	float cosine = (float)cos(angle * k);
+	float sine = (float)sin(angle * k);
 
 	ob_vert_count = 0;
 	poly = num_polys_per_object[ob_type];
@@ -624,7 +627,7 @@ void AddWorldLight(int ob_type, int angle, int oblist_index, IDirect3DDevice9* p
 
 extern float gametimerAnimation;
 
-void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_alias, int tex_flag, float xt, float yt, float zt, int nextFrame)
+void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture_alias, int tex_flag, float xt, float yt, float zt, int nextFrame)
 {
 
 
@@ -674,8 +677,11 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, int angle, int texture_a
 
 
 	//md2 models
-	float cosine = cos_table[angle];
-	float sine = sin_table[angle];
+	//float cosine = cos_table[angle];
+	//float sine = sin_table[angle];
+
+	float cosine = (float)cos(angle * k);
+	float sine = (float)sin(angle * k);
 
 	if (curr_frame >= pmdata[pmodel_id].num_frames)
 		curr_frame = 0;
@@ -1474,7 +1480,7 @@ void DrawMonsters()
 					int nextFrame = GetNextFrame(i);
 
 					PlayerToD3DVertList(monster_list[i].model_id,
-						monster_list[i].current_frame, (int)monster_list[i].rot_angle,
+						monster_list[i].current_frame, monster_list[i].rot_angle,
 						monster_list[i].skin_tex_id,
 						USE_PLAYERS_SKIN, monster_list[i].x, monster_list[i].y, monster_list[i].z, nextFrame);
 
@@ -1492,7 +1498,7 @@ void DrawMonsters()
 					{
 
 						PlayerToD3DVertList(FindModelID(model_list[getgunid].monsterweapon),
-							monster_list[i].current_frame, (int)monster_list[i].rot_angle,
+							monster_list[i].current_frame, monster_list[i].rot_angle,
 							FindGunTexture(model_list[getgunid].monsterweapon),
 							USE_PLAYERS_SKIN, monster_list[i].x, monster_list[i].y, monster_list[i].z, nextFrame);
 					}
@@ -1615,7 +1621,7 @@ void DrawItems(float fElapsedTime)
 	BOOL use_player_skins_flag = false;
 	int cullflag = 0;
 	int monsteron = 0;
-	float rotateSpeed = +190.0f * fElapsedTime;
+	float rotateSpeed = 100.0f * fElapsedTime;
 
 	for (int i = 0; i < itemlistcount; i++)
 	{
@@ -1678,7 +1684,7 @@ void DrawItems(float fElapsedTime)
 
 
 							PlayerToD3DVertList(item_list[i].model_id,
-								item_list[i].current_frame, (int)item_list[i].rot_angle,
+								item_list[i].current_frame, item_list[i].rot_angle,
 								1,
 								USE_DEFAULT_MODEL_TEX, item_list[i].x, item_list[i].y, item_list[i].z);
 						}
@@ -1688,7 +1694,7 @@ void DrawItems(float fElapsedTime)
 							//if (maingameloop)
 								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, rotateSpeed);
 							PlayerToD3DVertList(item_list[i].model_id,
-								item_list[i].current_frame, (int)item_list[i].rot_angle,
+								item_list[i].current_frame, item_list[i].rot_angle,
 								1,
 								USE_DEFAULT_MODEL_TEX, item_list[i].x, item_list[i].y, item_list[i].z);
 						}
@@ -1703,7 +1709,7 @@ void DrawItems(float fElapsedTime)
 								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, rotateSpeed);
 
 							PlayerToD3DVertList(item_list[i].model_id,
-								item_list[i].current_frame, (int)item_list[i].rot_angle,
+								item_list[i].current_frame, item_list[i].rot_angle,
 								1,
 								USE_DEFAULT_MODEL_TEX, item_list[i].x, item_list[i].y, item_list[i].z);
 						}
@@ -1713,7 +1719,7 @@ void DrawItems(float fElapsedTime)
 							//if (maingameloop)
 								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, rotateSpeed);
 							PlayerToD3DVertList(item_list[i].model_id,
-								item_list[i].current_frame, (int)item_list[i].rot_angle,
+								item_list[i].current_frame, item_list[i].rot_angle,
 								1,
 								USE_DEFAULT_MODEL_TEX, item_list[i].x, item_list[i].y, item_list[i].z);
 						}
@@ -1734,7 +1740,7 @@ void DrawItems(float fElapsedTime)
 							mtexlookup = FindGunTexture(item_list[i].rname);
 
 							PlayerToD3DVertList(item_list[i].model_id,
-								item_list[i].current_frame, (int)item_list[i].rot_angle,
+								item_list[i].current_frame, item_list[i].rot_angle,
 								mtexlookup,
 								USE_DEFAULT_MODEL_TEX, item_list[i].x, item_list[i].y, item_list[i].z);
 						}
@@ -1744,7 +1750,7 @@ void DrawItems(float fElapsedTime)
 								item_list[i].rot_angle = fixangle(item_list[i].rot_angle, rotateSpeed);
 
 							PlayerToD3DVertList(item_list[i].model_id,
-								item_list[i].current_frame, (int)item_list[i].rot_angle,
+								item_list[i].current_frame, item_list[i].rot_angle,
 								1,
 								USE_DEFAULT_MODEL_TEX, item_list[i].x, item_list[i].y, item_list[i].z);
 						}
@@ -1758,7 +1764,7 @@ void DrawItems(float fElapsedTime)
 							if (displayitem == 1)
 							{
 								PlayerToD3DVertList(item_list[i].model_id,
-									item_list[i].current_frame, (int)item_list[i].rot_angle,
+									item_list[i].current_frame, item_list[i].rot_angle,
 									1,
 									USE_DEFAULT_MODEL_TEX, item_list[i].x, item_list[i].y, item_list[i].z);
 							}
@@ -1770,7 +1776,7 @@ void DrawItems(float fElapsedTime)
 	}
 }
 
-void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int texture_alias, int tex_flag, float xt, float yt, float zt)
+void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, float angle, int texture_alias, int tex_flag, float xt, float yt, float zt)
 {
 
 	float qdist = 0;
@@ -1802,8 +1808,11 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, int angle, int te
 		curr_frame = 0;
 
 	curr_frame = 0;
-	float cosine = cos_table[angle];
-	float sine = sin_table[angle];
+	//float cosine = cos_table[angle];
+	//float sine = sin_table[angle];
+
+	float cosine = (float)cos(angle * k);
+	float sine = (float)sin(angle * k);
 
 	i_count = 0;
 	face_i_count = 0;

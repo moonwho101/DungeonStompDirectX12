@@ -1545,8 +1545,11 @@ void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, flo
 	if (angle < 0)
 		angle += 360;
 
-	float cosine = cos_table[angle];
-	float sine = sin_table[angle];
+	//float cosine = cos_table[angle];
+	//float sine = sin_table[angle];
+
+	float cosine = (float)cos(angle * k);
+	float sine = (float)sin(angle * k);
 
 	if (curr_frame >= pmdata[pmodel_id].num_frames)
 		curr_frame = 0;
@@ -1783,8 +1786,11 @@ void PlayerIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float 
 		curr_frame = 0;
 
 	curr_frame = 0;
-	float cosine = cos_table[angle];
-	float sine = sin_table[angle];
+	//float cosine = cos_table[angle];
+	//float sine = sin_table[angle];
+
+	float cosine = (float)cos(angle * k);
+	float sine = (float)sin(angle * k);
 
 	i_count = 0;
 	face_i_count = 0;

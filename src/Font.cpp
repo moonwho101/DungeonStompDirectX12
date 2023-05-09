@@ -1121,8 +1121,11 @@ void DungeonStompApp::DisplayPlayerCaption() {
 					fDot = fixangle(fDot, 360.0f);
 				}
 
-				float cosine = cos_table[(int)fDot];
-				float sine = sin_table[(int)fDot];
+				//float cosine = cos_table[(int)fDot];
+				//float sine = sin_table[(int)fDot];
+
+				float cosine = (float)cos(fDot *k );
+				float sine = (float)sin(fDot * k);
 
 
 				displayCaptureIndex[displayCapture] = cnt;;
