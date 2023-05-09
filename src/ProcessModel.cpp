@@ -308,8 +308,13 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 				fDot = 180.0f + (180.0f - fDot);
 			}
 
-			cosine = cos_table[(int)fDot];
-			sine = sin_table[(int)fDot];
+			//cosine = cos_table[(int)fDot];
+			//sine = sin_table[(int)fDot];
+
+			cosine = (float)cos(fDot * k);
+			sine = (float)sin(fDot * k);
+
+			
 		}
 
 		for (vert_cnt = 0; vert_cnt < num_vert; vert_cnt++)
