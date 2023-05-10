@@ -9,6 +9,8 @@ using Microsoft::WRL::ComPtr;
 using namespace std;
 using namespace DirectX;
 
+void ShutDownSound();
+
 LRESULT CALLBACK
 MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -35,6 +37,9 @@ D3DApp::~D3DApp()
 {
 	if(md3dDevice != nullptr)
 		FlushCommandQueue();
+
+	ShutDownSound();
+
 }
 
 HINSTANCE D3DApp::AppInst()const

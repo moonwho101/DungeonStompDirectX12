@@ -197,17 +197,24 @@ int SoundInit()
     return 1;
 }
 
+int ResetSound();
+void StopMusic();
+
 void ShutDownSound() {
 
     //
     // Cleanup XAudio2
     //
-    wprintf(L"\nFinished playing\n");
+    //wprintf(L"\nFinished playing\n");
 
     // All XAudio2 interfaces are released when the engine is destroyed, but being tidy
-    pMasteringVoice->DestroyVoice();
+    //pMasteringVoice->DestroyVoice();
+
+    StopMusic();
+    //ResetSound();
 
     pXAudio2.Reset();
+    pXAudio2.Detach();
 
 #ifdef USING_XAUDIO2_7_DIRECTX
     if (mXAudioDLL)
