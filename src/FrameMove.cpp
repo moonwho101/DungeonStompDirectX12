@@ -405,7 +405,7 @@ void GameTimers(const FLOAT& fTimeKey)
 
 
 	// Get the current time in milliseconds
-	float time = (float)GetTickCount();
+	float time = (float)GetTickCount64();
 
 	// Find the time that has elapsed since the last time that was stored
 	elapsedTime = time - lastTime;
@@ -420,7 +420,7 @@ void GameTimers(const FLOAT& fTimeKey)
 	{
 		//Animation Cycle
 		maingameloop3 = 1;
-		lastTime = (float)GetTickCount();
+		lastTime = (float)GetTickCount64();
 
 	}
 	else {
