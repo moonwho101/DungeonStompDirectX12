@@ -47,7 +47,7 @@ Happy Dungeon Stomping - Breeyark!
 * ] - Next Dungeon Level
 * [ - Previous Dungeon Level
 
-![Dungeon Stomp - AI generated](../main/Textures/screenshotai.jpg)
+![Dungeon Stomp - AI generated](../main/Textures/screenshot7.jpg)
 
 ## MD2 Models
 Dungeon Stomp would not have been possible without the amazing MD2 models made by the following authors:
@@ -88,5 +88,5 @@ Dungeon Stomp would not have been possible without the amazing MD2 models made b
 
 ![Dungeon Stomp](../main/Textures/screenshot5.jpg)
 
-![Dungeon Stomp](../main/Textures/screen1/ds.jpg)
+![Dungeon Stomp](../main/Textures/screen1/screenshotai.jpg)
 
