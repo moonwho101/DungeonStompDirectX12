@@ -1062,11 +1062,11 @@ void SmoothNormals(int start_cnt) {
 
 			for (int k = 0; k < scount; k++) {
 
-				weight = src_v[sharedv[k]].weight;
+				weight = src_v[sharedv[k]].weight  *  (float)0.017453292;
 
 				work = XMVectorSet(src_v[sharedv[k]].nx, src_v[sharedv[k]].ny, src_v[sharedv[k]].nz, 0);
 				work = work * weight;
-				work = XMVector3Normalize(work);
+				//work = XMVector3Normalize(work);
 				XMStoreFloat3(&finalweight, work);
 
 				x1.x = finalweight.x;
@@ -1082,7 +1082,7 @@ void SmoothNormals(int start_cnt) {
 
 				work = XMVectorSet(src_v[sharedv[k]].nmx, src_v[sharedv[k]].nmy, src_v[sharedv[k]].nmz, 0);
 				work = work * weight;
-				work = XMVector3Normalize(work);
+				//work = XMVector3Normalize(work);
 				XMStoreFloat3(&finalweight, work);
 
 				xtan.x = finalweight.x;
@@ -1102,10 +1102,10 @@ void SmoothNormals(int start_cnt) {
 			XMFLOAT3 final2, finaltan;
 
 			average = XMVector3Normalize(sum);
-			XMStoreFloat3(&final2, average);
+			XMStoreFloat3(&final2, sum);
 
 			average = XMVector3Normalize(sumtan);
-			XMStoreFloat3(&finaltan, average);
+			XMStoreFloat3(&finaltan, sumtan);
 
 
 			for (int k = 0; k < scount; k++) {
@@ -1175,13 +1175,13 @@ void ComputerWeightedAverages(int start_cnt) {
 
 		//VW2
 		P1 = XMLoadFloat3(&vw2);
-		P2 = XMLoadFloat3(&vw1);
+		P2 = XMLoadFloat3(&vw3);
 		vDiff = P1 - P2;
 
 		final = XMVector3Normalize(vDiff);
 
 		P1 = XMLoadFloat3(&vw2);
-		P2 = XMLoadFloat3(&vw3);
+		P2 = XMLoadFloat3(&vw1);
 		vDiff2 = P1 - P2;
 		final2 = XMVector3Normalize(vDiff2);
 
@@ -1196,13 +1196,13 @@ void ComputerWeightedAverages(int start_cnt) {
 
 		//VW3
 		P1 = XMLoadFloat3(&vw3);
-		P2 = XMLoadFloat3(&vw2);
+		P2 = XMLoadFloat3(&vw1);
 		vDiff = P1 - P2;
 
 		final = XMVector3Normalize(vDiff);
 
 		P1 = XMLoadFloat3(&vw3);
-		P2 = XMLoadFloat3(&vw1);
+		P2 = XMLoadFloat3(&vw2);
 		vDiff2 = P1 - P2;
 		final2 = XMVector3Normalize(vDiff2);
 

@@ -439,6 +439,8 @@ typedef struct _D3DVERTEX2 {
 		D3DVALUE     dvNMZ;
 	};
 
+	float weight;
+
 } D3DVERTEX2, * LPD3DVERTEX2;
 
 
