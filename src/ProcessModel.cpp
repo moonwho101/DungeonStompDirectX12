@@ -513,7 +513,7 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 
 	//if (ob_type == 121 || ob_type == 169 || ob_type == 170 || ob_type == 58
 	//	|| strstr(oblist[oblist_index].name, "door") != NULL) {
-	//	SmoothNormals(start_cnt);
+		SmoothNormals(start_cnt);
 	//}
 
 	//return;
@@ -1047,6 +1047,8 @@ void SmoothNormals(int start_cnt) {
 			//}
 		}
 
+		
+
 		if (scount > 0) {
 			XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
 			XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
@@ -1059,13 +1061,17 @@ void SmoothNormals(int start_cnt) {
 			XMFLOAT3 finalweight;
 
 			float weight = 0;
+			float area = 0;
 
 			for (int k = 0; k < scount; k++) {
 
-				weight = src_v[sharedv[k]].weight  *  (float)0.017453292;
+				weight = src_v[sharedv[k]].weight;
+				area = src_v[sharedv[k]].area;
+
+				//weight = (float)acos(weight) / (float)0.017453292;;
 
 				work = XMVectorSet(src_v[sharedv[k]].nx, src_v[sharedv[k]].ny, src_v[sharedv[k]].nz, 0);
-				work = work * weight;
+				work = work * area *weight;
 				//work = XMVector3Normalize(work);
 				XMStoreFloat3(&finalweight, work);
 
@@ -1080,46 +1086,27 @@ void SmoothNormals(int start_cnt) {
 				sum = sum + XMLoadFloat3(&x1);
 
 
-				work = XMVectorSet(src_v[sharedv[k]].nmx, src_v[sharedv[k]].nmy, src_v[sharedv[k]].nmz, 0);
-				work = work * weight;
-				//work = XMVector3Normalize(work);
-				XMStoreFloat3(&finalweight, work);
-
-				xtan.x = finalweight.x;
-				xtan.y = finalweight.y;
-				xtan.z = finalweight.z;
-
-				//xtan.x = src_v[sharedv[k]].nmx;
-				//xtan.y = src_v[sharedv[k]].nmy;
-				//xtan.z = src_v[sharedv[k]].nmz;
-				sumtan = sumtan + XMLoadFloat3(&xtan);
-
 			}
 
 			//sum = sum / (float)scount;
-			//sumtan = sumtan / (float)scount;
 
-			XMFLOAT3 final2, finaltan;
+
+			XMFLOAT3 final2;
 
 			average = XMVector3Normalize(sum);
-			XMStoreFloat3(&final2, sum);
-
-			average = XMVector3Normalize(sumtan);
-			XMStoreFloat3(&finaltan, sumtan);
+			XMStoreFloat3(&final2, average);
 
 
 			for (int k = 0; k < scount; k++) {
 				src_v[sharedv[k]].nx = final2.x;
 				src_v[sharedv[k]].ny = final2.y;
 				src_v[sharedv[k]].nz = final2.z;
-
-				src_v[sharedv[k]].nmx = finaltan.x;
-				src_v[sharedv[k]].nmy = finaltan.y;
-				src_v[sharedv[k]].nmz = finaltan.z;
 			}
 		}
 	}
 }
+
+float findArea(float a, float b, float c);
 
 void ComputerWeightedAverages(int start_cnt) {
 
@@ -1139,6 +1126,8 @@ void ComputerWeightedAverages(int start_cnt) {
 	float fDot;
 
 
+	
+
 	for (int i = start_cnt; i < cnt; i=i+3) {
 		
 		vw1.x = src_v[i].x;
@@ -1152,6 +1141,22 @@ void ComputerWeightedAverages(int start_cnt) {
 		vw3.x = src_v[i + 2].x;
 		vw3.y = src_v[i + 2].y;
 		vw3.z = src_v[i + 2].z;
+
+
+		// v1, v2, v3 are the vertices of face A
+		//if face B shares v1 {
+		//	angle = angle_between_vectors(v1 - v2, v1 - v3)
+		//		n += (face B facet normal) * (face B surface area) * angle // multiply by angle
+		//}
+		//if face B shares v2 {
+		//	angle = angle_between_vectors(v2 - v1, v2 - v3)
+		//		n += (face B facet normal) * (face B surface area) * angle // multiply by angle
+		//}
+		//if face B shares v3 {
+		//	angle = angle_between_vectors(v3 - v1, v3 - v2)
+		//		n += (face B facet normal) * (face B surface area) * angle // multiply by angle
+		//}
+
 		
 
 		//VW1
@@ -1170,24 +1175,40 @@ void ComputerWeightedAverages(int start_cnt) {
 		fDotVector = XMVector3Dot(final, final2);
 		fDot = XMVectorGetX(fDotVector);
 
+
+		XMVECTOR vCross = XMVector3Cross(vDiff, vDiff2);
+		XMFLOAT3 finalCross;
+		XMStoreFloat3(&finalCross, vCross);
+
+
+		float test = .05f * sqrt(finalCross.x + finalCross.y + finalCross.z);
+		src_v[i].area = .05f * sqrt(fabs(finalCross.x) + fabs(finalCross.y) + fabs(finalCross.z));
+
 		src_v[i].weight = fDot;
+
+
 
 
 		//VW2
 		P1 = XMLoadFloat3(&vw2);
-		P2 = XMLoadFloat3(&vw3);
+		P2 = XMLoadFloat3(&vw1);
 		vDiff = P1 - P2;
 
 		final = XMVector3Normalize(vDiff);
 
 		P1 = XMLoadFloat3(&vw2);
-		P2 = XMLoadFloat3(&vw1);
+		P2 = XMLoadFloat3(&vw3);
 		vDiff2 = P1 - P2;
 		final2 = XMVector3Normalize(vDiff2);
 
 
 		fDotVector = XMVector3Dot(final, final2);
 		fDot = XMVectorGetX(fDotVector);
+
+		vCross = XMVector3Cross(vDiff, vDiff2);
+		finalCross;
+		XMStoreFloat3(&finalCross, vCross);
+		src_v[i + 1].area = .05f * sqrt(fabs(finalCross.x) + fabs(finalCross.y) + fabs(finalCross.z));
 
 		src_v[i+1].weight = fDot;
 
@@ -1210,10 +1231,39 @@ void ComputerWeightedAverages(int start_cnt) {
 		fDotVector = XMVector3Dot(final, final2);
 		fDot = XMVectorGetX(fDotVector);
 
+		vCross = XMVector3Cross(vDiff, vDiff2);
+		finalCross;
+		XMStoreFloat3(&finalCross, vCross);
+		src_v[i +2].area = .05f * sqrt(fabs(finalCross.x) + fabs(finalCross.y) + fabs(finalCross.z));
+
+
 		src_v[i + 2].weight = fDot;
 
 	}
 }
+
+
+
+float findArea(float a, float b, float c)
+{
+	// Length of sides must be positive 
+	// and sum of any two sides 
+	// must be smaller than third side. 
+	//if (a < 0 || b < 0 || c < 0 ||
+	//	(a + b <= c) || a + c <= b ||
+	//	b + c <= a)
+	//{
+	//	cout << "Not a valid triangle";
+	//	exit(0);
+	//}
+	float s = (a + b + c) / 2;
+	float result =  sqrt(s * (s - a) *
+		(s - b) * (s - c));
+
+
+	return result;
+}
+
 
 
 void ConvertTraingleFan(int fan_cnt) {
