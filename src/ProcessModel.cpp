@@ -1138,7 +1138,7 @@ void SmoothNormalsWeighted(int start_cnt) {
 				//weight = (float)acos(weight) / (float)0.017453292;;
 
 				work = XMVectorSet(src_v[sharedv[k]].nx, src_v[sharedv[k]].ny, src_v[sharedv[k]].nz, 0);
-				work = work * area *weight;
+				work = work * area * weight;
 				//work = XMVector3Normalize(work);
 				XMStoreFloat3(&finalweight, work);
 
@@ -1184,8 +1184,8 @@ void ComputerWeightedAverages(int start_cnt) {
 	XMVECTOR fDotVector;
 	float fDot;
 
-	for (int i = start_cnt; i < cnt; i=i+3) {
-		
+	for (int i = start_cnt; i < cnt; i = i + 3) {
+
 		vw1.x = src_v[i].x;
 		vw1.y = src_v[i].y;
 		vw1.z = src_v[i].z;
@@ -1213,7 +1213,7 @@ void ComputerWeightedAverages(int start_cnt) {
 		//		n += (face B facet normal) * (face B surface area) * angle // multiply by angle
 		//}
 
-		
+
 
 		//VW1
 		P1 = XMLoadFloat3(&vw1);
@@ -1236,14 +1236,12 @@ void ComputerWeightedAverages(int start_cnt) {
 		XMFLOAT3 finalCross;
 		XMStoreFloat3(&finalCross, vCross);
 
-
-		float test = .05f * sqrtf(finalCross.x + finalCross.y + finalCross.z);
+		//Set the area of the triangle
 		src_v[i].area = .05f * sqrtf(fabsf(finalCross.x) + fabsf(finalCross.y) + fabsf(finalCross.z));
+		src_v[i + 1].area = src_v[i].area;
+		src_v[i + 2].area = src_v[i].area;
 
-		src_v[i].weight = fDot;
-
-
-
+		src_v[i].weight = fabsf(fDot);
 
 		//VW2
 		P1 = XMLoadFloat3(&vw2);
@@ -1257,19 +1255,15 @@ void ComputerWeightedAverages(int start_cnt) {
 		vDiff2 = P1 - P2;
 		final2 = XMVector3Normalize(vDiff2);
 
-
 		fDotVector = XMVector3Dot(final, final2);
 		fDot = XMVectorGetX(fDotVector);
 
 		vCross = XMVector3Cross(vDiff, vDiff2);
 		finalCross;
 		XMStoreFloat3(&finalCross, vCross);
-		src_v[i + 1].area = .05f * sqrtf(fabsf(finalCross.x) + fabsf(finalCross.y) + fabsf(finalCross.z));
+		//src_v[i + 1].area = .05f * sqrtf(fabsf(finalCross.x) + fabsf(finalCross.y) + fabsf(finalCross.z));
 
-		src_v[i+1].weight = fDot;
-
-
-
+		src_v[i + 1].weight = fabsf(fDot);
 
 		//VW3
 		P1 = XMLoadFloat3(&vw3);
@@ -1290,11 +1284,8 @@ void ComputerWeightedAverages(int start_cnt) {
 		vCross = XMVector3Cross(vDiff, vDiff2);
 		finalCross;
 		XMStoreFloat3(&finalCross, vCross);
-		src_v[i +2].area = .05f * sqrtf(fabsf(finalCross.x) + fabsf(finalCross.y) + fabsf(finalCross.z));
-
-
-		src_v[i + 2].weight = fDot;
-
+		//src_v[i +2].area = .05f * sqrtf(fabsf(finalCross.x) + fabsf(finalCross.y) + fabsf(finalCross.z));
+		src_v[i + 2].weight = fabsf(fDot);
 	}
 }
 
