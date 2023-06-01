@@ -513,7 +513,7 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 
 	//if (ob_type == 121 || ob_type == 169 || ob_type == 170 || ob_type == 58
 	//	|| strstr(oblist[oblist_index].name, "door") != NULL) {
-		SmoothNormals(start_cnt);
+		//SmoothNormals(start_cnt);
 	//}
 
 	//return;
@@ -1242,27 +1242,6 @@ void ComputerWeightedAverages(int start_cnt) {
 	}
 }
 
-
-
-float findArea(float a, float b, float c)
-{
-	// Length of sides must be positive 
-	// and sum of any two sides 
-	// must be smaller than third side. 
-	//if (a < 0 || b < 0 || c < 0 ||
-	//	(a + b <= c) || a + c <= b ||
-	//	b + c <= a)
-	//{
-	//	cout << "Not a valid triangle";
-	//	exit(0);
-	//}
-	float s = (a + b + c) / 2;
-	float result =  sqrt(s * (s - a) *
-		(s - b) * (s - c));
-
-
-	return result;
-}
 
 
 
