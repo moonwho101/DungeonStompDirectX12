@@ -1020,9 +1020,78 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture
 	return;
 }
 
-void ComputerWeightedAverages(int start_cnt);
 
 void SmoothNormals(int start_cnt) {
+
+	//Smooth the vertex normals out so the models look less blocky.
+	int scount = 0;
+
+	for (int i = start_cnt; i < cnt; i++) {
+		float x = src_v[i].x;
+		float y = src_v[i].y;
+		float z = src_v[i].z;
+
+		scount = 0;
+
+		for (int j = start_cnt; j < cnt; j++) {
+			//if (i != j) {
+			if (x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
+				//found shared vertex
+				sharedv[scount] = j;
+				scount++;
+			}
+			//}
+		}
+
+		if (scount > 0) {
+			XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
+			XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
+
+			XMFLOAT3 x1, xtan;
+			XMVECTOR average;
+
+			for (int k = 0; k < scount; k++) {
+				x1.x = src_v[sharedv[k]].nx;
+				x1.y = src_v[sharedv[k]].ny;
+				x1.z = src_v[sharedv[k]].nz;
+				sum = sum + XMLoadFloat3(&x1);
+
+				xtan.x = src_v[sharedv[k]].nmx;
+				xtan.y = src_v[sharedv[k]].nmy;
+				xtan.z = src_v[sharedv[k]].nmz;
+				sumtan = sumtan + XMLoadFloat3(&xtan);
+
+			}
+
+			sum = sum / (float)scount;
+			sumtan = sumtan / (float)scount;
+
+			XMFLOAT3 final2, finaltan;
+
+			average = XMVector3Normalize(sum);
+			XMStoreFloat3(&final2, average);
+
+			average = XMVector3Normalize(sumtan);
+			XMStoreFloat3(&finaltan, average);
+
+
+			for (int k = 0; k < scount; k++) {
+				src_v[sharedv[k]].nx = final2.x;
+				src_v[sharedv[k]].ny = final2.y;
+				src_v[sharedv[k]].nz = final2.z;
+
+				src_v[sharedv[k]].nmx = finaltan.x;
+				src_v[sharedv[k]].nmy = finaltan.y;
+				src_v[sharedv[k]].nmz = finaltan.z;
+			}
+		}
+	}
+}
+
+
+void ComputerWeightedAverages(int start_cnt);
+
+void SmoothNormalsWeighted(int start_cnt) {
 
 
 	ComputerWeightedAverages(start_cnt);
@@ -1047,13 +1116,11 @@ void SmoothNormals(int start_cnt) {
 			//}
 		}
 
-		
-
 		if (scount > 0) {
 			XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
 			XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
 
-			XMFLOAT3 x1, xtan;
+			XMFLOAT3 x1;
 			XMVECTOR average;
 
 			XMVECTOR work = XMVectorSet(0, 0, 0, 0);
@@ -1079,23 +1146,18 @@ void SmoothNormals(int start_cnt) {
 				x1.y = finalweight.y;
 				x1.z = finalweight.z;
 
-
 				//x1.x = src_v[sharedv[k]].nx;
 				//x1.y = src_v[sharedv[k]].ny;
 				//x1.z = src_v[sharedv[k]].nz;
 				sum = sum + XMLoadFloat3(&x1);
-
-
 			}
 
 			//sum = sum / (float)scount;
-
 
 			XMFLOAT3 final2;
 
 			average = XMVector3Normalize(sum);
 			XMStoreFloat3(&final2, average);
-
 
 			for (int k = 0; k < scount; k++) {
 				src_v[sharedv[k]].nx = final2.x;
@@ -1106,13 +1168,10 @@ void SmoothNormals(int start_cnt) {
 	}
 }
 
-float findArea(float a, float b, float c);
 
 void ComputerWeightedAverages(int start_cnt) {
 
-
 	int count = 0;
-
 
 	XMFLOAT3 vw1, vw2, vw3;
 
@@ -1124,9 +1183,6 @@ void ComputerWeightedAverages(int start_cnt) {
 	XMVECTOR final2;
 	XMVECTOR fDotVector;
 	float fDot;
-
-
-	
 
 	for (int i = start_cnt; i < cnt; i=i+3) {
 		
@@ -1181,8 +1237,8 @@ void ComputerWeightedAverages(int start_cnt) {
 		XMStoreFloat3(&finalCross, vCross);
 
 
-		float test = .05f * sqrt(finalCross.x + finalCross.y + finalCross.z);
-		src_v[i].area = .05f * sqrt(fabs(finalCross.x) + fabs(finalCross.y) + fabs(finalCross.z));
+		float test = .05f * sqrtf(finalCross.x + finalCross.y + finalCross.z);
+		src_v[i].area = .05f * sqrtf(fabsf(finalCross.x) + fabsf(finalCross.y) + fabsf(finalCross.z));
 
 		src_v[i].weight = fDot;
 
@@ -1208,7 +1264,7 @@ void ComputerWeightedAverages(int start_cnt) {
 		vCross = XMVector3Cross(vDiff, vDiff2);
 		finalCross;
 		XMStoreFloat3(&finalCross, vCross);
-		src_v[i + 1].area = .05f * sqrt(fabs(finalCross.x) + fabs(finalCross.y) + fabs(finalCross.z));
+		src_v[i + 1].area = .05f * sqrtf(fabsf(finalCross.x) + fabsf(finalCross.y) + fabsf(finalCross.z));
 
 		src_v[i+1].weight = fDot;
 
@@ -1234,15 +1290,13 @@ void ComputerWeightedAverages(int start_cnt) {
 		vCross = XMVector3Cross(vDiff, vDiff2);
 		finalCross;
 		XMStoreFloat3(&finalCross, vCross);
-		src_v[i +2].area = .05f * sqrt(fabs(finalCross.x) + fabs(finalCross.y) + fabs(finalCross.z));
+		src_v[i +2].area = .05f * sqrtf(fabsf(finalCross.x) + fabsf(finalCross.y) + fabsf(finalCross.z));
 
 
 		src_v[i + 2].weight = fDot;
 
 	}
 }
-
-
 
 
 void ConvertTraingleFan(int fan_cnt) {
