@@ -211,7 +211,7 @@ void ShutDownSound() {
     //pMasteringVoice->DestroyVoice();
 
     StopMusic();
-    ResetSound();
+    //ResetSound();
 
     pXAudio2.Reset();
     pXAudio2.Detach();

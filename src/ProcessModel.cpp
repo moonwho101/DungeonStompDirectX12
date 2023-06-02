@@ -513,7 +513,7 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 
 	//if (ob_type == 121 || ob_type == 169 || ob_type == 170 || ob_type == 58
 	//	|| strstr(oblist[oblist_index].name, "door") != NULL) {
-		//SmoothNormals(start_cnt);
+	// SmoothNormals(start_cnt);
 	//}
 
 	//return;
@@ -1135,6 +1135,10 @@ void SmoothNormalsWeighted(int start_cnt) {
 				weight = src_v[sharedv[k]].weight;
 				area = src_v[sharedv[k]].area;
 
+				if (area > 90.0f) {
+					int a = 1;
+				}
+
 				//weight = (float)acos(weight) / (float)0.017453292;;
 
 				work = XMVectorSet(src_v[sharedv[k]].nx, src_v[sharedv[k]].ny, src_v[sharedv[k]].nz, 0);
@@ -1189,15 +1193,23 @@ void ComputerWeightedAverages(int start_cnt) {
 		vw1.x = src_v[i].x;
 		vw1.y = src_v[i].y;
 		vw1.z = src_v[i].z;
+		//vw1.x = 0.0f;
+		//vw1.y = 0;
+		//vw1.z = 0;
 
 		vw2.x = src_v[i + 1].x;
 		vw2.y = src_v[i + 1].y;
 		vw2.z = src_v[i + 1].z;
+		//vw2.x = -50;
+		//vw2.y = 0;
+		//vw2.z = 50.0f;
 
 		vw3.x = src_v[i + 2].x;
 		vw3.y = src_v[i + 2].y;
 		vw3.z = src_v[i + 2].z;
-
+		//vw3.x = 50.0f;
+		//vw3.y = 0;
+		//vw3.z = 0;
 
 		// v1, v2, v3 are the vertices of face A
 		//if face B shares v1 {
@@ -1231,6 +1243,8 @@ void ComputerWeightedAverages(int start_cnt) {
 		fDotVector = XMVector3Dot(final, final2);
 		fDot = XMVectorGetX(fDotVector);
 
+		fDot = (float)acos(fDot) / k;
+
 
 		XMVECTOR vCross = XMVector3Cross(vDiff, vDiff2);
 		XMFLOAT3 finalCross;
@@ -1257,6 +1271,7 @@ void ComputerWeightedAverages(int start_cnt) {
 
 		fDotVector = XMVector3Dot(final, final2);
 		fDot = XMVectorGetX(fDotVector);
+		fDot = (float)acos(fDot) / k;
 
 		vCross = XMVector3Cross(vDiff, vDiff2);
 		finalCross;
@@ -1280,6 +1295,7 @@ void ComputerWeightedAverages(int start_cnt) {
 
 		fDotVector = XMVector3Dot(final, final2);
 		fDot = XMVectorGetX(fDotVector);
+		fDot = (float)acos(fDot) / k;
 
 		vCross = XMVector3Cross(vDiff, vDiff2);
 		finalCross;
