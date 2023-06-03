@@ -513,7 +513,7 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 
 	//if (ob_type == 121 || ob_type == 169 || ob_type == 170 || ob_type == 58
 	//	|| strstr(oblist[oblist_index].name, "door") != NULL) {
-	// SmoothNormals(start_cnt);
+	//SmoothNormals(start_cnt);
 	//}
 
 	//return;
@@ -1135,14 +1135,17 @@ void SmoothNormalsWeighted(int start_cnt) {
 				weight = src_v[sharedv[k]].weight;
 				area = src_v[sharedv[k]].area;
 
-				if (area > 90.0f) {
+				if (weight > 90.0f) {
 					int a = 1;
 				}
 
 				//weight = (float)acos(weight) / (float)0.017453292;;
 
 				work = XMVectorSet(src_v[sharedv[k]].nx, src_v[sharedv[k]].ny, src_v[sharedv[k]].nz, 0);
+
 				work = work * area * weight;
+				
+				
 				//work = XMVector3Normalize(work);
 				XMStoreFloat3(&finalweight, work);
 
@@ -1200,7 +1203,7 @@ void ComputerWeightedAverages(int start_cnt) {
 		vw2.x = src_v[i + 1].x;
 		vw2.y = src_v[i + 1].y;
 		vw2.z = src_v[i + 1].z;
-		//vw2.x = -50;
+		//vw2.x = 0;
 		//vw2.y = 0;
 		//vw2.z = 50.0f;
 
@@ -1251,7 +1254,7 @@ void ComputerWeightedAverages(int start_cnt) {
 		XMStoreFloat3(&finalCross, vCross);
 
 		//Set the area of the triangle
-		src_v[i].area = .05f * sqrtf(fabsf(finalCross.x) + fabsf(finalCross.y) + fabsf(finalCross.z));
+		src_v[i].area = .5f * sqrtf(fabsf(powf(finalCross.x,2.0f) ) + fabsf(powf(finalCross.y,2.0f)) + fabsf(powf(finalCross.z , 2.0f)));
 		src_v[i + 1].area = src_v[i].area;
 		src_v[i + 2].area = src_v[i].area;
 
