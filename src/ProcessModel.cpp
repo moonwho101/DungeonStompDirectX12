@@ -5,6 +5,7 @@
 #include <string.h>
 #include "GameLogic.hpp"
 #include "Missle.hpp"
+#include "../Common/MathHelper.h"
 
 int itemlistcount = 0;
 
@@ -1144,7 +1145,7 @@ void SmoothNormalsWeighted(int start_cnt) {
 				work = XMVectorSet(src_v[sharedv[k]].nx, src_v[sharedv[k]].ny, src_v[sharedv[k]].nz, 0);
 
 				work = work * area * weight;
-				
+
 				
 				//work = XMVector3Normalize(work);
 				XMStoreFloat3(&finalweight, work);
@@ -1245,6 +1246,8 @@ void ComputerWeightedAverages(int start_cnt) {
 
 		fDotVector = XMVector3Dot(final, final2);
 		fDot = XMVectorGetX(fDotVector);
+		fDot = MathHelper::Clamp(fDot, -0.99999f, 0.99999f);
+
 
 		fDot = (float)acos(fDot) / k;
 
@@ -1274,6 +1277,7 @@ void ComputerWeightedAverages(int start_cnt) {
 
 		fDotVector = XMVector3Dot(final, final2);
 		fDot = XMVectorGetX(fDotVector);
+		fDot = MathHelper::Clamp(fDot, -0.99999f, 0.99999f);
 		fDot = (float)acos(fDot) / k;
 
 		vCross = XMVector3Cross(vDiff, vDiff2);
@@ -1298,6 +1302,7 @@ void ComputerWeightedAverages(int start_cnt) {
 
 		fDotVector = XMVector3Dot(final, final2);
 		fDot = XMVectorGetX(fDotVector);
+		fDot = MathHelper::Clamp(fDot, -0.99999f, 0.99999f);
 		fDot = (float)acos(fDot) / k;
 
 		vCross = XMVector3Cross(vDiff, vDiff2);
