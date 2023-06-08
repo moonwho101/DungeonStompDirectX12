@@ -291,9 +291,9 @@ void ObjectCollision()
 			//  3 2
 			//  1 0
 
-			centroidx = (mxc[0] + mxc[1] + mxc[2]) * 0.3333333333333f;
-			centroidy = (myc[0] + myc[1] + myc[2]) * 0.3333333333333f;
-			centroidz = (mzc[0] + mzc[1] + mzc[2]) * 0.3333333333333f;
+			centroidx = (mxc[0] + mxc[1] + mxc[2]) * QVALUE;
+			centroidy = (myc[0] + myc[1] + myc[2]) * QVALUE;
+			centroidz = (mzc[0] + mzc[1] + mzc[2]) * QVALUE;
 			qdist = FastDistance(collisionPackage.realpos.x - centroidx,
 				collisionPackage.realpos.y - centroidy,
 				collisionPackage.realpos.z - centroidz);
@@ -317,10 +317,10 @@ void ObjectCollision()
 				mzc[2] = src_v[i + 2].z;
 
 
-				centroidx = (mxc[0] + mxc[1] + mxc[2]) * 0.3333333333333f;
-				centroidy = (myc[0] + myc[1] + myc[2]) * 0.3333333333333f;
+				centroidx = (mxc[0] + mxc[1] + mxc[2]) * QVALUE;
+				centroidy = (myc[0] + myc[1] + myc[2]) * QVALUE;
 				;
-				centroidz = (mzc[0] + mzc[1] + mzc[2]) * 0.3333333333333f;
+				centroidz = (mzc[0] + mzc[1] + mzc[2]) * QVALUE;
 				qdist = FastDistance(collisionPackage.realpos.x - centroidx,
 					collisionPackage.realpos.y - centroidy,
 					collisionPackage.realpos.z - centroidz);
@@ -366,9 +366,9 @@ void ObjectCollision()
 			//  1 0
 
 
-			centroidx = (mxc[0] + mxc[1] + mxc[2]) * 0.3333333333333f;
-			centroidy = (myc[0] + myc[1] + myc[2]) * 0.3333333333333f;
-			centroidz = (mzc[0] + mzc[1] + mzc[2]) * 0.3333333333333f;
+			centroidx = (mxc[0] + mxc[1] + mxc[2]) * QVALUE;
+			centroidy = (myc[0] + myc[1] + myc[2]) * QVALUE;
+			centroidz = (mzc[0] + mzc[1] + mzc[2]) * QVALUE;
 
 			qdist = FastDistance(collisionPackage.realpos.x - centroidx,
 				collisionPackage.realpos.y - centroidy,
@@ -392,10 +392,10 @@ void ObjectCollision()
 				mzc[2] = boundingbox[i + 2].z;
 
 
-				centroidx = (mxc[0] + mxc[1] + mxc[2]) * 0.3333333333333f;
-				centroidy = (myc[0] + myc[1] + myc[2]) * 0.3333333333333f;
+				centroidx = (mxc[0] + mxc[1] + mxc[2]) * QVALUE;
+				centroidy = (myc[0] + myc[1] + myc[2]) * QVALUE;
 
-				centroidz = (mzc[0] + mzc[1] + mzc[2]) * 0.3333333333333f;
+				centroidz = (mzc[0] + mzc[1] + mzc[2]) * QVALUE;
 				qdist = FastDistance(collisionPackage.realpos.x - centroidx,
 					collisionPackage.realpos.y - centroidy,
 					collisionPackage.realpos.z - centroidz);

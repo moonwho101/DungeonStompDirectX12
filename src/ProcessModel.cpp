@@ -338,9 +338,9 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 			g_ob_vert_count++;
 
 		}
-		float centroidx = (mx[0] + mx[1] + mx[2]) * 0.3333333333333f;
-		float centroidy = (my[0] + my[1] + my[2]) * 0.3333333333333f;
-		float centroidz = (mz[0] + mz[1] + mz[2]) * 0.3333333333333f;
+		float centroidx = (mx[0] + mx[1] + mx[2]) * QVALUE;
+		float centroidy = (my[0] + my[1] + my[2]) * QVALUE;
+		float centroidz = (mz[0] + mz[1] + mz[2]) * QVALUE;
 
 		//zaveragedist = zaveragedist / zaveragedistcount;
 		verts_per_poly[number_of_polys_per_frame] = num_vert;
@@ -948,9 +948,9 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture
 			i_count++;
 		}
 
-		float centroidx = (mx[0] + mx[1] + mx[2]) * 0.3333333333333f;
-		float centroidy = (my[0] + my[1] + my[2]) * 0.3333333333333f;
-		float centroidz = (mz[0] + mz[1] + mz[2]) * 0.3333333333333f;
+		float centroidx = (mx[0] + mx[1] + mx[2]) * QVALUE;
+		float centroidy = (my[0] + my[1] + my[2]) * QVALUE;
+		float centroidz = (mz[0] + mz[1] + mz[2]) * QVALUE;
 
 		//qdist = FastDistance(
 		//	m_vEyePt.x - centroidx,
@@ -2248,9 +2248,9 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, float angle, int 
 			face_i_count++;
 		}
 
-		float centroidx = (mx[0] + mx[1] + mx[2]) * 0.3333333333333f;
-		float centroidy = (my[0] + my[1] + my[2]) * 0.3333333333333f;
-		float centroidz = (mz[0] + mz[1] + mz[2]) * 0.3333333333333f;
+		float centroidx = (mx[0] + mx[1] + mx[2]) * QVALUE;
+		float centroidy = (my[0] + my[1] + my[2]) * QVALUE;
+		float centroidz = (mz[0] + mz[1] + mz[2]) * QVALUE;
 
 		qdist = FastDistance(
 			m_vEyePt.x - centroidx,

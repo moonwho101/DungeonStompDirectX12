@@ -517,6 +517,7 @@ extern int objectcollide;
 extern int outside;
 extern int countswitches;
 
+CONST float QVALUE = 0.3333333333333f;
 
 void DrawMonsters();
 void DrawModel();
