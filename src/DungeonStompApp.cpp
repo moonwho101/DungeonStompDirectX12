@@ -2867,7 +2867,7 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 	}
 	fclose(fp);
 
-	//SetTextureNormalMap();
+	SetTextureNormalMap();
 
 	return TRUE;
 }
