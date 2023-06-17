@@ -387,8 +387,11 @@ D3DVECTOR calculatemisslelength(XMFLOAT3 velocity)
 	return result;
 }
 
-void DrawMissle()
+void DrawMissle(float fElapsedTime)
 {
+
+	float rotateSpeed = 200.0f * fElapsedTime;
+
 	int ob_type = 0;
 
 	for (int misslecount = 0; misslecount < MAX_MISSLE; misslecount++)
@@ -402,13 +405,18 @@ void DrawMissle()
 
 			ob_type = your_missle[misslecount].model_id;
 			float current_frame = your_missle[misslecount].current_frame;
-			int angle = (int)your_missle[misslecount].rot_angle;
+
+			your_missle[misslecount].rot_angle = fixangle(your_missle[misslecount].rot_angle, rotateSpeed);
+
+			fDot2 = your_missle[misslecount].rot_angle;
 
 			PlayerToD3DVertList(ob_type,
 				current_frame,
-				angle,
+				your_missle[misslecount].rot_angle,
 				your_missle[misslecount].skin_tex_id,
 				USE_DEFAULT_MODEL_TEX, wx, wy, wz);
+
+			fDot2 = 0.0f;
 		}
 	}
 }

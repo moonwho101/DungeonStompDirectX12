@@ -85,7 +85,7 @@ int playerGunObjectStart = 0;
 int playerObjectEnd = 0;
 void PlaySong();
 void ComputeMissles();
-void DrawMissle();
+void DrawMissle(float fElapsedTime);
 void ApplyMissleDamage(int playernum);
 void SmoothNormals(int start_cnt);
 
@@ -526,7 +526,7 @@ void UpdateWorld(float fElapsedTime) {
 
 	FirePlayerMissle(wx,wy,wz, angy, trueplayernum, 0, em, look_up_ang, fElapsedTime);
 
-	DrawMissle();
+	DrawMissle(fElapsedTime);
 
 
 	playerGunObjectStart = number_of_polys_per_frame;
