@@ -749,7 +749,7 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.TotalTime = gt.TotalTime();
 	mMainPassCB.DeltaTime = gt.DeltaTime();
 
-	mMainPassCB.AmbientLight = { 0.1f, 0.1f, 0.1f, 1.0f };
+	//mMainPassCB.AmbientLight = { 0.1f, 0.1f, 0.1f, 1.0f };
 	//mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
 	//mMainPassCB.AmbientLight = { 0.00f, 0.00f, 0.00f, 1.00f };
 	mMainPassCB.AmbientLight = { 0.1f, 0.1f, 0.15f, 1.0f };
@@ -2867,7 +2867,7 @@ BOOL DungeonStompApp::LoadRRTextures11(char* filename)
 	}
 	fclose(fp);
 
-	SetTextureNormalMap();
+	//SetTextureNormalMap();
 
 	return TRUE;
 }
@@ -2981,13 +2981,13 @@ void DungeonStompApp::ProcessLights11()
 
 
 				if (your_missle[misslecount].model_id == 103) {
-					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 0.0f, 0.0f, 1.0f };
+					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 0.0f, 1.0f, 0.843f };
 				}
 				else if (your_missle[misslecount].model_id == 104) {
-					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 1.0f, 0.0f, 0.0f };
+					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 1.0f, 0.396f, 0.0f };
 				}
 				else if (your_missle[misslecount].model_id == 105) {
-					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 1.0f, 0.0f, 1.0f };
+					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 0.91f, 1.0f, 0.0f };
 
 				}
 				count++;
@@ -3015,12 +3015,15 @@ void DungeonStompApp::ProcessLights11()
 		LightContainer[spot].FalloffEnd = 300.0f;
 		LightContainer[spot].SpotPower = 10.0f;
 
-		if (strstr(your_gun[current_gun].gunname, "FLAME") != NULL) {
-			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 1.0f, 0.0f, 0.0f };
+		if (strstr(your_gun[current_gun].gunname, "SUPERFLAME") != NULL) {
+			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 1.0f, 0.867f, 0.0f };
+		}
+		else if (strstr(your_gun[current_gun].gunname, "FLAME") != NULL) {
+			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 1.0f, 0.369f, 0.0f };
 		}
 		else if (strstr(your_gun[current_gun].gunname, "ICE") != NULL) {
 
-			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 0.0f, 0.0f, 1.0f };
+			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 0.0f, 0.796f, 1.0f };
 		}
 		else if (strstr(your_gun[current_gun].gunname, "LIGHTNINGSWORD") != NULL) {
 			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f };
