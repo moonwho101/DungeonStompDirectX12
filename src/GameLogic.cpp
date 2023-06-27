@@ -1302,14 +1302,12 @@ int OpenDoor(int doornum, float dist, FLOAT fTimeKey)
 			{
 				float up;
 				up = 10.0f;
-				if (maingameloop)
-				{
-					//Moveup - door goes upward
-					up = (350.0f * fTimeKey);
+				//Moveup - door goes upward
+				up = (125.0f * fTimeKey);
 
-					oblist[doornum].y = oblist[doornum].y + up;
-					door[i].up += up;
-				}
+				oblist[doornum].y = oblist[doornum].y + up;
+				door[i].up += up;
+
 				if (door[i].up > 160.0f)
 				{
 					senddoorinfo = 0;
