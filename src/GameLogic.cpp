@@ -2506,7 +2506,25 @@ void AddTreasure(float x, float y, float z, int gold)
 
 				strcpy_s(item_list[i].rname, "SCROLL-LIGHTNING-");
 			}
+			else if (raction == 5)
+			{
 
+				item_list[i].bIsPlayerValid = TRUE;
+				item_list[i].x = x;
+				item_list[i].y = y - 10.0f;
+				item_list[i].z = z;
+				item_list[i].rot_angle = 0;
+				item_list[i].model_id = FindModelID("SCROLL-HEALING-");
+				item_list[i].skin_tex_id = (int)-1;
+				item_list[i].current_sequence = 0;
+				item_list[i].current_frame = 0;
+				item_list[i].draw_external_wep = FALSE;
+				item_list[i].monsterid = (int)9999;
+				item_list[i].bIsPlayerAlive = TRUE;
+				item_list[i].gold = gold;
+
+				strcpy_s(item_list[i].rname, "SCROLL-HEALING-");
+			}
 			else
 			{
 
