@@ -191,6 +191,15 @@ bool DungeonStompApp::Initialize()
 	// Wait until initialization is complete.
 	FlushCommandQueue();
 
+#if defined(DEBUG) || defined(_DEBUG) 
+#else
+	// Maximize window and go fullscreen in release mode.
+	{
+		ShowWindow(mhMainWnd, SW_MAXIMIZE);
+		mSwapChain->SetFullscreenState(1, nullptr);
+	}
+#endif
+
 	return true;
 }
 
