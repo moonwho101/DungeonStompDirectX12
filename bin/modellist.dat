@@ -125,6 +125,7 @@ PLAYER		97 MD2  MODEL_ID 121  ..\models\players\okta\okta.md2	TEX okta  POS 635 
 YOURGUN		24 MD2 	MODEL_ID 122 ..\models\players\sorb\weaponsorb.md2	TEX weaponsorb  POS 0 0 0	   ANGLE 0	SCALE 2.00	D 1d12	A 5	D 5	weaponsorb	0
 PLAYER		98 MD2  MODEL_ID 123  ..\models\players\sorb\sorb.md2	TEX sorb  POS 635 13 720  ANGLE 0	SCALE 2.00   NO_EXTERNAL_WEP	monstersorb.snd	AC 2	HD 11	d 1d10 THACO 9	SORB	29	weaponsorb
 PLAYER		99 3DS  MODEL_ID 124  ..\models\3ds\explode.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.50   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	EXPLODE2	10	NONE
+PLAYER		100 3DS  MODEL_ID 125  ..\models\3ds\spellbook.3ds		TEX -1  POS 635 13 720  ANGLE 0	SCALE 1.50   NO_EXTERNAL_WEP	monster1.snd	AC 10	HD 5	d 1d8 THACO 19	spellbook	10	NONE
 END_FILE
 
 

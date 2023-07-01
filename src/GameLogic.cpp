@@ -2525,6 +2525,25 @@ void AddTreasure(float x, float y, float z, int gold)
 
 				strcpy_s(item_list[i].rname, "SCROLL-HEALING-");
 			}
+			else if (raction == 6)
+			{
+
+				item_list[i].bIsPlayerValid = TRUE;
+				item_list[i].x = x;
+				item_list[i].y = y - 10.0f;
+				item_list[i].z = z;
+				item_list[i].rot_angle = 0;
+				item_list[i].model_id = FindModelID("spellbook");
+				item_list[i].skin_tex_id = (int)-1;
+				item_list[i].current_sequence = 0;
+				item_list[i].current_frame = 0;
+				item_list[i].draw_external_wep = FALSE;
+				item_list[i].monsterid = (int)9999;
+				item_list[i].bIsPlayerAlive = TRUE;
+				item_list[i].gold = gold;
+
+				strcpy_s(item_list[i].rname, "spellbook");
+			}
 			else
 			{
 
@@ -3281,7 +3300,40 @@ void GetItem()
 						//LevelUp(player_list[trueplayernum].xp);
 					}
 				}
+				else if (strcmp(item_list[i].rname, "spellbook") == 0)
+				{
+						item_list[i].bIsPlayerAlive = FALSE;
+						item_list[i].bIsPlayerValid = FALSE;
 
+						PlayWavSound(SoundID("potion"), 100);
+						//StartFlare(3);
+						sprintf_s(gActionMessage, "You found a spellbook");
+						UpdateScrollList(255, 255, 255);
+						foundsomething = 1;
+
+						char junk[255];
+
+						for (int m = 0; m < 4; m++) {
+
+							if (m == 0)
+								strcpy(junk, "SCROLL-MAGICMISSLE");
+							else if (m == 1)
+								strcpy(junk, "SCROLL-FIREBALL");
+							else if (m == 2)
+								strcpy(junk, "SCROLL-LIGHTNING");
+							else if (m == 3)
+								strcpy(junk, "SCROLL-HEALING");
+
+							for (int q = 0; q <= num_your_guns; q++)
+							{
+								if (strcmp(your_gun[q].gunname, junk) == 0)
+								{
+									your_gun[q].active = 1;
+									your_gun[q].x_offset = your_gun[q].x_offset + 1;
+								}
+							}
+						}
+				}
 				else if (strcmp(item_list[i].rname, "COIN") == 0)
 				{
 					if (item_list[i].gold == 0)
