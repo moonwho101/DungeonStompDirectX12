@@ -997,7 +997,7 @@ AddTexture  ..\textures\box1.dds
 Alias  331   box1           AlphaTransparent  WHOLE  default
 
 AddTexture  ..\textures\book\bookc.dds
-Alias  332   bookc           OPAQUE  WHOLE  default
+Alias  332   bookc           OPAQUE  WHOLE  wood
 
 AddTexture  ..\textures\screen1\pbm1.dds
 Alias  333   pbm1           OPAQUE  WHOLE  default
@@ -1502,6 +1502,9 @@ Alias  498   goblin3_nm           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\goblin4_nm.dds
 Alias  499   goblin4_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\book\bookc_nm.dds
+Alias  500   bookc_nm           OPAQUE  WHOLE  default
 
 END_FILE
 
