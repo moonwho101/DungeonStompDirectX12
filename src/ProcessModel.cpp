@@ -1043,7 +1043,7 @@ void SmoothNormals(int start_cnt) {
 
 			for (int j = start_cnt; j < cnt; j++) {
 				//if (i != j) {
-				if (x == src_v[j].x && y == src_v[j].y && z == src_v[j].z && tracknormal[j] == 0) {
+				if (tracknormal[j] == 0 && x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
 					//found shared vertex
 					sharedv[scount] = j;
 					scount++;
@@ -1122,7 +1122,7 @@ void SmoothNormalsWeighted(int start_cnt) {
 
 			for (int j = start_cnt; j < cnt; j++) {
 				//if (i != j) {
-				if (x == src_v[j].x && y == src_v[j].y && z == src_v[j].z && tracknormal[j] == 0) {
+				if (tracknormal[j] == 0 && x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
 
 					//if (src_v[j].weight < 45.0f) {
 						//found shared vertex
