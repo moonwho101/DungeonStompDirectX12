@@ -1021,79 +1021,91 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture
 	return;
 }
 
+int tracknormal[MAX_NUM_QUADS];
 
 void SmoothNormals(int start_cnt) {
 
 	//Smooth the vertex normals out so the models look less blocky.
 	int scount = 0;
 
+	for (int i = 0; i < MAX_NUM_QUADS; i++) {
+			tracknormal[i] = 0;
+	}
+
 	for (int i = start_cnt; i < cnt; i++) {
-		float x = src_v[i].x;
-		float y = src_v[i].y;
-		float z = src_v[i].z;
 
-		scount = 0;
+		if (tracknormal[i] == 0) {
+			float x = src_v[i].x;
+			float y = src_v[i].y;
+			float z = src_v[i].z;
 
-		for (int j = start_cnt; j < cnt; j++) {
-			//if (i != j) {
-			if (x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
-				//found shared vertex
-				sharedv[scount] = j;
-				scount++;
-			}
-			//}
-		}
+			scount = 0;
 
-		if (scount > 0) {
-			XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
-			XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
-
-			XMFLOAT3 x1, xtan;
-			XMVECTOR average;
-
-			for (int k = 0; k < scount; k++) {
-				x1.x = src_v[sharedv[k]].nx;
-				x1.y = src_v[sharedv[k]].ny;
-				x1.z = src_v[sharedv[k]].nz;
-				sum = sum + XMLoadFloat3(&x1);
-
-				xtan.x = src_v[sharedv[k]].nmx;
-				xtan.y = src_v[sharedv[k]].nmy;
-				xtan.z = src_v[sharedv[k]].nmz;
-				sumtan = sumtan + XMLoadFloat3(&xtan);
-
+			for (int j = start_cnt; j < cnt; j++) {
+				//if (i != j) {
+				if (x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
+					//found shared vertex
+					sharedv[scount] = j;
+					scount++;
+				}
+				//}
 			}
 
-			sum = sum / (float)scount;
-			sumtan = sumtan / (float)scount;
+			if (scount > 0) {
+				XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
+				XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
 
-			XMFLOAT3 final2, finaltan;
+				XMFLOAT3 x1, xtan;
+				XMVECTOR average;
 
-			average = XMVector3Normalize(sum);
-			XMStoreFloat3(&final2, average);
+				for (int k = 0; k < scount; k++) {
+					x1.x = src_v[sharedv[k]].nx;
+					x1.y = src_v[sharedv[k]].ny;
+					x1.z = src_v[sharedv[k]].nz;
+					sum = sum + XMLoadFloat3(&x1);
 
-			average = XMVector3Normalize(sumtan);
-			XMStoreFloat3(&finaltan, average);
+					xtan.x = src_v[sharedv[k]].nmx;
+					xtan.y = src_v[sharedv[k]].nmy;
+					xtan.z = src_v[sharedv[k]].nmz;
+					sumtan = sumtan + XMLoadFloat3(&xtan);
+
+				}
+
+				sum = sum / (float)scount;
+				sumtan = sumtan / (float)scount;
+
+				XMFLOAT3 final2, finaltan;
+
+				average = XMVector3Normalize(sum);
+				XMStoreFloat3(&final2, average);
+
+				average = XMVector3Normalize(sumtan);
+				XMStoreFloat3(&finaltan, average);
 
 
-			for (int k = 0; k < scount; k++) {
-				src_v[sharedv[k]].nx = final2.x;
-				src_v[sharedv[k]].ny = final2.y;
-				src_v[sharedv[k]].nz = final2.z;
+				for (int k = 0; k < scount; k++) {
+					src_v[sharedv[k]].nx = final2.x;
+					src_v[sharedv[k]].ny = final2.y;
+					src_v[sharedv[k]].nz = final2.z;
 
-				src_v[sharedv[k]].nmx = finaltan.x;
-				src_v[sharedv[k]].nmy = finaltan.y;
-				src_v[sharedv[k]].nmz = finaltan.z;
+					src_v[sharedv[k]].nmx = finaltan.x;
+					src_v[sharedv[k]].nmy = finaltan.y;
+					src_v[sharedv[k]].nmz = finaltan.z;
+
+					tracknormal[sharedv[k]] = 1;
+				}
 			}
 		}
 	}
 }
 
-
 void ComputerWeightedAverages(int start_cnt);
 
 void SmoothNormalsWeighted(int start_cnt) {
 
+	for (int i = 0; i < MAX_NUM_QUADS; i++) {
+		tracknormal[i] = 0;
+	}
 
 	ComputerWeightedAverages(start_cnt);
 
@@ -1101,95 +1113,99 @@ void SmoothNormalsWeighted(int start_cnt) {
 	int scount = 0;
 
 	for (int i = start_cnt; i < cnt; i++) {
-		float x = src_v[i].x;
-		float y = src_v[i].y;
-		float z = src_v[i].z;
+		if (tracknormal[i] == 0) {
+			float x = src_v[i].x;
+			float y = src_v[i].y;
+			float z = src_v[i].z;
 
-		scount = 0;
+			scount = 0;
 
-		for (int j = start_cnt; j < cnt; j++) {
-			//if (i != j) {
-			if (x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
+			for (int j = start_cnt; j < cnt; j++) {
+				//if (i != j) {
+				if (x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
 
-				//if (src_v[j].weight < 45.0f) {
-					//found shared vertex
+					//if (src_v[j].weight < 45.0f) {
+						//found shared vertex
 					sharedv[scount] = j;
 					scount++;
+					//}
+				}
 				//}
 			}
-			//}
-		}
 
-		if (scount > 0) {
-			XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
-			XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
+			if (scount > 0) {
+				XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
+				XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
 
-			XMFLOAT3 x1, xtan;
-			XMVECTOR average;
+				XMFLOAT3 x1, xtan;
+				XMVECTOR average;
 
-			XMVECTOR work = XMVectorSet(0, 0, 0, 0);
+				XMVECTOR work = XMVectorSet(0, 0, 0, 0);
 
-			XMFLOAT3 finalweight;
+				XMFLOAT3 finalweight;
 
-			float weight = 0;
-			float area = 0;
+				float weight = 0;
+				float area = 0;
 
-			for (int k = 0; k < scount; k++) {
+				for (int k = 0; k < scount; k++) {
 
-				weight = src_v[sharedv[k]].weight;
-				area = src_v[sharedv[k]].area;
+					weight = src_v[sharedv[k]].weight;
+					area = src_v[sharedv[k]].area;
 
-				if (weight > 90.0f) {
-					int a = 1;
+					if (weight > 90.0f) {
+						int a = 1;
+					}
+
+					//weight = (float)acos(weight) / (float)0.017453292;;
+
+					work = XMVectorSet(src_v[sharedv[k]].nx, src_v[sharedv[k]].ny, src_v[sharedv[k]].nz, 0);
+					work = work * (weight * area);
+					//work = XMVector3Normalize(work);
+					XMStoreFloat3(&finalweight, work);
+
+					x1.x = finalweight.x;
+					x1.y = finalweight.y;
+					x1.z = finalweight.z;
+
+					//x1.x = src_v[sharedv[k]].nx;
+					//x1.y = src_v[sharedv[k]].ny;
+					//x1.z = src_v[sharedv[k]].nz;
+					sum = sum + XMLoadFloat3(&x1);
+
+
+					work = XMVectorSet(src_v[sharedv[k]].nmx, src_v[sharedv[k]].nmy, src_v[sharedv[k]].nmz, 0);
+					work = work * (weight * area);
+					//work = XMVector3Normalize(work);
+					XMStoreFloat3(&finalweight, work);
+
+					xtan.x = finalweight.x;
+					xtan.y = finalweight.y;
+					xtan.z = finalweight.z;
+					sumtan = sumtan + XMLoadFloat3(&xtan);
 				}
 
-				//weight = (float)acos(weight) / (float)0.017453292;;
+				//sum = sum / (float)scount;
 
-				work = XMVectorSet(src_v[sharedv[k]].nx, src_v[sharedv[k]].ny, src_v[sharedv[k]].nz, 0);
-				work = work * (weight * area);
-				//work = XMVector3Normalize(work);
-				XMStoreFloat3(&finalweight, work);
+				XMFLOAT3 final2, finaltan;
 
-				x1.x = finalweight.x;
-				x1.y = finalweight.y;
-				x1.z = finalweight.z;
+				average = XMVector3Normalize(sum);
+				XMStoreFloat3(&final2, average);
 
-				//x1.x = src_v[sharedv[k]].nx;
-				//x1.y = src_v[sharedv[k]].ny;
-				//x1.z = src_v[sharedv[k]].nz;
-				sum = sum + XMLoadFloat3(&x1);
+				average = XMVector3Normalize(sumtan);
+				XMStoreFloat3(&finaltan, average);
 
 
-				work = XMVectorSet(src_v[sharedv[k]].nmx, src_v[sharedv[k]].nmy, src_v[sharedv[k]].nmz, 0);
-				work = work * (weight * area);
-				//work = XMVector3Normalize(work);
-				XMStoreFloat3(&finalweight, work);
+				for (int k = 0; k < scount; k++) {
+					src_v[sharedv[k]].nx = final2.x;
+					src_v[sharedv[k]].ny = final2.y;
+					src_v[sharedv[k]].nz = final2.z;
 
-				xtan.x = finalweight.x;
-				xtan.y = finalweight.y;
-				xtan.z = finalweight.z;
-				sumtan = sumtan + XMLoadFloat3(&xtan);
-			}
+					src_v[sharedv[k]].nmx = finaltan.x;
+					src_v[sharedv[k]].nmy = finaltan.y;
+					src_v[sharedv[k]].nmz = finaltan.z;
 
-			//sum = sum / (float)scount;
-
-			XMFLOAT3 final2, finaltan;
-
-			average = XMVector3Normalize(sum);
-			XMStoreFloat3(&final2, average);
-
-			average = XMVector3Normalize(sumtan);
-			XMStoreFloat3(&finaltan, average);
-
-
-			for (int k = 0; k < scount; k++) {
-				src_v[sharedv[k]].nx = final2.x;
-				src_v[sharedv[k]].ny = final2.y;
-				src_v[sharedv[k]].nz = final2.z;
-
-				src_v[sharedv[k]].nmx = finaltan.x;
-				src_v[sharedv[k]].nmy = finaltan.y;
-				src_v[sharedv[k]].nmz = finaltan.z;
+					tracknormal[sharedv[k]] = 1;
+				}
 			}
 		}
 	}
