@@ -2932,8 +2932,9 @@ void DungeonStompApp::ProcessLights11()
 		float	qdist = FastDistance(m_vEyePt.x - oblist[q].x,
 			m_vEyePt.y - oblist[q].y,
 			m_vEyePt.z - oblist[q].z);
-		if (ob_type == 57)
-			//if (ob_type == 6 && qdist < 2500 && oblist[q].light_source->command == 900)
+		//if (ob_type == 57)
+		if (ob_type == 6 && oblist[q].light_source->command == 900)
+		//if (ob_type == 6 && qdist < 2500 && oblist[q].light_source->command == 900)
 		{
 			dist[dcount] = qdist;
 			sort[dcount] = dcount;
@@ -2968,7 +2969,7 @@ void DungeonStompApp::ProcessLights11()
 		int ob_type = oblist[q].type;
 		//LightContainer[i+1].Strength = { 1.5f, 1.5f, 1.5f };
 		LightContainer[i].Strength = { 1.0f, 1.0f, 1.0f };
-		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 65.0f, oblist[q].z };
+		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 50.0f, oblist[q].z };
 	}
 
 	int count = 0;
