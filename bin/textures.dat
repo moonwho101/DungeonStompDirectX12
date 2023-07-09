@@ -1506,6 +1506,51 @@ Alias  499   goblin4_nm           OPAQUE  WHOLE  monster
 AddTexture  ..\textures\book\bookc_nm.dds
 Alias  500   bookc_nm           OPAQUE  WHOLE  default
 
+AddTexture  ..\textures\monster\centaur_nm.dds
+Alias  501   centaur_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\craz_nm.dds
+Alias  502   craz_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\Faerie_nm.dds
+Alias  503   Faerie_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\demoness_nm.dds
+Alias  504   demoness_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\mummy_nm.dds
+Alias  505   mummy_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\weaponmummy_nm.dds
+Alias  506   weaponmummy_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\necromancer_nm.dds
+Alias  507   necromancer_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\WEAPONwraith_nm.dds
+Alias  509   WEAPONwraith_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\phantom_nm.dds
+Alias  510   phantom_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\phantomw_nm.dds
+Alias  511   phantomw_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\sorb_nm.dds
+Alias  512   sorb_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\skeleton2_nm.dds
+Alias  513   skeleton2_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\imp_nm.dds
+Alias  514   imp_nm           OPAQUE  WHOLE  default
+
+AddTexture  ..\textures\monster\dragon_nm.dds
+Alias  515   dragon_nm           OPAQUE  WHOLE  monster
+
+AddTexture  ..\textures\monster\rider_nm.dds
+Alias  516   rider_nm           OPAQUE  WHOLE  monster
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
