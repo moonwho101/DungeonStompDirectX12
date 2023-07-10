@@ -1551,6 +1551,24 @@ Alias  515   dragon_nm           OPAQUE  WHOLE  monster
 AddTexture  ..\textures\monster\rider_nm.dds
 Alias  516   rider_nm           OPAQUE  WHOLE  monster
 
+
+AddTexture  ..\textures\house2\h2back_nm.dds
+Alias  517  h2back_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\house2\h2frt_nm.dds
+Alias  518  h2frt_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\house2\h2sidel_nm.dds
+Alias  519  h2sidel_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\house2\h2sider_nm.dds
+Alias  520  h2sider_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\Models\3ds\logs\BarkDark_nm.dds
+Alias  521   BarkDark_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\Models\3ds\logs\Rings2_nm.dds
+Alias  522   Rings2_nm           OPAQUE  WHOLE  wood
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
