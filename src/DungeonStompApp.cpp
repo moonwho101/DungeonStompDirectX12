@@ -1967,7 +1967,7 @@ void DungeonStompApp::BuildMaterials()
 	default->MatCBIndex = 0;
 	default->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	default->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	default->Roughness = 0.945f;
+	default->Roughness = 0.815f;
 
 	auto grass = std::make_unique<Material>();
 	grass->Name = "grass";
@@ -1982,7 +1982,7 @@ void DungeonStompApp::BuildMaterials()
 	water->DiffuseSrvHeapIndex = 0;
 	water->DiffuseAlbedo = XMFLOAT4(0.5f, 0.5f, 1.0f, 0.5f);
 	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-	water->Roughness = 0.3f;
+	water->Roughness = 0.326f;
 
 	auto brick = std::make_unique<Material>();
 	brick->Name = "brick";
@@ -1990,7 +1990,7 @@ void DungeonStompApp::BuildMaterials()
 	brick->DiffuseSrvHeapIndex = 0;
 	brick->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	brick->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	brick->Roughness = 0.925f;
+	brick->Roughness = 0.825f;
 
 	auto stone = std::make_unique<Material>();
 	stone->Name = "stone";
@@ -1998,7 +1998,7 @@ void DungeonStompApp::BuildMaterials()
 	stone->DiffuseSrvHeapIndex = 0;
 	stone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	stone->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
-	stone->Roughness = 0.943f;
+	stone->Roughness = 0.743f;
 
 	auto tile = std::make_unique<Material>();
 	tile->Name = "tile";
@@ -2014,7 +2014,7 @@ void DungeonStompApp::BuildMaterials()
 	crate->DiffuseSrvHeapIndex = 0;
 	crate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	crate->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
-	crate->Roughness = 0.896f;
+	crate->Roughness = 0.796f;
 
 	auto ice = std::make_unique<Material>();
 	ice->Name = "ice";
@@ -2079,7 +2079,7 @@ void DungeonStompApp::BuildMaterials()
 	monster->DiffuseSrvHeapIndex = 0;
 	monster->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	monster->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	monster->Roughness = 0.933f;
+	monster->Roughness = 0.833f;
 
 	//new material - increment MatCBIndex 
 
