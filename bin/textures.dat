@@ -395,7 +395,7 @@ AddTexture  ..\textures\weapons\icesword.dds
 Alias  132   icesword           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\weapons\bluetile1.dds
-Alias  133   bluetileback           OPAQUE  WHOLE  tile
+Alias  133   bluetileback           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\weapons\lightning_sword.dds
 Alias  134   lightning_sword           OPAQUE  WHOLE  default
@@ -428,7 +428,7 @@ AddTexture  ..\textures\background.dds
 Alias  143   background           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\bluetile1.dds
-Alias  144   bluetile1           OPAQUE  WHOLE  tile
+Alias  144   bluetile1           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\box.dds
 Alias  145   box           OPAQUE  WHOLE  default
@@ -518,7 +518,7 @@ AddTexture  ..\textures\magicceiling1.dds
 Alias  173   magicceiling1           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\magictile1.dds
-Alias  174   magictile1           OPAQUE  WHOLE  tile
+Alias  174   magictile1           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\mahog.dds
 Alias  175   mahog           OPAQUE  WHOLE  wood
