@@ -704,13 +704,13 @@ AddTexture  ..\Models\3ds\banner\banner1.dds
 Alias  235 banner1           OPAQUE  WHOLE  default
 
 AddTexture  ..\Models\3ds\Stone\stones1.dds
-Alias  236 stones1           OPAQUE  WHOLE  stone
+Alias  236 stones1           OPAQUE  WHOLE  flat
 
 AddTexture  ..\Models\3ds\Stone\stones2.dds
-Alias  237 stones2           OPAQUE  WHOLE  stone
+Alias  237 stones2           OPAQUE  WHOLE  flat
 
 AddTexture  ..\Models\3ds\Stone\stones3.dds
-Alias  238 stones3           OPAQUE  WHOLE  stone
+Alias  238 stones3           OPAQUE  WHOLE  flat
 
 AddTexture  ..\textures\ruin1.dds
 Alias  239 ruin1           OPAQUE  WHOLE  wood
@@ -1569,6 +1569,16 @@ Alias  521   BarkDark_nm           OPAQUE  WHOLE  wood
 
 AddTexture  ..\Models\3ds\logs\Rings2_nm.dds
 Alias  522   Rings2_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\Models\3ds\Stone\stones1_nm.dds
+Alias  523 stones1_nm           OPAQUE  WHOLE  stone
+
+AddTexture  ..\Models\3ds\Stone\stones2_nm.dds
+Alias  524 stones2_nm           OPAQUE  WHOLE  stone
+
+AddTexture  ..\Models\3ds\Stone\stones3_nm.dds
+Alias  525 stones3_nm           OPAQUE  WHOLE  stone
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
