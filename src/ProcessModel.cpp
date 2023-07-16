@@ -650,7 +650,7 @@ void DrawBoundingBox() {
 	ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = 3;
 	ObjectsToDraw[number_of_polys_per_frame].facesperpoly = 1;
 
-	texture_list_buffer[number_of_polys_per_frame] = 263;
+	texture_list_buffer[number_of_polys_per_frame] = 238;  //263
 
 
 	int test = (countboundingbox / 4.0f) * 6.0f;
