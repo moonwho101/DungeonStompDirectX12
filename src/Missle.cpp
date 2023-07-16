@@ -309,7 +309,11 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 
 			foundcollisiontrue = 0;
 			XMFLOAT3 result;
-			collideWithBoundingBox = 0;
+
+			if (your_missle[misslecount].playertype == 1) {
+				collideWithBoundingBox = 0;
+			}
+			
 			result = collideWithWorld(RadiusDivide(collidenow, eRadius), RadiusDivide(savevelocity, eRadius));
 			result = RadiusMultiply(result, eRadius);
 			collideWithBoundingBox = 1;
