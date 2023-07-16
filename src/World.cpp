@@ -106,6 +106,7 @@ int gravitydropcount = 0;
 extern int jump;
 
 void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTEX2& vertex3);
+void DrawBoundingBox();
 
 void InitDS()
 {
@@ -506,7 +507,7 @@ void UpdateWorld(float fElapsedTime) {
 	DrawItems(fElapsedTime);
 	
 
-
+	
 
 
 	//PlayerToD3DVertList(player_list[trueplayernum].model_id,
@@ -562,7 +563,7 @@ void UpdateWorld(float fElapsedTime) {
 		}
 	}
 
-
+	DrawBoundingBox();
 
 	num_light_sources = 0;
 

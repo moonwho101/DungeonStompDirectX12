@@ -1471,7 +1471,7 @@ void MakeBoundingBox()
 	}
 
 	//heee
-	if (excludebox == 0) {
+	//if (excludebox == 0) {
 		for (i = 0; i < num_monsters; i++)
 		{
 			cullflag = 0;
@@ -1503,7 +1503,7 @@ void MakeBoundingBox()
 					break;
 				}
 			}
-		}
+		//}
 	}
 }
 

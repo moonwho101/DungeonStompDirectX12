@@ -79,6 +79,10 @@ extern TEXTUREMAPPING  TexMap[MAX_NUM_TEXTURES];
 void DrawModel();
 int num_light_sources = 0;
 
+extern float gametimerAnimation;
+
+void ConvertQuad(int fan_cnt);
+
 void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTEX2& vertex3)
 {
 	float vector1[3], vector2[3];
@@ -631,7 +635,82 @@ void AddWorldLight(int ob_type, int angle, int oblist_index, IDirect3DDevice9* p
 
 */
 
-extern float gametimerAnimation;
+
+
+void DrawBoundingBox() {
+	
+	
+	ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
+	ObjectsToDraw[number_of_polys_per_frame].objectId = -1;
+	ObjectsToDraw[number_of_polys_per_frame].srcfstart = 0.0f;
+
+	ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
+	ObjectsToDraw[number_of_polys_per_frame].dist = 0;
+	ObjectsToDraw[number_of_polys_per_frame].texture = 276;
+	ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = 3;
+	ObjectsToDraw[number_of_polys_per_frame].facesperpoly = 1;
+
+	texture_list_buffer[number_of_polys_per_frame] = 276;
+
+
+	int test = (countboundingbox / 4.0f) * 6.0f;
+	verts_per_poly[number_of_polys_per_frame] = test;
+	dp_command_index_mode[number_of_polys_per_frame] = USE_NON_INDEXED_DP;
+	dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
+
+
+
+	//int num_vert = (countboundingbox - 3) * 3;
+	//verts_per_poly[number_of_polys_per_frame] = (num_vert + 3);
+
+
+	number_of_polys_per_frame++;
+
+	
+	float fan_cnt = cnt;
+
+
+	int uvcount = 0;
+
+	for (int i = 0; i < countboundingbox; i++)
+	{
+		src_v[cnt].x = boundingbox[i].x;
+		src_v[cnt].y = boundingbox[i].y;
+		src_v[cnt].z = boundingbox[i].z;
+
+
+
+		if (uvcount == 0) {
+			src_v[cnt].tu = 0.0f;
+			src_v[cnt].tv = 0.0f;
+		}
+		else if (uvcount == 1) {
+			src_v[cnt].tu = 0.0f;
+			src_v[cnt].tv = 1.0f;
+		}
+		else if (uvcount == 2) {
+			src_v[cnt].tu = 1.0f;
+			src_v[cnt].tv = 0.0f;
+		}
+		else if (uvcount == 3) {
+			src_v[cnt].tu = 1.0f;
+			src_v[cnt].tv = 1.0f;
+
+			uvcount = 0;
+		}
+		else {
+			uvcount++;
+		}
+
+
+		cnt++;
+
+
+	}
+
+	ConvertQuad(fan_cnt);
+
+}
 
 void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture_alias, int tex_flag, float xt, float yt, float zt, int nextFrame)
 {
@@ -1484,9 +1563,6 @@ void ConvertTraingleFan(int fan_cnt) {
 
 void ConvertTraingleStrip(int fan_cnt) {
 
-
-
-
 	int counter = 0;
 	int v = 0;
 
@@ -1668,6 +1744,159 @@ void ConvertTraingleStrip(int fan_cnt) {
 	cnt = fan_cnt + counter;
 
 }
+
+void ConvertQuad(int fan_cnt) {
+
+	int counter = 0;
+	int v = 0;
+	int quad = 0;
+
+	for (int i = fan_cnt; i < cnt; i++) {
+
+		if (quad >=3) {
+
+			temp_v[counter].x = src_v[i - 3].x;
+			temp_v[counter].y = src_v[i - 3].y;
+			temp_v[counter].z = src_v[i - 3].z;
+			temp_v[counter].nx = src_v[i - 3].nx;
+			temp_v[counter].ny = src_v[i - 3].ny;
+			temp_v[counter].nz = src_v[i - 3].nz;
+			temp_v[counter].tu = src_v[i - 3].tu;
+			temp_v[counter].tv = src_v[i - 3].tv;
+			counter++;
+
+			temp_v[counter].x = src_v[i - 2].x;
+			temp_v[counter].y = src_v[i - 2].y;
+			temp_v[counter].z = src_v[i - 2].z;
+			temp_v[counter].nx = src_v[i - 2].nx;
+			temp_v[counter].ny = src_v[i - 2].ny;
+			temp_v[counter].nz = src_v[i - 2].nz;
+			temp_v[counter].tu = src_v[i - 2].tu;
+			temp_v[counter].tv = src_v[i - 2].tv;
+			counter++;
+
+			temp_v[counter].x = src_v[i - 1].x;
+			temp_v[counter].y = src_v[i - 1].y;
+			temp_v[counter].z = src_v[i - 1].z;
+			temp_v[counter].nx = src_v[i - 1].nx;
+			temp_v[counter].ny = src_v[i - 1].ny;
+			temp_v[counter].nz = src_v[i - 1].nz;
+			temp_v[counter].tu = src_v[i - 1].tu;
+			temp_v[counter].tv = src_v[i - 1].tv;
+			counter++;
+
+			//2nd
+
+			temp_v[counter].x = src_v[i].x;
+			temp_v[counter].y = src_v[i].y;
+			temp_v[counter].z = src_v[i].z;
+			temp_v[counter].nx = src_v[i].nx;
+			temp_v[counter].ny = src_v[i].ny;
+			temp_v[counter].nz = src_v[i].nz;
+			temp_v[counter].tu = src_v[i].tu;
+			temp_v[counter].tv = src_v[i].tv;
+			counter++;
+
+			temp_v[counter].x = src_v[i - 1].x;
+			temp_v[counter].y = src_v[i - 1].y;
+			temp_v[counter].z = src_v[i - 1].z;
+			temp_v[counter].nx = src_v[i - 1].nx;
+			temp_v[counter].ny = src_v[i - 1].ny;
+			temp_v[counter].nz = src_v[i - 1].nz;
+			temp_v[counter].tu = src_v[i - 1].tu;
+			temp_v[counter].tv = src_v[i - 1].tv;
+			counter++;
+
+			temp_v[counter].x = src_v[i - 2].x;
+			temp_v[counter].y = src_v[i - 2].y;
+			temp_v[counter].z = src_v[i - 2].z;
+			temp_v[counter].nx = src_v[i - 2].nx;
+			temp_v[counter].ny = src_v[i - 2].ny;
+			temp_v[counter].nz = src_v[i - 2].nz;
+			temp_v[counter].tu = src_v[i - 2].tu;
+			temp_v[counter].tv = src_v[i - 2].tv;
+			counter++;
+
+			quad = 0;
+
+		}
+		else {
+			quad++;
+		}
+
+	}
+
+	int normal = 0;
+
+	for (int i = 0; i < counter; i++) {
+		src_v[fan_cnt + i].x = temp_v[i].x;
+		src_v[fan_cnt + i].y = temp_v[i].y;
+		src_v[fan_cnt + i].z = temp_v[i].z;
+
+		src_v[fan_cnt + i].nx = temp_v[i].nx;
+		src_v[fan_cnt + i].ny = temp_v[i].ny;
+		src_v[fan_cnt + i].nz = temp_v[i].nz;
+
+		src_v[fan_cnt + i].tu = temp_v[i].tu;
+		src_v[fan_cnt + i].tv = temp_v[i].tv;
+
+
+		if (normal == 2) {
+
+			normal = 0;
+			XMFLOAT3 vw1, vw2, vw3;
+
+			vw1.x = D3DVAL(src_v[(fan_cnt + i) - 2].x);
+			vw1.y = D3DVAL(src_v[(fan_cnt + i) - 2].y);
+			vw1.z = D3DVAL(src_v[(fan_cnt + i) - 2].z);
+
+			vw2.x = D3DVAL(src_v[(fan_cnt + i) - 1].x);
+			vw2.y = D3DVAL(src_v[(fan_cnt + i) - 1].y);
+			vw2.z = D3DVAL(src_v[(fan_cnt + i) - 1].z);
+
+			vw3.x = D3DVAL(src_v[(fan_cnt + i)].x);
+			vw3.y = D3DVAL(src_v[(fan_cnt + i)].y);
+			vw3.z = D3DVAL(src_v[(fan_cnt + i)].z);
+
+			XMVECTOR   vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
+			XMVECTOR   vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
+
+			XMVECTOR  vCross, final;
+			vCross = XMVector3Cross(vDiff, vDiff2);
+			final = XMVector3Normalize(vCross);
+
+
+			XMFLOAT3 final2;
+			XMStoreFloat3(&final2, final);
+
+
+			float workx = (-final2.x);
+			float worky = (-final2.y);
+			float workz = (-final2.z);
+
+			src_v[(fan_cnt + i) - 2].nx = workx;
+			src_v[(fan_cnt + i) - 2].ny = worky;
+			src_v[(fan_cnt + i) - 2].nz = workz;
+
+			src_v[(fan_cnt + i) - 1].nx = workx;
+			src_v[(fan_cnt + i) - 1].ny = worky;
+			src_v[(fan_cnt + i) - 1].nz = workz;
+
+			src_v[(fan_cnt + i)].nx = workx;
+			src_v[(fan_cnt + i)].ny = worky;
+			src_v[(fan_cnt + i)].nz = workz;
+
+			CalculateTangentBinormal(src_v[(fan_cnt + i) - 2], src_v[(fan_cnt + i) - 1], src_v[(fan_cnt + i)]);
+
+		}
+		else {
+			normal++;
+		}
+	}
+	cnt = fan_cnt + counter;
+
+}
+
 
 int GetNextFrame(int monsterId);
 
