@@ -650,7 +650,7 @@ void DrawBoundingBox() {
 	ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = 3;
 	ObjectsToDraw[number_of_polys_per_frame].facesperpoly = 1;
 
-	texture_list_buffer[number_of_polys_per_frame] = 276;
+	texture_list_buffer[number_of_polys_per_frame] = 263;
 
 
 	int test = (countboundingbox / 4.0f) * 6.0f;
@@ -683,14 +683,17 @@ void DrawBoundingBox() {
 		if (uvcount == 0) {
 			src_v[cnt].tu = 0.0f;
 			src_v[cnt].tv = 0.0f;
+			uvcount++;
 		}
 		else if (uvcount == 1) {
 			src_v[cnt].tu = 0.0f;
 			src_v[cnt].tv = 1.0f;
+			uvcount++;
 		}
 		else if (uvcount == 2) {
 			src_v[cnt].tu = 1.0f;
 			src_v[cnt].tv = 0.0f;
+			uvcount++;
 		}
 		else if (uvcount == 3) {
 			src_v[cnt].tu = 1.0f;
