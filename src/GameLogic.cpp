@@ -1633,24 +1633,28 @@ void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, flo
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
@@ -1659,24 +1663,28 @@ void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, flo
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
@@ -1685,23 +1693,28 @@ void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, flo
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
+
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
@@ -1709,20 +1722,26 @@ void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, flo
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 1;
+
+	countboundingbox++;
+
+	boundingbox[countboundingbox].x = max_x;
+	boundingbox[countboundingbox].y = min_y;
+	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = min_y;
-	boundingbox[countboundingbox].z = min_z;
-	countboundingbox++;
-	boundingbox[countboundingbox].x = max_x;
-	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
@@ -1731,23 +1750,29 @@ void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, flo
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 1;
+
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 1;
+
 	countboundingbox++;
 
 	return;
@@ -1847,24 +1872,29 @@ void PlayerIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float 
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 0;
+
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
@@ -1873,24 +1903,28 @@ void PlayerIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float 
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
@@ -1899,23 +1933,27 @@ void PlayerIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
@@ -1923,20 +1961,25 @@ void PlayerIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float 
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 0;
+
 	countboundingbox++;
 	boundingbox[countboundingbox].x = max_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
@@ -1945,23 +1988,29 @@ void PlayerIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = max_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 0;
+
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = max_z;
+	boundingbox[countboundingbox].monster = 0;
 
 	countboundingbox++;
 
 	boundingbox[countboundingbox].x = min_x;
 	boundingbox[countboundingbox].y = min_y;
 	boundingbox[countboundingbox].z = min_z;
+	boundingbox[countboundingbox].monster = 0;
+
 	countboundingbox++;
 
 	//objectheight = max_y - min_y;

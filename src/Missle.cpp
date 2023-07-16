@@ -27,6 +27,9 @@ int SavingThrow(int damage, int player, int level, int missleid, int isplayer, i
 extern XMFLOAT3 eTest;
 extern int damageroll;
 
+int collideWithBoundingBox = 1;
+
+
 void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoot, XMFLOAT3 velocity, float lookangy, FLOAT fTimeKeysave)
 {
 
@@ -306,10 +309,10 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 
 			foundcollisiontrue = 0;
 			XMFLOAT3 result;
-
+			collideWithBoundingBox = 0;
 			result = collideWithWorld(RadiusDivide(collidenow, eRadius), RadiusDivide(savevelocity, eRadius));
 			result = RadiusMultiply(result, eRadius);
-
+			collideWithBoundingBox = 1;
 			eRadius = { 25.0f, 50.0f, 25.0f };
 
 			if (foundcollisiontrue == 1 || qdist > 5000.0f)
@@ -423,8 +426,11 @@ void DrawMissle(float fElapsedTime)
 
 void ApplyMissleDamage(int playernum)
 {
+	
 	int misslecount = 0, i = 0;
 	float qdist;
+
+	float dist = 10.0f;
 
 	//type 0=monster 1=player
 	for (misslecount = 0; misslecount < MAX_MISSLE; misslecount++)
@@ -440,12 +446,12 @@ void ApplyMissleDamage(int playernum)
 					strcmp(monster_list[i].rname, "SLAVE") != 0 &&
 					strcmp(monster_list[i].rname, "CENTAUR") != 0)
 				{
-
+					
 					qdist = FastDistance(your_missle[misslecount].x - monster_list[i].x,
-						your_missle[misslecount].y - monster_list[i].y,
+						your_missle[misslecount].y - (monster_list[i].y),
 						your_missle[misslecount].z - monster_list[i].z);
-
-					if (qdist < 60.0f)
+					
+					if (qdist < 55.0f)
 					{
 						if (your_missle[misslecount].playertype == 0)
 						{
@@ -542,6 +548,7 @@ void ApplyMissleDamage(int playernum)
 					}
 				}
 			}
+			
 
 			//deal with missles hitting you
 			i = trueplayernum;
@@ -563,7 +570,7 @@ void ApplyMissleDamage(int playernum)
 						your_missle[misslecount].playertype == 1)
 					{
 						//its other players missle
-						your_missle[misslecount].active = 2;
+				/*		your_missle[misslecount].active = 2;
 
 						int volume;
 						volume = 100 - (int)((100 * your_missle[misslecount].qdist) / ((numberofsquares * monsterdist) / 2));
@@ -621,7 +628,7 @@ void ApplyMissleDamage(int playernum)
 							UpdateScrollList(255, 0, 0);
 						}
 
-						ApplyPlayerDamage(trueplayernum, raction);
+						ApplyPlayerDamage(trueplayernum, raction);*/
 					}
 					else if (your_missle[misslecount].playertype == 0)
 					{
@@ -687,7 +694,7 @@ void ApplyMissleDamage(int playernum)
 				}
 			}
 
-			//missle near monster
+			////missle near monster
 			for (i = 0; i < num_monsters; i++)
 			{
 				if (monster_list[i].bIsPlayerValid == TRUE &&
@@ -697,7 +704,7 @@ void ApplyMissleDamage(int playernum)
 						your_missle[misslecount].y - monster_list[i].y,
 						your_missle[misslecount].z - monster_list[i].z);
 
-					if (qdist < 60.0f)
+					if (qdist < 50.0f)
 					{
 						if (your_missle[misslecount].playertype == 0)
 						{

@@ -54,6 +54,9 @@ extern int countboundingbox;
 extern D3DVERTEX2 boundingbox[2000];
 extern int src_collide[MAX_NUM_VERTICES];
 
+extern int collideWithBoundingBox;
+extern int endc;
+
 struct TCollisionPacket
 {
 	// data about player movement
@@ -243,7 +246,7 @@ XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity)
 
 	return collideWithWorld(newP, newV);
 }
-extern int endc;
+
 void ObjectCollision()
 {
 
@@ -347,71 +350,75 @@ void ObjectCollision()
 
 	for (i = 0; i < countboundingbox; i++)
 	{
-
-		if (count == 0)
-		{
-			mxc[0] = boundingbox[i].x;
-			myc[0] = boundingbox[i].y;
-			mzc[0] = boundingbox[i].z;
-
-			mxc[1] = boundingbox[i + 1].x;
-			myc[1] = boundingbox[i + 1].y;
-			mzc[1] = boundingbox[i + 1].z;
-
-			mxc[2] = boundingbox[i + 2].x;
-			myc[2] = boundingbox[i + 2].y;
-			mzc[2] = boundingbox[i + 2].z;
-
-			//  3 2
-			//  1 0
-
-
-			centroidx = (mxc[0] + mxc[1] + mxc[2]) * QVALUE;
-			centroidy = (myc[0] + myc[1] + myc[2]) * QVALUE;
-			centroidz = (mzc[0] + mzc[1] + mzc[2]) * QVALUE;
-
-			qdist = FastDistance(collisionPackage.realpos.x - centroidx,
-				collisionPackage.realpos.y - centroidy,
-				collisionPackage.realpos.z - centroidz);
-
-			if (qdist < collisiondist + 200.0f)
-				calculate_block_location();
-
-			if (vertnum == 4)
+		//Stop player missle from hitting bounding box.
+		if (collideWithBoundingBox == 0 && boundingbox[i].monster == 1) {
+			//player missles should not hit monster bounding box, but should hit 3ds bounding box.
+		}
+		else {
+			if (count == 0)
 			{
-				mxc[0] = boundingbox[i + 1].x;
-				myc[0] = boundingbox[i + 1].y;
-				mzc[0] = boundingbox[i + 1].z;
+				mxc[0] = boundingbox[i].x;
+				myc[0] = boundingbox[i].y;
+				mzc[0] = boundingbox[i].z;
 
-				mxc[1] = boundingbox[i + 3].x;
-				myc[1] = boundingbox[i + 3].y;
-				mzc[1] = boundingbox[i + 3].z;
+				mxc[1] = boundingbox[i + 1].x;
+				myc[1] = boundingbox[i + 1].y;
+				mzc[1] = boundingbox[i + 1].z;
 
 				mxc[2] = boundingbox[i + 2].x;
 				myc[2] = boundingbox[i + 2].y;
 				mzc[2] = boundingbox[i + 2].z;
 
+				//  3 2
+				//  1 0
+
 
 				centroidx = (mxc[0] + mxc[1] + mxc[2]) * QVALUE;
 				centroidy = (myc[0] + myc[1] + myc[2]) * QVALUE;
-
 				centroidz = (mzc[0] + mzc[1] + mzc[2]) * QVALUE;
+
 				qdist = FastDistance(collisionPackage.realpos.x - centroidx,
 					collisionPackage.realpos.y - centroidy,
 					collisionPackage.realpos.z - centroidz);
 
 				if (qdist < collisiondist + 200.0f)
 					calculate_block_location();
+
+				if (vertnum == 4)
+				{
+					mxc[0] = boundingbox[i + 1].x;
+					myc[0] = boundingbox[i + 1].y;
+					mzc[0] = boundingbox[i + 1].z;
+
+					mxc[1] = boundingbox[i + 3].x;
+					myc[1] = boundingbox[i + 3].y;
+					mzc[1] = boundingbox[i + 3].z;
+
+					mxc[2] = boundingbox[i + 2].x;
+					myc[2] = boundingbox[i + 2].y;
+					mzc[2] = boundingbox[i + 2].z;
+
+
+					centroidx = (mxc[0] + mxc[1] + mxc[2]) * QVALUE;
+					centroidy = (myc[0] + myc[1] + myc[2]) * QVALUE;
+
+					centroidz = (mzc[0] + mzc[1] + mzc[2]) * QVALUE;
+					qdist = FastDistance(collisionPackage.realpos.x - centroidx,
+						collisionPackage.realpos.y - centroidy,
+						collisionPackage.realpos.z - centroidz);
+
+					if (qdist < collisiondist + 200.0f)
+						calculate_block_location();
+				}
+			}
+			count++;
+			if (count > vertnum - 1)
+			{
+				count = 0;
 			}
 		}
-		count++;
-		if (count > vertnum -1 )
-		{
-			count = 0;
-		}
-
-
 	}
+
 
 }
 

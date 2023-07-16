@@ -441,6 +441,7 @@ typedef struct _D3DVERTEX2 {
 
 	float weight;
 	float area;
+	bool monster;
 
 } D3DVERTEX2, * LPD3DVERTEX2;
 
