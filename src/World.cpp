@@ -563,7 +563,7 @@ void UpdateWorld(float fElapsedTime) {
 		}
 	}
 
-	DrawBoundingBox();
+	//DrawBoundingBox();
 
 	num_light_sources = 0;
 
