@@ -590,7 +590,7 @@ void MoveMonsters(float fElapsedTime)
 
 				//float realspeed = 200.0f * fElapsedTime;
 
-				float realspeed = (180 + (monster_list[i].speed * 2.0f)) * fElapsedTime;
+				float realspeed = (180.0f + (monster_list[i].speed * 2.0f)) * fElapsedTime;
 
 				XMVECTOR result = final * realspeed;
 
