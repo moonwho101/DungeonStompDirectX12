@@ -587,9 +587,10 @@ void MoveMonsters(float fElapsedTime)
 				result = collideWithWorld(collidenow / eRadius, (final * realspeed) / eRadius);
 				result = result * eRadius;
 				*/
-				float realspeed = 200.0f * fElapsedTime;
 
-				//D3DVECTOR result = final * realspeed;
+				//float realspeed = 200.0f * fElapsedTime;
+
+				float realspeed = (180 + (monster_list[i].speed * 2.0f)) * fElapsedTime;
 
 				XMVECTOR result = final * realspeed;
 

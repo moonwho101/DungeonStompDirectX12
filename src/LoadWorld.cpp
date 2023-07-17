@@ -1592,8 +1592,10 @@ void CLoadWorld::AddMonster(float x, float y, float z, float rot_angle, float mo
 	//if (gd == 1 || gd == 2)
 		//monster_list[num_monsters].animationdir = 1;
 
+	int speedadj = random_num(10);
+
 	strcpy_s(monster_list[num_monsters].rname, name);
-	monster_list[num_monsters].speed = speed;
+	monster_list[num_monsters].speed = speed + speedadj;
 	monster_list[num_monsters].sattack = DSound_Replicate_Sound(s1);
 	monster_list[num_monsters].sdie = DSound_Replicate_Sound(s2);
 	monster_list[num_monsters].sweapon = DSound_Replicate_Sound(s3);
