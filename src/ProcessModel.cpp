@@ -1843,6 +1843,8 @@ void ConvertQuad(int fan_cnt) {
 		src_v[fan_cnt + i].tu = temp_v[i].tu;
 		src_v[fan_cnt + i].tv = temp_v[i].tv;
 
+		//don't collide with visual box
+		src_collide[fan_cnt + i] = 0;
 
 		if (normal == 2) {
 
