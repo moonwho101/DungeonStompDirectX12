@@ -2081,6 +2081,23 @@ void DungeonStompApp::BuildMaterials()
 	monster->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
 	monster->Roughness = 0.833f;
 
+
+	auto monsterweapon = std::make_unique<Material>();
+	monsterweapon->Name = "monsterweapon";
+	monsterweapon->MatCBIndex = 15;
+	monsterweapon->DiffuseSrvHeapIndex = 0;
+	monsterweapon->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	monsterweapon->FresnelR0 = XMFLOAT3(0.06f, 0.06f, 0.06f);
+	monsterweapon->Roughness = 0.702f;
+
+	auto playerweapon = std::make_unique<Material>();
+	playerweapon->Name = "playerweapon";
+	playerweapon->MatCBIndex = 16;
+	playerweapon->DiffuseSrvHeapIndex = 0;
+	playerweapon->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	playerweapon->FresnelR0 = XMFLOAT3(0.07f, 0.07f, 0.07f);
+	playerweapon->Roughness = 0.742f;
+
 	//new material - increment MatCBIndex 
 
 	mMaterials["default"] = std::move(default);
@@ -2099,8 +2116,12 @@ void DungeonStompApp::BuildMaterials()
 	mMaterials["glass"] = std::move(glass);
 	mMaterials["wood"] = std::move(wood);
 	mMaterials["flat"] = std::move(flat);
+	
 	mMaterials["tilebrown"] = std::move(tilebrown);
 	mMaterials["monster"] = std::move(monster);
+	mMaterials["monsterweapon"] = std::move(monsterweapon);
+	
+	mMaterials["playerweapon"] = std::move(playerweapon);
 
 }
 

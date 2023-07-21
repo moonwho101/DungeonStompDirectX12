@@ -359,7 +359,7 @@ AddTexture  ..\textures\monster\tentacle.dds
 Alias  120   tentacle           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\WEAPONwraith.dds
-Alias  121   WEAPONwraith           OPAQUE  WHOLE  monster
+Alias  121   WEAPONwraith           OPAQUE  WHOLE  monsterweapon
 
 AddTexture  ..\textures\monster\wraith.dds
 Alias  122   wraith           AlphaTransparent  WHOLE  monster
@@ -380,49 +380,49 @@ AddTexture  ..\textures\treasure\coin.dds
 Alias  127   coin           OPAQUE  WHOLE  metal
 
 AddTexture  ..\textures\weapons\axe.dds
-Alias  128   axe           OPAQUE  WHOLE  default
+Alias  128   axe           OPAQUE  WHOLE  playerweapon
 
 AddTexture  ..\textures\weapons\bastard_sword.dds
-Alias  129   bastard_sword           OPAQUE  WHOLE  default
+Alias  129   bastard_sword           OPAQUE  WHOLE  playerweapon
 
 AddTexture  ..\textures\weapons\battleaxe.dds
-Alias  130   battleaxe           OPAQUE  WHOLE  default
+Alias  130   battleaxe           OPAQUE  WHOLE  playerweapon
 
 AddTexture  ..\textures\weapons\flamesword.dds
-Alias  131   flamesword           OPAQUE  WHOLE  default
+Alias  131   flamesword           OPAQUE  WHOLE  playerweapon
 
 AddTexture  ..\textures\weapons\icesword.dds
-Alias  132   icesword           OPAQUE  WHOLE  default
+Alias  132   icesword           OPAQUE  WHOLE  playerweapon
 
 AddTexture  ..\textures\weapons\bluetile1.dds
 Alias  133   bluetileback           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\weapons\lightning_sword.dds
-Alias  134   lightning_sword           OPAQUE  WHOLE  default
+Alias  134   lightning_sword           OPAQUE  WHOLE  playerweapon
 
 AddTexture  ..\textures\weapons\morning_star.dds
-Alias  135   morning_star           OPAQUE  WHOLE  default
+Alias  135   morning_star           OPAQUE  WHOLE  playerweapon
 
 AddTexture  ..\textures\weapons\spiked_flail.dds
-Alias  136   spiked_flail           OPAQUE  WHOLE  default
+Alias  136   spiked_flail           OPAQUE  WHOLE  playerweapon
 
 AddTexture  ..\textures\weapons\split_sword.dds
-Alias  137   split_sword           OPAQUE  WHOLE  default
+Alias  137   split_sword           OPAQUE  WHOLE  playerweapon
 
 AddTexture  ..\textures\weapons\super_flamesword.dds
-Alias  138   super_flamesword           OPAQUE  WHOLE  default
+Alias  138   super_flamesword           OPAQUE  WHOLE  playerweapon
 
 AddTexture  ..\textures\weapons\weaponbauul.dds
-Alias  139   weaponbauul           OPAQUE  WHOLE  default
+Alias  139   weaponbauul           OPAQUE  WHOLE  monsterweapon
 
 AddTexture  ..\textures\weapons\weapondemoness.dds
-Alias  140   weapondemoness           OPAQUE  WHOLE  default
+Alias  140   weapondemoness           OPAQUE  WHOLE  monsterweapon
 
 AddTexture  ..\textures\weapons\weapongoblin.dds
-Alias  141   weapongoblin           OPAQUE  WHOLE  default
+Alias  141   weapongoblin           OPAQUE  WHOLE  monsterweapon
 
 AddTexture  ..\textures\weapons\Weaponsorcerer.dds
-Alias  142   Weaponsorcerer           OPAQUE  WHOLE  default
+Alias  142   Weaponsorcerer           OPAQUE  WHOLE  monsterweapon
 
 AddTexture  ..\textures\background.dds
 Alias  143   background           OPAQUE  WHOLE  default
@@ -740,7 +740,7 @@ AddTexture  ..\textures\monster\mummy.dds
 Alias  247   mummy           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\weaponmummy.dds
-Alias  248   weaponmummy           OPAQUE  WHOLE  monster
+Alias  248   weaponmummy           OPAQUE  WHOLE  monsterweapon
 
 AddTexture  ..\Models\3ds\bucket\bucketi.dds
 Alias  249   bucketi           OPAQUE  WHOLE  wood
@@ -752,7 +752,7 @@ AddTexture  ..\textures\monster\hydra.dds
 Alias  251   hydra           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\monster\hydraweapon.dds
-Alias  252   hydraweapon           OPAQUE  WHOLE  monster
+Alias  252   hydraweapon           OPAQUE  WHOLE  monsterweapon
 
 AddTexture  ..\textures\monster\imp.dds
 Alias  253   imp           OPAQUE  WHOLE  default
@@ -1030,10 +1030,10 @@ AddTexture  ..\textures\monster\dragon.dds
 Alias  342   dragon           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weapondragon.dds
-Alias  343   weapondragon           OPAQUE  WHOLE  monster
+Alias  343   weapondragon           OPAQUE  WHOLE  monsterweapon
 
 AddTexture  ..\textures\weapons\weaponcobra.dds
-Alias  344   weaponcobra           OPAQUE  WHOLE  monster
+Alias  344   weaponcobra           OPAQUE  WHOLE  monsterweapon
 
 AddTexture  ..\textures\monster\centaur.dds
 Alias  345   centaur           OPAQUE  WHOLE  monster
@@ -1042,7 +1042,7 @@ AddTexture  ..\textures\monster\craz.dds
 Alias  346   craz           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weaponcraz.dds
-Alias  347   weaponcraz           OPAQUE  WHOLE  monster
+Alias  347   weaponcraz           OPAQUE  WHOLE  monsterweapon
 
 AddTexture  ..\textures\monster\rider.dds
 Alias  348   rider           OPAQUE  WHOLE  monster
@@ -1051,7 +1051,7 @@ AddTexture  ..\textures\monster\okta.dds
 Alias  349   okta           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\weapons\weaponsorb.dds
-Alias  350   weaponsorb           OPAQUE  WHOLE  monster
+Alias  350   weaponsorb           OPAQUE  WHOLE  monsterweapon
 
 AddTexture  ..\textures\screen1\pbm4.dds
 Alias  351   pbm4           OPAQUE  WHOLE  default
