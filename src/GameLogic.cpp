@@ -380,7 +380,7 @@ void MoveMonsters(float fElapsedTime)
 					int monsteron = 0;
 
 					monsteron = CalculateViewMonster(work2, work1, 60.0f, monster_list[i].rot_angle);
-					if (monster_list[i].current_sequence != 5 && monsteron && monster_list[i].dist <= 350.0f)
+					if (monster_list[i].current_sequence != 5 && monsteron && monster_list[i].dist <= 200.0f)
 					{
 
 						int action = random_num(20) + 1;
