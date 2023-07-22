@@ -2301,8 +2301,17 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 
 		int oid = 0;
 
-		if (drawingShadowMap) {
+
+		if (drawingSSAO || drawingShadowMap) {
 			oid = ObjectsToDraw[currentObject].objectId;
+
+			//Don't draw player captions
+			if (oid == -99) {
+				draw = false;
+			}
+		}
+
+		if (drawingShadowMap) {
 
 			if (oid == -1) {
 				//Draw 3DS and MD2 Shadows
