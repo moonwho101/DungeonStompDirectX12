@@ -305,19 +305,19 @@ AddTexture  ..\textures\flame1\flame@8.dds
 Alias  102   flame@8           AlphaTransparent  WHOLE  default
 
 AddTexture  ..\textures\fonts\font.dds
-Alias  103   font           OPAQUE  WHOLE  default
+Alias  103   font           AlphaTransparent  WHOLE  default
 
 AddTexture  ..\textures\fonts\fontA.dds
 Alias  104   fontA           AlphaTransparent  WHOLE  default
 
 AddTexture  ..\textures\fonts\font_big.dds
-Alias  105   font_big           OPAQUE  WHOLE  default
+Alias  105   font_big           AlphaTransparent  WHOLE  default
 
 AddTexture  ..\textures\fonts\font_med.dds
-Alias  106   font_med           OPAQUE  WHOLE  default
+Alias  106   font_med           AlphaTransparent  WHOLE  default
 
 AddTexture  ..\textures\fonts\font_small.dds
-Alias  107   font_small           OPAQUE  WHOLE  default
+Alias  107   font_small           AlphaTransparent  WHOLE  default
 
 AddTexture  ..\textures\monster\bauul.dds
 Alias  108   bauul           OPAQUE  WHOLE  monster

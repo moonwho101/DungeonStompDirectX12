@@ -2223,13 +2223,13 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		tex.Offset(377, mCbvSrvDescriptorSize);
 		cmdList->SetGraphicsRootDescriptorTable(3, tex);
 
-		cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		//cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-		for (int i = 0; i < displayCapture; i++) {
-			for (int j = 0; j < displayCaptureCount[i]; j++) {
-				cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
-			}
-		}
+		//for (int i = 0; i < displayCapture; i++) {
+		//	for (int j = 0; j < displayCaptureCount[i]; j++) {
+		//		cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
+		//	}
+		//}
 
 		if (!gravityon || outside) {
 			mCommandList->SetPipelineState(mPSOs["sky"].Get());
@@ -2273,6 +2273,10 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 		int normal_map_texture = TexMap[texture_alias_number].normalmaptextureid;
 
 
+		if (texture_alias_number == 104) {
+			TexMap[texture_alias_number].is_alpha_texture = 1;
+		}
+
 
 		draw = true;
 
@@ -2280,7 +2284,8 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			if (texture_number >= 94 && texture_number <= 101 ||
 				texture_number >= 289 - 1 && texture_number <= 296 - 1 ||
 				texture_number >= 279 - 1 && texture_number <= 288 - 1 ||
-				texture_number >= 206 - 1 && texture_number <= 210 - 1) {
+				texture_number >= 206 - 1 && texture_number <= 210 - 1 ||
+				texture_number == 378) {
 
 				if (isAlpha && !isTorch) {
 					draw = false;

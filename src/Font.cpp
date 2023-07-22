@@ -995,6 +995,9 @@ void DungeonStompApp::SetDungeonText()
 	}
 }
 
+void ConvertQuad(int fan_cnt);
+
+
 void DungeonStompApp::DisplayPlayerCaption() {
 
 	int i;
@@ -1009,17 +1012,24 @@ void DungeonStompApp::DisplayPlayerCaption() {
 	int flag = 1;
 	float yadjust = 0;
 
-	//D3DXMATRIX matWorld, matProj;
-	//D3DXMATRIX matRotate;
 	int j = 0;
-
-	//Load the font texture
-	//int t = FindTextureAlias("fontA");
-	//pd3dImmediateContext->PSSetShaderResources(0, 1, &textures[t]);
 
 	int totalcount = 0;
 	displayCapture = 0;
 
+	ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
+	ObjectsToDraw[number_of_polys_per_frame].objectId = -99;
+	ObjectsToDraw[number_of_polys_per_frame].srcfstart = 0.0f;
+
+	ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
+	ObjectsToDraw[number_of_polys_per_frame].dist = 0;
+	ObjectsToDraw[number_of_polys_per_frame].texture = 378;
+	ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = 3;
+	ObjectsToDraw[number_of_polys_per_frame].facesperpoly = 1;
+
+	texture_list_buffer[number_of_polys_per_frame] = 378;  //263
+
+	int fan_cnt = cnt;
 
 	for (j = 0; j < num_monsters; j++)
 	{
@@ -1041,10 +1051,6 @@ void DungeonStompApp::DisplayPlayerCaption() {
 		if (monster_list[j].bIsPlayerValid && cullflag == 1 && monster_list[j].bStopAnimating == FALSE)
 		{
 			len = (int)strlen(monster_list[j].chatstr);
-
-			//TODO: why?
-			//if (len > 0)
-			  //  len--;
 
 			while (flag)
 			{
@@ -1098,10 +1104,6 @@ void DungeonStompApp::DisplayPlayerCaption() {
 
 				float fDot = XMVectorGetX(XMVector3Dot(final, final2));
 
-				//D3DXVec3Normalize(&final, &vDiff);
-				//D3DXVec3Normalize(&final2, &normroadold);
-				//float fDot = D3DXVec3Dot(&final, &final2);
-
 				float convangle;
 				convangle = (float)acos(fDot) / k;
 
@@ -1124,13 +1126,11 @@ void DungeonStompApp::DisplayPlayerCaption() {
 				//float cosine = cos_table[(int)fDot];
 				//float sine = sin_table[(int)fDot];
 
-				float cosine = (float)cos(fDot *k );
+				float cosine = (float)cos(fDot * k);
 				float sine = (float)sin(fDot * k);
-
 
 				displayCaptureIndex[displayCapture] = cnt;;
 				displayCaptureCount[displayCapture] = (int)strlen(junk2);
-
 
 				for (i = 0; i < ((countdisplay)); i += 1)
 				{
@@ -1151,38 +1151,27 @@ void DungeonStompApp::DisplayPlayerCaption() {
 					float y2 = src_v[i].y;
 					float z2 = src_v[i].z;
 
-					//tx[vert_cnt] = obdata[ob_type].t[ob_vert_count].x;
-					//ty[vert_cnt] = obdata[ob_type].t[ob_vert_count].y;
-
 					float wx = x, wy = y, wz = z;
 
 					src_v[i].x = wx + (x2 * cosine - z2 * sine);
 					src_v[i].y = wy + y2;
 					src_v[i].z = wz + (x2 * sine + z2 * cosine);
 
-					//mCaption[i].color = D3DCOLOR_RGBA(105, 105, 105, 0); //0xffffffff;
-					//src_v[i].tu = bubble[i].tu;
-					//src_v[i].tv = bubble[i].tv;
 				}
 
 				displayCapture++;
-
-				//D3D11_MAPPED_SUBRESOURCE resource;
-				//pd3dImmediateContext->Map(g_pcbCaptionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resource);
-				//int s = sizeof(Vertex) * countdisplay;
-				//memcpy(resource.pData, mCaption, s);
-				//pd3dImmediateContext->Unmap(g_pcbCaptionBuffer, 0);
-
-				//UINT stride = sizeof(Vertex);
-				//UINT offset = 0;
-				//pd3dImmediateContext->IASetVertexBuffers(0, 1, &g_pcbCaptionBuffer, &stride, &offset);
-				//pd3dImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-				//pd3dImmediateContext->Draw(countdisplay, 0);
-
-				//cmdList->DrawInstanced(4, 1, vert_index, 0);
 			}
 		}
 	}
+
+	int test = (totalcount / 4.0f) * 6.0f;
+	verts_per_poly[number_of_polys_per_frame] = test;
+	dp_command_index_mode[number_of_polys_per_frame] = 1;
+	dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
+
+	number_of_polys_per_frame++;
+
+	ConvertQuad(fan_cnt);
 }
 
 void display_font(float x, float y, char text[1000], int r, int g, int b)
