@@ -2220,6 +2220,19 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 
 	if (enablePSO) {
 
+		tex.Offset(377, mCbvSrvDescriptorSize);
+		cmdList->SetGraphicsRootDescriptorTable(3, tex);
+
+		cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		//cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+		for (int i = 0; i < displayCapture; i++) {
+			for (int j = 0; j < displayCaptureCount[i]; j++) {
+				cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
+			}
+		}
+
+
 		//Draw the skybox
 		if (!gravityon || outside) {
 			mCommandList->SetPipelineState(mPSOs["sky"].Get());

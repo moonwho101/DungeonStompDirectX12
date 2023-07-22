@@ -1169,9 +1169,9 @@ void DungeonStompApp::DisplayPlayerCaption() {
 	dp_command_index_mode[number_of_polys_per_frame] = 1;
 	dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
 
-	number_of_polys_per_frame++;
+	//number_of_polys_per_frame++;
 
-	ConvertQuad(fan_cnt);
+	//ConvertQuad(fan_cnt);
 }
 
 void display_font(float x, float y, char text[1000], int r, int g, int b)
