@@ -642,7 +642,7 @@ void DrawBoundingBox() {
 	
 	ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
 	ObjectsToDraw[number_of_polys_per_frame].objectId = -1;
-	ObjectsToDraw[number_of_polys_per_frame].srcfstart = 0.0f;
+	ObjectsToDraw[number_of_polys_per_frame].srcfstart = 0;
 
 	ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
 	ObjectsToDraw[number_of_polys_per_frame].dist = 0;
@@ -653,7 +653,7 @@ void DrawBoundingBox() {
 	texture_list_buffer[number_of_polys_per_frame] = 238;  //263
 
 
-	int test = (countboundingbox / 4.0f) * 6.0f;
+	int test = (countboundingbox / 4) * 6;
 	verts_per_poly[number_of_polys_per_frame] = test;
 	dp_command_index_mode[number_of_polys_per_frame] = USE_NON_INDEXED_DP;
 	dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
@@ -667,7 +667,7 @@ void DrawBoundingBox() {
 	number_of_polys_per_frame++;
 
 	
-	float fan_cnt = cnt;
+	int fan_cnt = cnt;
 
 
 	int uvcount = 0;

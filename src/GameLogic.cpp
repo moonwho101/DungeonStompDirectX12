@@ -3366,13 +3366,13 @@ void GetItem()
 						for (int m = 0; m < 4; m++) {
 
 							if (m == 0)
-								strcpy(junk, "SCROLL-MAGICMISSLE");
+								strcpy_s(junk, "SCROLL-MAGICMISSLE");
 							else if (m == 1)
-								strcpy(junk, "SCROLL-FIREBALL");
+								strcpy_s(junk, "SCROLL-FIREBALL");
 							else if (m == 2)
-								strcpy(junk, "SCROLL-LIGHTNING");
+								strcpy_s(junk, "SCROLL-LIGHTNING");
 							else if (m == 3)
-								strcpy(junk, "SCROLL-HEALING");
+								strcpy_s(junk, "SCROLL-HEALING");
 
 							for (int q = 0; q <= num_your_guns; q++)
 							{
