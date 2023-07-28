@@ -377,7 +377,7 @@ AddTexture  ..\textures\screen1\dungeont.dds
 Alias  126   dungeont           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\treasure\coin.dds
-Alias  127   coin           OPAQUE  WHOLE  metal
+Alias  127   coin           OPAQUE  WHOLE  coin
 
 AddTexture  ..\textures\weapons\axe.dds
 Alias  128   axe           OPAQUE  WHOLE  playerweapon
@@ -530,7 +530,7 @@ AddTexture  ..\textures\mossybri.dds
 Alias  177   mossybri           OPAQUE  WHOLE  brick
 
 AddTexture  ..\textures\mtl10.dds
-Alias  178   mtl10           OPAQUE  WHOLE  default
+Alias  178   mtl10           OPAQUE  WHOLE  torchholder
 
 AddTexture  ..\textures\pave1.dds
 Alias  179   pave1           OPAQUE  WHOLE  stone
@@ -638,7 +638,7 @@ AddTexture  ..\Models\3ds\OrnateBox\metal20.dds
 Alias  213   metal20           OPAQUE  WHOLE  metal
 
 AddTexture  ..\Models\3ds\OrnateBox\chest2.dds
-Alias  214   chest2           OPAQUE  WHOLE  wood
+Alias  214   chest2           OPAQUE  WHOLE  chestwood
 
 AddTexture  ..\Models\3ds\Goblet\goblet.dds
 Alias  215   GOBLET           OPAQUE  WHOLE  wood
@@ -692,7 +692,7 @@ AddTexture  ..\Models\3ds\basket2\weave2.dds
 Alias  231 weave2           OPAQUE  WHOLE  default
 
 AddTexture  ..\Models\3ds\metalbox\boxmetal.dds
-Alias  232 boxmetal           OPAQUE  WHOLE  metal
+Alias  232 boxmetal           OPAQUE  WHOLE  chestmetal
 
 AddTexture  ..\Models\3ds\circle\ruins.dds
 Alias  233 ruins           OPAQUE  WHOLE  default
@@ -1192,7 +1192,7 @@ AddTexture  ..\textures\mtl10_nm.dds
 Alias  396   mtl10_nm           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\normalmap\floor01.dds
-Alias  397   floor01           OPAQUE  WHOLE  stone
+Alias  397   floor01           OPAQUE  WHOLE  stonemain
 
 AddTexture  ..\textures\normalmap\floor01_nm.dds
 Alias  398   floor01_nm           OPAQUE  WHOLE  stone

@@ -2038,7 +2038,7 @@ void DungeonStompApp::BuildMaterials()
 	metal->DiffuseSrvHeapIndex = 0;
 	metal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	metal->FresnelR0 = XMFLOAT3(0.12f, 0.12f, 0.12f);
-	metal->Roughness = 0.314f;
+	metal->Roughness = 0.014f;
 
 	auto glass = std::make_unique<Material>();
 	glass->Name = "glass";
@@ -2098,6 +2098,46 @@ void DungeonStompApp::BuildMaterials()
 	playerweapon->FresnelR0 = XMFLOAT3(0.07f, 0.07f, 0.07f);
 	playerweapon->Roughness = 0.742f;
 
+
+	auto coin = std::make_unique<Material>();
+	coin->Name = "coin";
+	coin->MatCBIndex = 17;
+	coin->DiffuseSrvHeapIndex = 0;
+	coin->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	//Gold(1.0f, 0.71f, 0.29f);
+	//coin->DiffuseAlbedo = XMFLOAT4(1.0f, 0.71f, 1.0f, 0.29f);
+	coin->FresnelR0 = XMFLOAT3(0.12f, 0.12f, 0.12f);
+	coin->Roughness = 0.014f;
+
+	auto torchholder = std::make_unique<Material>();
+	torchholder->Name = "torchholder";
+	torchholder->MatCBIndex = 18;
+	torchholder->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	torchholder->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+	torchholder->Roughness = 0.615f;
+
+	auto chestwood = std::make_unique<Material>();
+	chestwood->Name = "chestwood";
+	chestwood->MatCBIndex = 19;
+	chestwood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	chestwood->FresnelR0 = XMFLOAT3(0.04f, 0.04f, 0.04f);
+	chestwood->Roughness = 0.938f;
+
+	auto chestmetal = std::make_unique<Material>();
+	chestmetal->Name = "chestmetal";
+	chestmetal->MatCBIndex = 20;
+	chestmetal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	chestmetal->FresnelR0 = XMFLOAT3(0.12f, 0.12f, 0.12f);
+	chestmetal->Roughness = 0.014f;
+
+	auto stonemain = std::make_unique<Material>();
+	stonemain->Name = "stonemain";
+	stonemain->MatCBIndex = 21;
+	stonemain->DiffuseSrvHeapIndex = 0;
+	stonemain->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	stonemain->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
+	stonemain->Roughness = 0.743f;
+
 	//new material - increment MatCBIndex 
 
 	mMaterials["default"] = std::move(default);
@@ -2122,6 +2162,13 @@ void DungeonStompApp::BuildMaterials()
 	mMaterials["monsterweapon"] = std::move(monsterweapon);
 	
 	mMaterials["playerweapon"] = std::move(playerweapon);
+	mMaterials["coin"] = std::move(coin);
+	mMaterials["torchholder"] = std::move(torchholder);
+
+	mMaterials["chestwood"] = std::move(chestwood);
+	mMaterials["chestmetal"] = std::move(chestmetal);
+	mMaterials["stonemain"] = std::move(stonemain);
+
 
 }
 
