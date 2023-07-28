@@ -482,7 +482,7 @@ AddTexture  ..\textures\dimond.dds
 Alias  161   dimond           OPAQUE  WHOLE  glass
 
 AddTexture  ..\textures\door1.dds
-Alias  162   door1           OPAQUE  WHOLE  wood
+Alias  162   door1           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\dungeonp.dds
 Alias  163   dungeonp           OPAQUE  WHOLE  default
@@ -770,67 +770,67 @@ AddTexture  ..\textures\monster\fulimo.dds
 Alias  257   fulimo           OPAQUE  WHOLE  monster
 
 AddTexture  ..\textures\doors\door2.dds
-Alias  258   door2           OPAQUE  WHOLE  wood
+Alias  258   door2           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door3.dds
-Alias  259   door3           OPAQUE  WHOLE  wood
+Alias  259   door3           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door4.dds
-Alias  260   door4           OPAQUE  WHOLE  wood
+Alias  260   door4           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door5.dds
-Alias  261   door5           OPAQUE  WHOLE  wood
+Alias  261   door5           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door6.dds
-Alias  262   door6           OPAQUE  WHOLE  wood
+Alias  262   door6           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door7.dds
-Alias  263   door7           OPAQUE  WHOLE  wood
+Alias  263   door7           OPAQUE  WHOLE  doormetal
 
 AddTexture  ..\textures\crate\crate1.dds
 Alias  264   crate1           OPAQUE  WHOLE  crate
 
 AddTexture  ..\textures\doors\door8.dds
-Alias  265   door8           OPAQUE  WHOLE  wood
+Alias  265   door8           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door9.dds
-Alias  266   door9           OPAQUE  WHOLE  wood
+Alias  266   door9           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door10.dds
-Alias  267   door10           OPAQUE  WHOLE  wood
+Alias  267   door10           OPAQUE  WHOLE  doormetal
 
 AddTexture  ..\textures\doors\door11.dds
-Alias  268   door11           OPAQUE  WHOLE  wood
+Alias  268   door11           OPAQUE  WHOLE  doormetal
 
 AddTexture  ..\textures\doors\door12.dds
-Alias  269   door12           OPAQUE  WHOLE  wood
+Alias  269   door12           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door13.dds
-Alias  270   door13           OPAQUE  WHOLE  wood
+Alias  270   door13           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door14.dds
-Alias  271   door14           OPAQUE  WHOLE  wood
+Alias  271   door14           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door15.dds
-Alias  272   door15           OPAQUE  WHOLE  wood
+Alias  272   door15           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door16.dds
-Alias  273   door16           OPAQUE  WHOLE  wood
+Alias  273   door16           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door17.dds
-Alias  274   door17           OPAQUE  WHOLE  wood
+Alias  274   door17           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door18.dds
-Alias  275   door18           OPAQUE  WHOLE  wood
+Alias  275   door18           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door19.dds
-Alias  276   door19           OPAQUE  WHOLE  wood
+Alias  276   door19           OPAQUE  WHOLE  doormetal
 
 AddTexture  ..\textures\doors\door20.dds
-Alias  277   door20           OPAQUE  WHOLE  wood
+Alias  277   door20           OPAQUE  WHOLE  doorwood
 
 AddTexture  ..\textures\doors\door21.dds
-Alias  278   door21           OPAQUE  WHOLE  wood
+Alias  278   door21           OPAQUE  WHOLE  doormetal
 
 
 AddTexture  ..\textures\flare\shine@1.dds

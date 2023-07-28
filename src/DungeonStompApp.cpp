@@ -2138,6 +2138,23 @@ void DungeonStompApp::BuildMaterials()
 	stonemain->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
 	stonemain->Roughness = 0.743f;
 
+	auto doorwood = std::make_unique<Material>();
+	doorwood->Name = "doorwood";
+	doorwood->MatCBIndex = 22;
+	doorwood->DiffuseSrvHeapIndex = 0;
+	doorwood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	doorwood->FresnelR0 = XMFLOAT3(0.04f, 0.04f, 0.04f);
+	doorwood->Roughness = 0.838f;
+
+
+	auto doormetal = std::make_unique<Material>();
+	doormetal->Name = "doormetal";
+	doormetal->MatCBIndex = 23;
+	doormetal->DiffuseSrvHeapIndex = 0;
+	doormetal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	doormetal->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+	doormetal->Roughness = 0.682f;
+
 	//new material - increment MatCBIndex 
 
 	mMaterials["default"] = std::move(default);
@@ -2169,6 +2186,8 @@ void DungeonStompApp::BuildMaterials()
 	mMaterials["chestmetal"] = std::move(chestmetal);
 	mMaterials["stonemain"] = std::move(stonemain);
 
+	mMaterials["doorwood"] = std::move(doorwood);
+	mMaterials["doormetal"] = std::move(doormetal);
 
 }
 
