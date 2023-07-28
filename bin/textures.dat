@@ -479,7 +479,7 @@ AddTexture  ..\textures\curb.dds
 Alias  160   curb           OPAQUE  WHOLE  stone
 
 AddTexture  ..\textures\dimond.dds
-Alias  161   dimond           OPAQUE  WHOLE  glass
+Alias  161   dimond           OPAQUE  WHOLE  button
 
 AddTexture  ..\textures\door1.dds
 Alias  162   door1           OPAQUE  WHOLE  doorwood

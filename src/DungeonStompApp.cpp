@@ -2155,6 +2155,14 @@ void DungeonStompApp::BuildMaterials()
 	doormetal->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
 	doormetal->Roughness = 0.682f;
 
+	auto button = std::make_unique<Material>();
+	glass->Name = "button";
+	glass->MatCBIndex = 24;
+	glass->DiffuseSrvHeapIndex = 0;
+	glass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	glass->FresnelR0 = XMFLOAT3(0.06f, 0.06f, 0.06f);
+	glass->Roughness = 0.224f;
+
 	//new material - increment MatCBIndex 
 
 	mMaterials["default"] = std::move(default);
@@ -2188,6 +2196,7 @@ void DungeonStompApp::BuildMaterials()
 
 	mMaterials["doorwood"] = std::move(doorwood);
 	mMaterials["doormetal"] = std::move(doormetal);
+	mMaterials["button"] = std::move(button);
 
 }
 
