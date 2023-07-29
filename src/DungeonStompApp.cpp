@@ -1981,7 +1981,8 @@ void DungeonStompApp::BuildMaterials()
 	water->MatCBIndex = 2;
 	water->DiffuseSrvHeapIndex = 0;
 	water->DiffuseAlbedo = XMFLOAT4(0.5f, 0.5f, 1.0f, 0.5f);
-	water->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+	//Water (0.02f, 0.02f, 0.02f);
+	water->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
 	water->Roughness = 0.326f;
 
 	auto brick = std::make_unique<Material>();
@@ -2045,7 +2046,8 @@ void DungeonStompApp::BuildMaterials()
 	glass->MatCBIndex = 10;
 	glass->DiffuseSrvHeapIndex = 0;
 	glass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	glass->FresnelR0 = XMFLOAT3(0.06f, 0.06f, 0.06f);
+	//Glass (0.08f, 0.08f, 0.08f);
+	glass->FresnelR0 = XMFLOAT3(0.08f, 0.08f, 0.08f);
 	glass->Roughness = 0.224f;
 
 	auto wood = std::make_unique<Material>();
@@ -2054,7 +2056,7 @@ void DungeonStompApp::BuildMaterials()
 	wood->DiffuseSrvHeapIndex = 0;
 	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	wood->FresnelR0 = XMFLOAT3(0.04f, 0.04f, 0.04f);
-	wood->Roughness = 0.938f;
+	wood->Roughness = 0.838f;
 
 	auto flat = std::make_unique<Material>();
 	flat->Name = "flat";
@@ -2105,8 +2107,7 @@ void DungeonStompApp::BuildMaterials()
 	coin->DiffuseSrvHeapIndex = 0;
 	coin->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	//Gold(1.0f, 0.71f, 0.29f);
-	//coin->DiffuseAlbedo = XMFLOAT4(1.0f, 0.71f, 1.0f, 0.29f);
-	coin->FresnelR0 = XMFLOAT3(0.12f, 0.12f, 0.12f);
+	coin->FresnelR0 = XMFLOAT3(1.0f, 0.71f, 0.29f);
 	coin->Roughness = 0.014f;
 
 	auto torchholder = std::make_unique<Material>();
