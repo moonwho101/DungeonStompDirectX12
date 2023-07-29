@@ -1961,6 +1961,18 @@ void DungeonStompApp::BuildMaterials()
 	//383 = tile
 	//384 = tile normal
 
+	//	https://learnopengl.com/PBR/Theory
+	//Material				F0	(Linear)		F0	(sRGB)	Color
+	//Water					(0.02, 0.02, 0.02)	(0.15, 0.15, 0.15)
+	//Plastic / Glass(Low)	(0.03, 0.03, 0.03)	(0.21, 0.21, 0.21)
+	//Plastic High			(0.05, 0.05, 0.05)	(0.24, 0.24, 0.24)
+	//Glass(high) / Ruby	(0.08, 0.08, 0.08)	(0.31, 0.31, 0.31)
+	//Diamond				(0.17, 0.17, 0.17)	(0.45, 0.45, 0.45)
+	//Iron					(0.56, 0.57, 0.58)	(0.77, 0.78, 0.78)
+	//Copper				(0.95, 0.64, 0.54)	(0.98, 0.82, 0.76)
+	//Gold					(1.00, 0.71, 0.29)	(1.00, 0.86, 0.57)
+	//Aluminium				(0.91, 0.92, 0.92)	(0.96, 0.96, 0.97)
+	//Silver				(0.95, 0.93, 0.88)	(0.98, 0.97, 0.95)
 
 	auto default = std::make_unique<Material>();
 	default->Name = "default";

@@ -1579,6 +1579,15 @@ Alias  524 stones2_nm           OPAQUE  WHOLE  stone
 AddTexture  ..\Models\3ds\Stone\stones3_nm.dds
 Alias  525 stones3_nm           OPAQUE  WHOLE  stone
 
+AddTexture  ..\textures\house1\houser_nm.dds
+Alias  526  houser_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\house1\houset_nm.dds
+Alias  527  houset_nm           OPAQUE  WHOLE  wood
+
+AddTexture  ..\textures\BRIKS_nm.dds
+Alias  530   BRIKS_nm           OPAQUE  WHOLE  brick
+
 END_FILE
 
 ** EVERYTHING BELOW "END_FILE" IS IGNORED **
