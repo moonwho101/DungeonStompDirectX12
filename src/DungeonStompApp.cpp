@@ -2176,6 +2176,22 @@ void DungeonStompApp::BuildMaterials()
 	button->FresnelR0 = XMFLOAT3(0.06f, 0.06f, 0.06f);
 	button->Roughness = 0.124f;
 
+	auto ceilingmain = std::make_unique<Material>();
+	ceilingmain->Name = "ceilingmain";
+	ceilingmain->MatCBIndex = 25;
+	ceilingmain->DiffuseSrvHeapIndex = 0;
+	ceilingmain->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	ceilingmain->FresnelR0 = XMFLOAT3(0.031f, 0.031f, 0.031f);
+	ceilingmain->Roughness = 0.762f;
+
+	auto pillar = std::make_unique<Material>();
+	pillar->Name = "pillar";
+	pillar->MatCBIndex = 26;
+	pillar->DiffuseSrvHeapIndex = 0;
+	pillar->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	pillar->FresnelR0 = XMFLOAT3(0.022f, 0.022f, 0.022f);
+	pillar->Roughness = 0.725f;
+
 	//new material - increment MatCBIndex 
 
 	mMaterials["default"] = std::move(default);
@@ -2210,6 +2226,9 @@ void DungeonStompApp::BuildMaterials()
 	mMaterials["doorwood"] = std::move(doorwood);
 	mMaterials["doormetal"] = std::move(doormetal);
 	mMaterials["button"] = std::move(button);
+
+	mMaterials["ceilingmain"] = std::move(ceilingmain);
+	mMaterials["pillar"] = std::move(pillar);
 
 }
 

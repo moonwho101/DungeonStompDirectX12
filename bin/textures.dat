@@ -1141,7 +1141,7 @@ AddTexture  ..\textures\fonts\fontB.dds
 Alias  379   fontB           AlphaTransparent  WHOLE  default
 
 AddTexture  ..\textures\normalmap\bricks.dds
-Alias  380   bricks           OPAQUE  WHOLE  brick
+Alias  380   bricks           OPAQUE  WHOLE  pillar
 
 AddTexture  ..\textures\normalmap\bricks_nm.dds
 Alias  381   bricks_nm           OPAQUE  WHOLE  brick
@@ -1159,7 +1159,7 @@ AddTexture  ..\textures\normalmap\tile_nm.dds
 Alias  385   tile_nm           OPAQUE  WHOLE  tile
 
 AddTexture  ..\textures\normalmap\floord.dds
-Alias  386   floord           OPAQUE  WHOLE  stone
+Alias  386   floord           OPAQUE  WHOLE  ceilingmain
 
 AddTexture  ..\textures\normalmap\floord_nm.dds
 Alias  387   floord_nm           OPAQUE  WHOLE  stone
