@@ -696,12 +696,20 @@ void DungeonStompApp::UpdateShadowTransform(const GameTimer& gt, int light)
 	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView));
 
 	// Ortho frustum in light space encloses scene.
-	float l = sphereCenterLS.x - (mSceneBounds.Radius * 1.645f);
+	float l = sphereCenterLS.x - (mSceneBounds.Radius);
 	float b = sphereCenterLS.y - mSceneBounds.Radius;
 	float n = sphereCenterLS.z - mSceneBounds.Radius;
 	float r = sphereCenterLS.x + mSceneBounds.Radius;
 	float t = sphereCenterLS.y + mSceneBounds.Radius;
 	float f = sphereCenterLS.z + mSceneBounds.Radius;
+
+	//Adjust shadowmap depending on which direction you are facing.
+	if ((angy >= 0.00 && angy <= 90.0f) || (angy >= 270.0f && angy <= 360.0f)) {
+		l = sphereCenterLS.x - (mSceneBounds.Radius * 1.645f);
+	}
+	else {
+		r = sphereCenterLS.x + (mSceneBounds.Radius * 1.645f);
+	}
 
 	mLightNearZ = n;
 	mLightFarZ = f;
