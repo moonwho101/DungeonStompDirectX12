@@ -696,7 +696,7 @@ void DungeonStompApp::UpdateShadowTransform(const GameTimer& gt, int light)
 	XMStoreFloat3(&sphereCenterLS, XMVector3TransformCoord(targetPos, lightView));
 
 	// Ortho frustum in light space encloses scene.
-	float l = sphereCenterLS.x - mSceneBounds.Radius;
+	float l = sphereCenterLS.x - (mSceneBounds.Radius * 1.645f);
 	float b = sphereCenterLS.y - mSceneBounds.Radius;
 	float n = sphereCenterLS.z - mSceneBounds.Radius;
 	float r = sphereCenterLS.x + mSceneBounds.Radius;
