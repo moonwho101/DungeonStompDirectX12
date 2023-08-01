@@ -111,7 +111,7 @@ float4 PS(VertexOut pin) : SV_Target
     float4 ambient = ambientAccess * gAmbientLight * diffuseAlbedo;
 
 
-    const float shininess = (1.0f - roughness) * normalMapSample.a;
+    const float shininess = (1.0f - roughness) * (normalMapSample.a * 1.0f);
     Material mat = { diffuseAlbedo, gFresnelR0, shininess };
     
     //float3 shadowFactor = 1.0f;
