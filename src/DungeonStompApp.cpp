@@ -2083,8 +2083,8 @@ void DungeonStompApp::BuildMaterials()
 	flat->MatCBIndex = 12;
 	flat->DiffuseSrvHeapIndex = 0;
 	flat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	flat->FresnelR0 = XMFLOAT3(0.001f, 0.001f, 0.001f);
-	flat->Roughness = 0.032f;
+	flat->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
+	flat->Roughness = 0.932f;
 
 	auto tilebrown = std::make_unique<Material>();
 	tilebrown->Name = "tilebrown";
