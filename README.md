@@ -6,12 +6,12 @@ Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 
 * Dungeon Stomp is a DirectX12 3D dungeon game that uses Direct3D, DirectInput and XAudio2
 * It is a complete game with level advancement and 15 levels
-* Lighting uses blinn-phong pixel shaders
+* Materials (Diffuse Albedo, Fresnel, Roughness)
+* Lighting uses blinn-phong-fresnel pixel shaders
 * DDS Texture mipmaps
 * Normal Maps
 * Cube Maps (Skybox)
 * Shadow Maps
-* Materials (Diffuse Albedo, Fresnel, Roughness)
 * Screen space ambient occlusion (ssao)
 * Fog, Alpha transparency and Alpha testing
 * Head bob using two sine waves
@@ -47,7 +47,7 @@ Happy Dungeon Stomping - Breeyark!
 * ] - Next Dungeon Level
 * [ - Previous Dungeon Level
 
-![Dungeon Stomp - AI generated](../main/Textures/screenshot7.jpg)
+![Dungeon Stomp](../main/Textures/screenshot10.jpg)
 
 ## MD2 Models
 Dungeon Stomp would not have been possible without the amazing MD2 models made by the following authors:
@@ -86,7 +86,5 @@ Dungeon Stomp would not have been possible without the amazing MD2 models made b
 * Wraith [ Author: Burnt Kona ]
 
 
-![Dungeon Stomp](../main/Textures/screenshot5.jpg)
-
-![Dungeon Stomp](../main/Textures/screenshotai.jpg)
+![Dungeon Stomp  - AI generated](../main/Textures/screenshotai.jpg)
 

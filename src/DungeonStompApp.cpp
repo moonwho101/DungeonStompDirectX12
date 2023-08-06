@@ -50,7 +50,7 @@ extern int playercurrentmove;
 
 int displayShadowMapKeyPress = 0;
 
-bool enableSSao = false;
+bool enableSSao = true;
 bool enableSSaoKey = false;
 
 bool enableCameraBob = true;
