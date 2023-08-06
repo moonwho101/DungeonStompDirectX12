@@ -222,6 +222,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 				object_count++;
 
 			oblist[object_count].type = object_id;
+			oblist[object_count].shadow = 1;
 			strcpy_s(oblist[object_count].name, 10000, p);
 
 			//num_lverts = num_vert_per_object[object_id];
@@ -259,6 +260,12 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 				startpos[startposcounter].y = oblist[object_count].y + 100.0f;
 				startpos[startposcounter].z = oblist[object_count].z;
 			}
+		}
+
+		if (strcmp(s, "SHADOW") == 0)
+		{
+			fscanf_s(fp, "%s", &p, 256);
+			oblist[object_count].shadow = (float)atoi(p);
 		}
 
 		if (strcmp(s, "ROT_ANGLE") == 0)

@@ -115,6 +115,7 @@ typedef struct objectlist_typ
 	int type;
 	int ability;
 	char name[50];
+	int shadow;
 	LIGHT* lit;
 	LIGHTSOURCE* light_source;
 
@@ -382,6 +383,7 @@ typedef struct poly_sort
 	int facesperpoly;
 	int texture;
 	int objectId = -1;
+	int castshaddow = 1;
 
 } POLY_SORT;
 

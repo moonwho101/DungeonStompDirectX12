@@ -263,7 +263,13 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 		}
 
 
-		
+		//The object casts a shadow
+		if (oblist[oblist_index].shadow == 0) {
+			ObjectsToDraw[number_of_polys_per_frame].castshaddow = 0;
+		}
+		else {
+			ObjectsToDraw[number_of_polys_per_frame].castshaddow = 1;
+		}
 
 		texture_list_buffer[number_of_polys_per_frame] = ctext;
 

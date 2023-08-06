@@ -2455,6 +2455,12 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 					draw = true;
 				}
 			}
+
+
+
+			if (ObjectsToDraw[currentObject].castshaddow == 0) {
+				draw = false;
+			}
 		}
 
 		if (currentObject >= playerGunObjectStart && currentObject < playerObjectStart && drawingShadowMap) {
