@@ -9,7 +9,7 @@ Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 * Materials (Diffuse Albedo, Fresnel, Roughness)
 * Lighting uses blinn-phong-fresnel pixel shaders
 * DDS Texture mipmaps
-* Normal Maps
+* Normal Maps (specular map in alpha channel)
 * Cube Maps (Skybox)
 * Shadow Maps
 * Screen space ambient occlusion (ssao)
