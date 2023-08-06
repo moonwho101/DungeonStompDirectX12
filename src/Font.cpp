@@ -69,6 +69,8 @@ extern FLOAT LevelModLastTime;
 extern SWITCHMOD* switchmodify;
 void SetDiceTexture(bool showroll);
 int FindTextureAlias(char* alias);
+float gFps = 0;
+extern bool enableVsync;
 
 Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 {
@@ -487,6 +489,12 @@ void DungeonStompApp::DisplayHud() {
 	//display_message(0.0f + 60.0f, (FLOAT)wHeight - adjust + 10.0f, junk, 0, 245, 255, 12.5, 16, 0);
 
 	//statusbardisplay((float)player_list[trueplayernum].hp, (float)player_list[trueplayernum].hp, 1);
+
+
+	if (!enableVsync) {
+		sprintf_s(junk, "fps: %d", (int)gFps);
+		RenderText(arialFont, charToWChar(junk), XMFLOAT2(0.11f, 0.98f), XMFLOAT2(0.30f, 0.30f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+	}
 
 	sprintf_s(junk, "Health");
 	//display_message(0.0f, (FLOAT)wHeight - adjust + 24.0f, junk, 255, 255, 0, 12.5, 16, 0);

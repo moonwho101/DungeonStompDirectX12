@@ -10,6 +10,7 @@ using namespace std;
 using namespace DirectX;
 
 void ShutDownSound();
+extern float gFps;
 
 LRESULT CALLBACK
 MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -599,6 +600,8 @@ void D3DApp::CalculateFrameStats()
 	{
 		float fps = (float)frameCnt; // fps = frameCnt / 1
 		float mspf = 1000.0f / fps;
+
+		gFps = fps;
 
         wstring fpsStr = to_wstring(fps);
         wstring mspfStr = to_wstring(mspf);
