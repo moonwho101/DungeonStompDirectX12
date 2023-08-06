@@ -56,6 +56,10 @@ bool enableSSaoKey = false;
 bool enableCameraBob = true;
 bool enableCameraBobKey = false;
 
+bool enableVsync = true;
+bool enableVsyncKey = false;
+
+
 extern int playerObjectStart;
 extern int playerGunObjectStart;
 extern int playerObjectEnd;
@@ -347,8 +351,13 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	// Swap the back and front buffers (vsync enable)
-	//ThrowIfFailed(mSwapChain->Present(0, 0)); //set vsync off
-	ThrowIfFailed(mSwapChain->Present(1, 0)); //set vsync on
+	if (enableVsync) {
+		ThrowIfFailed(mSwapChain->Present(1, 0)); //set vsync on
+	}
+	else {
+		ThrowIfFailed(mSwapChain->Present(0, 0)); //set vsync off
+	}
+
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
 
 	// Advance the fence value to mark commands up to this fence point.
@@ -472,6 +481,28 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 	}
 	else {
 		enableCameraBobKey = 0;
+	}
+
+
+	if (GetAsyncKeyState('V') && !enableVsyncKey) {
+
+		if (enableVsync) {
+			enableVsync = false;
+			strcpy_s(gActionMessage, "VSync Disabled");
+			UpdateScrollList(0, 255, 255);
+		}
+		else {
+			strcpy_s(gActionMessage, "VSync Enabled");
+			UpdateScrollList(0, 255, 255);
+			enableVsync = true;
+		}
+	}
+
+	if (GetAsyncKeyState('V')) {
+		enableVsyncKey = 1;
+	}
+	else {
+		enableVsyncKey = 0;
 	}
 
 
