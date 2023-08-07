@@ -264,7 +264,7 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 
 
 		//The object casts a shadow
-		if (oblist[oblist_index].shadow == 0) {
+		if (oblist[oblist_index].castshadow == 0) {
 			ObjectsToDraw[number_of_polys_per_frame].castshaddow = 0;
 		}
 		else {

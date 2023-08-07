@@ -115,7 +115,7 @@ typedef struct objectlist_typ
 	int type;
 	int ability;
 	char name[50];
-	int shadow;
+	int castshadow;
 	LIGHT* lit;
 	LIGHTSOURCE* light_source;
 
