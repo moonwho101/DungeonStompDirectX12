@@ -79,6 +79,7 @@ bool drawingSSAO = false;
 
 std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
 extern int number_of_tex_aliases;
+extern bool ObjectHasShadow(int object_id);
 
 ComPtr<ID3D12DescriptorHeap> mSrvDescriptorHeap = nullptr;
 extern ID3D12PipelineState* textPSO; // pso containing a pipeline state
@@ -293,7 +294,15 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
 
 	// Bind null SRV for shadow map pass.
-	mCommandList->SetGraphicsRootDescriptorTable(5, mNullSrv);
+	//mCommandList->SetGraphicsRootDescriptorTable(5, mNullSrv);
+
+	CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	tex3.Offset(number_of_tex_aliases + 1, mCbvSrvDescriptorSize);
+	mCommandList->SetGraphicsRootDescriptorTable(5, tex3); //Set gShadowMap
+
+	CD3DX12_GPU_DESCRIPTOR_HANDLE tex4(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	tex4.Offset(number_of_tex_aliases + 2, mCbvSrvDescriptorSize);
+	mCommandList->SetGraphicsRootDescriptorTable(7, tex4); //Set gSsaoMap
 
 	//Render shadow map to texture.
 	DrawSceneToShadowMap(gt);
@@ -2394,11 +2403,12 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 	return;
 }
 
-extern bool ObjectHasShadow(int object_id);
+
 
 void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, BOOL isAlpha, bool isTorch, bool normalMap) {
-
+	
 	auto ri = ritems[0];
+	int currenttex = -1;
 
 	UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 	UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
@@ -2520,17 +2530,12 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			cmdList->SetGraphicsRootConstantBufferView(0, objCBAddress); //Set cbPerObject
 			cmdList->SetGraphicsRootConstantBufferView(1, matCBAddress); //Set cbMaterial
 
-			CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			tex.Offset(texture_number, mCbvSrvDescriptorSize);
-			cmdList->SetGraphicsRootDescriptorTable(3, tex); //Set gDiffuseMap
-
-			CD3DX12_GPU_DESCRIPTOR_HANDLE tex3(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			tex3.Offset(number_of_tex_aliases + 1, mCbvSrvDescriptorSize);
-			cmdList->SetGraphicsRootDescriptorTable(5, tex3); //Set gShadowMap
-
-			CD3DX12_GPU_DESCRIPTOR_HANDLE tex4(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-			tex4.Offset(number_of_tex_aliases + 2, mCbvSrvDescriptorSize);
-			cmdList->SetGraphicsRootDescriptorTable(7, tex4); //Set gSsaoMap
+			if (currenttex != texture_number) {
+				CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+				tex.Offset(texture_number, mCbvSrvDescriptorSize);
+				cmdList->SetGraphicsRootDescriptorTable(3, tex); //Set gDiffuseMap
+				currenttex = texture_number;
+			}
 
 			//CHECK THIS
 			if (normalMap && !drawingShadowMap && !drawingSSAO) {
