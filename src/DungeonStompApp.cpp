@@ -2196,7 +2196,7 @@ void DungeonStompApp::BuildMaterials()
 	doorwood->DiffuseSrvHeapIndex = 0;
 	doorwood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	doorwood->FresnelR0 = XMFLOAT3(0.04f, 0.04f, 0.04f);
-	doorwood->Roughness = 0.94938f;
+	doorwood->Roughness = 0.87938f;
 
 	auto doormetal = std::make_unique<Material>();
 	doormetal->Name = "doormetal";
@@ -2204,7 +2204,7 @@ void DungeonStompApp::BuildMaterials()
 	doormetal->DiffuseSrvHeapIndex = 0;
 	doormetal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	doormetal->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	doormetal->Roughness = 0.9382f;
+	doormetal->Roughness = 0.7382f;
 
 	auto button = std::make_unique<Material>();
 	button->Name = "button";
