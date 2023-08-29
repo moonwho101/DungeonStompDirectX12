@@ -1764,7 +1764,9 @@ void SetStartSpot()
 	if (startposcounter == 0)
 		return;
 
-	result = random_num(startposcounter);
+	//result = random_num(startposcounter);
+
+	result = 0; //first teleporter
 
 	m_vEyePt.x = startpos[result].x;
 	m_vEyePt.y = startpos[result].y;
