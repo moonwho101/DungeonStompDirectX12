@@ -59,6 +59,9 @@ bool enableCameraBobKey = false;
 bool enableVsync = true;
 bool enableVsyncKey = false;
 
+bool enableNormalmap = true;
+bool enableNormalmapKey = false;
+
 
 extern int playerObjectStart;
 extern int playerGunObjectStart;
@@ -481,6 +484,29 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 	}
 	else {
 		enableCameraBobKey = 0;
+	}
+	
+	if (GetAsyncKeyState('N') && !enableNormalmapKey) {
+
+		if (enableNormalmap) {
+			enableNormalmap = false;
+			SetTextureNormalMapEmpty();
+			strcpy_s(gActionMessage, "Normal map Disabled");
+			UpdateScrollList(0, 255, 255);
+		}
+		else {
+			SetTextureNormalMap();
+			strcpy_s(gActionMessage, "Normal map Enabled");
+			UpdateScrollList(0, 255, 255);
+			enableNormalmap = true;
+		}
+	}
+
+	if (GetAsyncKeyState('N')) {
+		enableNormalmapKey = 1;
+	}
+	else {
+		enableNormalmapKey = 0;
 	}
 
 
@@ -3089,6 +3115,16 @@ void DungeonStompApp::SetTextureNormalMap() {
 			}
 		}
 	}
+}
+
+void DungeonStompApp::SetTextureNormalMapEmpty() {
+
+	char junk[255];
+
+	for (int i = 0; i < number_of_tex_aliases; i++) {
+		TexMap[i].normalmaptextureid = -1;
+	}
+
 }
 
 void DungeonStompApp::ProcessLights11()
