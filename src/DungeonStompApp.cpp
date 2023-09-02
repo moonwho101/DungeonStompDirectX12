@@ -3119,12 +3119,9 @@ void DungeonStompApp::SetTextureNormalMap() {
 
 void DungeonStompApp::SetTextureNormalMapEmpty() {
 
-	char junk[255];
-
 	for (int i = 0; i < number_of_tex_aliases; i++) {
 		TexMap[i].normalmaptextureid = -1;
 	}
-
 }
 
 void DungeonStompApp::ProcessLights11()
