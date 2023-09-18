@@ -384,6 +384,7 @@ typedef struct poly_sort
 	int texture;
 	int objectId = -1;
 	int castshaddow = 1;
+	float angle = -1;
 
 } POLY_SORT;
 

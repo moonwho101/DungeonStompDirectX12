@@ -2443,14 +2443,11 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 
 		int texture_alias_number = texture_list_buffer[i];
 		int texture_number = TexMap[texture_alias_number].texture;
-
 		int normal_map_texture = TexMap[texture_alias_number].normalmaptextureid;
-
 
 		if (texture_alias_number == 104) {
 			TexMap[texture_alias_number].is_alpha_texture = 1;
 		}
-
 
 		draw = true;
 
@@ -2471,8 +2468,6 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			}
 		}
 
-
-
 		if (normal_map_texture == -1 && normalMap) {
 			draw = false;
 		}
@@ -2481,10 +2476,7 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 			draw = false;
 		}
 
-
-
 		int oid = 0;
-
 
 		if (drawingSSAO || drawingShadowMap) {
 			oid = ObjectsToDraw[currentObject].objectId;
@@ -2512,11 +2504,20 @@ void DungeonStompApp::DrawDungeon(ID3D12GraphicsCommandList* cmdList, const std:
 				}
 			}
 
-
-
 			if (ObjectsToDraw[currentObject].castshaddow == 0) {
 				draw = false;
 			}
+
+			//Don't draw shadows facing away from shadow light
+			if (ObjectsToDraw[currentObject].objectId == 58 || ObjectsToDraw[currentObject].objectId == 57) {
+				if (ObjectsToDraw[currentObject].angle == 270.0f) {
+					draw = false;
+				}
+				if (ObjectsToDraw[currentObject].angle == 0.0f) {
+					draw = false;
+				}
+			}
+
 		}
 
 		if (currentObject >= playerGunObjectStart && currentObject < playerObjectStart && drawingShadowMap) {
