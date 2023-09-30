@@ -1,6 +1,6 @@
 //***************************************************************************************
 // Default.hlsl by Frank Luna (C) 2015 All Rights Reserved.
-//
+// Modified by Mark Longo 2020
 // Default shader, currently supports lighting.
 //***************************************************************************************
 

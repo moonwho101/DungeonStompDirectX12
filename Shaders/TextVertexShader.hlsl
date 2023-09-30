@@ -1,3 +1,5 @@
+// Modified by Mark Longo 2020
+
 struct VS_INPUT
 {
 	float4 pos : POSITION;

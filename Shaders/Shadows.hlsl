@@ -1,11 +1,10 @@
 //***************************************************************************************
 // Shadows.hlsl by Frank Luna (C) 2015 All Rights Reserved.
+// Modified by Mark Longo 2020
 //***************************************************************************************
 
 // Include common HLSL code.
 #include "Common.hlsl"
-
-
 
 struct VertexIn
 {
