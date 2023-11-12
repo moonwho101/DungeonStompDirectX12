@@ -215,8 +215,14 @@ void DungeonStompApp::OnResize()
 	D3DApp::OnResize();
 
 	// The window resized, so update the aspect ratio and recompute the projection matrix.
-	//XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f);
-	XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, AspectRatio(), 1.0f, 10000.0f);
+	//XMMATRIX P = XMMatrixPerspectiveFovLH(5*MathHelper::Pi/18, AspectRatio(), 1.0f, 10000.0f); //50
+	//XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f); //45
+
+	float angle = 45.0f;
+	float fov = angle * (MathHelper::Pi / 180.0f);
+
+	XMMATRIX P = XMMatrixPerspectiveFovLH(fov, AspectRatio(), 1.0f, 10000.0f);
+	
 	XMStoreFloat4x4(&mProj, P);
 
 	if (mSsao != nullptr)
