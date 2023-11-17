@@ -65,5 +65,6 @@ int LevelUpXPNeeded(int xp);
 XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity);
 XMFLOAT3 RadiusMultiply(XMFLOAT3 vector, XMFLOAT3 eRadius);
 XMFLOAT3 RadiusDivide(XMFLOAT3 vector, XMFLOAT3 eRadius);
+extern float cullAngle;
 
 #endif

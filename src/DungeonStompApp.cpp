@@ -218,8 +218,9 @@ void DungeonStompApp::OnResize()
 	//XMMATRIX P = XMMatrixPerspectiveFovLH(5*MathHelper::Pi/18, AspectRatio(), 1.0f, 10000.0f); //50
 	//XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f*MathHelper::Pi, AspectRatio(), 1.0f, 1000.0f); //45
 
-	float angle = 45.0f;
+	float angle = 50.0f;
 	float fov = angle * (MathHelper::Pi / 180.0f);
+	cullAngle = 60.0f;
 
 	XMMATRIX P = XMMatrixPerspectiveFovLH(fov, AspectRatio(), 1.0f, 10000.0f);
 	

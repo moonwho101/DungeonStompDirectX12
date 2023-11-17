@@ -67,6 +67,7 @@ FLOAT LevelModTime = 0;
 FLOAT LevelModLastTime = 0;
 int countmodtime = 0;
 gametext dialogtext[200];
+float cullAngle;
 
 extern int totalmod;
 extern LEVELMOD* levelmodify;
@@ -171,7 +172,7 @@ void MoveMonsters(float fElapsedTime)
 							work2.z = monster_list[i].z;
 							int monsteron = 0;
 
-							monsteron = CalculateViewMonster(work2, work1, 60.0f, monster_list[i].rot_angle);
+							monsteron = CalculateViewMonster(work2, work1, cullAngle, monster_list[i].rot_angle);
 							// monster see
 							if (monsteron)
 							{
@@ -379,7 +380,7 @@ void MoveMonsters(float fElapsedTime)
 					work2.z = monster_list[i].z;
 					int monsteron = 0;
 
-					monsteron = CalculateViewMonster(work2, work1, 60.0f, monster_list[i].rot_angle);
+					monsteron = CalculateViewMonster(work2, work1, cullAngle, monster_list[i].rot_angle);
 					if (monster_list[i].current_sequence != 5 && monsteron && monster_list[i].dist <= 200.0f)
 					{
 
@@ -2149,9 +2150,7 @@ void MonsterHit()
 			work1.y = wy;
 			work1.z = wz;
 			int monsteron = 0;
-			//if (perspectiveview == 0)
-				//monsteron = CalculateView(m_vLookatPt, work1, 45.0f);
-			//else
+
 			monsteron = CalculateView(m_vEyePt, work1, 45.0f, false);
 			if (player_list[trueplayernum].current_sequence != 5 && monsteron)
 			{
@@ -2677,10 +2676,8 @@ void DrawModel()
 				work1.z = wz;
 				int monsteron = 0;
 
-				if (perspectiveview == 0)
-					monsteron = CalculateView(m_vEyePt, work1, 20.0f, false);
-				else
-					monsteron = CalculateView(m_vEyePt, work1, 60.0f, true);
+				monsteron = CalculateView(m_vEyePt, work1, cullAngle, true);
+
 				if (monsteron)
 				{
 

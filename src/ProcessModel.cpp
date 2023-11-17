@@ -1959,10 +1959,7 @@ void DrawMonsters()
 				work1.z = wz;
 
 
-				//if (perspectiveview == 0)
-				//	monsteron = CalculateView(realEye, work1, 20.0f);
-				//else
-				monsteron = CalculateView(m_vEyePt, work1, 60.0f, true);
+				monsteron = CalculateView(m_vEyePt, work1, cullAngle, true);
 				if (monsteron)
 				{
 
@@ -2154,7 +2151,7 @@ void DrawItems(float fElapsedTime)
 					work1.y = wy;
 					work1.z = wz;
 
-					monsteron = CalculateView(m_vEyePt, work1, 60.0f, true);
+					monsteron = CalculateView(m_vEyePt, work1, cullAngle, true);
 
 					if (monsteron)
 					{
