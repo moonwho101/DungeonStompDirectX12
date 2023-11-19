@@ -202,6 +202,7 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 		your_missle[misslespot].playernum = (int)owner;
 		your_missle[misslespot].playertype = (int)1;
 		your_missle[misslespot].guntype = current_gun;
+		your_missle[misslespot].blood = 0;
 
 		lastgun = current_gun;
 

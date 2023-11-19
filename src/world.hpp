@@ -180,6 +180,7 @@ typedef struct gunlist_typ
 	float qdist;
 	int dmg;
 	bool critical;
+	bool blood;
 
 } GUNLIST, * gunlist_ptr;
 

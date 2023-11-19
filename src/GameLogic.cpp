@@ -3114,6 +3114,8 @@ int DisplayDamage(float x, float y, float z, int owner, int id, bool criticalhit
 
 	your_missle[misslespot].critical = criticalhit;
 
+	your_missle[misslespot].blood = 1;
+
 	return misslespot;
 }
 

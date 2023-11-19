@@ -2179,6 +2179,7 @@ int load_level(char* filename)
 		your_missle[i].x_offset = 0;
 		your_missle[i].y_offset = 0;
 		your_missle[i].z_offset = 0;
+		your_missle[i].blood = 0;
 	}
 
 	strcpy_s(level, levelname);

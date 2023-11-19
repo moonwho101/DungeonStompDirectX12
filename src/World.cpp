@@ -84,7 +84,7 @@ int playerObjectStart = 0;
 int playerGunObjectStart = 0;
 int playerObjectEnd = 0;
 void PlaySong();
-void ComputeMissles();
+void ComputeMissles(float fElapsedTime);
 void DrawMissle(float fElapsedTime);
 void ApplyMissleDamage(int playernum);
 void SmoothNormals(int start_cnt);
@@ -499,7 +499,7 @@ void UpdateWorld(float fElapsedTime) {
 
 	FreeSlave();
 	ApplyMissleDamage(1);
-	ComputeMissles();
+	ComputeMissles(fElapsedTime);
 	WakeUpMonsters();
 	MoveMonsters(fElapsedTime);
 	DrawMonsters();
@@ -870,7 +870,7 @@ int initDSTimer()
 	return 1;
 }
 
-void ComputeMissles()
+void ComputeMissles(float fElapsedTime)
 {
 	fDot2 = 0.0f;
 	weapondrop = 0;
@@ -880,6 +880,11 @@ void ComputeMissles()
 	{
 		if (your_missle[misslecount].active == 2)
 		{
+
+			if (your_missle[misslecount].blood) {
+				your_missle[misslecount].y = your_missle[misslecount].y + (40.0f * fElapsedTime);
+			}
+
 			float wx = your_missle[misslecount].x;
 			float wy = your_missle[misslecount].y;
 			float wz = your_missle[misslecount].z;
@@ -971,6 +976,7 @@ void ComputeMissles()
 
 			if (maingameloop2)
 			{
+
 				cresult = CycleBitMap(your_missle[misslecount].skin_tex_id);
 				if (cresult != -1)
 				{
