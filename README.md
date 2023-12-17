@@ -19,7 +19,7 @@ Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
 * Used "Introduction to 3D Game Programming with DirectX 12" by Frank Luna as a reference
 * Written in Microsoft C++
 
-It will compile using Microsoft Visual Studio 2022 community edition.
+It will compile using Microsoft Visual Studio 2022 community edition.  For best results compile in 'Release' mode.
 
 ## Contact
 If you have any questions email me at mlongo@aptisense.com or visit www.aptisense.com to download game installer.
