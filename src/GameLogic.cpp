@@ -158,7 +158,7 @@ void MoveMonsters(float fElapsedTime)
 							cullflag = 1;
 
 						if (strcmp(monster_list[i].rname, "SLAVE") == 0 || strcmp(monster_list[i].rname, "CENTAUR") == 0 ||
-							monster_list[i].ability == 2 || monster_list[i].ability == 5)
+							monster_list[i].ability == 2 || monster_list[i].ability == 5 || monster_list[i].ability == 8)
 						{
 
 							XMFLOAT3 work2, work1;
@@ -409,7 +409,7 @@ void MoveMonsters(float fElapsedTime)
 				{
 
 					raction = random_num(20);
-					if (monster_list[i].ability != 6 && monster_list[i].ability != 7)
+					if (monster_list[i].ability != 6 && monster_list[i].ability != 7 && monster_list[i].ability != 8)
 					{
 
 						switch (raction)
@@ -492,7 +492,7 @@ void MoveMonsters(float fElapsedTime)
 
 					if (monster_list[i].dist > 200.0f)
 					{
-						if (monster_list[i].firespeed == 0 && firetype > 0 && monster_list[i].ability != 7)
+						if (monster_list[i].firespeed == 0 && firetype > 0 && monster_list[i].ability != 7 && monster_list[i].ability != 8)
 						{
 							mspeed = (int)25 - (int)monster_list[i].hd;
 
@@ -548,7 +548,7 @@ void MoveMonsters(float fElapsedTime)
 			}
 
 
-			if (monster_list[i].ability == 6 || monster_list[i].ability == 7)
+			if (monster_list[i].ability == 6 || monster_list[i].ability == 7 || monster_list[i].ability == 8)
 			{
 				//shot only
 				skipmonster = 1;
