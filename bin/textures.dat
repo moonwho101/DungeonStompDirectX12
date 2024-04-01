@@ -737,7 +737,7 @@ AddTexture  ..\textures\monster\goblin4.dds
 Alias  246   goblin4           OPAQUE  WHOLE  flat
 
 AddTexture  ..\textures\monster\mummy.dds
-Alias  247   mummy           OPAQUE  WHOLE  monster
+Alias  247   mummy           OPAQUE  WHOLE  flat
 
 AddTexture  ..\textures\monster\weaponmummy.dds
 Alias  248   weaponmummy           OPAQUE  WHOLE  monsterweapon
