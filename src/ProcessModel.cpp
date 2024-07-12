@@ -1116,7 +1116,7 @@ void SmoothNormals(int start_cnt) {
 	//Smooth the vertex normals out so the models look less blocky.
 	int scount = 0;
 
-	for (int i = 0; i < cnt; i++) {
+	for (int i = start_cnt; i < cnt; i++) {
 			tracknormal[i] = 0;
 	}
 
