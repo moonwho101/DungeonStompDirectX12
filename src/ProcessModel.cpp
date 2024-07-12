@@ -1114,10 +1114,14 @@ int tracknormal[MAX_NUM_QUADS];
 void SmoothNormals(int start_cnt) {
 
 	//Smooth the vertex normals out so the models look less blocky.
+
+	XMVECTOR sum, sumtan, average;
+	XMFLOAT3 x1, xtan, final2, finaltan;
+
 	int scount = 0;
 
 	for (int i = start_cnt; i < cnt; i++) {
-			tracknormal[i] = 0;
+		tracknormal[i] = 0;
 	}
 
 	for (int i = start_cnt; i < cnt; i++) {
@@ -1140,8 +1144,8 @@ void SmoothNormals(int start_cnt) {
 			}
 
 			if (scount > 0) {
-				XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
-				XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
+				sum = XMVectorSet(0, 0, 0, 0);
+				sumtan = XMVectorSet(0, 0, 0, 0);
 
 				XMFLOAT3 x1, xtan;
 				XMVECTOR average;
@@ -1161,8 +1165,6 @@ void SmoothNormals(int start_cnt) {
 
 				sum = sum / (float)scount;
 				sumtan = sumtan / (float)scount;
-
-				XMFLOAT3 final2, finaltan;
 
 				average = XMVector3Normalize(sum);
 				XMStoreFloat3(&final2, average);
