@@ -1143,7 +1143,7 @@ void SmoothNormals(int start_cnt) {
 				//}
 			}
 
-			if (scount > 0) {
+			if (scount > 1) {
 				sum = XMVectorSet(0, 0, 0, 0);
 				sumtan = XMVectorSet(0, 0, 0, 0);
 
