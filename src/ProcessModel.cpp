@@ -1134,21 +1134,16 @@ void SmoothNormals(int start_cnt) {
 			scount = 0;
 
 			for (int j = start_cnt; j < cnt; j++) {
-				//if (i != j) {
 				if (tracknormal[j] == 0 && x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
 					//found shared vertex
 					sharedv[scount] = j;
 					scount++;
 				}
-				//}
 			}
 
 			if (scount > 1) {
 				sum = XMVectorSet(0, 0, 0, 0);
 				sumtan = XMVectorSet(0, 0, 0, 0);
-
-				XMFLOAT3 x1, xtan;
-				XMVECTOR average;
 
 				for (int k = 0; k < scount; k++) {
 					x1.x = src_v[sharedv[k]].nx;
@@ -1163,15 +1158,11 @@ void SmoothNormals(int start_cnt) {
 
 				}
 
-				sum = sum / (float)scount;
-				sumtan = sumtan / (float)scount;
-
 				average = XMVector3Normalize(sum);
 				XMStoreFloat3(&final2, average);
 
 				average = XMVector3Normalize(sumtan);
 				XMStoreFloat3(&finaltan, average);
-
 
 				for (int k = 0; k < scount; k++) {
 					src_v[sharedv[k]].nx = final2.x;
