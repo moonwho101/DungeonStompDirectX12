@@ -993,6 +993,10 @@ Source: "..\Models\3ds\Stone\stones3_nm.dds"; DestDir: "{app}\Models\3ds\Stone";
 
 Source: "..\Models\3ds\spellbook.3DS"; DestDir: "{app}\Models\3ds\"; Flags: ignoreversion
 
+Source: "..\Textures\BRIKS_nm.dds"; DestDir: "{app}\Textures\"; Flags: ignoreversion
+Source: "..\Textures\house1\houser_nm.dds"; DestDir: "{app}\Textures\house1"; Flags: ignoreversion
+Source: "..\Textures\house1\houset_nm.dds"; DestDir: "{app}\Textures\house1"; Flags: ignoreversion
+Source: "..\Textures\monster\Craz_nm.dds"; DestDir: "{app}\Textures\monster"; Flags: ignoreversion
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
