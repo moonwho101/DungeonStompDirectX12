@@ -830,11 +830,8 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.TotalTime = gt.TotalTime();
 	mMainPassCB.DeltaTime = gt.DeltaTime();
 
-	//mMainPassCB.AmbientLight = { 0.1f, 0.1f, 0.1f, 1.0f };
-	//mMainPassCB.AmbientLight = { 1.00f, 1.00f, 1.00f, 1.00f };
-	//mMainPassCB.AmbientLight = { 0.00f, 0.00f, 0.00f, 1.00f };
-	mMainPassCB.AmbientLight = { 0.1f, 0.1f, 0.15f, 1.0f };
-
+	//mMainPassCB.AmbientLight = { 0.1f, 0.1f, 0.15f, 1.0f };
+	mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 	//XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
 	//XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
 	//mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
@@ -3314,7 +3311,7 @@ void DungeonStompApp::ProcessLights11()
 		float dist2 = dist[sort[i]];
 		int angle = (int)oblist[q].rot_angle;
 		int ob_type = oblist[q].type;
-		float adjust = 0.4f;
+		float adjust = 0.0f;
 		LightContainer[i + 16].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 0.0f, oblist[q].z };
 		LightContainer[i + 16].Strength = DirectX::XMFLOAT3{ (float)oblist[q].light_source->rcolour + adjust, (float)oblist[q].light_source->gcolour + adjust, (float)oblist[q].light_source->bcolour + adjust };
 		LightContainer[i + 16].FalloffStart = 600.0f;
