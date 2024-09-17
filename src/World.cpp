@@ -75,7 +75,7 @@ D3DVALUE angy = 60;
 
 XMFLOAT3 modellocation;
 CAMERAFLOAT cameraf;
-extern int src_collide[MAX_NUM_VERTICES];
+extern int src_collide[MAX_NUM_QUADS];
 
 extern LEVELMOD* levelmodify;
 extern SWITCHMOD* switchmodify;
@@ -144,7 +144,7 @@ void InitDS()
 	CLoadWorld* pCWorld;
 	pCWorld = new CLoadWorld();
 
-	for (int i = 0; i < MAX_NUM_VERTICES; i++)
+	for (int i = 0; i < MAX_NUM_QUADS; i++)
 	{
 		//src_on[i] = 1;
 		src_collide[i] = 1;

@@ -52,7 +52,7 @@ float FastDistance(float fx, float fy, float fz);
 void calculate_block_location();
 extern int countboundingbox;
 extern D3DVERTEX2 boundingbox[2000];
-extern int src_collide[MAX_NUM_VERTICES];
+extern int src_collide[MAX_NUM_QUADS];
 
 extern int collideWithBoundingBox;
 extern int endc;

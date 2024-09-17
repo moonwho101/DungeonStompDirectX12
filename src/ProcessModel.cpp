@@ -55,7 +55,7 @@ struct CUSTOMVERTEX { FLOAT X, Y, Z; DWORD COLOR; };
 float sin_table[361];
 float cos_table[361];
 
-int src_collide[MAX_NUM_VERTICES];
+int src_collide[MAX_NUM_QUADS];
 
 //LPDIRECT3DVERTEXBUFFER9 g_pVB = NULL; // Buffer to hold vertices
 //LPDIRECT3DVERTEXBUFFER9 g_pVBBoundingBox = NULL; // Buffer to hold vertices
