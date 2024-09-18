@@ -24,7 +24,7 @@ int monstertype[1000];
 int monsterangle[1000];
 int monsterobject[1000];
 int trueplayernum = 0;
-int numberofsquares = 11;
+int numberofsquares = 14;
 float monsterdist = 150.0f;
 D3DVERTEX2 showview[10];
 DOORS door[200];
