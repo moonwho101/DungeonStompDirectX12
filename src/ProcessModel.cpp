@@ -2117,7 +2117,7 @@ void DrawItems(float fElapsedTime)
 				m_vEyePt.z - item_list[i].z);
 
 
-			if (qdist < 600.0f) {
+			if (qdist < 1100.0f) {
 
 				cullflag = 0;
 				for (int cullloop = 0; cullloop < monstercount; cullloop++)
