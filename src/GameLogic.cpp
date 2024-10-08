@@ -683,7 +683,7 @@ int CalculateView(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, bool distan
 		float qdist = FastDistance(EyeBall.x - LookPoint.x, EyeBall.y - LookPoint.y,
 			EyeBall.z - LookPoint.z);
 
-		if (qdist < 170.0f) {
+		if (qdist < 1170.0f) {
 			monsteron = 1;
 			return monsteron;
 		}
