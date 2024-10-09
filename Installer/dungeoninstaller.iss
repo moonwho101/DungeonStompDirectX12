@@ -112,7 +112,7 @@ Source: "..\Shaders\SsaoBlur.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversi
 Source: "..\Shaders\RectanglePixelMapShader.hlsl"; DestDir: "{app}\Shaders"; Flags: ignoreversion
 
 
-Source: "..\bin\soundsInstaller.dat"; DestDir: "{app}\bin";DestName: "sounds.dat"; Flags: ignoreversion
+Source: "..\bin\sounds.dat"; DestDir: "{app}\bin";DestName: "sounds.dat"; Flags: ignoreversion
 
 
 Source: "..\LICENSE"; DestDir: "{app}\bin"; Flags: ignoreversion
@@ -145,20 +145,11 @@ Source: "..\bin\monsterwraith.snd"; DestDir: "{app}\bin"; Flags: ignoreversion
 Source: "..\bin\Objects.dat"; DestDir: "{app}\bin"; Flags: ignoreversion
 
 Source: "..\bin\textures.dat"; DestDir: "{app}\bin"; Flags: ignoreversion
-Source: "..\Midi\0.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\epic1.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\found1.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\hill.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\jazz.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\maze.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\midifile0.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\midifile2.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\royal.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\trouble1.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\urgent1.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\badbad.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\forest.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
-Source: "..\Midi\momo.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
+Source: "..\Midi\d1.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
+Source: "..\Midi\d2.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
+Source: "..\Midi\d3.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
+Source: "..\Midi\d4.wav"; DestDir: "{app}\midi"; Flags: ignoreversion
+
 Source: "..\Models\3ds\arena\arenaceiling.3DS"; DestDir: "{app}\Models\3ds\arena"; Flags: ignoreversion
 Source: "..\Models\3ds\Banner\banner1.3DS"; DestDir: "{app}\Models\3ds\Banner"; Flags: ignoreversion
 Source: "..\Models\3ds\Banner\Banner1.dds"; DestDir: "{app}\Models\3ds\Banner"; Flags: ignoreversion
