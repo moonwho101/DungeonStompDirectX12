@@ -10,6 +10,8 @@
 #include "GameLogic.hpp"
 #include "Dice.hpp"
 
+//mouse sensitivity
+float mousediv = 25.0f;
 
 //Only one input device should be true.  Set g_bUseJoystick=true for xbox controller.
 BOOL g_bUseMouse = true;
@@ -60,7 +62,7 @@ float filtery = 0;
 BOOL have_i_moved_flag;
 float rotate_camera;
 
-float mousediv = 5.0f;
+
 D3DVALUE angx = 0;
 
 D3DVALUE angz = 0;
