@@ -1405,139 +1405,66 @@ void ComputerWeightedAverages(int start_cnt) {
 }
 
 
+
 void ConvertTraingleFan(int fan_cnt) {
+    int counter = 0;
 
+    for (int i = fan_cnt; i < cnt; i++) {
+        if (counter < 3) {
+            temp_v[counter] = src_v[i];
+            counter++;
+        } else {
+            temp_v[counter] = src_v[fan_cnt];
+            counter++;
+            temp_v[counter] = src_v[i - 1];
+            counter++;
+            temp_v[counter] = src_v[i];
+            counter++;
+        }
+    }
 
-	int counter = 0;
+    int normal = 0;
 
-	for (int i = fan_cnt; i < cnt; i++) {
+    for (int i = 0; i < counter; i++) {
+        src_v[fan_cnt + i] = temp_v[i];
 
-		if (counter < 3) {
+        if (normal == 2) {
+            normal = 0;
+            XMFLOAT3 vw1 = {src_v[(fan_cnt + i) - 2].x, src_v[(fan_cnt + i) - 2].y, src_v[(fan_cnt + i) - 2].z};
+            XMFLOAT3 vw2 = {src_v[(fan_cnt + i) - 1].x, src_v[(fan_cnt + i) - 1].y, src_v[(fan_cnt + i) - 1].z};
+            XMFLOAT3 vw3 = {src_v[(fan_cnt + i)].x, src_v[(fan_cnt + i)].y, src_v[(fan_cnt + i)].z};
 
-			temp_v[counter].x = src_v[i].x;
-			temp_v[counter].y = src_v[i].y;
-			temp_v[counter].z = src_v[i].z;
-			temp_v[counter].nx = src_v[i].nx;
-			temp_v[counter].ny = src_v[i].ny;
-			temp_v[counter].nz = src_v[i].nz;
-			temp_v[counter].tu = src_v[i].tu;
-			temp_v[counter].tv = src_v[i].tv;
+            XMVECTOR vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
+            XMVECTOR vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
+            XMVECTOR vCross = XMVector3Cross(vDiff, vDiff2);
+            XMVECTOR final = XMVector3Normalize(vCross);
 
-			counter++;
-		}
-		else {
+            XMFLOAT3 final2;
+            XMStoreFloat3(&final2, final);
 
-			temp_v[counter].x = src_v[fan_cnt].x;
-			temp_v[counter].y = src_v[fan_cnt].y;
-			temp_v[counter].z = src_v[fan_cnt].z;
-			temp_v[counter].nx = src_v[fan_cnt].nx;
-			temp_v[counter].ny = src_v[fan_cnt].ny;
-			temp_v[counter].nz = src_v[fan_cnt].nz;
-			temp_v[counter].tu = src_v[fan_cnt].tu;
-			temp_v[counter].tv = src_v[fan_cnt].tv;
-			counter++;
+            float workx = -final2.x;
+            float worky = -final2.y;
+            float workz = -final2.z;
 
-			temp_v[counter].x = src_v[i - 1].x;
-			temp_v[counter].y = src_v[i - 1].y;
-			temp_v[counter].z = src_v[i - 1].z;
-			temp_v[counter].nx = src_v[i - 1].nx;
-			temp_v[counter].ny = src_v[i - 1].ny;
-			temp_v[counter].nz = src_v[i - 1].nz;
-			temp_v[counter].tu = src_v[i - 1].tu;
-			temp_v[counter].tv = src_v[i - 1].tv;
+            src_v[(fan_cnt + i) - 2].nx = workx;
+            src_v[(fan_cnt + i) - 2].ny = worky;
+            src_v[(fan_cnt + i) - 2].nz = workz;
 
-			counter++;
-			temp_v[counter].x = src_v[i].x;
-			temp_v[counter].y = src_v[i].y;
-			temp_v[counter].z = src_v[i].z;
-			temp_v[counter].nx = src_v[i].nx;
-			temp_v[counter].ny = src_v[i].ny;
-			temp_v[counter].nz = src_v[i].nz;
-			temp_v[counter].tu = src_v[i].tu;
-			temp_v[counter].tv = src_v[i].tv;
-			counter++;
-		}
+            src_v[(fan_cnt + i) - 1].nx = workx;
+            src_v[(fan_cnt + i) - 1].ny = worky;
+            src_v[(fan_cnt + i) - 1].nz = workz;
 
-	}
+            src_v[(fan_cnt + i)].nx = workx;
+            src_v[(fan_cnt + i)].ny = worky;
+            src_v[(fan_cnt + i)].nz = workz;
 
-	int normal = 0;
-
-	for (int i = 0; i < counter; i++) {
-		src_v[fan_cnt + i].x = temp_v[i].x;
-		src_v[fan_cnt + i].y = temp_v[i].y;
-		src_v[fan_cnt + i].z = temp_v[i].z;
-
-		src_v[fan_cnt + i].nx = temp_v[i].nx;
-		src_v[fan_cnt + i].ny = temp_v[i].ny;
-		src_v[fan_cnt + i].nz = temp_v[i].nz;
-
-		src_v[fan_cnt + i].tu = temp_v[i].tu;
-		src_v[fan_cnt + i].tv = temp_v[i].tv;
-
-
-		if (normal == 2) {
-
-			normal = 0;
-			XMFLOAT3 vw1, vw2, vw3;
-
-			vw1.x = D3DVAL(src_v[(fan_cnt + i) - 2].x);
-			vw1.y = D3DVAL(src_v[(fan_cnt + i) - 2].y);
-			vw1.z = D3DVAL(src_v[(fan_cnt + i) - 2].z);
-
-			vw2.x = D3DVAL(src_v[(fan_cnt + i) - 1].x);
-			vw2.y = D3DVAL(src_v[(fan_cnt + i) - 1].y);
-			vw2.z = D3DVAL(src_v[(fan_cnt + i) - 1].z);
-
-			vw3.x = D3DVAL(src_v[(fan_cnt + i)].x);
-			vw3.y = D3DVAL(src_v[(fan_cnt + i)].y);
-			vw3.z = D3DVAL(src_v[(fan_cnt + i)].z);
-
-			// calculate the NORMAL for the road using the CrossProduct <-important!
-
-			//D3DXVECTOR3 vDiff = vw1 - vw2;
-			//D3DXVECTOR3 vDiff2 = vw3 - vw2;
-			//D3DXVECTOR3 vCross, final;
-
-			//D3DXVec3Cross(&vCross, &vDiff, &vDiff2);
-			//D3DXVec3Normalize(&final, &vCross);
-
-			XMVECTOR   vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
-			XMVECTOR   vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
-
-			XMVECTOR  vCross, final;
-			vCross = XMVector3Cross(vDiff, vDiff2);
-			final = XMVector3Normalize(vCross);
-
-			XMFLOAT3 final2;
-			XMStoreFloat3(&final2, final);
-
-			float workx = (-final2.x);
-			float worky = (-final2.y);
-			float workz = (-final2.z);
-
-			src_v[(fan_cnt + i) - 2].nx = workx;
-			src_v[(fan_cnt + i) - 2].ny = worky;
-			src_v[(fan_cnt + i) - 2].nz = workz;
-
-			src_v[(fan_cnt + i) - 1].nx = workx;
-			src_v[(fan_cnt + i) - 1].ny = worky;
-			src_v[(fan_cnt + i) - 1].nz = workz;
-
-			src_v[(fan_cnt + i)].nx = workx;
-			src_v[(fan_cnt + i)].ny = worky;
-			src_v[(fan_cnt + i)].nz = workz;
-
-
-			CalculateTangentBinormal(src_v[(fan_cnt + i) - 2], src_v[(fan_cnt + i) - 1], src_v[(fan_cnt + i)]);
-		}
-		else {
-			normal++;
-		}
-	}
-	cnt = fan_cnt + counter;
-
+            CalculateTangentBinormal(src_v[(fan_cnt + i) - 2], src_v[(fan_cnt + i) - 1], src_v[(fan_cnt + i)]);
+        } else {
+            normal++;
+        }
+    }
+    cnt = fan_cnt + counter;
 }
-
 void ConvertTraingleStrip(int fan_cnt) {
 
 	int counter = 0;
