@@ -1133,7 +1133,10 @@ void SmoothNormals(int start_cnt) {
 
 			scount = 0;
 
-			for (int j = start_cnt; j < cnt; j++) {
+			//GitHub copilot fixed this! AI is the future.
+			//old code: for (int j = start_cnt; j < cnt; j++)
+
+			for (int j = i; j < cnt; j++) {
 				if (tracknormal[j] == 0 && x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
 					//found shared vertex
 					sharedv[scount] = j;
