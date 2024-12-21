@@ -1527,161 +1527,60 @@ void ConvertTraingleStrip(int fan_cnt) {
 
     cnt = fan_cnt + counter;
 }
+
 void ConvertQuad(int fan_cnt) {
+    int counter = 0;
+    int quad = 0;
 
-	int counter = 0;
-	int v = 0;
-	int quad = 0;
+    for (int i = fan_cnt; i < cnt; i++) {
+        if (quad >= 3) {
+            for (int j = 3; j >= 0; j--) {
+                temp_v[counter] = src_v[i - j];
+                counter++;
+            }
+            for (int j = 1; j >= 0; j--) {
+                temp_v[counter] = src_v[i - j];
+                counter++;
+            }
+            quad = 0;
+        } else {
+            quad++;
+        }
+    }
 
-	for (int i = fan_cnt; i < cnt; i++) {
+    for (int i = 0; i < counter; i++) {
+        src_v[fan_cnt + i] = temp_v[i];
+        src_collide[fan_cnt + i] = 0;
+    }
 
-		if (quad >=3) {
+    for (int i = 0; i < counter; i += 3) {
+        XMFLOAT3 vw1 = {src_v[fan_cnt + i].x, src_v[fan_cnt + i].y, src_v[fan_cnt + i].z};
+        XMFLOAT3 vw2 = {src_v[fan_cnt + i + 1].x, src_v[fan_cnt + i + 1].y, src_v[fan_cnt + i + 1].z};
+        XMFLOAT3 vw3 = {src_v[fan_cnt + i + 2].x, src_v[fan_cnt + i + 2].y, src_v[fan_cnt + i + 2].z};
 
-			temp_v[counter].x = src_v[i - 3].x;
-			temp_v[counter].y = src_v[i - 3].y;
-			temp_v[counter].z = src_v[i - 3].z;
-			temp_v[counter].nx = src_v[i - 3].nx;
-			temp_v[counter].ny = src_v[i - 3].ny;
-			temp_v[counter].nz = src_v[i - 3].nz;
-			temp_v[counter].tu = src_v[i - 3].tu;
-			temp_v[counter].tv = src_v[i - 3].tv;
-			counter++;
+        XMVECTOR vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
+        XMVECTOR vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
+        XMVECTOR vCross = XMVector3Cross(vDiff, vDiff2);
+        XMVECTOR final = XMVector3Normalize(vCross);
 
-			temp_v[counter].x = src_v[i - 2].x;
-			temp_v[counter].y = src_v[i - 2].y;
-			temp_v[counter].z = src_v[i - 2].z;
-			temp_v[counter].nx = src_v[i - 2].nx;
-			temp_v[counter].ny = src_v[i - 2].ny;
-			temp_v[counter].nz = src_v[i - 2].nz;
-			temp_v[counter].tu = src_v[i - 2].tu;
-			temp_v[counter].tv = src_v[i - 2].tv;
-			counter++;
+        XMFLOAT3 final2;
+        XMStoreFloat3(&final2, final);
 
-			temp_v[counter].x = src_v[i - 1].x;
-			temp_v[counter].y = src_v[i - 1].y;
-			temp_v[counter].z = src_v[i - 1].z;
-			temp_v[counter].nx = src_v[i - 1].nx;
-			temp_v[counter].ny = src_v[i - 1].ny;
-			temp_v[counter].nz = src_v[i - 1].nz;
-			temp_v[counter].tu = src_v[i - 1].tu;
-			temp_v[counter].tv = src_v[i - 1].tv;
-			counter++;
+        float workx = -final2.x;
+        float worky = -final2.y;
+        float workz = -final2.z;
 
-			//2nd
+        for (int j = 0; j < 3; j++) {
+            src_v[fan_cnt + i + j].nx = workx;
+            src_v[fan_cnt + i + j].ny = worky;
+            src_v[fan_cnt + i + j].nz = workz;
+        }
 
-			temp_v[counter].x = src_v[i].x;
-			temp_v[counter].y = src_v[i].y;
-			temp_v[counter].z = src_v[i].z;
-			temp_v[counter].nx = src_v[i].nx;
-			temp_v[counter].ny = src_v[i].ny;
-			temp_v[counter].nz = src_v[i].nz;
-			temp_v[counter].tu = src_v[i].tu;
-			temp_v[counter].tv = src_v[i].tv;
-			counter++;
+        CalculateTangentBinormal(src_v[fan_cnt + i], src_v[fan_cnt + i + 1], src_v[fan_cnt + i + 2]);
+    }
 
-			temp_v[counter].x = src_v[i - 1].x;
-			temp_v[counter].y = src_v[i - 1].y;
-			temp_v[counter].z = src_v[i - 1].z;
-			temp_v[counter].nx = src_v[i - 1].nx;
-			temp_v[counter].ny = src_v[i - 1].ny;
-			temp_v[counter].nz = src_v[i - 1].nz;
-			temp_v[counter].tu = src_v[i - 1].tu;
-			temp_v[counter].tv = src_v[i - 1].tv;
-			counter++;
-
-			temp_v[counter].x = src_v[i - 2].x;
-			temp_v[counter].y = src_v[i - 2].y;
-			temp_v[counter].z = src_v[i - 2].z;
-			temp_v[counter].nx = src_v[i - 2].nx;
-			temp_v[counter].ny = src_v[i - 2].ny;
-			temp_v[counter].nz = src_v[i - 2].nz;
-			temp_v[counter].tu = src_v[i - 2].tu;
-			temp_v[counter].tv = src_v[i - 2].tv;
-			counter++;
-
-			quad = 0;
-
-		}
-		else {
-			quad++;
-		}
-
-	}
-
-	int normal = 0;
-
-	for (int i = 0; i < counter; i++) {
-		src_v[fan_cnt + i].x = temp_v[i].x;
-		src_v[fan_cnt + i].y = temp_v[i].y;
-		src_v[fan_cnt + i].z = temp_v[i].z;
-
-		src_v[fan_cnt + i].nx = temp_v[i].nx;
-		src_v[fan_cnt + i].ny = temp_v[i].ny;
-		src_v[fan_cnt + i].nz = temp_v[i].nz;
-
-		src_v[fan_cnt + i].tu = temp_v[i].tu;
-		src_v[fan_cnt + i].tv = temp_v[i].tv;
-
-		//don't collide with visual box
-		src_collide[fan_cnt + i] = 0;
-
-		if (normal == 2) {
-
-			normal = 0;
-			XMFLOAT3 vw1, vw2, vw3;
-
-			vw1.x = D3DVAL(src_v[(fan_cnt + i) - 2].x);
-			vw1.y = D3DVAL(src_v[(fan_cnt + i) - 2].y);
-			vw1.z = D3DVAL(src_v[(fan_cnt + i) - 2].z);
-
-			vw2.x = D3DVAL(src_v[(fan_cnt + i) - 1].x);
-			vw2.y = D3DVAL(src_v[(fan_cnt + i) - 1].y);
-			vw2.z = D3DVAL(src_v[(fan_cnt + i) - 1].z);
-
-			vw3.x = D3DVAL(src_v[(fan_cnt + i)].x);
-			vw3.y = D3DVAL(src_v[(fan_cnt + i)].y);
-			vw3.z = D3DVAL(src_v[(fan_cnt + i)].z);
-
-			XMVECTOR   vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
-			XMVECTOR   vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
-
-			XMVECTOR  vCross, final;
-			vCross = XMVector3Cross(vDiff, vDiff2);
-			final = XMVector3Normalize(vCross);
-
-
-			XMFLOAT3 final2;
-			XMStoreFloat3(&final2, final);
-
-
-			float workx = (-final2.x);
-			float worky = (-final2.y);
-			float workz = (-final2.z);
-
-			src_v[(fan_cnt + i) - 2].nx = workx;
-			src_v[(fan_cnt + i) - 2].ny = worky;
-			src_v[(fan_cnt + i) - 2].nz = workz;
-
-			src_v[(fan_cnt + i) - 1].nx = workx;
-			src_v[(fan_cnt + i) - 1].ny = worky;
-			src_v[(fan_cnt + i) - 1].nz = workz;
-
-			src_v[(fan_cnt + i)].nx = workx;
-			src_v[(fan_cnt + i)].ny = worky;
-			src_v[(fan_cnt + i)].nz = workz;
-
-			CalculateTangentBinormal(src_v[(fan_cnt + i) - 2], src_v[(fan_cnt + i) - 1], src_v[(fan_cnt + i)]);
-
-		}
-		else {
-			normal++;
-		}
-	}
-	cnt = fan_cnt + counter;
-
+    cnt = fan_cnt + counter;
 }
-
-
 int GetNextFrame(int monsterId);
 
 void DrawMonsters()
