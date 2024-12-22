@@ -3661,537 +3661,156 @@ int XpPoints(int hd, int hp)
 
 int LevelUp(int xp)
 {
+    int countlevels = 0;
 
-	int countlevels = 0;
-	int adjust = 800;
+    if (xp > 0 && xp <= 2000) countlevels = 1;
+    else if (xp <= 4000) countlevels = 2;
+    else if (xp <= 8000) countlevels = 3;
+    else if (xp <= 18000) countlevels = 4;
+    else if (xp <= 35000) countlevels = 5;
+    else if (xp <= 70000) countlevels = 6;
+    else if (xp <= 125000) countlevels = 7;
+    else if (xp <= 250000) countlevels = 8;
+    else if (xp <= 500000) countlevels = 9;
+    else if (xp <= 750000) countlevels = 10;
+    else if (xp <= 1000000) countlevels = 11;
+    else if (xp <= 1250000) countlevels = 12;
+    else if (xp <= 1500000) countlevels = 13;
+    else if (xp <= 1750000) countlevels = 14;
+    else if (xp <= 2000000) countlevels = 15;
+    else if (xp <= 2250000) countlevels = 16;
+    else if (xp <= 2500000) countlevels = 17;
+    else if (xp <= 2750000) countlevels = 18;
+    else if (xp <= 3000000) countlevels = 19;
+    else if (xp <= 3250000) countlevels = 20;
+    else if (xp <= 3500000) countlevels = 21;
+    else if (xp <= 3750000) countlevels = 22;
+    else if (xp <= 4000000) countlevels = 23;
+    else if (xp <= 4250000) countlevels = 24;
+    else if (xp <= 4500000) countlevels = 25;
+    else if (xp <= 4750000) countlevels = 26;
+    else if (xp <= 5000000) countlevels = 27;
+    else if (xp <= 5250000) countlevels = 28;
+    else if (xp <= 5500000) countlevels = 29;
+    else if (xp <= 5750000) countlevels = 30;
+    else if (xp <= 6000000) countlevels = 31;
+    else if (xp <= 6250000) countlevels = 32;
+    else if (xp <= 6500000) countlevels = 33;
+    else if (xp <= 6750000) countlevels = 34;
+    else if (xp <= 7000000) countlevels = 35;
+    else if (xp <= 7250000) countlevels = 36;
+    else if (xp <= 7500000) countlevels = 37;
+    else if (xp <= 7750000) countlevels = 38;
+    else if (xp <= 8000000) countlevels = 39;
+    else if (xp <= 8250000) countlevels = 40;
+    else if (xp <= 8500000) countlevels = 41;
+    else if (xp <= 8750000) countlevels = 42;
+    else if (xp <= 9000000) countlevels = 43;
+    else if (xp <= 9250000) countlevels = 44;
+    else if (xp <= 9500000) countlevels = 45;
+    else if (xp <= 9750000) countlevels = 46;
+    else if (xp <= 10000000) countlevels = 47;
+    else if (xp <= 10250000) countlevels = 48;
+    else if (xp <= 10500000) countlevels = 49;
+    else if (xp <= 10750000) countlevels = 50;
+    else if (xp <= 11000000) countlevels = 51;
+    else if (xp <= 11250000) countlevels = 52;
+    else if (xp <= 11500000) countlevels = 53;
+    else if (xp <= 11750000) countlevels = 54;
+    else if (xp <= 12000000) countlevels = 55;
+    else if (xp <= 12250000) countlevels = 56;
+    else if (xp <= 12500000) countlevels = 57;
+    else if (xp <= 12750000) countlevels = 58;
+    else if (xp <= 13000000) countlevels = 59;
+    else if (xp <= 13250000) countlevels = 60;
+    else if (xp <= 13500000) countlevels = 61;
 
-	if (xp > 0 && xp <= 2000)
-	{
+    if (player_list[trueplayernum].hd < countlevels)
+    {
+        player_list[trueplayernum].hd++;
 
-		countlevels = 1;
-	}
-	else if (xp >= 2001 && xp <= 4000)
-	{
-		countlevels = 2;
-	}
-	else if (xp >= 4001 && xp <= 8000)
-	{
-		countlevels = 3;
-	}
-	else if (xp >= 8001 && xp <= 18000)
-	{
-		countlevels = 4;
-	}
-	else if (xp >= 18001 && xp <= 35000)
-	{
-		countlevels = 5;
-	}
-	else if (xp >= 35001 && xp <= 70000)
-	{
-		countlevels = 6;
-	}
-	else if (xp >= 70001 && xp <= 125000)
-	{
-		countlevels = 7;
-	}
-	else if (xp >= 125001 && xp <= 250000)
-	{
-		countlevels = 8;
-	}
-	else if (xp >= 250001 && xp <= 500000)
-	{
-		countlevels = 9;
-	}
-	else if (xp >= 500001 && xp <= 750000)
-	{
-		countlevels = 10;
-	}
-	else if (xp >= 750001 && xp <= 1000000)
-	{
-		countlevels = 11;
-	}
+        int raction = random_num(20) + 1;
+        if (raction <= player_list[trueplayernum].hd)
+            raction = player_list[trueplayernum].hd;
 
-	else if (xp >= 1000001 && xp <= 1250000)
-	{
-		countlevels = 12;
-	}
-	else if (xp >= 1250001 && xp <= 1500000)
-	{
-		countlevels = 13;
-	}
-	else if (xp >= 1500001 && xp <= 1750000)
-	{
-		countlevels = 14;
-	}
-	else if (xp >= 1750001 && xp <= 2000000)
-	{
-		countlevels = 15;
-	}
-	else if (xp >= 2000001 && xp <= 2250000)
-	{
-		countlevels = 16;
-	}
-	else if (xp >= 2250001 && xp <= 2500000)
-	{
-		countlevels = 17;
-	}
-	else if (xp >= 2500001 && xp <= 2750000)
-	{
-		countlevels = 18;
-	}
-	else if (xp >= 2750001 && xp <= 3000000)
-	{
-		countlevels = 19;
-	}
-	else if (xp >= 3000001 && xp <= 3250000)
-	{
-		countlevels = 20;
-	}
-	else if (xp >= 3250001 && xp <= 3500000)
-	{
-		countlevels = 21;
-	}
-	else if (xp >= 3500001 && xp <= 3750000)
-	{
-		countlevels = 22;
-	}
-	else if (xp >= 3750001 && xp <= 4000000)
-	{
-		countlevels = 23;
-	}
-	else if (xp >= 4000001 && xp <= 4250000)
-	{
-		countlevels = 24;
-	}
-	else if (xp >= 4250001 && xp <= 4500000)
-	{
-		countlevels = 25;
-	}
-	else if (xp >= 4500001 && xp <= 4750000)
-	{
-		countlevels = 26;
-	}
-	else if (xp >= 4750001 && xp <= 5000000)
-	{
-		countlevels = 27;
-	}
-	else if (xp >= 5000001 && xp <= 5250000)
-	{
-		countlevels = 28;
-	}
-	else if (xp >= 5250001 && xp <= 5500000)
-	{
-		countlevels = 29;
-	}
-	else if (xp >= 5500001 && xp <= 5750000)
-	{
-		countlevels = 30;
-	}
-	else if (xp >= 5750001 && xp <= 6000000)
-	{
-		countlevels = 31;
-	}
-	else if (xp >= 6000001 && xp <= 6250000)
-	{
-		countlevels = 32;
-	}
-	else if (xp >= 6250001 && xp <= 6500000)
-	{
-		countlevels = 33;
-	}
-	else if (xp >= 6500001 && xp <= 6750000)
-	{
-		countlevels = 34;
-	}
-	else if (xp >= 6750001 && xp <= 7000000)
-	{
-		countlevels = 35;
-	}
-	else if (xp >= 7000001 && xp <= 7250000)
-	{
-		countlevels = 36;
-	}
-	else if (xp >= 7250001 && xp <= 7500000)
-	{
-		countlevels = 37;
-	}
-	else if (xp >= 7500001 && xp <= 7750000)
-	{
-		countlevels = 38;
-	}
-	else if (xp >= 7750001 && xp <= 8000000)
-	{
-		countlevels = 39;
-	}
-	else if (xp >= 8000001 && xp <= 8250000)
-	{
-		countlevels = 40;
-	}
-	else if (xp >= 8250001 && xp <= 8500000)
-	{
-		countlevels = 41;
-	}
-	else if (xp >= 8500001 && xp <= 8750000)
-	{
-		countlevels = 42;
-	}
-	else if (xp >= 8750001 && xp <= 9000000)
-	{
-		countlevels = 43;
-	}
-	else if (xp >= 9000001 && xp <= 9250000)
-	{
-		countlevels = 44;
-	}
-	else if (xp >= 9250001 && xp <= 9500000)
-	{
-		countlevels = 45;
-	}
-	else if (xp >= 9500001 && xp <= 9750000)
-	{
-		countlevels = 46;
-	}
-	else if (xp >= 9750001 && xp <= 10000000)
-	{
-		countlevels = 47;
-	}
-	else if (xp >= 10000001 && xp <= 10250000)
-	{
-		countlevels = 48;
-	}
-	else if (xp >= 10250001 && xp <= 10500000)
-	{
-		countlevels = 49;
-	}
-	else if (xp >= 10500001 && xp <= 10750000)
-	{
-		countlevels = 50;
-	}
-	else if (xp >= 10750001 && xp <= 11000000)
-	{
-		countlevels = 51;
-	}
-	else if (xp >= 11000001 && xp <= 11250000)
-	{
-		countlevels = 52;
-	}
-	else if (xp >= 11250001 && xp <= 11500000)
-	{
-		countlevels = 53;
-	}
-	else if (xp >= 11500001 && xp <= 11750000)
-	{
-		countlevels = 54;
-	}
-	else if (xp >= 11750001 && xp <= 12000000)
-	{
-		countlevels = 55;
-	}
-	else if (xp >= 12000001 && xp <= 12250000)
-	{
-		countlevels = 56;
-	}
-	else if (xp >= 12250001 && xp <= 12500000)
-	{
-		countlevels = 57;
-	}
-	else if (xp >= 12500001 && xp <= 12750000)
-	{
-		countlevels = 58;
-	}
-	else if (xp >= 12750001 && xp <= 13000000)
-	{
-		countlevels = 59;
-	}
-	else if (xp >= 13000001 && xp <= 13250000)
-	{
-		countlevels = 60;
-	}
-	else if (xp >= 13250001 && xp <= 13500000)
-	{
-		countlevels = 61;
-	}
+        player_list[trueplayernum].hp += raction;
+        player_list[trueplayernum].health = player_list[trueplayernum].hp;
+        player_list[trueplayernum].thaco--;
 
-	if (player_list[trueplayernum].hd < countlevels)
-	{
-		player_list[trueplayernum].hd++;
+        if (player_list[trueplayernum].thaco <= 0)
+            player_list[trueplayernum].thaco = 5;
 
-		int raction = random_num(20) + 1;
+        sprintf_s(gActionMessage, "You went up a level.  Hit Dice: %d", player_list[trueplayernum].hd);
+        UpdateScrollList(255, 0, 255);
+        PlayWavSound(SoundID("win"), 100);
+    }
 
-		if (raction <= player_list[trueplayernum].hd)
-			raction = player_list[trueplayernum].hd;
-
-		player_list[trueplayernum].hp = player_list[trueplayernum].hp + raction;
-		player_list[trueplayernum].health = player_list[trueplayernum].hp;
-
-		player_list[trueplayernum].thaco--;
-
-		if (player_list[trueplayernum].thaco <= 0)
-			player_list[trueplayernum].thaco = 5;
-
-		sprintf_s(gActionMessage, "You went up a level.  Hit Dice: %d", player_list[trueplayernum].hd);
-		UpdateScrollList(255, 0, 255);
-		//StartFlare(2);
-
-		PlayWavSound(SoundID("win"), 100);
-	}
-
-	return xp;
+    return xp;
 }
 
 int LevelUpXPNeeded(int xp)
 {
-
-	int countlevels = 0;
-
-	if (xp >= 0 && xp <= 2000)
-	{
-		countlevels = 2000;
-	}
-	else if (xp >= 2001 && xp <= 4000)
-	{
-		countlevels = 4000;
-	}
-	else if (xp >= 4001 && xp <= 8000)
-	{
-		countlevels = 8000;
-	}
-	else if (xp >= 8001 && xp <= 18000)
-	{
-		countlevels = 18000;
-	}
-	else if (xp >= 18001 && xp <= 35000)
-	{
-		countlevels = 35000;
-	}
-	else if (xp >= 35001 && xp <= 70000)
-	{
-		countlevels = 70000;
-	}
-	else if (xp >= 70001 && xp <= 125000)
-	{
-		countlevels = 125000;
-	}
-	else if (xp >= 125001 && xp <= 250000)
-	{
-		countlevels = 250000;
-	}
-	else if (xp >= 250001 && xp <= 500000)
-	{
-		countlevels = 500000;
-	}
-	else if (xp >= 500001 && xp <= 750000)
-	{
-		countlevels = 750000;
-	}
-	else if (xp >= 750001 && xp <= 1000000)
-	{
-		countlevels = 1000000;
-	}
-
-	else if (xp >= 1000001 && xp <= 1250000)
-	{
-		countlevels = 1250000;
-	}
-	else if (xp >= 1250001 && xp <= 1500000)
-	{
-		countlevels = 1500000;
-	}
-	else if (xp >= 1500001 && xp <= 1750000)
-	{
-		countlevels = 1750000;
-	}
-	else if (xp >= 1750001 && xp <= 2000000)
-	{
-		countlevels = 2000000;
-	}
-	else if (xp >= 2000001 && xp <= 2250000)
-	{
-		countlevels = 2250000;
-	}
-	else if (xp >= 2250001 && xp <= 2500000)
-	{
-		countlevels = 2500000;
-	}
-	else if (xp >= 2500001 && xp <= 2750000)
-	{
-		countlevels = 2750000;
-	}
-	else if (xp >= 2750001 && xp <= 3000000)
-	{
-		countlevels = 3000000;
-	}
-	else if (xp >= 3000001 && xp <= 3250000)
-	{
-		countlevels = 3250000;
-	}
-	else if (xp >= 3250001 && xp <= 3500000)
-	{
-		countlevels = 3500000;
-	}
-	else if (xp >= 3500001 && xp <= 3750000)
-	{
-		countlevels = 3750000;
-	}
-	else if (xp >= 3750001 && xp <= 4000000)
-	{
-		countlevels = 4000000;
-	}
-	else if (xp >= 4000001 && xp <= 4250000)
-	{
-		countlevels = 4250000;
-	}
-	else if (xp >= 4250001 && xp <= 4500000)
-	{
-		countlevels = 4500000;
-	}
-	else if (xp >= 4500001 && xp <= 4750000)
-	{
-		countlevels = 4750000;
-	}
-	else if (xp >= 4750001 && xp <= 5000000)
-	{
-		countlevels = 5000000;
-	}
-	else if (xp >= 5000001 && xp <= 5250000)
-	{
-		countlevels = 5250000;
-	}
-	else if (xp >= 5250001 && xp <= 5500000)
-	{
-		countlevels = 5500000;
-	}
-	else if (xp >= 5500001 && xp <= 5750000)
-	{
-		countlevels = 5750000;
-	}
-	else if (xp >= 5750001 && xp <= 6000000)
-	{
-		countlevels = 6000000;
-	}
-	else if (xp >= 6000001 && xp <= 6250000)
-	{
-		countlevels = 6250000;
-	}
-	else if (xp >= 6250001 && xp <= 6500000)
-	{
-		countlevels = 6500000;
-	}
-	else if (xp >= 6500001 && xp <= 6750000)
-	{
-		countlevels = 6750000;
-	}
-	else if (xp >= 6750001 && xp <= 7000000)
-	{
-		countlevels = 7000000;
-	}
-	else if (xp >= 7000001 && xp <= 7250000)
-	{
-		countlevels = 7250000;
-	}
-	else if (xp >= 7250001 && xp <= 7500000)
-	{
-		countlevels = 7500000;
-	}
-	else if (xp >= 7500001 && xp <= 7750000)
-	{
-		countlevels = 7750000;
-	}
-	else if (xp >= 7750001 && xp <= 8000000)
-	{
-		countlevels = 8000000;
-	}
-	else if (xp >= 8000001 && xp <= 8250000)
-	{
-		countlevels = 8250000;
-	}
-	else if (xp >= 8250001 && xp <= 8500000)
-	{
-		countlevels = 8500000;
-	}
-	else if (xp >= 8500001 && xp <= 8750000)
-	{
-		countlevels = 8750000;
-	}
-	else if (xp >= 8750001 && xp <= 9000000)
-	{
-		countlevels = 9000000;
-	}
-	else if (xp >= 9000001 && xp <= 9250000)
-	{
-		countlevels = 9250000;
-	}
-	else if (xp >= 9250001 && xp <= 9500000)
-	{
-		countlevels = 9500000;
-	}
-	else if (xp >= 9500001 && xp <= 9750000)
-	{
-		countlevels = 9750000;
-	}
-	else if (xp >= 9750001 && xp <= 10000000)
-	{
-		countlevels = 10000000;
-	}
-	else if (xp >= 10000001 && xp <= 10250000)
-	{
-		countlevels = 10250000;
-	}
-	else if (xp >= 10250001 && xp <= 10500000)
-	{
-		countlevels = 10500000;
-	}
-	else if (xp >= 10500001 && xp <= 10750000)
-	{
-		countlevels = 10750000;
-	}
-	else if (xp >= 10750001 && xp <= 11000000)
-	{
-		countlevels = 11000000;
-	}
-	else if (xp >= 11000001 && xp <= 11250000)
-	{
-		countlevels = 11250000;
-	}
-	else if (xp >= 11250001 && xp <= 11500000)
-	{
-		countlevels = 11500000;
-	}
-	else if (xp >= 11500001 && xp <= 11750000)
-	{
-		countlevels = 11750000;
-	}
-	else if (xp >= 11750001 && xp <= 12000000)
-	{
-		countlevels = 12000000;
-	}
-	else if (xp >= 12000001 && xp <= 12250000)
-	{
-		countlevels = 12250000;
-	}
-	else if (xp >= 12250001 && xp <= 12500000)
-	{
-		countlevels = 12500000;
-	}
-	else if (xp >= 12500001 && xp <= 12750000)
-	{
-		countlevels = 12750000;
-	}
-	else if (xp >= 12750001 && xp <= 13000000)
-	{
-		countlevels = 13000000;
-	}
-	else if (xp >= 13000001 && xp <= 13250000)
-	{
-		countlevels = 13250000;
-	}
-	else if (xp >= 13250001 && xp <= 13500000)
-	{
-		countlevels = 13500000;
-	}
-
-	return countlevels;
-
+    if (xp <= 2000) return 2000;
+    if (xp <= 4000) return 4000;
+    if (xp <= 8000) return 8000;
+    if (xp <= 18000) return 18000;
+    if (xp <= 35000) return 35000;
+    if (xp <= 70000) return 70000;
+    if (xp <= 125000) return 125000;
+    if (xp <= 250000) return 250000;
+    if (xp <= 500000) return 500000;
+    if (xp <= 750000) return 750000;
+    if (xp <= 1000000) return 1000000;
+    if (xp <= 1250000) return 1250000;
+    if (xp <= 1500000) return 1500000;
+    if (xp <= 1750000) return 1750000;
+    if (xp <= 2000000) return 2000000;
+    if (xp <= 2250000) return 2250000;
+    if (xp <= 2500000) return 2500000;
+    if (xp <= 2750000) return 2750000;
+    if (xp <= 3000000) return 3000000;
+    if (xp <= 3250000) return 3250000;
+    if (xp <= 3500000) return 3500000;
+    if (xp <= 3750000) return 3750000;
+    if (xp <= 4000000) return 4000000;
+    if (xp <= 4250000) return 4250000;
+    if (xp <= 4500000) return 4500000;
+    if (xp <= 4750000) return 4750000;
+    if (xp <= 5000000) return 5000000;
+    if (xp <= 5250000) return 5250000;
+    if (xp <= 5500000) return 5500000;
+    if (xp <= 5750000) return 5750000;
+    if (xp <= 6000000) return 6000000;
+    if (xp <= 6250000) return 6250000;
+    if (xp <= 6500000) return 6500000;
+    if (xp <= 6750000) return 6750000;
+    if (xp <= 7000000) return 7000000;
+    if (xp <= 7250000) return 7250000;
+    if (xp <= 7500000) return 7500000;
+    if (xp <= 7750000) return 7750000;
+    if (xp <= 8000000) return 8000000;
+    if (xp <= 8250000) return 8250000;
+    if (xp <= 8500000) return 8500000;
+    if (xp <= 8750000) return 8750000;
+    if (xp <= 9000000) return 9000000;
+    if (xp <= 9250000) return 9250000;
+    if (xp <= 9500000) return 9500000;
+    if (xp <= 9750000) return 9750000;
+    if (xp <= 10000000) return 10000000;
+    if (xp <= 10250000) return 10250000;
+    if (xp <= 10500000) return 10500000;
+    if (xp <= 10750000) return 10750000;
+    if (xp <= 11000000) return 11000000;
+    if (xp <= 11250000) return 11250000;
+    if (xp <= 11500000) return 11500000;
+    if (xp <= 11750000) return 11750000;
+    if (xp <= 12000000) return 12000000;
+    if (xp <= 12250000) return 12250000;
+    if (xp <= 12500000) return 12500000;
+    if (xp <= 12750000) return 12750000;
+    if (xp <= 13000000) return 13000000;
+    if (xp <= 13250000) return 13250000;
+    return 13500000;
 }
 
 void statusbardisplay(float x, float length, int type)
