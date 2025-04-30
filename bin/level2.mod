@@ -14,4 +14,5 @@
 14	495	1	SetHitPoints	0	8
 15	475	1	SetHitPoints	0	7
 16	491	1	XPPoints	0	500
+17  507 1   TreasureAmount  0   100
 END_FILE
