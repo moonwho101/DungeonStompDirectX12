@@ -3143,9 +3143,9 @@ void DungeonStompApp::ProcessLights11()
 	for (int i = 0; i < MaxLights; i++)
 	{
 		LightContainer[i].Strength = { 1.0f, 1.0f, 1.0f };
-		LightContainer[i].FalloffStart = 200.0f;
+		LightContainer[i].FalloffStart = 80.0f;
 		LightContainer[i].Direction = { 0.0f, -1.0f, 0.0f };
-		LightContainer[i].FalloffEnd = 275.0f;
+		LightContainer[i].FalloffEnd = 120.0f;
 		LightContainer[i].Position = DirectX::XMFLOAT3{ 0.0f,9000.0f,0.0f };
 		LightContainer[i].SpotPower = 90.0f;
 	}
