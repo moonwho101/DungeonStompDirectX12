@@ -125,6 +125,13 @@ float CalcShadowFactor(float4 shadowPosH)
 
     // Depth in NDC space.
     float depth = shadowPosH.z;
+    
+        // Early out if outside shadow map.
+    if (shadowPosH.x < 0.0f || shadowPosH.x > 1.0f ||
+        shadowPosH.y < 0.0f || shadowPosH.y > 1.0f)
+    {
+        return 1.0f;
+    }
 
     uint width, height, numMips;
     gShadowMap.GetDimensions(0, width, height, numMips);
@@ -150,3 +157,53 @@ float CalcShadowFactor(float4 shadowPosH)
     return percentLit / 9.0f;
 }
 
+/*
+
+//---------------------------------------------------------------------------------------
+// Improved PCF for shadow mapping with 5x5 kernel and depth bias to reduce shadow acne.
+//---------------------------------------------------------------------------------------
+
+float CalcShadowFactor(float4 shadowPosH)
+{
+    // Complete projection by doing division by w.
+    shadowPosH.xyz /= shadowPosH.w;
+
+    // Depth in NDC space.
+    float depth = shadowPosH.z;
+
+    // Early out if outside shadow map.
+    if (shadowPosH.x < 0.0f || shadowPosH.x > 1.0f ||
+        shadowPosH.y < 0.0f || shadowPosH.y > 1.0f)
+    {
+        return 1.0f;
+    }
+
+    uint width, height, numMips;
+    gShadowMap.GetDimensions(0, width, height, numMips);
+
+    // Texel size.
+    float2 texelSize = float2(1.0f / (float) width, 1.0f / (float) height);
+
+    // Depth bias to reduce shadow acne.
+    float bias = 0.003f;
+
+    float percentLit = 0.0f;
+    int kernelRadius = 2;
+    int kernelSize = 2 * kernelRadius + 1;
+    int samples = kernelSize * kernelSize;
+
+    [unroll]
+    for (int y = -kernelRadius; y <= kernelRadius; ++y)
+    {
+        [unroll]
+        for (int x = -kernelRadius; x <= kernelRadius; ++x)
+        {
+            float2 offset = float2(x, y) * texelSize;
+            percentLit += gShadowMap.SampleCmpLevelZero(
+                gsamShadow, shadowPosH.xy + offset, depth - bias).r;
+        }
+    }
+
+    return percentLit / samples;
+}
+*/
