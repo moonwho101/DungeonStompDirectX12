@@ -206,4 +206,78 @@ float CalcShadowFactor(float4 shadowPosH)
 
     return percentLit / samples;
 }
+
+//---------------------------------------------------------------------------------------
+// Variance Shadow Mapping (VSM) for soft shadowing.
+// Assumes gShadowMap stores (depth, depth^2) in RG channels.
+//---------------------------------------------------------------------------------------
+
+float ChebyshevUpperBound(float2 moments, float t)
+{
+    // t: current fragment depth
+    // moments.x: mean (E[x])
+    // moments.y: mean squared (E[x^2])
+
+    // Compute variance.
+    float mean = moments.x;
+    float meanSq = moments.y;
+    float variance = meanSq - mean * mean;
+    variance = max(variance, 0.00002f);
+
+    // Compute Chebyshev's upper bound.
+    float d = t - mean;
+    float p = variance / (variance + d * d);
+
+    // If the fragment is in front of the mean, it's fully lit.
+    if (t <= mean)
+        return 1.0f;
+    else
+        return saturate(p);
+}
+
+float CalcShadowFactor(float4 shadowPosH)
+{
+    // Complete projection by doing division by w.
+    shadowPosH.xyz /= shadowPosH.w;
+
+    // Depth in NDC space.
+    float depth = shadowPosH.z;
+
+    // Early out if outside shadow map.
+    if (shadowPosH.x < 0.0f || shadowPosH.x > 1.0f ||
+        shadowPosH.y < 0.0f || shadowPosH.y > 1.0f)
+    {
+        return 1.0f;
+    }
+
+    uint width, height, numMips;
+    gShadowMap.GetDimensions(0, width, height, numMips);
+
+    // Texel size.
+    float2 texelSize = float2(1.0f / (float) width, 1.0f / (float) height);
+
+    // 3x3 VSM kernel for soft shadows.
+    float2 offsets[9] =
+    {
+        float2(-1, -1), float2(0, -1), float2(1, -1),
+        float2(-1, 0), float2(0, 0), float2(1, 0),
+        float2(-1, 1), float2(0, 1), float2(1, 1)
+    };
+
+    float shadow = 0.0f;
+    int samples = 9;
+
+    [unroll]
+    for (int i = 0; i < samples; ++i)
+    {
+        float2 uv = shadowPosH.xy + offsets[i] * texelSize;
+        float2 moments = gShadowMap.Sample(gsamLinearClamp, uv).rg;
+        shadow += ChebyshevUpperBound(moments, depth);
+    }
+
+    return shadow / samples;
+}
+
+
+
 */
