@@ -1000,6 +1000,9 @@ void display_message(float x, float y, char text[2048], int r, int g, int b, flo
 	return;
 }
 
+
+void SmoothNormalsNoHash(int start_cnt);
+
 void DrawIndexedItems(int fakel, int vert_index)
 {
 	D3DPRIMITIVETYPE command;
@@ -1103,7 +1106,7 @@ void DrawIndexedItems(int fakel, int vert_index)
 
 			
 		}
-		SmoothNormals(start_cnt);
+		SmoothNormalsNoHash(start_cnt);
 	}
 }
 

@@ -1146,6 +1146,79 @@ void SmoothNormals(int start_cnt) {
 }
 
 
+void SmoothNormalsNoHash(int start_cnt) {
+
+	//Smooth the vertex normals out so the models look less blocky.
+
+	XMVECTOR sum, sumtan, average;
+	XMFLOAT3 x1, xtan, final2, finaltan;
+
+	int scount = 0;
+
+	for (int i = start_cnt; i < cnt; i++) {
+		tracknormal[i] = 0;
+	}
+
+	for (int i = start_cnt; i < cnt; i++) {
+
+		if (tracknormal[i] == 0) {
+			float x = src_v[i].x;
+			float y = src_v[i].y;
+			float z = src_v[i].z;
+
+			scount = 0;
+
+			//GitHub copilot fixed this! AI is the future.
+			//old code: for (int j = start_cnt; j < cnt; j++)
+
+			for (int j = i; j < cnt; j++) {
+				if (tracknormal[j] == 0 && x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
+					//found shared vertex
+					sharedv[scount] = j;
+					scount++;
+				}
+			}
+
+			if (scount > 1) {
+				sum = XMVectorSet(0, 0, 0, 0);
+				sumtan = XMVectorSet(0, 0, 0, 0);
+
+				for (int k = 0; k < scount; k++) {
+					x1.x = src_v[sharedv[k]].nx;
+					x1.y = src_v[sharedv[k]].ny;
+					x1.z = src_v[sharedv[k]].nz;
+					sum = sum + XMLoadFloat3(&x1);
+
+					xtan.x = src_v[sharedv[k]].nmx;
+					xtan.y = src_v[sharedv[k]].nmy;
+					xtan.z = src_v[sharedv[k]].nmz;
+					sumtan = sumtan + XMLoadFloat3(&xtan);
+
+				}
+
+				average = XMVector3Normalize(sum);
+				XMStoreFloat3(&final2, average);
+
+				average = XMVector3Normalize(sumtan);
+				XMStoreFloat3(&finaltan, average);
+
+				for (int k = 0; k < scount; k++) {
+					src_v[sharedv[k]].nx = final2.x;
+					src_v[sharedv[k]].ny = final2.y;
+					src_v[sharedv[k]].nz = final2.z;
+
+					src_v[sharedv[k]].nmx = finaltan.x;
+					src_v[sharedv[k]].nmy = finaltan.y;
+					src_v[sharedv[k]].nmz = finaltan.z;
+
+					tracknormal[sharedv[k]] = 1;
+				}
+			}
+		}
+	}
+}
+
+
 
 void ComputerWeightedAverages(int start_cnt);
 
