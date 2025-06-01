@@ -6,6 +6,9 @@
 #include "GameLogic.hpp"
 #include "Missle.hpp"
 #include "../Common/MathHelper.h"
+#include <cstddef>
+#include <functional>
+#include <unordered_map>
 
 int itemlistcount = 0;
 
@@ -1084,76 +1087,65 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture
 int tracknormal[MAX_NUM_QUADS];
 
 void SmoothNormals(int start_cnt) {
+	// Smooth the vertex normals out so the models look less blocky.
 
-	//Smooth the vertex normals out so the models look less blocky.
+	// Use a hash map to group vertices by position for O(n) performance.
+	// This avoids the O(n^2) nested loop.
+	struct Vec3Key {
+		float x, y, z;
+		bool operator==(const Vec3Key& other) const {
+			// Use a small epsilon to account for floating point inaccuracies.
+			constexpr float eps = 1e-5f;
+			return fabs(x - other.x) < eps && fabs(y - other.y) < eps && fabs(z - other.z) < eps;
+		}
+	};
+	struct Vec3KeyHash {
+		std::size_t operator()(const Vec3Key& k) const {
+			// Simple hash combining
+			std::size_t hx = std::hash<int>()(static_cast<int>(k.x * 10000));
+			std::size_t hy = std::hash<int>()(static_cast<int>(k.y * 10000));
+			std::size_t hz = std::hash<int>()(static_cast<int>(k.z * 10000));
+			return hx ^ (hy << 1) ^ (hz << 2);
+		}
+	};
 
-	XMVECTOR sum, sumtan, average;
-	XMFLOAT3 x1, xtan, final2, finaltan;
+	std::fill(tracknormal + start_cnt, tracknormal + cnt, 0);
 
-	int scount = 0;
-
-	for (int i = start_cnt; i < cnt; i++) {
-		tracknormal[i] = 0;
+	// Map from vertex position to indices
+	std::unordered_map<Vec3Key, std::vector<int>, Vec3KeyHash> vertMap;
+	for (int i = start_cnt; i < cnt; ++i) {
+		Vec3Key key{ src_v[i].x, src_v[i].y, src_v[i].z };
+		vertMap[key].push_back(i);
 	}
 
-	for (int i = start_cnt; i < cnt; i++) {
-
-		if (tracknormal[i] == 0) {
-			float x = src_v[i].x;
-			float y = src_v[i].y;
-			float z = src_v[i].z;
-
-			scount = 0;
-
-			//GitHub copilot fixed this! AI is the future.
-			//old code: for (int j = start_cnt; j < cnt; j++)
-
-			for (int j = i; j < cnt; j++) {
-				if (tracknormal[j] == 0 && x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
-					//found shared vertex
-					sharedv[scount] = j;
-					scount++;
-				}
+	for (const auto& pair : vertMap) {
+		const std::vector<int>& indices = pair.second;
+		if (indices.size() > 1) {
+			XMVECTOR sum = XMVectorZero();
+			XMVECTOR sumtan = XMVectorZero();
+			for (int idx : indices) {
+				XMFLOAT3 n{ src_v[idx].nx, src_v[idx].ny, src_v[idx].nz };
+				sum = XMVectorAdd(sum, XMLoadFloat3(&n));
+				XMFLOAT3 t{ src_v[idx].nmx, src_v[idx].nmy, src_v[idx].nmz };
+				sumtan = XMVectorAdd(sumtan, XMLoadFloat3(&t));
 			}
-
-			if (scount > 1) {
-				sum = XMVectorSet(0, 0, 0, 0);
-				sumtan = XMVectorSet(0, 0, 0, 0);
-
-				for (int k = 0; k < scount; k++) {
-					x1.x = src_v[sharedv[k]].nx;
-					x1.y = src_v[sharedv[k]].ny;
-					x1.z = src_v[sharedv[k]].nz;
-					sum = sum + XMLoadFloat3(&x1);
-
-					xtan.x = src_v[sharedv[k]].nmx;
-					xtan.y = src_v[sharedv[k]].nmy;
-					xtan.z = src_v[sharedv[k]].nmz;
-					sumtan = sumtan + XMLoadFloat3(&xtan);
-
-				}
-
-				average = XMVector3Normalize(sum);
-				XMStoreFloat3(&final2, average);
-
-				average = XMVector3Normalize(sumtan);
-				XMStoreFloat3(&finaltan, average);
-
-				for (int k = 0; k < scount; k++) {
-					src_v[sharedv[k]].nx = final2.x;
-					src_v[sharedv[k]].ny = final2.y;
-					src_v[sharedv[k]].nz = final2.z;
-
-					src_v[sharedv[k]].nmx = finaltan.x;
-					src_v[sharedv[k]].nmy = finaltan.y;
-					src_v[sharedv[k]].nmz = finaltan.z;
-
-					tracknormal[sharedv[k]] = 1;
-				}
+			XMFLOAT3 final2, finaltan;
+			XMStoreFloat3(&final2, XMVector3Normalize(sum));
+			XMStoreFloat3(&finaltan, XMVector3Normalize(sumtan));
+			for (int idx : indices) {
+				src_v[idx].nx = final2.x;
+				src_v[idx].ny = final2.y;
+				src_v[idx].nz = final2.z;
+				src_v[idx].nmx = finaltan.x;
+				src_v[idx].nmy = finaltan.y;
+				src_v[idx].nmz = finaltan.z;
+				tracknormal[idx] = 1;
 			}
 		}
 	}
 }
+
+
 
 void ComputerWeightedAverages(int start_cnt);
 
