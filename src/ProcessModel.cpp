@@ -1109,8 +1109,6 @@ void SmoothNormals(int start_cnt) {
 		}
 	};
 
-	std::fill(tracknormal + start_cnt, tracknormal + cnt, 0);
-
 	// Map from vertex position to indices
 	std::unordered_map<Vec3Key, std::vector<int>, Vec3KeyHash> vertMap;
 	for (int i = start_cnt; i < cnt; ++i) {
@@ -1139,7 +1137,6 @@ void SmoothNormals(int start_cnt) {
 				src_v[idx].nmx = finaltan.x;
 				src_v[idx].nmy = finaltan.y;
 				src_v[idx].nmz = finaltan.z;
-				tracknormal[idx] = 1;
 			}
 		}
 	}
