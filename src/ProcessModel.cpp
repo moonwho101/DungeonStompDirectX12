@@ -9,8 +9,67 @@
 #include <cstddef>
 #include <functional>
 #include <unordered_map>
+#include <vector>
+#include <cmath> // For fmodf, sinf, cosf
+#include <string> // Required for std::string (though not directly used in provided snippet, good for general C++ string ops)
+// <unordered_map> is already included by a previous change.
 
 int itemlistcount = 0;
+
+// Global variables for the texture cycle cache
+static std::unordered_map<int, int> g_texture_cycle_map;
+static bool g_texture_cycle_map_initialized = false;
+
+// Forward declaration for FindTextureAlias if not in an included header
+// Assuming it's declared in one of the included headers like world.hpp or LoadWorld.hpp
+// If not, uncomment the line below:
+// extern int FindTextureAlias(const char* aliasname);
+
+void InitTextureCycleMap() {
+    if (g_texture_cycle_map_initialized) {
+        return;
+    }
+
+    char texname_buffer[200];
+    char base_name_buffer[200];
+    char next_name_buffer[200];
+
+    for (int current_alias_id = 0; current_alias_id < MAX_NUM_TEXTURES; ++current_alias_id) {
+        if (TexMap[current_alias_id].tex_alias_name == nullptr || TexMap[current_alias_id].tex_alias_name[0] == '\0') {
+            continue;
+        }
+
+        strncpy_s(texname_buffer, sizeof(texname_buffer), TexMap[current_alias_id].tex_alias_name, _TRUNCATE);
+
+        char* p_at = strstr(texname_buffer, "@");
+
+        if (p_at != NULL) {
+            int base_name_len = p_at - texname_buffer;
+            strncpy_s(base_name_buffer, sizeof(base_name_buffer), texname_buffer, base_name_len);
+            // strncpy_s might not null-terminate if source is exactly buffer size, ensure null termination.
+            base_name_buffer[base_name_len] = '\0';
+
+            int current_frame_num = atoi(p_at + 1);
+            if (current_frame_num == 0 && *(p_at + 1) != '0') { // Basic atoi error check for non-numeric string
+                continue;
+            }
+            int next_frame_num = current_frame_num + 1;
+
+            sprintf_s(next_name_buffer, sizeof(next_name_buffer), "%s@%d", base_name_buffer, next_frame_num);
+            int next_alias_id = FindTextureAlias(next_name_buffer);
+
+            if (next_alias_id == -1) {
+                sprintf_s(next_name_buffer, sizeof(next_name_buffer), "%s@1", base_name_buffer);
+                next_alias_id = FindTextureAlias(next_name_buffer);
+            }
+
+            if (next_alias_id != -1) {
+                g_texture_cycle_map[current_alias_id] = next_alias_id;
+            }
+        }
+    }
+    g_texture_cycle_map_initialized = true;
+}
 
 void ConvertTraingleStrip(int fan_cnt);
 
@@ -64,6 +123,19 @@ int src_collide[MAX_NUM_QUADS];
 //LPDIRECT3DVERTEXBUFFER9 g_pVBBoundingBox = NULL; // Buffer to hold vertices
 //LPDIRECT3DVERTEXBUFFER9 g_pVBMonsterCaption = NULL; // Buffer to hold vertices
 
+// Trig tables and initialization function
+void InitTrigTables() {
+    static bool tables_initialized = false;
+    if (tables_initialized) {
+        return;
+    }
+    for (int i = 0; i <= 360; ++i) {
+        sin_table[i] = sinf((float)i * k);
+        cos_table[i] = cosf((float)i * k);
+    }
+    tables_initialized = true;
+}
+
 float playerx = 0;
 float playery = 0;
 float playerz = 0;
@@ -88,6 +160,7 @@ void ConvertQuad(int fan_cnt);
 
 void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTEX2& vertex3)
 {
+    const float TANGENT_CALC_EPSILON = 1e-6f;
     float vector1[3], vector2[3];
     float tuVector[2], tvVector[2];
     float den, length;
@@ -111,7 +184,7 @@ void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTE
     // Calculate the denominator of the tangent/binormal equation.
     float result = (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
 
-    if (result == 0) {
+    if (fabsf(result) < TANGENT_CALC_EPSILON) {
         vertex1.nmx = vertex1.nmy = vertex1.nmz = 0;
         vertex2.nmx = vertex2.nmy = vertex2.nmz = 0;
         vertex3.nmx = vertex3.nmy = vertex3.nmz = 0;
@@ -185,11 +258,19 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 	float  wy = oblist[oblist_index].y;
 	float  wz = oblist[oblist_index].z;
 
+	InitTrigTables();
+
 	//float cosine = cos_table[angle];
 	//float sine = sin_table[angle];
 
-	float cosine = (float)cos(angle * k);
-	float sine = (float)sin(angle * k);
+	// Ensure angle is within [0, 360] for table lookup
+	int angle_idx = (int)fmodf(angle, 360.0f);
+	if (angle_idx < 0) angle_idx += 360;
+    // It's possible angle_idx could be 360 if angle is a multiple of 360 (e.g. 360, 720).
+    // The tables are defined as float sin_table[361] and cos_table[361], so index 360 is valid.
+
+	float cosine = cos_table[angle_idx];
+	float sine = sin_table[angle_idx];
 
 	ob_vert_count = 0;
 	poly = num_polys_per_object[ob_type];
@@ -297,8 +378,16 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 			//cosine = cos_table[(int)fDot];
 			//sine = sin_table[(int)fDot];
 
-			cosine = (float)cos(fDot * k);
-			sine = (float)sin(fDot * k);
+			int fDot_idx = (int)fmodf(fDot, 360.0f);
+			if (fDot_idx < 0) fDot_idx += 360;
+            // Clamp fDot_idx to be safe, though fDot from acos should be in a known range.
+            // Max fDot could be 180 + (180 - 0) = 360. Min could be 0.
+            if (fDot_idx > 360) fDot_idx = 360;
+            if (fDot_idx < 0) fDot_idx = 0;
+
+
+			cosine = cos_table[fDot_idx];
+			sine = sin_table[fDot_idx];
 
 			
 		}
@@ -745,12 +834,18 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture
 	}
 
 
+	InitTrigTables();
+
 	//md2 models
 	//float cosine = cos_table[angle];
 	//float sine = sin_table[angle];
 
-	float cosine = (float)cos(angle * k);
-	float sine = (float)sin(angle * k);
+	// Angle is already normalized [0, 359] by this point by preceding code.
+	// if (angle >= 360) angle = angle - 360;
+	// if (angle < 0) angle += 360;
+	// So, direct cast to int is fine.
+	float cosine = cos_table[(int)angle];
+	float sine = sin_table[(int)angle];
 
 	if (curr_frame >= pmdata[pmodel_id].num_frames)
 		curr_frame = 0;
@@ -1143,389 +1238,70 @@ void SmoothNormals(int start_cnt) {
 }
 
 
-void SmoothNormalsNoHash(int start_cnt) {
-
-	//Smooth the vertex normals out so the models look less blocky.
-
-	XMVECTOR sum, sumtan, average;
-	XMFLOAT3 x1, xtan, final2, finaltan;
-
-	int scount = 0;
-
-	for (int i = start_cnt; i < cnt; i++) {
-		tracknormal[i] = 0;
-	}
-
-	for (int i = start_cnt; i < cnt; i++) {
-
-		if (tracknormal[i] == 0) {
-			float x = src_v[i].x;
-			float y = src_v[i].y;
-			float z = src_v[i].z;
-
-			scount = 0;
-
-			//GitHub copilot fixed this! AI is the future.
-			//old code: for (int j = start_cnt; j < cnt; j++)
-
-			for (int j = i; j < cnt; j++) {
-				if (tracknormal[j] == 0 && x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
-					//found shared vertex
-					sharedv[scount] = j;
-					scount++;
-				}
-			}
-
-			if (scount > 1) {
-				sum = XMVectorSet(0, 0, 0, 0);
-				sumtan = XMVectorSet(0, 0, 0, 0);
-
-				for (int k = 0; k < scount; k++) {
-					x1.x = src_v[sharedv[k]].nx;
-					x1.y = src_v[sharedv[k]].ny;
-					x1.z = src_v[sharedv[k]].nz;
-					sum = sum + XMLoadFloat3(&x1);
-
-					xtan.x = src_v[sharedv[k]].nmx;
-					xtan.y = src_v[sharedv[k]].nmy;
-					xtan.z = src_v[sharedv[k]].nmz;
-					sumtan = sumtan + XMLoadFloat3(&xtan);
-
-				}
-
-				average = XMVector3Normalize(sum);
-				XMStoreFloat3(&final2, average);
-
-				average = XMVector3Normalize(sumtan);
-				XMStoreFloat3(&finaltan, average);
-
-				for (int k = 0; k < scount; k++) {
-					src_v[sharedv[k]].nx = final2.x;
-					src_v[sharedv[k]].ny = final2.y;
-					src_v[sharedv[k]].nz = final2.z;
-
-					src_v[sharedv[k]].nmx = finaltan.x;
-					src_v[sharedv[k]].nmy = finaltan.y;
-					src_v[sharedv[k]].nmz = finaltan.z;
-
-					tracknormal[sharedv[k]] = 1;
-				}
-			}
-		}
-	}
-}
-
-
-
-void ComputerWeightedAverages(int start_cnt);
-
-void SmoothNormalsWeighted(int start_cnt) {
-
-	for (int i = 0; i < MAX_NUM_QUADS; i++) {
-		tracknormal[i] = 0;
-	}
-
-	ComputerWeightedAverages(start_cnt);
-
-	//Smooth the vertex normals out so the models look less blocky.
-	int scount = 0;
-
-	for (int i = start_cnt; i < cnt; i++) {
-		if (tracknormal[i] == 0) {
-			float x = src_v[i].x;
-			float y = src_v[i].y;
-			float z = src_v[i].z;
-
-			scount = 0;
-
-			for (int j = start_cnt; j < cnt; j++) {
-				//if (i != j) {
-				if (tracknormal[j] == 0 && x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
-
-					//if (src_v[j].weight < 45.0f) {
-						//found shared vertex
-					sharedv[scount] = j;
-					scount++;
-					//}
-				}
-				//}
-			}
-
-			if (scount > 0) {
-				XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
-				XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
-
-				XMFLOAT3 x1, xtan;
-				XMVECTOR average;
-
-				XMVECTOR work = XMVectorSet(0, 0, 0, 0);
-
-				XMFLOAT3 finalweight;
-
-				float weight = 0;
-				float area = 0;
-
-				for (int k = 0; k < scount; k++) {
-
-					weight = src_v[sharedv[k]].weight;
-					area = src_v[sharedv[k]].area;
-
-					if (weight > 90.0f) {
-						int a = 1;
-					}
-
-					//weight = (float)acos(weight) / (float)0.017453292;;
-
-					work = XMVectorSet(src_v[sharedv[k]].nx, src_v[sharedv[k]].ny, src_v[sharedv[k]].nz, 0);
-					work = work * (weight * area);
-					//work = XMVector3Normalize(work);
-					XMStoreFloat3(&finalweight, work);
-
-					x1.x = finalweight.x;
-					x1.y = finalweight.y;
-					x1.z = finalweight.z;
-
-					//x1.x = src_v[sharedv[k]].nx;
-					//x1.y = src_v[sharedv[k]].ny;
-					//x1.z = src_v[sharedv[k]].nz;
-					sum = sum + XMLoadFloat3(&x1);
-
-
-					work = XMVectorSet(src_v[sharedv[k]].nmx, src_v[sharedv[k]].nmy, src_v[sharedv[k]].nmz, 0);
-					work = work * (weight * area);
-					//work = XMVector3Normalize(work);
-					XMStoreFloat3(&finalweight, work);
-
-					xtan.x = finalweight.x;
-					xtan.y = finalweight.y;
-					xtan.z = finalweight.z;
-					sumtan = sumtan + XMLoadFloat3(&xtan);
-				}
-
-				//sum = sum / (float)scount;
-
-				XMFLOAT3 final2, finaltan;
-
-				average = XMVector3Normalize(sum);
-				XMStoreFloat3(&final2, average);
-
-				average = XMVector3Normalize(sumtan);
-				XMStoreFloat3(&finaltan, average);
-
-
-				for (int k = 0; k < scount; k++) {
-					src_v[sharedv[k]].nx = final2.x;
-					src_v[sharedv[k]].ny = final2.y;
-					src_v[sharedv[k]].nz = final2.z;
-
-					src_v[sharedv[k]].nmx = finaltan.x;
-					src_v[sharedv[k]].nmy = finaltan.y;
-					src_v[sharedv[k]].nmz = finaltan.z;
-
-					tracknormal[sharedv[k]] = 1;
-				}
-			}
-		}
-	}
-}
-
-
-void ComputerWeightedAverages(int start_cnt) {
-
-	int count = 0;
-
-	XMFLOAT3 vw1, vw2, vw3;
-
-	XMVECTOR P1, P2;
-	XMVECTOR vDiff;
-	XMVECTOR vDiff2;
-
-	XMVECTOR final;
-	XMVECTOR final2;
-	XMVECTOR fDotVector;
-	float fDot;
-
-	for (int i = start_cnt; i < cnt; i = i + 3) {
-
-		vw1.x = src_v[i].x;
-		vw1.y = src_v[i].y;
-		vw1.z = src_v[i].z;
-		//vw1.x = 0.0f;
-		//vw1.y = 0;
-		//vw1.z = 0;
-
-		vw2.x = src_v[i + 1].x;
-		vw2.y = src_v[i + 1].y;
-		vw2.z = src_v[i + 1].z;
-		//vw2.x = 0;
-		//vw2.y = 0;
-		//vw2.z = 50.0f;
-
-		vw3.x = src_v[i + 2].x;
-		vw3.y = src_v[i + 2].y;
-		vw3.z = src_v[i + 2].z;
-		//vw3.x = 50.0f;
-		//vw3.y = 0;
-		//vw3.z = 0;
-
-		// v1, v2, v3 are the vertices of face A
-		//if face B shares v1 {
-		//	angle = angle_between_vectors(v1 - v2, v1 - v3)
-		//		n += (face B facet normal) * (face B surface area) * angle // multiply by angle
-		//}
-		//if face B shares v2 {
-		//	angle = angle_between_vectors(v2 - v1, v2 - v3)
-		//		n += (face B facet normal) * (face B surface area) * angle // multiply by angle
-		//}
-		//if face B shares v3 {
-		//	angle = angle_between_vectors(v3 - v1, v3 - v2)
-		//		n += (face B facet normal) * (face B surface area) * angle // multiply by angle
-		//}
-
-
-
-		//VW1
-		P1 = XMLoadFloat3(&vw1);
-		P2 = XMLoadFloat3(&vw2);
-		vDiff = P1 - P2;
-
-		final = XMVector3Normalize(vDiff);
-
-		P1 = XMLoadFloat3(&vw1);
-		P2 = XMLoadFloat3(&vw3);
-		vDiff2 = P1 - P2;
-		final2 = XMVector3Normalize(vDiff2);
-
-
-		fDotVector = XMVector3Dot(final, final2);
-		fDot = XMVectorGetX(fDotVector);
-		fDot = MathHelper::Clamp(fDot, -0.99999f, 0.99999f);
-
-
-		fDot = (float)acos(fDot) / k;
-
-
-		XMVECTOR vCross = XMVector3Cross(vDiff, vDiff2);
-		XMFLOAT3 finalCross;
-		XMStoreFloat3(&finalCross, vCross);
-
-		//Set the area of the triangle
-		src_v[i].area = .5f * sqrtf(fabsf(powf(finalCross.x,2.0f) ) + fabsf(powf(finalCross.y,2.0f)) + fabsf(powf(finalCross.z , 2.0f)));
-		src_v[i + 1].area = src_v[i].area;
-		src_v[i + 2].area = src_v[i].area;
-
-		src_v[i].weight = fabsf(fDot);
-
-		//VW2
-		P1 = XMLoadFloat3(&vw2);
-		P2 = XMLoadFloat3(&vw1);
-		vDiff = P1 - P2;
-
-		final = XMVector3Normalize(vDiff);
-
-		P1 = XMLoadFloat3(&vw2);
-		P2 = XMLoadFloat3(&vw3);
-		vDiff2 = P1 - P2;
-		final2 = XMVector3Normalize(vDiff2);
-
-		fDotVector = XMVector3Dot(final, final2);
-		fDot = XMVectorGetX(fDotVector);
-		fDot = MathHelper::Clamp(fDot, -0.99999f, 0.99999f);
-		fDot = (float)acos(fDot) / k;
-
-		vCross = XMVector3Cross(vDiff, vDiff2);
-		finalCross;
-		XMStoreFloat3(&finalCross, vCross);
-		//src_v[i + 1].area = .05f * sqrtf(fabsf(finalCross.x) + fabsf(finalCross.y) + fabsf(finalCross.z));
-
-		src_v[i + 1].weight = fabsf(fDot);
-
-		//VW3
-		P1 = XMLoadFloat3(&vw3);
-		P2 = XMLoadFloat3(&vw1);
-		vDiff = P1 - P2;
-
-		final = XMVector3Normalize(vDiff);
-
-		P1 = XMLoadFloat3(&vw3);
-		P2 = XMLoadFloat3(&vw2);
-		vDiff2 = P1 - P2;
-		final2 = XMVector3Normalize(vDiff2);
-
-
-		fDotVector = XMVector3Dot(final, final2);
-		fDot = XMVectorGetX(fDotVector);
-		fDot = MathHelper::Clamp(fDot, -0.99999f, 0.99999f);
-		fDot = (float)acos(fDot) / k;
-
-		vCross = XMVector3Cross(vDiff, vDiff2);
-		finalCross;
-		XMStoreFloat3(&finalCross, vCross);
-		//src_v[i +2].area = .05f * sqrtf(fabsf(finalCross.x) + fabsf(finalCross.y) + fabsf(finalCross.z));
-		src_v[i + 2].weight = fabsf(fDot);
-	}
-}
-
-
-
 void ConvertTraingleFan(int fan_cnt) {
-    int counter = 0;
+    // Number of vertices in the original fan.
+    // The original vertices are from src_v[fan_cnt] to src_v[cnt - 1].
+    int original_fan_vertex_count = cnt - fan_cnt;
 
-    for (int i = fan_cnt; i < cnt; i++) {
-        if (counter < 3) {
-            temp_v[counter] = src_v[i];
-            counter++;
-        } else {
-            temp_v[counter] = src_v[fan_cnt];
-            counter++;
-            temp_v[counter] = src_v[i - 1];
-            counter++;
-            temp_v[counter] = src_v[i];
-            counter++;
-        }
+    if (original_fan_vertex_count < 3) {
+        // Not enough vertices to form a triangle, so do nothing.
+        // or handle as an error, depending on expected behavior.
+        return;
     }
 
-    int normal = 0;
-
-    for (int i = 0; i < counter; i++) {
-        src_v[fan_cnt + i] = temp_v[i];
-
-        if (normal == 2) {
-            normal = 0;
-            XMFLOAT3 vw1 = {src_v[(fan_cnt + i) - 2].x, src_v[(fan_cnt + i) - 2].y, src_v[(fan_cnt + i) - 2].z};
-            XMFLOAT3 vw2 = {src_v[(fan_cnt + i) - 1].x, src_v[(fan_cnt + i) - 1].y, src_v[(fan_cnt + i) - 1].z};
-            XMFLOAT3 vw3 = {src_v[(fan_cnt + i)].x, src_v[(fan_cnt + i)].y, src_v[(fan_cnt + i)].z};
-
-            XMVECTOR vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
-            XMVECTOR vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
-            XMVECTOR vCross = XMVector3Cross(vDiff, vDiff2);
-            XMVECTOR final = XMVector3Normalize(vCross);
-
-            XMFLOAT3 final2;
-            XMStoreFloat3(&final2, final);
-
-            float workx = -final2.x;
-            float worky = -final2.y;
-            float workz = -final2.z;
-
-            src_v[(fan_cnt + i) - 2].nx = workx;
-            src_v[(fan_cnt + i) - 2].ny = worky;
-            src_v[(fan_cnt + i) - 2].nz = workz;
-
-            src_v[(fan_cnt + i) - 1].nx = workx;
-            src_v[(fan_cnt + i) - 1].ny = worky;
-            src_v[(fan_cnt + i) - 1].nz = workz;
-
-            src_v[(fan_cnt + i)].nx = workx;
-            src_v[(fan_cnt + i)].ny = worky;
-            src_v[(fan_cnt + i)].nz = workz;
-
-            CalculateTangentBinormal(src_v[(fan_cnt + i) - 2], src_v[(fan_cnt + i) - 1], src_v[(fan_cnt + i)]);
-        } else {
-            normal++;
-        }
+    // Store the original fan vertices locally since src_v will be overwritten.
+    // Using a std::vector for safety and dynamic sizing, though a C-style array
+    // could be used if the maximum size is known and small enough for the stack.
+    std::vector<D3DVERTEX2> original_fan_vertices(original_fan_vertex_count);
+    for (int i = 0; i < original_fan_vertex_count; ++i) {
+        original_fan_vertices[i] = src_v[fan_cnt + i];
     }
-    cnt = fan_cnt + counter;
+
+    int current_write_idx = fan_cnt;
+    D3DVERTEX2 pivot_vertex = original_fan_vertices[0];
+
+    // Iterate to form triangles: (pivot, v[i], v[i+1])
+    for (int i = 1; i < original_fan_vertex_count - 1; ++i) {
+        src_v[current_write_idx] = pivot_vertex;
+        src_v[current_write_idx + 1] = original_fan_vertices[i];
+        src_v[current_write_idx + 2] = original_fan_vertices[i + 1];
+
+        // Calculate normals and tangents for the newly created triangle
+        XMFLOAT3 vw1 = {src_v[current_write_idx].x, src_v[current_write_idx].y, src_v[current_write_idx].z};
+        XMFLOAT3 vw2 = {src_v[current_write_idx + 1].x, src_v[current_write_idx + 1].y, src_v[current_write_idx + 1].z};
+        XMFLOAT3 vw3 = {src_v[current_write_idx + 2].x, src_v[current_write_idx + 2].y, src_v[current_write_idx + 2].z};
+
+        XMVECTOR vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
+        XMVECTOR vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
+        XMVECTOR vCross = XMVector3Cross(vDiff, vDiff2);
+        XMVECTOR final_normal_vec = XMVector3Normalize(vCross);
+
+        XMFLOAT3 final_normal_float3;
+        XMStoreFloat3(&final_normal_float3, final_normal_vec);
+
+        float norm_x = -final_normal_float3.x;
+        float norm_y = -final_normal_float3.y;
+        float norm_z = -final_normal_float3.z;
+
+        src_v[current_write_idx].nx = norm_x;
+        src_v[current_write_idx].ny = norm_y;
+        src_v[current_write_idx].nz = norm_z;
+
+        src_v[current_write_idx + 1].nx = norm_x;
+        src_v[current_write_idx + 1].ny = norm_y;
+        src_v[current_write_idx + 1].nz = norm_z;
+
+        src_v[current_write_idx + 2].nx = norm_x;
+        src_v[current_write_idx + 2].ny = norm_y;
+        src_v[current_write_idx + 2].nz = norm_z;
+
+        CalculateTangentBinormal(src_v[current_write_idx], src_v[current_write_idx + 1], src_v[current_write_idx + 2]);
+
+        current_write_idx += 3;
+    }
+
+    // Update the global vertex count
+    cnt = current_write_idx;
 }
 
 void ConvertTraingleStrip(int fan_cnt) {
@@ -2022,12 +1798,24 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, float angle, int 
 	if (curr_frame >= pmdata[pmodel_id].num_frames)
 		curr_frame = 0;
 
+	InitTrigTables();
+
 	curr_frame = 0;
 	//float cosine = cos_table[angle];
 	//float sine = sin_table[angle];
 
-	float cosine = (float)cos(angle * k);
-	float sine = (float)sin(angle * k);
+	// Add angle normalization for safety, similar to PlayerToD3DVertList,
+	// though it's not explicitly in the original code for this function.
+	if (angle >= 360.0f) angle = fmodf(angle, 360.0f); // Use fmodf for precision with floats
+	else if (angle < 0.0f) angle = fmodf(angle, 360.0f) + 360.0f;
+    // Ensure angle is precisely within table bounds after fmodf if it's 360.0
+    int angle_lookup = (int)angle;
+    if (angle_lookup > 360) angle_lookup = 360;
+    if (angle_lookup < 0) angle_lookup = 0;
+
+
+	float cosine = cos_table[angle_lookup];
+	float sine = sin_table[angle_lookup];
 
 	i_count = 0;
 	face_i_count = 0;
@@ -2354,54 +2142,26 @@ int FindGunTexture(char* p)
 	return 0;
 }
 
-int CycleBitMap(int i)
-{
+int CycleBitMap(int i) {
+    InitTextureCycleMap(); // Ensure map is initialized
 
-	char texname[200];
-	char junk[200];
-	char junk2[200];
+    if (i < 0 || i >= MAX_NUM_TEXTURES || TexMap[i].tex_alias_name == nullptr) {
+         return -1; // Invalid input alias
+    }
 
-	char* p;
-	int talias;
-	int tnum;
-	int num = 0;
-	int count = 0;
-	int result;
+    // This check is important: if the original texture name doesn't have "@",
+    // it shouldn't be processed by this cycling logic, even if it accidentally ended up in the map
+    // (which it shouldn't if InitTextureCycleMap is correct).
+    if (strstr(TexMap[i].tex_alias_name, "@") == NULL) {
+        return -1;
+    }
 
-	talias = i;
+    auto it = g_texture_cycle_map.find(i);
+    if (it != g_texture_cycle_map.end()) {
+        return it->second; // Return precomputed next frame ID
+    }
 
-	strcpy_s(texname, TexMap[talias].tex_alias_name);
-
-	p = strstr(texname, "@");
-
-	if (p != NULL)
-	{
-		if (maingameloop2 == 0)
-			return FindTextureAlias(texname);
-		strcpy_s(junk, p + 1);
-
-		while (texname[num] != '@')
-			junk2[count++] = texname[num++];
-
-		junk2[count] = '\0';
-
-		tnum = atoi(junk);
-
-		tnum++;
-
-		sprintf_s(junk, "%s@%d", junk2, tnum);
-
-		result = FindTextureAlias(junk);
-		if (result == -1)
-		{
-			sprintf_s(junk, "%s@1", junk2);
-			result = FindTextureAlias(junk);
-		}
-
-		return result;
-	}
-
-	return -1;
+    return -1;
 }
 
 /*
