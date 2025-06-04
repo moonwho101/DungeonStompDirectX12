@@ -2,6 +2,16 @@
 // LightingUtil.hlsl by Frank Luna (C) 2015 All Rights Reserved.
 // Modified by Mark Longo 2020
 // Contains API for shader lighting.
+//
+// NOTE: The PBR shader (PBR.hlsl) contains its own more up-to-date lighting
+// functions and material structures. The functions in this file (BlinnPhong,
+// ComputeDirectionalLight, ComputePointLight, ComputeSpotLight, and the Material struct)
+// should be considered legacy or for non-PBR rendering paths.
+//***************************************************************************************
+//***************************************************************************************
+// LightingUtil.hlsl by Frank Luna (C) 2015 All Rights Reserved.
+// Modified by Mark Longo 2020
+// Contains API for shader lighting.
 //***************************************************************************************
 
 #define MaxLights 31
@@ -167,5 +177,3 @@ float4 ComputeLighting(Light gLights[MaxLights], Material mat,
 
     return float4(result, 0.0f);
 }
-
-

@@ -165,14 +165,13 @@ float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 t
 //---------------------------------------------------------------------------------------
 float3 ComputeDirectionalLight(Light L, Material mat, float3 normal, float3 toEye)
 {
-    // The light vector aims opposite the direction the light rays travel.
-    float3 lightVec = -L.Direction;
-
-    // Scale light down by Lambert's cosine law.
-    float ndotl = max(dot(lightVec, normal), 0.0f);
-    float3 lightStrength = L.Strength * ndotl;
-
-    return BlinnPhong(lightStrength, lightVec, normal, toEye, mat);
+	float3 N = normalize(normal);
+	float3 V = normalize(toEye);
+	float3 Ld = normalize(-L.Direction);
+	float3 albedo = mat.DiffuseAlbedo.rgb;
+	float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, mat.Metallic);
+	float attenuation = 1.0;
+	return PBRLighting(albedo, N, V, Ld, F0, mat.Roughness, mat.Metallic, L.Strength, attenuation);
 }
 
 // Modernized ComputePointLight
@@ -187,7 +186,7 @@ float3 ComputePointLight(Light L, Material mat, float3 pos, float3 normal, float
     float3 V = normalize(toEye);
 
     float3 albedo = mat.DiffuseAlbedo.rgb;
-    float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), albedo, 1.0f);
+    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, mat.Metallic);
     float attenuation = CalcAttenuation(d, L.FalloffStart, L.FalloffEnd);
 
     return PBRLighting(albedo, N, V, Ld, F0, mat.Roughness, mat.Metallic, L.Strength, attenuation);
@@ -206,7 +205,7 @@ float3 ComputeSpotLight(Light L, Material mat, float3 pos, float3 normal, float3
     float3 V = normalize(toEye);
 
     float3 albedo = mat.DiffuseAlbedo.rgb;
-    float3 F0 = lerp(float3(1.04f, 1.04f, 1.04f), albedo, 1.0f);
+    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, mat.Metallic);
     float attenuation = CalcAttenuation(d, L.FalloffStart, L.FalloffEnd);
 
     // Spot factor
@@ -227,7 +226,7 @@ float4 ComputeLighting(Light gLights[MaxLights], Material mat,
 #if (NUM_DIR_LIGHTS > 0)
     for(i = 0; i < NUM_DIR_LIGHTS; ++i)
     {
-        result += shadowFactor[0] * ComputeDirectionalLight(gLights[i], mat, pos, normal, toEye);
+        result += shadowFactor[0] * ComputeDirectionalLight(gLights[i], mat, normal, toEye);
     }
 #endif
 
@@ -244,10 +243,6 @@ float4 ComputeLighting(Light gLights[MaxLights], Material mat,
         result += shadowFactor[0] * ComputeSpotLight(gLights[i], mat, pos, normal, toEye);
     }
 #endif 
-
-    // Optional: Tone mapping and gamma correction
-    // result = result / (result + 1.0f); // simple Reinhard tone mapping
-    // result = LinearToSRGB(result);
 
     return float4(result, 0.0f);
 }
@@ -530,11 +525,27 @@ float4 PS(VertexOut pin) : SV_Target
     ambientAccess = gSsaoMap.Sample(gsamLinearClamp, pin.SsaoPosH.xy, 0.0f).r;
 #endif
     // Light terms.
-    float4 ambient = ambientAccess * gAmbientLight * diffuseAlbedo;
+    // Calculate kD for ambient lighting for energy conservation with specular counterparts.
+    // fresnelR0 is the F0 for the material (initialized from gFresnelR0 cbuffer variable).
+    // gMetal is the metallic property (from gMetal cbuffer variable in cbMaterial).
+
+    // kS_ambient_factor represents the fraction of light reflected specularly at normal incidence.
+    float3 kS_ambient_factor = fresnelR0;
+
+    // kD_ambient_factor is the fraction of light that is not specularly reflected (1-kS)
+    // and is further reduced for metals (multiplied by (1-metallic)).
+    // For metals (gMetal=1), kD_ambient_factor becomes 0.
+    // For dielectrics (gMetal=0), kD_ambient_factor becomes (1-fresnelR0).
+    float3 kD_ambient_factor = (1.0f - kS_ambient_factor) * (1.0f - gMetal);
+
+    // Apply kD_ambient_factor to diffuseAlbedo.rgb when calculating ambient light.
+    // ambientAccess is from SSAO map or 1.0.
+    // gAmbientLight is the scene's ambient light color.
+    float4 ambient = ambientAccess * gAmbientLight * float4(diffuseAlbedo.rgb * kD_ambient_factor, diffuseAlbedo.a);
 
 
-    const float shininess = (1.0f - roughness) * (normalMapSample.a * 1.0f);
-    Material mat = { diffuseAlbedo, gFresnelR0, shininess, gRoughness, gMetal };
+    float placeholderShininess = (1.0f - roughness) * 255.0f; // Use local 'roughness'
+    Material mat = { diffuseAlbedo, fresnelR0, placeholderShininess, roughness, gMetal };
     
     //float3 shadowFactor = 1.0f;
 
@@ -553,17 +564,51 @@ float4 PS(VertexOut pin) : SV_Target
 
     float4 litColor = ambient + directLight;
 
-    // Add in specular reflections.
-    float3 r = reflect(-toEyeW, bumpedNormalW);
-    //float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
-    float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
-    litColor.rgb += shininess * fresnelFactor; // *reflectionColor.rgb;
+    // IBL Specular Contribution
+    // N is the surface normal (after normal mapping)
+    // V is the view vector (vector from surface point to eye)
+    float3 N_ibl = bumpedNormalW; // Already normalized from earlier calculations
+    float3 V_ibl = toEyeW;      // Already normalized from earlier calculations
+
+    float3 R_ibl = reflect(-V_ibl, N_ibl); // Reflection vector
+
+    // TODO: Sample pre-filtered specular cubemap at appropriate mip level based on roughness.
+    // For now, sample LOD 0 of gCubeMap. A roughness value of 0 would sample LOD 0.
+    // A higher roughness would sample a higher (blurrier) mip level.
+    // Example for future: float mipLevel = roughness * MAX_REFLECTION_MIP;
+    // Ensure gCubeMap is the correct texture resource for reflections.
+    float4 reflectionSample = gCubeMap.SampleLevel(gsamLinearWrap, R_ibl, 0.0f); // Using LOD 0 for now
+
+    // Fresnel term for specular IBL. F0 is from material's fresnelR0.
+    // fresnelR0 is already available in the shader, initialized from gFresnelR0.
+    float NdotV_ibl = max(dot(N_ibl, V_ibl), 0.0001f); // cosTheta for Fresnel; add epsilon
+
+    // The FresnelSchlick function is already defined in PBR.hlsl
+    // float3 FresnelSchlick(float cosTheta, float3 F0)
+    float3 F_ibl = FresnelSchlick(NdotV_ibl, fresnelR0);
+
+    float3 specularContributionIBL = reflectionSample.rgb * F_ibl;
+
+    litColor.rgb += specularContributionIBL;
     
 
 #ifdef FOG
     float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
     litColor = lerp(litColor, gFogColor, fogAmount);
 #endif
+
+    // --- Tone Mapping and Gamma Correction ---
+
+    // Apply Tone Mapping (simple Reinhard)
+    // This maps HDR colors to a displayable LDR range.
+    litColor.rgb = litColor.rgb / (litColor.rgb + 1.0f);
+
+    // Apply Gamma Correction (Linear to sRGB)
+    // This converts linear color space values to sRGB color space for correct display.
+    // The LinearToSRGB function is assumed to be defined in Common.hlsl or PBR.hlsl.
+    litColor.rgb = LinearToSRGB(litColor.rgb);
+
+    // --- End of Tone Mapping and Gamma Correction ---
 
     // Common convention to take alpha from diffuse albedo.
     litColor.a = diffuseAlbedo.a;
