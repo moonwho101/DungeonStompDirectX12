@@ -1529,66 +1529,62 @@ void ConvertTraingleFan(int fan_cnt) {
 }
 
 void ConvertTraingleStrip(int fan_cnt) {
-    int counter = 0;
-    int v = 0;
+	int counter = 0;
+	int v = 0;
 
-    for (int i = fan_cnt; i < cnt; i++) {
-        if (counter < 3) {
-            temp_v[counter] = src_v[i];
-            counter++;
-        } else {
-            if (v == 0) {
-                temp_v[counter++] = src_v[i];
-                temp_v[counter++] = src_v[i - 1];
-                temp_v[counter++] = src_v[i - 2];
-                v = 1;
-            } else {
-                temp_v[counter++] = src_v[i - 2];
-                temp_v[counter++] = src_v[i - 1];
-                temp_v[counter++] = src_v[i];
-                v = 0;
-            }
-        }
-    }
+	// Combine loops to reduce redundant operations
+	for (int i = fan_cnt; i < cnt; i++) {
+		if (counter < 3) {
+			temp_v[counter++] = src_v[i];
+		}
+		else {
+			if (v == 0) {
+				temp_v[counter++] = src_v[i];
+				temp_v[counter++] = src_v[i - 1];
+				temp_v[counter++] = src_v[i - 2];
+				v = 1;
+			}
+			else {
+				temp_v[counter++] = src_v[i - 2];
+				temp_v[counter++] = src_v[i - 1];
+				temp_v[counter++] = src_v[i];
+				v = 0;
+			}
+		}
+	}
 
-    for (int i = 0; i < counter; i++) {
-        src_v[fan_cnt + i] = temp_v[i];
-    }
+	// Directly process vertices without intermediate copying
+	for (int i = 0; i < counter; i += 3) {
+		XMFLOAT3 vw1 = { temp_v[i].x, temp_v[i].y, temp_v[i].z };
+		XMFLOAT3 vw2 = { temp_v[i + 1].x, temp_v[i + 1].y, temp_v[i + 1].z };
+		XMFLOAT3 vw3 = { temp_v[i + 2].x, temp_v[i + 2].y, temp_v[i + 2].z };
 
-    for (int i = 0; i < counter; i += 3) {
-        XMFLOAT3 vw1 = {src_v[fan_cnt + i].x, src_v[fan_cnt + i].y, src_v[fan_cnt + i].z};
-        XMFLOAT3 vw2 = {src_v[fan_cnt + i + 1].x, src_v[fan_cnt + i + 1].y, src_v[fan_cnt + i + 1].z};
-        XMFLOAT3 vw3 = {src_v[fan_cnt + i + 2].x, src_v[fan_cnt + i + 2].y, src_v[fan_cnt + i + 2].z};
+		XMVECTOR vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
+		XMVECTOR vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
+		XMVECTOR vCross = XMVector3Cross(vDiff, vDiff2);
+		XMVECTOR final = XMVector3Normalize(vCross);
 
-        XMVECTOR vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
-        XMVECTOR vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
-        XMVECTOR vCross = XMVector3Cross(vDiff, vDiff2);
-        XMVECTOR final = XMVector3Normalize(vCross);
+		XMFLOAT3 final2;
+		XMStoreFloat3(&final2, final);
 
-        XMFLOAT3 final2;
-        XMStoreFloat3(&final2, final);
+		float workx = -final2.x;
+		float worky = -final2.y;
+		float workz = -final2.z;
 
-        float workx = -final2.x;
-        float worky = -final2.y;
-        float workz = -final2.z;
+		for (int j = 0; j < 3; j++) {
+			temp_v[i + j].nx = workx;
+			temp_v[i + j].ny = worky;
+			temp_v[i + j].nz = workz;
+		}
 
-        src_v[fan_cnt + i].nx = workx;
-        src_v[fan_cnt + i].ny = worky;
-        src_v[fan_cnt + i].nz = workz;
+		CalculateTangentBinormal(temp_v[i], temp_v[i + 1], temp_v[i + 2]);
+	}
 
-        src_v[fan_cnt + i + 1].nx = workx;
-        src_v[fan_cnt + i + 1].ny = worky;
-        src_v[fan_cnt + i + 1].nz = workz;
-
-        src_v[fan_cnt + i + 2].nx = workx;
-        src_v[fan_cnt + i + 2].ny = worky;
-        src_v[fan_cnt + i + 2].nz = workz;
-
-        CalculateTangentBinormal(src_v[fan_cnt + i], src_v[fan_cnt + i + 1], src_v[fan_cnt + i + 2]);
-    }
-
-    cnt = fan_cnt + counter;
+	// Update src_v in bulk
+	std::copy(temp_v, temp_v + counter, src_v + fan_cnt);
+	cnt = fan_cnt + counter;
 }
+
 
 void ConvertQuad(int fan_cnt) {
     int counter = 0;
