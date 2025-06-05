@@ -163,16 +163,26 @@ float3 BlinnPhong(float3 lightStrength, float3 lightVec, float3 normal, float3 t
 //---------------------------------------------------------------------------------------
 // Evaluates the lighting equation for directional lights.
 //---------------------------------------------------------------------------------------
-float3 ComputeDirectionalLight(Light L, Material mat, float3 normal, float3 toEye)
+float3 ComputeDirectionalLight(Light L, Material mat, float3 pos, float3 normal, float3 toEye)
 {
     // The light vector aims opposite the direction the light rays travel.
-    float3 lightVec = -L.Direction;
+    float3 lightVec = -L.Direction; // This is Ld in PBRLighting
 
-    // Scale light down by Lambert's cosine law.
-    float ndotl = max(dot(lightVec, normal), 0.0f);
-    float3 lightStrength = L.Strength * ndotl;
+    // For directional lights, attenuation is 1.0 (no falloff)
+    float attenuation = 1.0f;
 
-    return BlinnPhong(lightStrength, lightVec, normal, toEye, mat);
+    float3 N = normalize(normal);
+    float3 V = normalize(toEye);
+
+    // Get albedo from material
+    float3 albedo = mat.DiffuseAlbedo.rgb;
+
+    // For dielectrics, F0 is typically (0.04, 0.04, 0.04). For metals, it's the albedo.
+    // We can lerp based on metallic property.
+    float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), albedo, mat.Metallic);
+
+
+    return PBRLighting(albedo, N, V, lightVec, F0, mat.Roughness, mat.Metallic, L.Strength, attenuation);
 }
 
 // Modernized ComputePointLight
@@ -187,7 +197,7 @@ float3 ComputePointLight(Light L, Material mat, float3 pos, float3 normal, float
     float3 V = normalize(toEye);
 
     float3 albedo = mat.DiffuseAlbedo.rgb;
-    float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), albedo, 1.0f);
+    float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), albedo, mat.Metallic);
     float attenuation = CalcAttenuation(d, L.FalloffStart, L.FalloffEnd);
 
     return PBRLighting(albedo, N, V, Ld, F0, mat.Roughness, mat.Metallic, L.Strength, attenuation);
@@ -206,7 +216,7 @@ float3 ComputeSpotLight(Light L, Material mat, float3 pos, float3 normal, float3
     float3 V = normalize(toEye);
 
     float3 albedo = mat.DiffuseAlbedo.rgb;
-    float3 F0 = lerp(float3(1.04f, 1.04f, 1.04f), albedo, 1.0f);
+    float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), albedo, mat.Metallic);
     float attenuation = CalcAttenuation(d, L.FalloffStart, L.FalloffEnd);
 
     // Spot factor
@@ -264,7 +274,7 @@ float4 ComputeLighting2(Light gLights[MaxLights], Material mat,
 #if (NUM_DIR_LIGHTS > 0)
     for(i = 0; i < NUM_DIR_LIGHTS; ++i)
     {
-        result += shadowFactor[0] * ComputeDirectionalLight(gLights[i], mat, normal, toEye);
+        result += shadowFactor[0] * ComputeDirectionalLight(gLights[i], mat, pos, normal, toEye);
     }
 #endif
 
