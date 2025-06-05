@@ -148,6 +148,28 @@ bool DungeonStompApp::Initialize()
 	// to query this information.
 	mCbvSrvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
+	// Check for DXR support
+	if (SUCCEEDED(md3dDevice->QueryInterface(IID_PPV_ARGS(&mdxrDevice))))
+	{
+		D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5 = {};
+		ThrowIfFailed(mdxrDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)));
+		mRaytracingTier = options5.RaytracingTier;
+
+		if (mRaytracingTier < D3D12_RAYTRACING_TIER_1_0)
+		{
+			OutputDebugString(L"Raytracing Tier 1.0 is not supported on this device. DXR will be disabled.\n");
+			mdxrDevice.Reset(); // Release the DXR device interface if not supported
+		}
+		else
+		{
+			OutputDebugString(L"Raytracing Tier 1.0 or higher is supported.\n");
+		}
+	}
+	else
+	{
+		OutputDebugString(L"Failed to query ID3D12Device5 interface. DXR will be disabled.\n");
+	}
+
 	mDungeon = std::make_unique<Dungeon>(128, 128, 1.0f, 0.03f, 4.0f, 0.2f);
 
 	mShadowMap = std::make_unique<ShadowMap>(md3dDevice.Get(), 2048, 2048);
@@ -169,6 +191,45 @@ bool DungeonStompApp::Initialize()
 	BuildFrameResources();
 	BuildPSOs();
 	mSsao->SetPSOs(mPSOs["ssao"].Get(), mPSOs["ssaoBlur"].Get());
+
+	if (mdxrDevice) // Check if DXR is supported
+	{
+		BuildDxrOutputTexture();
+		BuildDxrPipeline(); // Global root signature is created here.
+		BuildShaderBindingTable();
+
+		// Build Acceleration Structures
+		// BLAS - iterate through all loaded geometries
+		for (auto& geoPair : mGeometries)
+		{
+			// Ensure the geometry has valid GPU buffers. Some might be dynamic or not used for rendering.
+			if (geoPair.second->VertexBufferGPU && geoPair.second->IndexBufferGPU && geoPair.second->VertexBufferByteSize > 0 && geoPair.second->IndexBufferByteSize > 0)
+			{
+				// Skip "waterGeo" for now as it's dynamically updated and might cause issues if not handled carefully for DXR.
+				// Also, its vertex count in FrameResource is MAX_NUM_QUADS, which might not match actual drawn vertices.
+				if (geoPair.first != "waterGeo")
+				{
+					BuildBottomLevelAS(geoPair.first, geoPair.second.get());
+				}
+			}
+		}
+
+		// TLAS - build with all relevant render items
+		// Create a temporary list of RenderItem pointers for BuildTopLevelAS
+		// Filter out items that don't have a BLAS (e.g. waterGeo if skipped)
+		std::vector<RenderItem*> rItemsForTlas;
+		for(const auto& ri : mAllRitems)
+		{
+			if (ri->Geo && mBottomLevelAS.count(ri->Geo->Name)) // Check if BLAS exists for this item's geometry
+			{
+				rItemsForTlas.push_back(ri.get());
+			}
+		}
+		if (!rItemsForTlas.empty())
+		{
+			BuildTopLevelAS(rItemsForTlas);
+		}
+	}
 
 	InitDS();
 
@@ -197,6 +258,18 @@ bool DungeonStompApp::Initialize()
 	}
 	// Wait until initialization is complete.
 	FlushCommandQueue();
+
+	// Release AS build scratch buffers now that commands have executed.
+	if (mdxrDevice)
+	{
+		mBlasBuildScratchBuffer.Reset();
+		mTlasBuildScratchBuffer.Reset();
+		// Also, the TLAS instance description upload buffer can be released if it's not needed elsewhere.
+		// d3dUtil::CreateDefaultBuffer keeps the uploader alive until the app releases it or it goes out of scope.
+		// If mTLASInstanceDescBuffer (the uploader) in BuildTopLevelAS was a member, release here.
+		// But it's a local ComPtr in d3dUtil and its lifetime is managed there for the upload.
+		// The actual mTLASInstanceDescBuffer (the default heap one) should persist.
+	}
 
 #if defined(DEBUG) || defined(_DEBUG) 
 #else
@@ -293,68 +366,108 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 
 	// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
 	// Reusing the command list reuses memory.
-	ThrowIfFailed(mCommandList->Reset(cmdListAlloc.Get(), mPSOs["opaque"].Get()));
 
-	ProcessLights11();
+	// Reset with no initial PSO for DXR or if DXR path is taken.
+	ThrowIfFailed(mCommandList->Reset(cmdListAlloc.Get(), nullptr));
 
-	ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
-	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+	if (mDxrStateObject && mSBTBuffer && mDxrOutputTexture && mdxrDevice && mDxrGlobalRootSignature)
+	{
+		ComPtr<ID3D12GraphicsCommandList4> dxrCmdList;
+		ThrowIfFailed(mCommandList.As(&dxrCmdList));
 
-	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
+		// Transition output texture to UAV state. It's initialized to UAV, so this is for subsequent frames if it was left in COPY_SOURCE.
+		// A proper state tracking system would be better, but for this step, this should work.
+		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDxrOutputTexture.Get(),
+			D3D12_RESOURCE_STATE_COPY_SOURCE, // State from previous frame's copy-to-backbuffer
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 
-	// Bind null SRV for shadow map pass.
-	mCommandList->SetGraphicsRootDescriptorTable(5, mNullSrv);
+		dxrCmdList->SetPipelineState1(mDxrStateObject.Get());
+		dxrCmdList->SetComputeRootSignature(mDxrGlobalRootSignature.Get());
 
-	//Render shadow map to texture.
-	DrawSceneToShadowMap(gt);
+		ID3D12DescriptorHeap* dxrDescriptorHeaps[] = { mDxrOutputUavDescriptorHeap.Get() };
+		dxrCmdList->SetDescriptorHeaps(_countof(dxrDescriptorHeaps), dxrDescriptorHeaps);
 
-	if (enableSSao) {
+		dxrCmdList->SetComputeRootDescriptorTable(0, mDxrOutputUavGpuHandle); // Output UAV at slot 0 (u0)
 
-		drawingSSAO = true;
-		// Normal/depth pass.
-		DrawNormalsAndDepth(gt);
-		drawingSSAO = false;
-		// Compute SSAO.
-		mCommandList->SetGraphicsRootSignature(mSsaoRootSignature.Get());
-		mSsao->ComputeSsao(mCommandList.Get(), mCurrFrameResource, 3);
+		if (mTopLevelAS)
+		{
+			dxrCmdList->SetComputeRootShaderResourceView(1, mTopLevelAS->GetGPUVirtualAddress()); // TLAS SRV at slot 1 (t0)
+		}
+
+		auto passCBAddress = mCurrFrameResource->PassCB->Resource()->GetGPUVirtualAddress();
+		dxrCmdList->SetComputeRootConstantBufferView(2, passCBAddress); // PassCB at slot 2 (b0)
+
+		D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};
+		dispatchDesc.RayGenerationShaderRecord.StartAddress = mSBTBuffer->GetGPUVirtualAddress();
+		dispatchDesc.RayGenerationShaderRecord.SizeInBytes = mDxrShaderRecordSize;
+		dispatchDesc.MissShaderTable.StartAddress = mSBTBuffer->GetGPUVirtualAddress() + mDxrShaderRecordSize;
+		dispatchDesc.MissShaderTable.SizeInBytes = mDxrShaderRecordSize;
+		dispatchDesc.MissShaderTable.StrideInBytes = mDxrShaderRecordSize;
+		dispatchDesc.HitGroupTable.StartAddress = 0; // No hit groups in SBT yet
+		dispatchDesc.HitGroupTable.SizeInBytes = 0;
+		dispatchDesc.HitGroupTable.StrideInBytes = 0;
+		dispatchDesc.Width = mClientWidth;
+		dispatchDesc.Height = mClientHeight;
+		dispatchDesc.Depth = 1;
+
+		dxrCmdList->DispatchRays(&dispatchDesc);
+
+		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mDxrOutputTexture.Get(),
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE));
+		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+			D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_COPY_DEST));
+
+		mCommandList->CopyResource(CurrentBackBuffer(), mDxrOutputTexture.Get());
+
+		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+			D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PRESENT));
+	}
+	else
+	{
+		// Fallback to original raster rendering if DXR components are not ready
+		mCommandList->SetPipelineState(mPSOs["opaque"].Get()); // Set default PSO for raster path
+
+		ProcessLights11();
+
+		ID3D12DescriptorHeap* descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
+		mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+		mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
+
+		mCommandList->SetGraphicsRootDescriptorTable(5, mNullSrv); // Bind null SRV for shadow map pass.
+
+		DrawSceneToShadowMap(gt); // Render shadow map to texture.
+
+		if (enableSSao) {
+			drawingSSAO = true;
+			DrawNormalsAndDepth(gt); // Normal/depth pass.
+			drawingSSAO = false;
+			mCommandList->SetGraphicsRootSignature(mSsaoRootSignature.Get()); // Compute SSAO.
+			mSsao->ComputeSsao(mCommandList.Get(), mCurrFrameResource, 3);
+		}
+
+		mCommandList->SetGraphicsRootSignature(mRootSignature.Get()); // Main rendering pass.
+		mCommandList->RSSetViewports(1, &mScreenViewport);
+		mCommandList->RSSetScissorRects(1, &mScissorRect);
+
+		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+			D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+		mCommandList->ClearRenderTargetView(CurrentBackBufferView(), (float*)&mMainPassCB.FogColor, 0, nullptr);
+		mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+		mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
+
+		auto passCB = mCurrFrameResource->PassCB->Resource();
+		mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+
+		DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt); //Render the main scene
+
+		mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	}
 
-	// Main rendering pass.
-
-	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
-
-	mCommandList->RSSetViewports(1, &mScreenViewport);
-	mCommandList->RSSetScissorRects(1, &mScissorRect);
-
-	// Indicate a state transition on the resource usage.
-	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
-	//if (!enableSSao) {
-		// SSAO - WE ALREADY WROTE THE DEPTH INFO TO THE DEPTH BUFFER IN DrawNormalsAndDepth,
-		// SO DO NOT CLEAR DEPTH.
-
-		// Clear the back buffer and depth buffer.
-	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), (float*)&mMainPassCB.FogColor, 0, nullptr);  //Colors::LightSteelBlue
-	//}
-
-	mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
-	// Specify the buffers we are going to render to.
-	mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
-
-	auto passCB = mCurrFrameResource->PassCB->Resource();
-	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
-
-	//Render the main scene
-	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
-
-	// Indicate a state transition on the resource usage.
-	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
-	// Done recording commands.
-	ThrowIfFailed(mCommandList->Close());
+	ThrowIfFailed(mCommandList->Close()); // Done recording commands.
 
 	// Add the command list to the queue for execution.
 	ID3D12CommandList* cmdsLists[] = { mCommandList.Get() };
@@ -1166,6 +1279,442 @@ void DungeonStompApp::DrawNormalsAndDepth(const GameTimer& gt)
 	// Change back to GENERIC_READ so we can read the texture in a shader.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(normalMap,
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+}
+
+// DXR Pipeline Setup
+void DungeonStompApp::BuildDxrPipeline()
+{
+	// Compile DXR shaders
+	mShaders["RayGen"] = d3dUtil::CompileShader(L"Shaders/Raytracing.hlsl", nullptr, "MyRaygenShader", "lib_6_3");
+	mShaders["Miss"] = d3dUtil::CompileShader(L"Shaders/Raytracing.hlsl", nullptr, "MyMissShader", "lib_6_3");
+	mShaders["ClosestHit"] = d3dUtil::CompileShader(L"Shaders/Raytracing.hlsl", nullptr, "MyClosestHitShader", "lib_6_3");
+
+	// Global Root Signature for DXR
+	// Parameter 0: Output UAV (u0) - DescriptorTable
+	// Parameter 1: TLAS SRV (t0) - ShaderResourceView
+	// Parameter 2: PassCB (b0) - ConstantBufferView
+	// Parameter 3: Diffuse Texture SRV (t1) - DescriptorTable
+	// Parameter 4: Sampler (s2) - Static Sampler (defined in root sig desc)
+
+	CD3DX12_DESCRIPTOR_RANGE1 descRanges[2];
+	descRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);    // u0 for outputTexture
+	descRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);    // t1 for gDiffuseMap (Note: register t1, space 0)
+
+	CD3DX12_ROOT_PARAMETER1 rootParams[4]; // OutputUAV, TLAS, PassCB, DiffuseTexture Table
+	rootParams[0].InitAsDescriptorTable(1, &descRanges[0]);       // UAV for output texture at u0
+	rootParams[1].InitAsShaderResourceView(0);                    // TLAS SRV at t0
+	rootParams[2].InitAsConstantBufferView(0);                    // PassCB at b0
+	rootParams[3].InitAsDescriptorTable(1, &descRanges[1]);       // SRV for gDiffuseMap at t1
+
+	// Define a static sampler for gsamLinearWrap (s2)
+	CD3DX12_STATIC_SAMPLER_DESC linearWrapSampler(
+		2, // shaderRegister (s2)
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP); // addressW
+
+	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC globalRootSigDesc;
+	globalRootSigDesc.Init_1_1(_countof(rootParams), rootParams, 1, &linearWrapSampler, D3D12_ROOT_SIGNATURE_FLAG_NONE);
+
+	ComPtr<ID3DBlob> blob;
+	ComPtr<ID3DBlob> errorBlob;
+	ThrowIfFailed(D3D12SerializeVersionedRootSignature(&globalRootSigDesc, &blob, &errorBlob));
+	ThrowIfFailed(md3dDevice->CreateRootSignature(0, blob->GetBufferPointer(), blob->GetBufferSize(), IID_PPV_ARGS(&mDxrGlobalRootSignature)));
+	mDxrGlobalRootSignature->SetName(L"DxrGlobalRootSignature");
+
+	// Compile additional shadow shaders
+	mShaders["ShadowMiss"] = d3dUtil::CompileShader(L"Shaders/Raytracing.hlsl", nullptr, "MyShadowMissShader", "lib_6_3");
+	mShaders["ShadowAnyHit"] = d3dUtil::CompileShader(L"Shaders/Raytracing.hlsl", nullptr, "MyShadowAnyHitShader", "lib_6_3");
+
+	// Define DXIL libraries (now 5: RGS, Miss, CHS, ShadowMiss, ShadowAHS)
+	D3D12_DXIL_LIBRARY_DESC dxilLibraries[5];
+	dxilLibraries[0] = CD3DX12_DXIL_LIBRARY_DESC(mShaders["RayGen"]->GetBufferPointer(), mShaders["RayGen"]->GetBufferSize(), nullptr, 0);
+	dxilLibraries[1] = CD3DX12_DXIL_LIBRARY_DESC(mShaders["Miss"]->GetBufferPointer(), mShaders["Miss"]->GetBufferSize(), nullptr, 0);
+	dxilLibraries[2] = CD3DX12_DXIL_LIBRARY_DESC(mShaders["ClosestHit"]->GetBufferPointer(), mShaders["ClosestHit"]->GetBufferSize(), nullptr, 0);
+	dxilLibraries[3] = CD3DX12_DXIL_LIBRARY_DESC(mShaders["ShadowMiss"]->GetBufferPointer(), mShaders["ShadowMiss"]->GetBufferSize(), nullptr, 0);
+	dxilLibraries[4] = CD3DX12_DXIL_LIBRARY_DESC(mShaders["ShadowAnyHit"]->GetBufferPointer(), mShaders["ShadowAnyHit"]->GetBufferSize(), nullptr, 0);
+
+	// Define shader exports (now 5)
+	D3D12_EXPORT_DESC exports[5];
+	exports[0] = {L"MyRaygenShader", nullptr, D3D12_EXPORT_FLAG_NONE};
+	exports[1] = {L"MyMissShader", nullptr, D3D12_EXPORT_FLAG_NONE};
+	exports[2] = {L"MyClosestHitShader", nullptr, D3D12_EXPORT_FLAG_NONE};
+	exports[3] = {L"MyShadowMissShader", nullptr, D3D12_EXPORT_FLAG_NONE};
+	exports[4] = {L"MyShadowAnyHitShader", nullptr, D3D12_EXPORT_FLAG_NONE};
+
+	// Hit Groups
+	// HitGroup[0]: "MyHitGroup" for primary rays
+	D3D12_HIT_GROUP_DESC hitGroupDescs[2]; // Now two hit groups
+	hitGroupDescs[0].HitGroupExport = L"MyHitGroup";
+	hitGroupDescs[0].Type = D3D12_HIT_GROUP_TYPE_TRIANGLES;
+	hitGroupDescs[0].ClosestHitShaderImport = L"MyClosestHitShader";
+	hitGroupDescs[0].AnyHitShaderImport = nullptr;
+	hitGroupDescs[0].IntersectionShaderImport = nullptr;
+
+	// HitGroup[1]: "ShadowHitGroup" for shadow rays
+	hitGroupDescs[1].HitGroupExport = L"ShadowHitGroup";
+	hitGroupDescs[1].Type = D3D12_HIT_GROUP_TYPE_TRIANGLES; // Still need triangles for AHS to be associated with geometry
+	hitGroupDescs[1].AnyHitShaderImport = L"MyShadowAnyHitShader";
+	hitGroupDescs[1].ClosestHitShaderImport = nullptr; // No CHS for this shadow hit group
+	hitGroupDescs[1].IntersectionShaderImport = nullptr;
+
+
+	// Shader Config - MaxPayloadSizeInBytes must be the max of all payloads used.
+	// HitInfo (float4) is 16 bytes. ShadowHitInfo (float) is 4 bytes. So 16 is fine.
+	D3D12_RAYTRACING_SHADER_CONFIG shaderConfig = {};
+	shaderConfig.MaxPayloadSizeInBytes = sizeof(XMFLOAT4);
+	shaderConfig.MaxAttributeSizeInBytes = D3D12_RAYTRACING_MAX_ATTRIBUTE_SIZE_IN_BYTES;
+
+	// Pipeline Config
+	D3D12_RAYTRACING_PIPELINE_CONFIG pipelineConfig = {};
+	pipelineConfig.MaxTraceRecursionDepth = 2; // Primary ray + 1 shadow ray
+
+	// State Object Subobjects
+	// We need to piece together all the subobjects for the state object.
+	// Using CD3DX12_STATE_OBJECT_DESC helper.
+	CD3DX12_STATE_OBJECT_DESC raytracingPipeline{D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE};
+
+	// DXIL Libraries (5 of them)
+	auto lib0 = raytracingPipeline.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
+	lib0->SetDXILLibrary(&dxilLibraries[0]); // RayGen
+	lib0->DefineExport(exports[0].Name);
+
+	auto lib1 = raytracingPipeline.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
+	lib1->SetDXILLibrary(&dxilLibraries[1]); // Miss
+	lib1->DefineExport(exports[1].Name);
+
+	auto lib2 = raytracingPipeline.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
+	lib2->SetDXILLibrary(&dxilLibraries[2]); // ClosestHit
+	lib2->DefineExport(exports[2].Name);
+
+	auto lib3 = raytracingPipeline.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
+	lib3->SetDXILLibrary(&dxilLibraries[3]); // ShadowMiss
+	lib3->DefineExport(exports[3].Name);
+
+	auto lib4 = raytracingPipeline.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
+	lib4->SetDXILLibrary(&dxilLibraries[4]); // ShadowAnyHit
+	lib4->DefineExport(exports[4].Name);
+
+	// Hit Group for "MyHitGroup"
+	auto primaryHitGroup = raytracingPipeline.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
+	primaryHitGroup->SetHitGroupExport(hitGroupDescs[0].HitGroupExport);
+	primaryHitGroup->SetHitGroupType(hitGroupDescs[0].Type);
+	primaryHitGroup->SetClosestHitShaderImport(hitGroupDescs[0].ClosestHitShaderImport);
+
+	// Hit Group for "ShadowHitGroup"
+	auto shadowHitGroup = raytracingPipeline.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
+	shadowHitGroup->SetHitGroupExport(hitGroupDescs[1].HitGroupExport);
+	shadowHitGroup->SetHitGroupType(hitGroupDescs[1].Type);
+	shadowHitGroup->SetAnyHitShaderImport(hitGroupDescs[1].AnyHitShaderImport);
+	// No CHS for shadow hit group if AHS is used
+
+	// Shader Config
+	auto shaderCfg = raytracingPipeline.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
+	shaderCfg->Config(shaderConfig.MaxPayloadSizeInBytes, shaderConfig.MaxAttributeSizeInBytes);
+
+	// Pipeline Config
+	auto pipelineCfg = raytracingPipeline.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
+	pipelineCfg->Config(pipelineConfig.MaxTraceRecursionDepth);
+
+	// Global Root Signature
+	auto globalRootSig = raytracingPipeline.CreateSubobject<CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT>();
+	globalRootSig->SetRootSignature(mDxrGlobalRootSignature.Get());
+
+	// Create the state object.
+	ThrowIfFailed(mdxrDevice->CreateStateObject(raytracingPipeline, IID_PPV_ARGS(&mDxrStateObject)));
+	mDxrStateObject->SetName(L"DxrStateObject");
+}
+
+Microsoft::WRL::ComPtr<ID3D12Resource> DungeonStompApp::CreateAccelerationStructureBuffer(UINT64 size, D3D12_RESOURCE_FLAGS flags, const wchar_t* resourceName)
+{
+	Microsoft::WRL::ComPtr<ID3D12Resource> buffer;
+	auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	auto desc = CD3DX12_RESOURCE_DESC::Buffer(size, flags);
+
+	ThrowIfFailed(md3dDevice->CreateCommittedResource(
+		&heapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&desc,
+		D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, // Initial state for AS buffers
+		nullptr,
+		IID_PPV_ARGS(&buffer)));
+	if (resourceName)
+	{
+		buffer->SetName(resourceName);
+	}
+	return buffer;
+}
+
+void DungeonStompApp::BuildBottomLevelAS(const std::string& name, MeshGeometry* geometry)
+{
+	if (!mdxrDevice) return;
+
+	D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc = {};
+	geometryDesc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+	geometryDesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE; // Assuming opaque for now
+	geometryDesc.Triangles.VertexBuffer.StartAddress = geometry->VertexBufferGPU->GetGPUVirtualAddress();
+	geometryDesc.Triangles.VertexBuffer.StrideInBytes = geometry->VertexByteStride;
+	geometryDesc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT; // Assuming float3 for position
+	geometryDesc.Triangles.VertexCount = geometry->VertexBufferByteSize / geometry->VertexByteStride;
+	geometryDesc.Triangles.IndexBuffer = geometry->IndexBufferGPU->GetGPUVirtualAddress();
+	geometryDesc.Triangles.IndexFormat = geometry->IndexFormat;
+	geometryDesc.Triangles.IndexCount = geometry->IndexBufferByteSize / (geometry->IndexFormat == DXGI_FORMAT_R16_UINT ? 2 : 4);
+	geometryDesc.Triangles.Transform3x4 = 0; // No transform for BLAS vertices
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};
+	inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
+	inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+	inputs.NumDescs = 1;
+	inputs.pGeometryDescs = &geometryDesc;
+
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
+	mdxrDevice->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuildInfo);
+
+	if (prebuildInfo.ResultDataMaxSizeInBytes == 0) {
+		OutputDebugStringA(("Warning: BLAS prebuild info for " + name + " resulted in 0 size. Skipping BLAS build.\n").c_str());
+		OutputDebugStringA(("Vertex Count: " + std::to_string(geometryDesc.Triangles.VertexCount) +
+						   " Index Count: " + std::to_string(geometryDesc.Triangles.IndexCount) + "\n").c_str());
+		return;
+	}
+
+	// Use member scratch buffer for BLAS. This might need to be a single, larger buffer if builds are interleaved.
+	// For sequential builds during init, one scratch buffer that's resized or large enough is okay.
+	// For simplicity, we create it here if it's smaller than needed, or reuse.
+	// A more robust approach would be to allocate one large scratch buffer upfront.
+	// For this refactor, we'll ensure it's created per call if not existing or too small, but this is not ideal.
+	// A better approach (if this was a frequent operation) would be a dedicated scratch allocator.
+	// Given it's init-time, creating one large enough or re-creating if needed is acceptable for now.
+	if (!mBlasBuildScratchBuffer || mBlasBuildScratchBuffer->GetDesc().Width < prebuildInfo.ScratchDataMaxSizeInBytes)
+	{
+		mBlasBuildScratchBuffer = CreateAccelerationStructureBuffer(prebuildInfo.ScratchDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, (L"BLAS_Scratch_Shared").c_str());
+	}
+
+	mBottomLevelAS[name] = CreateAccelerationStructureBuffer(prebuildInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, (L"BLAS_Result_" + AnsiToWString(name)).c_str());
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {};
+	buildDesc.Inputs = inputs;
+	buildDesc.DestAccelerationStructureData = mBottomLevelAS[name]->GetGPUVirtualAddress();
+	buildDesc.ScratchAccelerationStructureData = mBlasBuildScratchBuffer->GetGPUVirtualAddress();
+
+	ComPtr<ID3D12GraphicsCommandList4> dxrCmdList;
+	ThrowIfFailed(mCommandList.As(&dxrCmdList)); // Assuming mCommandList is already Reset and available for recording.
+											   // If not, it needs to be obtained and reset properly.
+											   // For initialization, this might run on a dedicated command list.
+
+	dxrCmdList->BuildRaytracingAccelerationStructure(&buildDesc, 0, nullptr);
+
+	// UAV barrier to ensure AS build is complete before use.
+	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::UAV(mBottomLevelAS[name].Get());
+	dxrCmdList->ResourceBarrier(1, &barrier);
+
+	// Scratch buffer (mBlasBuildScratchBuffer) will be released after all init commands are flushed.
+}
+
+void DungeonStompApp::BuildTopLevelAS(const std::vector<RenderItem*>& renderItems)
+{
+	if (!mdxrDevice || renderItems.empty()) return;
+
+	std::vector<D3D12_RAYTRACING_INSTANCE_DESC> instanceDescs;
+	instanceDescs.reserve(renderItems.size());
+
+	UINT currentInstanceID = 0;
+	for (const auto& item : renderItems)
+	{
+		if (!item->Visible || !mBottomLevelAS.count(item->Geo->Name)) // Skip invisible or items without BLAS
+			continue;
+
+		D3D12_RAYTRACING_INSTANCE_DESC instDesc = {};
+
+		// Transpose the world matrix because DXR expects row-major for Transform3x4
+		XMFLOAT4X4 worldMat = item->World; // Assuming item->World is column-major as typical in DirectX
+		XMMATRIX mat = XMLoadFloat4x4(&worldMat);
+		mat = XMMatrixTranspose(mat); // Transpose
+		XMStoreFloat4x4(&worldMat, mat);
+
+		memcpy(instDesc.Transform, &worldMat, sizeof(instDesc.Transform));
+		instDesc.InstanceID = currentInstanceID; // User-defined ID
+		instDesc.InstanceMask = 1; // Visible to all rays
+		instDesc.InstanceContributionToHitGroupIndex = 0; // For now, all instances map to the first hit group record in SBT
+		instDesc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_CULL_DISABLE; // Or D3D12_RAYTRACING_INSTANCE_FLAG_NONE
+		instDesc.AccelerationStructure = mBottomLevelAS[item->Geo->Name]->GetGPUVirtualAddress();
+
+		instanceDescs.push_back(instDesc);
+		currentInstanceID++;
+	}
+
+	if (instanceDescs.empty())
+	{
+		OutputDebugStringA("No instances to build TLAS.\n");
+		mTopLevelAS.Reset(); // Ensure TLAS is cleared if no instances
+		mTLASInstanceDescBuffer.Reset();
+		return;
+	}
+
+	UINT64 instanceDescsSize = sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * instanceDescs.size();
+
+	// Create/Recreate instance description buffer
+	mTLASInstanceDescBuffer = d3dUtil::CreateDefaultBuffer(
+		md3dDevice.Get(),
+		mCommandList.Get(), // This command list must be open for recording
+		instanceDescs.data(),
+		instanceDescsSize,
+		mTLASInstanceDescBuffer); // The uploader reference is just for the lifetime of this call in d3dUtil
+	mTLASInstanceDescBuffer->SetName(L"TLAS_InstanceDescs");
+
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};
+	inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
+	inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+	inputs.NumDescs = static_cast<UINT>(instanceDescs.size());
+	inputs.InstanceDescs = mTLASInstanceDescBuffer->GetGPUVirtualAddress();
+
+	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
+	mdxrDevice->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuildInfo);
+
+	if (prebuildInfo.ResultDataMaxSizeInBytes == 0) {
+		OutputDebugStringA("Warning: TLAS prebuild info resulted in 0 size. Skipping TLAS build.\n");
+		return;
+	}
+
+	// Similar to BLAS scratch, manage TLAS scratch buffer.
+	if (!mTlasBuildScratchBuffer || mTlasBuildScratchBuffer->GetDesc().Width < prebuildInfo.ScratchDataMaxSizeInBytes)
+	{
+		mTlasBuildScratchBuffer = CreateAccelerationStructureBuffer(prebuildInfo.ScratchDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, L"TLAS_Scratch_Shared");
+	}
+
+	mTopLevelAS = CreateAccelerationStructureBuffer(prebuildInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, L"TLAS_Result");
+
+	D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {};
+	buildDesc.Inputs = inputs;
+	buildDesc.DestAccelerationStructureData = mTopLevelAS->GetGPUVirtualAddress();
+	buildDesc.ScratchAccelerationStructureData = mTlasBuildScratchBuffer->GetGPUVirtualAddress();
+
+	ComPtr<ID3D12GraphicsCommandList4> dxrCmdList;
+	ThrowIfFailed(mCommandList.As(&dxrCmdList));
+
+	dxrCmdList->BuildRaytracingAccelerationStructure(&buildDesc, 0, nullptr);
+
+	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::UAV(mTopLevelAS.Get());
+	dxrCmdList->ResourceBarrier(1, &barrier);
+}
+
+
+void DungeonStompApp::BuildShaderBindingTable()
+{
+	ComPtr<ID3D12StateObjectProperties> stateObjectProps;
+	ThrowIfFailed(mDxrStateObject.As(&stateObjectProps));
+
+	// Get shader identifiers.
+	void* rayGenShaderIdentifier = stateObjectProps->GetShaderIdentifier(L"MyRaygenShader");
+	void* missShaderIdentifier = stateObjectProps->GetShaderIdentifier(L"MyMissShader");
+	void* shadowMissShaderIdentifier = stateObjectProps->GetShaderIdentifier(L"MyShadowMissShader");
+	void* primaryHitGroupIdentifier = stateObjectProps->GetShaderIdentifier(L"MyHitGroup");
+	void* shadowHitGroupIdentifier = stateObjectProps->GetShaderIdentifier(L"ShadowHitGroup");
+
+	// Shader identifier size, as reported by the device.
+	UINT shaderIdentifierSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES; // This is a constant, but could also be queried.
+																		// For this project, mdxrDevice->GetShaderIdentifierSize() could be used if mdxrDevice was ID3D12Device5*
+																		// but stateObjectProps is ID3D12StateObjectProperties* which is fine.
+
+	// Calculate shader record size: Shader Identifier + Local Root Arguments.
+	// Our records currently only contain the shader identifier, no local root arguments.
+	// The record size must be aligned to D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT.
+	mDxrShaderRecordSize = (shaderIdentifierSize + D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT - 1) & ~(D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT - 1);
+
+	// SBT Layout:
+	// --------------------------------------------------------------------------------------------------
+	// | Shader Record Type | Shader Name / Hit Group | Location in SBT (offset from start) | Index for TraceRay() |
+	// |--------------------|-------------------------|-------------------------------------|----------------------|
+	// | Ray Generation     | MyRaygenShader          | 0 * mDxrShaderRecordSize            | N/A                  |
+	// | Miss               | MyMissShader            | 1 * mDxrShaderRecordSize            | MissShaderIndex = 0  |
+	// | Miss               | MyShadowMissShader      | 2 * mDxrShaderRecordSize            | MissShaderIndex = 1  |
+	// | Hit Group          | MyHitGroup              | 3 * mDxrShaderRecordSize            | RayContribution = 0  |
+	// | Hit Group          | ShadowHitGroup          | 4 * mDxrShaderRecordSize            | RayContribution = 1  |
+	// --------------------------------------------------------------------------------------------------
+	// Total records = 1 (RayGen) + 2 (Miss) + 2 (HitGroup) = 5 records.
+	UINT numSbtRecords = 5;
+	UINT sbtSize = mDxrShaderRecordSize * numSbtRecords;
+
+	// Create SBT buffer (upload heap for simplicity).
+	auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+	auto bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(sbtSize);
+	ThrowIfFailed(md3dDevice->CreateCommittedResource(
+		&heapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&bufferDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&mSBTBuffer)));
+	mSBTBuffer->SetName(L"DXR_SBT");
+
+	// Map and copy shader identifiers
+	uint8_t* pSBTData;
+	ThrowIfFailed(mSBTBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pSBTData)));
+
+	// Populate SBT records.
+	// Record 0: Ray Generation Shader (MyRaygenShader)
+	memcpy(pSBTData + mDxrShaderRecordSize * 0, rayGenShaderIdentifier, shaderIdentifierSize);
+
+	// Record 1: Miss Shader (MyMissShader) - Primary Ray Miss (MissShaderIndex = 0)
+	memcpy(pSBTData + mDxrShaderRecordSize * 1, missShaderIdentifier, shaderIdentifierSize);
+
+	// Record 2: Miss Shader (MyShadowMissShader) - Shadow Ray Miss (MissShaderIndex = 1)
+	memcpy(pSBTData + mDxrShaderRecordSize * 2, shadowMissShaderIdentifier, shaderIdentifierSize);
+
+	// Record 3: Hit Group (MyHitGroup) - Primary Ray Hit (RayContributionToHitGroupIndex = 0)
+	memcpy(pSBTData + mDxrShaderRecordSize * 3, primaryHitGroupIdentifier, shaderIdentifierSize);
+
+	// Record 4: Hit Group (ShadowHitGroup) - Shadow Ray Hit (RayContributionToHitGroupIndex = 1)
+	memcpy(pSBTData + mDxrShaderRecordSize * 4, shadowHitGroupIdentifier, shaderIdentifierSize);
+
+	mSBTBuffer->Unmap(0, nullptr);
+}
+
+void DungeonStompApp::BuildDxrOutputTexture()
+{
+	// Create the output texture resource
+	D3D12_RESOURCE_DESC texDesc = {};
+	texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	texDesc.Alignment = 0;
+	texDesc.Width = mClientWidth;
+	texDesc.Height = mClientHeight;
+	texDesc.DepthOrArraySize = 1;
+	texDesc.MipLevels = 1;
+	texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // Match back buffer for easy copy
+	texDesc.SampleDesc.Count = 1;
+	texDesc.SampleDesc.Quality = 0;
+	texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	texDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+
+	ThrowIfFailed(md3dDevice->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&texDesc,
+		D3D12_RESOURCE_STATE_UNORDERED_ACCESS, // Initial state for UAV
+		nullptr,
+		IID_PPV_ARGS(&mDxrOutputTexture)));
+	mDxrOutputTexture->SetName(L"DxrOutputTexture");
+
+	// Create UAV descriptor heap
+	D3D12_DESCRIPTOR_HEAP_DESC uavHeapDesc = {};
+	uavHeapDesc.NumDescriptors = 1;
+	uavHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	uavHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&uavHeapDesc, IID_PPV_ARGS(&mDxrOutputUavDescriptorHeap)));
+	mDxrOutputUavDescriptorHeap->SetName(L"DxrOutputUavDescriptorHeap");
+
+	mDxrOutputUavCpuHandle = mDxrOutputUavDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	mDxrOutputUavGpuHandle = mDxrOutputUavDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+
+	// Create UAV descriptor
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+	uavDesc.Format = texDesc.Format;
+	uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+	uavDesc.Texture2D.MipSlice = 0;
+	// uavDesc.Texture2D.PlaneSlice can be ignored for non-planar formats
+
+	md3dDevice->CreateUnorderedAccessView(mDxrOutputTexture.Get(), nullptr, &uavDesc, mDxrOutputUavCpuHandle);
 }
 
 std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> DungeonStompApp::GetStaticSamplers()
@@ -2798,6 +3347,30 @@ void DungeonStompApp::BuildDescriptorHeaps()
 
 	nullSrv.Offset(1, mCbvSrvUavDescriptorSize);
 	md3dDevice->CreateShaderResourceView(nullptr, &srvDesc, nullSrv);
+
+	// Load test diffuse texture for DXR CHS
+	mTestDiffuseSrvHeapIndex = mNullTexSrvIndex2 + 1; // Ensure this slot is available
+	auto testTex = std::make_unique<Texture>();
+	testTex->Name = "testDiffuseBrick";
+	testTex->Filename = L"../Textures/brick.dds"; // A common texture likely present
+	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(md3dDevice.Get(),
+		mCommandList.Get(), testTex->Filename.c_str(),
+		testTex->Resource, testTex->UploadHeap));
+	mTestDiffuseTexture = testTex->Resource; // Keep the resource alive
+
+	mTextures[testTex->Name] = std::move(testTex); // Store it like other textures to ensure upload heap is managed
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC testSrvDesc = {};
+	testSrvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	testSrvDesc.Format = mTestDiffuseTexture->GetDesc().Format;
+	testSrvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	testSrvDesc.Texture2D.MostDetailedMip = 0;
+	testSrvDesc.Texture2D.MipLevels = mTestDiffuseTexture->GetDesc().MipLevels;
+	testSrvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+	mTestDiffuseSrvCpuHandle = GetCpuSrv(mTestDiffuseSrvHeapIndex);
+	mTestDiffuseSrvGpuHandle = GetGpuSrv(mTestDiffuseSrvHeapIndex);
+	md3dDevice->CreateShaderResourceView(mTestDiffuseTexture.Get(), &testSrvDesc, mTestDiffuseSrvCpuHandle);
 }
 
 CD3DX12_CPU_DESCRIPTOR_HANDLE DungeonStompApp::GetCpuSrv(int index)const

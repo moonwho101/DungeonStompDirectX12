@@ -88,6 +88,11 @@ private:
 	void BuildRenderItems();
 	void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems, const GameTimer& gt);
 
+	// DXR specific methods
+	void BuildDxrPipeline();
+	void BuildDxrOutputTexture();
+	void BuildShaderBindingTable();
+
 	CD3DX12_CPU_DESCRIPTOR_HANDLE GetCpuSrv(int index)const;
 	CD3DX12_GPU_DESCRIPTOR_HANDLE GetGpuSrv(int index)const;
 	CD3DX12_CPU_DESCRIPTOR_HANDLE GetDsv(int index)const;
@@ -211,6 +216,37 @@ private:
 	};
 	XMFLOAT3 mRotatedLightDirections[3];
 
+	// DXR specific members
+	ComPtr<ID3D12Device5> mdxrDevice;
+	D3D12_RAYTRACING_TIER mRaytracingTier = D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
+	ComPtr<ID3D12RootSignature> mDxrGlobalRootSignature;
+	ComPtr<ID3D12StateObject> mDxrStateObject;
+	ComPtr<ID3D12Resource> mDxrOutputTexture;
+	ComPtr<ID3D12DescriptorHeap> mDxrOutputUavDescriptorHeap;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE mDxrOutputUavCpuHandle;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE mDxrOutputUavGpuHandle;
 
+	// DXR Shader Binding Table
+	ComPtr<ID3D12Resource> mSBTBuffer;
+	UINT mDxrShaderRecordSize = 0;
+
+	// DXR Acceleration Structures
+	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12Resource>> mBottomLevelAS;
+	Microsoft::WRL::ComPtr<ID3D12Resource> mTopLevelAS;
+	Microsoft::WRL::ComPtr<ID3D12Resource> mTLASInstanceDescBuffer; // Buffer for instance descriptions
+
+	// DXR Test Texture
+	ComPtr<ID3D12Resource> mTestDiffuseTexture;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE mTestDiffuseSrvCpuHandle;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE mTestDiffuseSrvGpuHandle;
+	UINT mTestDiffuseSrvHeapIndex = 0;
+
+	// DXR AS Build Scratch Buffers (managed during Initialize)
+	ComPtr<ID3D12Resource> mBlasBuildScratchBuffer;
+	ComPtr<ID3D12Resource> mTlasBuildScratchBuffer;
+
+
+	// Shader identifiers are typically copied into the SBT buffer directly.
+	// No need for separate member variables for raw identifiers if SBT is structured correctly.
 };
 
