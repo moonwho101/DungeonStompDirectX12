@@ -45,8 +45,9 @@ cbuffer cbMaterial : register(b1)
 {
     float4 gDiffuseAlbedo;
     float3 gFresnelR0;
-    float  gRoughness;
+    float gRoughness;
     float4x4 gMatTransform;
+    float gMetal;
 };
 
 
