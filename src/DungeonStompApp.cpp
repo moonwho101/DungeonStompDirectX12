@@ -734,6 +734,7 @@ void DungeonStompApp::UpdateMaterialCBs(const GameTimer& gt)
 			XMStoreFloat4x4(&matConstants.MatTransform, XMMatrixTranspose(matTransform));
 			matConstants.Metal = mat->Metal;
 
+
 			//matConstants.DiffuseMapIndex = mat->DiffuseSrvHeapIndex;
 			//matConstants.NormalMapIndex = mat->NormalSrvHeapIndex;
 
@@ -845,6 +846,9 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 		mMainPassCB.Lights[i].FalloffStart = LightContainer[i].FalloffStart;
 		mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
 	}
+
+	mMainPassCB.Timertick = gt.TotalTime();
+	
 
 	//mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 	mMainPassCB.Lights[0].Direction = mRotatedLightDirections[0];

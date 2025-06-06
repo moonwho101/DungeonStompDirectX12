@@ -48,6 +48,7 @@ cbuffer cbMaterial : register(b1)
     float gRoughness;
     float4x4 gMatTransform;
     float gMetal;
+    float gTimertick;
 };
 
 
@@ -83,6 +84,7 @@ cbuffer cbPass : register(b2)
     // indices [NUM_DIR_LIGHTS+NUM_POINT_LIGHTS, NUM_DIR_LIGHTS+NUM_POINT_LIGHT+NUM_SPOT_LIGHTS)
     // are spot lights for a maximum of MaxLights per object.
     Light gLights[MaxLights];
+    float Timertick;
 };
 
 struct MaterialData
