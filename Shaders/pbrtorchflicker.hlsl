@@ -222,27 +222,6 @@ float3 ComputePointLight(Light L, Material mat, float3 pos, float3 normal, float
 }
 
 
-
-
-//// Modernized ComputePointLight
-//    float3 ComputePointLight(Light L, Material mat, float3 pos, float3 normal, float3 toEye)
-//    {
-//        float3 lightVec = L.Position - pos;
-//        float d = length(lightVec);
-//        if (d > L.FalloffEnd)
-//            return 0.0f;
-//        float3 Ld = normalize(lightVec);
-//        float3 N = normalize(normal);
-//        float3 V = normalize(toEye);
-
-//        float3 albedo = mat.DiffuseAlbedo.rgb;
-//        float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), albedo, mat.Metallic);
-//        float attenuation = CalcAttenuation(d, L.FalloffStart, L.FalloffEnd);
-
-//        return PBRLighting(albedo, N, V, Ld, F0, mat.Roughness, mat.Metallic, L.Strength, attenuation);
-//    }
-
-
 // Modernized ComputeSpotLight
 float3 ComputeSpotLight(Light L, Material mat, float3 pos, float3 normal, float3 toEye)
 {
@@ -283,6 +262,7 @@ float4 ComputeLighting(Light gLights[MaxLights], Material mat,
 #if (NUM_POINT_LIGHTS > 0)
     for (i = NUM_DIR_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; ++i)
     {
+        mat.Timertick += i;
         result += shadowFactor[0] * ComputePointLight(gLights[i], mat, pos, normal, toEye);
     }
 #endif
@@ -300,42 +280,6 @@ float4 ComputeLighting(Light gLights[MaxLights], Material mat,
 
     return float4(result, 0.0f);
 }
-
-
-float4 ComputeLighting2(Light gLights[MaxLights], Material mat,
-                       float3 pos, float3 normal, float3 toEye,
-                       float3 shadowFactor)
-{
-    float3 result = 0.0f;
-
-    int i = 0;
-
-#if (NUM_DIR_LIGHTS > 0)
-    for(i = 0; i < NUM_DIR_LIGHTS; ++i)
-    {
-        result += shadowFactor[0] * ComputeDirectionalLight(gLights[i], mat, pos, normal, toEye);
-    }
-#endif
-
-#if (NUM_POINT_LIGHTS > 0)
-    for (i = NUM_DIR_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; ++i)
-    {
-        result += shadowFactor[0] * ComputePointLight(gLights[i], mat, pos, normal, toEye);
-    }
-#endif
-
-#if (NUM_SPOT_LIGHTS > 0)
-    for (i = NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS + NUM_SPOT_LIGHTS; ++i)
-    {
-        result += shadowFactor[0] * ComputeSpotLight(gLights[i], mat, pos, normal, toEye);
-    }
-#endif 
-
-    return float4(result, 0.0f);
-}
-
-
-
 
 
 Texture2D gDiffuseMap : register(t0);
@@ -528,11 +472,10 @@ VertexOut VS(VertexIn vin)
     // Generate projective tex-coords to project shadow map onto scene.
     vout.ShadowPosH = mul(posW, gShadowTransform);
 
-
-
-
     return vout;
 }
+
+
 float4 PS(VertexOut pin) : SV_Target
 {
     float4 diffuseAlbedo = gDiffuseAlbedo;
