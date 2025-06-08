@@ -846,8 +846,6 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 		mMainPassCB.Lights[i].FalloffStart = LightContainer[i].FalloffStart;
 		mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
 	}
-
-	mMainPassCB.Timertick = gt.TotalTime();
 	
 
 	//mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };

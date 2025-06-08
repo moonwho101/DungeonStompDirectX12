@@ -213,7 +213,7 @@ float3 ComputePointLight(Light L, Material mat, float3 pos, float3 normal, float
     // Flicker only the first point light (index NUM_DIR_LIGHTS)
 
     // Use gTimertick for time, tweak frequency and amplitude for effect
-        float flicker = TorchFlicker(1.0f, mat.Timertick, 8.0f, 0.25f);
+    float flicker = TorchFlicker(1.0f, mat.Timertick, 8.0f, 0.25f);
     return PBRLighting(albedo, N, V, Ld, F0, mat.Roughness, mat.Metallic * flicker, L.Strength * flicker, attenuation);
 
 
@@ -346,7 +346,6 @@ cbuffer cbPass : register(b2)
     // indices [NUM_DIR_LIGHTS+NUM_POINT_LIGHTS, NUM_DIR_LIGHTS+NUM_POINT_LIGHT+NUM_SPOT_LIGHTS)
     // are spot lights for a maximum of MaxLights per object.
     Light gLights[MaxLights];
-    float Timertick;
 };
 
 struct MaterialData
@@ -516,7 +515,7 @@ float4 PS(VertexOut pin) : SV_Target
     float4 ambient = float4(ambientColor, 0.0f);
 
     const float shininess = (1.0f - roughness) * (normalMapSample.a * 1.0f);
-    Material mat = { diffuseAlbedo, gFresnelR0, shininess, gRoughness, gMetal, Timertick };
+    Material mat = { diffuseAlbedo, gFresnelR0, shininess, gRoughness, gMetal, gTotalTime };
 
     // Only the first light casts a shadow.
     float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
