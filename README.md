@@ -6,7 +6,7 @@ Dungeon Stomp DirectX12 with Physically based rendering (PBR).
 
 * Dungeon Stomp is a DirectX12 3D dungeon game that uses Direct3D, DirectInput and XAudio2
 * It is a complete game with level advancement and 15 levels
-* Materials (Diffuse Albedo, Fresnel, Roughness)
+* Materials (Diffuse Albedo, Fresnel, Roughness, Metallicness)
 * Physically based rendering (PBR)
 * DDS Texture mipmaps
 * Normal Maps (specular map in alpha channel)
