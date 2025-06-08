@@ -2,12 +2,12 @@
 
 ![Dungeon Stomp](../main/Textures/screenshot9.jpg)
 
-Dungeon Stomp DirectX12 with Vertex and Pixel shaders (blinn-phong).
+Dungeon Stomp DirectX12 with Physically based rendering (PBR).
 
 * Dungeon Stomp is a DirectX12 3D dungeon game that uses Direct3D, DirectInput and XAudio2
 * It is a complete game with level advancement and 15 levels
 * Materials (Diffuse Albedo, Fresnel, Roughness)
-* Lighting uses blinn-phong-fresnel pixel shaders
+* Physically based rendering (PBR)
 * DDS Texture mipmaps
 * Normal Maps (specular map in alpha channel)
 * Cube Maps (Skybox)
