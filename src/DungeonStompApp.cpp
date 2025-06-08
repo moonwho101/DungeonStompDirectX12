@@ -3225,7 +3225,7 @@ void DungeonStompApp::ProcessLights11()
 		int angle = (int)oblist[q].rot_angle;
 		int ob_type = oblist[q].type;
 		//LightContainer[i+1].Strength = { 1.5f, 1.5f, 1.5f };
-		LightContainer[i].Strength = { 1.0f, 1.0f, 1.0f };
+		LightContainer[i].Strength = { 6.0f, 1.0f, 1.0f };
 		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 50.0f, oblist[q].z };
 	}
 
@@ -3283,17 +3283,17 @@ void DungeonStompApp::ProcessLights11()
 		LightContainer[spot].SpotPower = 10.0f;
 
 		if (strstr(your_gun[current_gun].gunname, "SUPERFLAME") != NULL) {
-			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 1.0f, 0.867f, 0.0f };
+			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 8.0f, 0.867f, 0.0f };
 		}
 		else if (strstr(your_gun[current_gun].gunname, "FLAME") != NULL) {
-			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 1.0f, 0.369f, 0.0f };
+			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 7.0f, 0.369f, 0.0f };
 		}
 		else if (strstr(your_gun[current_gun].gunname, "ICE") != NULL) {
 
-			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 0.0f, 0.796f, 1.0f };
+			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 0.0f, 0.796f, 5.0f };
 		}
 		else if (strstr(your_gun[current_gun].gunname, "LIGHTNINGSWORD") != NULL) {
-			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 1.0f, 1.0f, 1.0f };
+			LightContainer[spot].Strength = DirectX::XMFLOAT3{ 6.0f, 6.0f, 6.0f };
 		}
 	}
 
