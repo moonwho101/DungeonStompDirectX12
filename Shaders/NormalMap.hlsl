@@ -312,6 +312,10 @@ float4 PS(VertexOut pin) : SV_Target
     clip(diffuseAlbedo.a - 0.1f);
 #endif
 
+#ifdef TORCH_TEST
+    // Make the torches bright by just returning the texture.
+    return diffuseAlbedo = gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
+#endif    
 
     // Normal mapping
     float3 norm = normalize(pin.NormalW);
