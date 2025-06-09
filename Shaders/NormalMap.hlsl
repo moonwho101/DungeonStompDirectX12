@@ -528,9 +528,9 @@ float4 PS(VertexOut pin) : SV_Target
     float4 litColor = ambient + directLight;
 
     // Add in specular reflections.
-    float3 r = reflect(-toEyeW, bumpedNormalW);
-    float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
-    litColor.rgb += shininess * fresnelFactor;
+    //float3 r = reflect(-toEyeW, bumpedNormalW);
+    //float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
+    //litColor.rgb += shininess * fresnelFactor;
 
 #ifdef FOG
     float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
