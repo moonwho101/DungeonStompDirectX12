@@ -2253,7 +2253,7 @@ void DungeonStompApp::BuildMaterials()
 	doorwood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	doorwood->FresnelR0 = XMFLOAT3(0.04f, 0.04f, 0.04f);
 	doorwood->Roughness = 0.87938f;
-	doorwood->Metal = 0.98f;
+	doorwood->Metal = 0.48f;
 
 	auto doormetal = std::make_unique<Material>();
 	doormetal->Name = "doormetal";
