@@ -833,7 +833,7 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.DeltaTime = gt.DeltaTime();
 
 	//mMainPassCB.AmbientLight = { 0.1f, 0.1f, 0.15f, 1.0f };
-	mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+	mMainPassCB.AmbientLight = { 0.65f, 0.65f, 0.65f, 1.0f };
 	//XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
 	//XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
 	//mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
@@ -2243,7 +2243,7 @@ void DungeonStompApp::BuildMaterials()
 	stonemain->DiffuseSrvHeapIndex = 0;
 	stonemain->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	stonemain->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
-	stonemain->Roughness = 0.503f;
+	stonemain->Roughness = 0.743f;
 	stonemain->Metal = 0.46f;
 
 	auto doorwood = std::make_unique<Material>();
@@ -3225,7 +3225,7 @@ void DungeonStompApp::ProcessLights11()
 		int angle = (int)oblist[q].rot_angle;
 		int ob_type = oblist[q].type;
 		//LightContainer[i+1].Strength = { 1.5f, 1.5f, 1.5f };
-		LightContainer[i].Strength = { 6.0f, 1.0f, 1.0f };
+		LightContainer[i].Strength = { 9.0f, 9.0f, 9.0f };
 		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x,oblist[q].y + 50.0f, oblist[q].z };
 	}
 

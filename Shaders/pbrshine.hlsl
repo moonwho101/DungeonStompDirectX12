@@ -299,82 +299,80 @@ VertexOut VS(VertexIn vin)
 
 float4 PS(VertexOut pin) : SV_Target
 {
-    // Sample material data
     float4 diffuseAlbedo = gDiffuseAlbedo;
     float3 fresnelR0 = gFresnelR0;
     float roughness = gRoughness;
-    float metal = gMetal;
-
-    // Sample diffuse texture
     diffuseAlbedo *= gDiffuseMap.Sample(gsamAnisotropicWrap, pin.TexC);
 
 #ifdef ALPHA_TEST
     clip(diffuseAlbedo.a - 0.1f);
 #endif
 
+    pin.NormalW = normalize(pin.NormalW);
+    float4 normalMapSample = gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC);
+    float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, pin.NormalW, pin.TangentW);
 
-    // Normal mapping
-    float3 norm = normalize(pin.NormalW);
-    float3 bumpedNormalW = norm;
-    float4 normalMapSample = float4(1.0f, 1.0f, 1.0f, 1.0f);
-
-    normalMapSample = gNormalMap.Sample(gsamAnisotropicWrap, pin.TexC);
-    bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, norm, pin.TangentW);
-
-
-    // Eye vector
     float3 toEyeW = gEyePosW - pin.PosW;
     float distToEye = length(toEyeW);
     toEyeW /= distToEye;
 
-    // SSAO (ambient occlusion)
     pin.SsaoPosH /= pin.SsaoPosH.w;
     float ambientAccess = 1.0f;
 #ifdef SSAO    
     ambientAccess = gSsaoMap.Sample(gsamLinearClamp, pin.SsaoPosH.xy, 0.0f).r;
 #endif
 
-    // Ambient
     float3 ambientColor = ambientAccess * gAmbientLight.rgb * diffuseAlbedo.rgb;
+    ambientColor = pow(ambientColor, 1.0f / 1.2f);
     float4 ambient = float4(ambientColor, 0.0f);
 
-    // Shadow
-    float shadowFactor = CalcShadowFactor(pin.ShadowPosH);
+    const float shininess = (1.0f - roughness) * (normalMapSample.a * 1.0f);
+    Material mat = { diffuseAlbedo, gFresnelR0, shininess, gRoughness, gMetal, gTotalTime };
 
-    // Material struct
-    Material mat = { diffuseAlbedo, fresnelR0, 0.0f, roughness, metal, gTotalTime };
+    float shadowFactor = CalcShadowFactor(pin.ShadowPosH);
 
     float3 N = normalize(bumpedNormalW);
     float3 V = normalize(toEyeW);
-    float3 color = 0.0f;
+    float3 totalLight = 0.0f;
+    int i = 0;
 
     // Directional lights
 #if (NUM_DIR_LIGHTS > 0)
     [unroll]
-    for (int i = 0; i < NUM_DIR_LIGHTS; ++i)
-        color += PBRLightingUnified(gLights[i], 0, mat, pin.PosW, N, V, shadowFactor, 0.0f);
+    for (i = 0; i < NUM_DIR_LIGHTS; ++i)
+    {
+        totalLight += PBRLightingUnified(gLights[i], 0, mat, pin.PosW, N, V, shadowFactor, 0.0f);
+    }
 #endif
-    // Point lights (torch flicker)
+    // Point lights
 #if (NUM_POINT_LIGHTS > 0)
     [unroll]
-    for (int i = NUM_DIR_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; ++i)
-        color += PBRLightingUnified(gLights[i], 1, mat, pin.PosW, N, V, shadowFactor, (float) i);
+    for (i = NUM_DIR_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; ++i)
+    {
+        // Flicker: pass i as offset to timertick for unique flicker per light
+        totalLight += PBRLightingUnified(gLights[i], 1, mat, pin.PosW, N, V, shadowFactor, (float) i);
+    }
 #endif
     // Spot lights
 #if (NUM_SPOT_LIGHTS > 0)
     [unroll]
-    for (int i = NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS + NUM_SPOT_LIGHTS; ++i)
-        color += PBRLightingUnified(gLights[i], 2, mat, pin.PosW, N, V, shadowFactor, 0.0f);
+    for (i = NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS + NUM_SPOT_LIGHTS; ++i)
+    {
+        totalLight += PBRLightingUnified(gLights[i], 2, mat, pin.PosW, N, V, shadowFactor, 0.0f);
+    }
 #endif
 
-    // Add ambient (diffuse only, no IBL)
-    color += ambient.rgb * (1.0f - metal);
+    float4 litColor = ambient + float4(totalLight, 0.0f);
 
-    // Fog
+    //float3 r = reflect(-toEyeW, bumpedNormalW);
+    //float3 fresnelFactor = fresnelR0 + (1.0f - fresnelR0) * pow(1.0f - saturate(dot(bumpedNormalW, r)), 5.0f);
+    //litColor.rgb += shininess * fresnelFactor;
+
 #ifdef FOG
     float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
-    color = lerp(color, gFogColor.rgb, fogAmount);
+    litColor = lerp(litColor, gFogColor, fogAmount);
 #endif
 
-    return float4(color, diffuseAlbedo.a);
+    litColor.a = diffuseAlbedo.a;
+    return litColor;
 }
