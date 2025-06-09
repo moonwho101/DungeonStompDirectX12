@@ -2022,313 +2022,62 @@ void DungeonStompApp::BuildFrameResources()
 	}
 }
 
+
 void DungeonStompApp::BuildMaterials()
 {
-	//Water (0.02f, 0.02f, 0.02f);
-	//Glass (0.08f, 0.08f, 0.08f);
-	//Plastic (0.05f, 0.05f, 0.05f);
-	//Gold (1.0f, 0.71f, 0.29f);
-	//Silver (0.95f, 0.73f, 0.88f);
-	//Copper (0.95f, 0.64f, 0.54f);
-	//383 = tile
-	//384 = tile normal
+    // Pseudocode plan:
+    // 1. Open "materials.txt" for reading.
+    // 2. For each material entry in the file:
+    //    a. Read material name and all properties (MatCBIndex, DiffuseAlbedo, FresnelR0, Roughness, Metal, DiffuseSrvHeapIndex).
+    //    b. Create a Material object, set its properties.
+    //    c. Add to mMaterials map with the name as key.
+    // 3. Close the file.
 
-	//	https://learnopengl.com/PBR/Theory
-	//Material				F0	(Linear)		F0	(sRGB)	Color
-	//Water					(0.02, 0.02, 0.02)	(0.15, 0.15, 0.15)
-	//Plastic / Glass(Low)	(0.03, 0.03, 0.03)	(0.21, 0.21, 0.21)
-	//Plastic High			(0.05, 0.05, 0.05)	(0.24, 0.24, 0.24)
-	//Glass(high) / Ruby	(0.08, 0.08, 0.08)	(0.31, 0.31, 0.31)
-	//Diamond				(0.17, 0.17, 0.17)	(0.45, 0.45, 0.45)
-	//Iron					(0.56, 0.57, 0.58)	(0.77, 0.78, 0.78)
-	//Copper				(0.95, 0.64, 0.54)	(0.98, 0.82, 0.76)
-	//Gold					(1.00, 0.71, 0.29)	(1.00, 0.86, 0.57)
-	//Aluminium				(0.91, 0.92, 0.92)	(0.96, 0.96, 0.97)
-	//Silver				(0.95, 0.93, 0.88)	(0.98, 0.97, 0.95)
+    std::ifstream infile("materials.txt");
+    if (!infile.is_open()) {
+        // Fallback: create a default material if file not found
+        auto defaultMat = std::make_unique<Material>();
+        defaultMat->Name = "default";
+        defaultMat->MatCBIndex = 0;
+        defaultMat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+        defaultMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+        defaultMat->Roughness = 0.815f;
+        defaultMat->Metal = 0.1f;
+        mMaterials["default"] = std::move(defaultMat);
+        return;
+    }
 
-	auto default = std::make_unique<Material>();
-	default->Name = "default";
-	default->MatCBIndex = 0;
-	default->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	default->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	default->Roughness = 0.815f;
-	default->Metal = 0.1f;
+    std::string line;
+    while (std::getline(infile, line)) {
+        // Skip empty lines or comments
+        if (line.empty() || line[0] == '#') continue;
 
-	auto grass = std::make_unique<Material>();
-	grass->Name = "grass";
-	grass->MatCBIndex = 1;
-	grass->DiffuseAlbedo = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	grass->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	grass->Roughness = 0.925f;
-	grass->Metal = 0.1f;
+        std::istringstream iss(line);
+        std::string name;
+        int matCBIndex = -1;
+        float daR, daG, daB, daA;
+        float frR, frG, frB;
+        float roughness, metal;
+        int diffuseSrvHeapIndex = -1;
 
-	auto water = std::make_unique<Material>();
-	water->Name = "water";
-	water->MatCBIndex = 2;
-	water->DiffuseSrvHeapIndex = 0;
-	water->DiffuseAlbedo = XMFLOAT4(0.5f, 0.5f, 1.0f, 0.5f);
-	//Water (0.02f, 0.02f, 0.02f);
-	water->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	water->Roughness = 0.326f;
-	water->Metal = 0.2f;
+        // Format: name matCBIndex daR daG daB daA frR frG frB roughness metal [diffuseSrvHeapIndex]
+        iss >> name >> matCBIndex >> daR >> daG >> daB >> daA >> frR >> frG >> frB >> roughness >> metal;
+        if (!(iss >> diffuseSrvHeapIndex)) {
+            diffuseSrvHeapIndex = 0; // default if not present
+        }
 
-	auto brick = std::make_unique<Material>();
-	brick->Name = "brick";
-	brick->MatCBIndex = 3;
-	brick->DiffuseSrvHeapIndex = 0;
-	brick->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	brick->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	brick->Roughness = 0.825f;
-	brick->Metal = 0.12f;
+        auto mat = std::make_unique<Material>();
+        mat->Name = name;
+        mat->MatCBIndex = matCBIndex;
+        mat->DiffuseAlbedo = XMFLOAT4(daR, daG, daB, daA);
+        mat->FresnelR0 = XMFLOAT3(frR, frG, frB);
+        mat->Roughness = roughness;
+        mat->Metal = metal;
+        mat->DiffuseSrvHeapIndex = diffuseSrvHeapIndex;
 
-	auto stone = std::make_unique<Material>();
-	stone->Name = "stone";
-	stone->MatCBIndex = 4;
-	stone->DiffuseSrvHeapIndex = 0;
-	stone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	stone->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
-	stone->Roughness = 0.743f;
-	stone->Metal = 0.22f;
-
-	auto tile = std::make_unique<Material>();
-	tile->Name = "tile";
-	tile->MatCBIndex = 5;
-	tile->DiffuseSrvHeapIndex = 0;
-	tile->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	tile->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	tile->Roughness = 0.92f;
-	tile->Metal = 0.20f;
-
-	auto crate = std::make_unique<Material>();
-	crate->Name = "crate";
-	crate->MatCBIndex = 6;
-	crate->DiffuseSrvHeapIndex = 0;
-	crate->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	crate->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
-	crate->Roughness = 0.796f;
-	crate->Metal = 0.160f;
-
-	auto ice = std::make_unique<Material>();
-	ice->Name = "ice";
-	ice->MatCBIndex = 7;
-	ice->DiffuseSrvHeapIndex = 0;
-	ice->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	ice->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
-	ice->Roughness = 0.415f;
-	ice->Metal = 0.40f;
-
-	auto bone = std::make_unique<Material>();
-	bone->Name = "bone";
-	bone->MatCBIndex = 8;
-	bone->DiffuseSrvHeapIndex = 0;
-	bone->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	bone->FresnelR0 = XMFLOAT3(0.09f, 0.09f, 0.09f);
-	bone->Roughness = 0.438f;
-	bone->Metal = 0.41f;
-
-	auto metal = std::make_unique<Material>();
-	metal->Name = "metal";
-	metal->MatCBIndex = 9;
-	metal->DiffuseSrvHeapIndex = 0;
-	metal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	metal->FresnelR0 = XMFLOAT3(0.12f, 0.12f, 0.12f);
-	metal->Roughness = 0.014f;
-	metal->Metal = 0.5f;
-
-	auto glass = std::make_unique<Material>();
-	glass->Name = "glass";
-	glass->MatCBIndex = 10;
-	glass->DiffuseSrvHeapIndex = 0;
-	glass->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	//Glass (0.08f, 0.08f, 0.08f);
-	glass->FresnelR0 = XMFLOAT3(0.08f, 0.08f, 0.08f);
-	glass->Roughness = 0.224f;
-	glass->Metal = 0.3f;
-
-	auto wood = std::make_unique<Material>();
-	wood->Name = "wood";
-	wood->MatCBIndex = 11;
-	wood->DiffuseSrvHeapIndex = 0;
-	wood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	wood->FresnelR0 = XMFLOAT3(0.04f, 0.04f, 0.04f);
-	wood->Roughness = 0.838f;
-	wood->Metal = 0.17f;
-
-	auto flat = std::make_unique<Material>();
-	flat->Name = "flat";
-	flat->MatCBIndex = 12;
-	flat->DiffuseSrvHeapIndex = 0;
-	flat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	flat->FresnelR0 = XMFLOAT3(0.01f, 0.01f, 0.01f);
-	flat->Roughness = 0.932f;
-	flat->Metal = 0.1f;
-
-	auto tilebrown = std::make_unique<Material>();
-	tilebrown->Name = "tilebrown";
-	tilebrown->MatCBIndex = 13;
-	tilebrown->DiffuseSrvHeapIndex = 0;
-	tilebrown->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	tilebrown->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	tilebrown->Roughness = 0.424f;
-	tilebrown->Metal = 0.424f;
-
-
-
-	auto monster = std::make_unique<Material>();
-	monster->Name = "monster";
-	monster->MatCBIndex = 14;
-	monster->DiffuseSrvHeapIndex = 0;
-	monster->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	monster->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	monster->Roughness = 0.833f;
-	monster->Metal = 0.143f;
-
-
-	auto monsterweapon = std::make_unique<Material>();
-	monsterweapon->Name = "monsterweapon";
-	monsterweapon->MatCBIndex = 15;
-	monsterweapon->DiffuseSrvHeapIndex = 0;
-	monsterweapon->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	monsterweapon->FresnelR0 = XMFLOAT3(0.06f, 0.06f, 0.06f);
-	monsterweapon->Roughness = 0.702f;
-	monsterweapon->Metal = 0.33f;
-
-	auto playerweapon = std::make_unique<Material>();
-	playerweapon->Name = "playerweapon";
-	playerweapon->MatCBIndex = 16;
-	playerweapon->DiffuseSrvHeapIndex = 0;
-	playerweapon->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	playerweapon->FresnelR0 = XMFLOAT3(0.07f, 0.07f, 0.07f);
-	playerweapon->Roughness = 0.742f;
-	playerweapon->Metal = 0.34f;
-
-
-	auto coin = std::make_unique<Material>();
-	coin->Name = "coin";
-	coin->MatCBIndex = 17;
-	coin->DiffuseSrvHeapIndex = 0;
-	coin->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	//Gold(1.0f, 0.71f, 0.29f);
-	coin->FresnelR0 = XMFLOAT3(1.0f, 0.71f, 0.29f);
-	coin->Roughness = 0.014f;
-	coin->Metal = 0.31f;
-
-	auto torchholder = std::make_unique<Material>();
-	torchholder->Name = "torchholder";
-	torchholder->MatCBIndex = 18;
-	torchholder->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	torchholder->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
-	torchholder->Roughness = 0.615f;
-	torchholder->Metal = 0.391f;
-
-	auto chestwood = std::make_unique<Material>();
-	chestwood->Name = "chestwood";
-	chestwood->MatCBIndex = 19;
-	chestwood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	chestwood->FresnelR0 = XMFLOAT3(0.04f, 0.04f, 0.04f);
-	chestwood->Roughness = 0.938f;
-	chestwood->Metal = 0.256f;
-
-	auto chestmetal = std::make_unique<Material>();
-	chestmetal->Name = "chestmetal";
-	chestmetal->MatCBIndex = 20;
-	chestmetal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	chestmetal->FresnelR0 = XMFLOAT3(0.12f, 0.12f, 0.12f);
-	chestmetal->Roughness = 0.014f;
-	chestmetal->Metal = 0.426f;
-
-	auto stonemain = std::make_unique<Material>();
-	stonemain->Name = "stonemain";
-	stonemain->MatCBIndex = 21;
-	stonemain->DiffuseSrvHeapIndex = 0;
-	stonemain->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	stonemain->FresnelR0 = XMFLOAT3(0.03f, 0.03f, 0.03f);
-	stonemain->Roughness = 0.743f;
-	stonemain->Metal = 0.46f;
-
-	auto doorwood = std::make_unique<Material>();
-	doorwood->Name = "doorwood";
-	doorwood->MatCBIndex = 22;
-	doorwood->DiffuseSrvHeapIndex = 0;
-	doorwood->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	doorwood->FresnelR0 = XMFLOAT3(0.04f, 0.04f, 0.04f);
-	doorwood->Roughness = 0.87938f;
-	doorwood->Metal = 0.48f;
-
-	auto doormetal = std::make_unique<Material>();
-	doormetal->Name = "doormetal";
-	doormetal->MatCBIndex = 23;
-	doormetal->DiffuseSrvHeapIndex = 0;
-	doormetal->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	doormetal->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
-	doormetal->Roughness = 0.7382f;
-	doormetal->Metal = 0.38f;
-
-	auto button = std::make_unique<Material>();
-	button->Name = "button";
-	button->MatCBIndex = 24;
-	button->DiffuseSrvHeapIndex = 0;
-	button->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	button->FresnelR0 = XMFLOAT3(0.06f, 0.06f, 0.06f);
-	button->Roughness = 0.124f;
-	button->Metal = 0.23f;
-
-	auto ceilingmain = std::make_unique<Material>();
-	ceilingmain->Name = "ceilingmain";
-	ceilingmain->MatCBIndex = 25;
-	ceilingmain->DiffuseSrvHeapIndex = 0;
-	ceilingmain->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	ceilingmain->FresnelR0 = XMFLOAT3(0.031f, 0.031f, 0.031f);
-	ceilingmain->Roughness = 0.762f;
-	ceilingmain->Metal = 0.18f;
-
-	auto pillar = std::make_unique<Material>();
-	pillar->Name = "pillar";
-	pillar->MatCBIndex = 26;
-	pillar->DiffuseSrvHeapIndex = 0;
-	pillar->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	pillar->FresnelR0 = XMFLOAT3(0.022f, 0.022f, 0.022f);
-	pillar->Roughness = 0.725f;
-	pillar->Metal = 0.11f;
-
-	//new material - increment MatCBIndex 
-
-	mMaterials["default"] = std::move(default);
-	mMaterials["grass"] = std::move(grass);
-	mMaterials["water"] = std::move(water);
-
-	mMaterials["brick"] = std::move(brick);
-	mMaterials["stone"] = std::move(stone);
-	mMaterials["tile"] = std::move(tile);
-
-	mMaterials["crate"] = std::move(crate);
-	mMaterials["ice"] = std::move(ice);
-	mMaterials["bone"] = std::move(bone);
-	mMaterials["metal"] = std::move(metal);
-
-	mMaterials["glass"] = std::move(glass);
-	mMaterials["wood"] = std::move(wood);
-	mMaterials["flat"] = std::move(flat);
-
-	mMaterials["tilebrown"] = std::move(tilebrown);
-	mMaterials["monster"] = std::move(monster);
-	mMaterials["monsterweapon"] = std::move(monsterweapon);
-
-	mMaterials["playerweapon"] = std::move(playerweapon);
-	mMaterials["coin"] = std::move(coin);
-	mMaterials["torchholder"] = std::move(torchholder);
-
-	mMaterials["chestwood"] = std::move(chestwood);
-	mMaterials["chestmetal"] = std::move(chestmetal);
-	mMaterials["stonemain"] = std::move(stonemain);
-
-	mMaterials["doorwood"] = std::move(doorwood);
-	mMaterials["doormetal"] = std::move(doormetal);
-	mMaterials["button"] = std::move(button);
-
-	mMaterials["ceilingmain"] = std::move(ceilingmain);
-	mMaterials["pillar"] = std::move(pillar);
-
+        mMaterials[name] = std::move(mat);
+    }
+    infile.close();
 }
 
 void DungeonStompApp::BuildRenderItems()
