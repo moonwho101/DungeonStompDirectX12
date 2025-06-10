@@ -2990,20 +2990,20 @@ void DungeonStompApp::ProcessLights11()
 
 				LightContainer[11 + count].Position = DirectX::XMFLOAT3{ your_missle[misslecount].x, your_missle[misslecount].y, your_missle[misslecount].z };
 				LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 0.0f, 0.0f, 1.0f };
-				LightContainer[11 + count].FalloffStart = 200.0f;
+				LightContainer[11 + count].FalloffStart = 100.0f;
 				LightContainer[11 + count].Direction = { 0.0f, -1.0f, 0.0f };
-				LightContainer[11 + count].FalloffEnd = 300.0f;
+				LightContainer[11 + count].FalloffEnd = 200.0f;
 				LightContainer[11 + count].SpotPower = 10.0f;
 
 
 				if (your_missle[misslecount].model_id == 103) {
-					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 0.0f, 1.0f, 0.843f };
+					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 0.0f, 3.0f, 2.843f };
 				}
 				else if (your_missle[misslecount].model_id == 104) {
-					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 1.0f, 0.396f, 0.0f };
+					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 3.0f, 0.396f, 0.5f };
 				}
 				else if (your_missle[misslecount].model_id == 105) {
-					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 0.91f, 1.0f, 0.0f };
+					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 1.91f, 3.1f, 1.0f };
 
 				}
 				count++;
