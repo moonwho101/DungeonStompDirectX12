@@ -1089,19 +1089,16 @@ int tracknormal[MAX_NUM_QUADS];
 void SmoothNormals(int start_cnt) {
 	// Smooth the vertex normals out so the models look less blocky.
 
-	// Use a hash map to group vertices by position for O(n) performance.
-	// This avoids the O(n^2) nested loop.
 	struct Vec3Key {
 		float x, y, z;
 		bool operator==(const Vec3Key& other) const {
-			// Use a small epsilon to account for floating point inaccuracies.
 			constexpr float eps = 1e-5f;
 			return fabs(x - other.x) < eps && fabs(y - other.y) < eps && fabs(z - other.z) < eps;
 		}
 	};
 	struct Vec3KeyHash {
 		std::size_t operator()(const Vec3Key& k) const {
-			// Simple hash combining
+			// Use bit_cast for better hashing if available, else stick to int cast
 			std::size_t hx = std::hash<int>()(static_cast<int>(k.x * 10000));
 			std::size_t hy = std::hash<int>()(static_cast<int>(k.y * 10000));
 			std::size_t hz = std::hash<int>()(static_cast<int>(k.z * 10000));
@@ -1109,34 +1106,41 @@ void SmoothNormals(int start_cnt) {
 		}
 	};
 
-	// Map from vertex position to indices
+	// Preallocate to avoid rehashing
 	std::unordered_map<Vec3Key, std::vector<int>, Vec3KeyHash> vertMap;
+	vertMap.reserve(static_cast<size_t>(cnt - start_cnt));
+
+	// Group indices by position
 	for (int i = start_cnt; i < cnt; ++i) {
 		Vec3Key key{ src_v[i].x, src_v[i].y, src_v[i].z };
 		vertMap[key].push_back(i);
 	}
 
-	for (const auto& pair : vertMap) {
+	// Use local variables to avoid repeated lookups
+	for (auto& pair : vertMap) {
 		const std::vector<int>& indices = pair.second;
 		if (indices.size() > 1) {
 			XMVECTOR sum = XMVectorZero();
 			XMVECTOR sumtan = XMVectorZero();
 			for (int idx : indices) {
-				XMFLOAT3 n{ src_v[idx].nx, src_v[idx].ny, src_v[idx].nz };
+				// Use pointer arithmetic to avoid repeated array lookups
+				const D3DVERTEX2* v = &src_v[idx];
+				XMFLOAT3 n{ v->nx, v->ny, v->nz };
+				XMFLOAT3 t{ v->nmx, v->nmy, v->nmz };
 				sum = XMVectorAdd(sum, XMLoadFloat3(&n));
-				XMFLOAT3 t{ src_v[idx].nmx, src_v[idx].nmy, src_v[idx].nmz };
 				sumtan = XMVectorAdd(sumtan, XMLoadFloat3(&t));
 			}
 			XMFLOAT3 final2, finaltan;
 			XMStoreFloat3(&final2, XMVector3Normalize(sum));
 			XMStoreFloat3(&finaltan, XMVector3Normalize(sumtan));
 			for (int idx : indices) {
-				src_v[idx].nx = final2.x;
-				src_v[idx].ny = final2.y;
-				src_v[idx].nz = final2.z;
-				src_v[idx].nmx = finaltan.x;
-				src_v[idx].nmy = finaltan.y;
-				src_v[idx].nmz = finaltan.z;
+				D3DVERTEX2* v = &src_v[idx];
+				v->nx = final2.x;
+				v->ny = final2.y;
+				v->nz = final2.z;
+				v->nmx = finaltan.x;
+				v->nmy = finaltan.y;
+				v->nmz = finaltan.z;
 			}
 		}
 	}
