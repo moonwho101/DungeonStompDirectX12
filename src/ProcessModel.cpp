@@ -1094,6 +1094,7 @@ void SmoothNormals(int start_cnt) {
 	struct Vec3Key {
 		float x, y, z;
 		bool operator==(const Vec3Key& other) const {
+			// Use a small epsilon to account for floating point inaccuracies.
 			constexpr float eps = 1e-5f;
 			return fabs(x - other.x) < eps && fabs(y - other.y) < eps && fabs(z - other.z) < eps;
 		}
