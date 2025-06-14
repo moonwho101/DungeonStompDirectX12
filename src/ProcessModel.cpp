@@ -1089,7 +1089,7 @@ int tracknormal[MAX_NUM_QUADS];
 void SmoothNormals(int start_cnt) {
 	// Smooth the vertex normals out so the models look less blocky.
 
-	// Use a hash map to group vertices by position for O(n) performance.Add commentMore actions
+	// Use a hash map to group vertices by position for O(n) performance.
 	// This avoids the O(n^2) nested loop.
 	struct Vec3Key {
 		float x, y, z;
