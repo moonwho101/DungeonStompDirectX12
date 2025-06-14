@@ -1089,6 +1089,8 @@ int tracknormal[MAX_NUM_QUADS];
 void SmoothNormals(int start_cnt) {
 	// Smooth the vertex normals out so the models look less blocky.
 
+	// Use a hash map to group vertices by position for O(n) performance.Add commentMore actions
+	// This avoids the O(n^2) nested loop.
 	struct Vec3Key {
 		float x, y, z;
 		bool operator==(const Vec3Key& other) const {
@@ -1098,6 +1100,7 @@ void SmoothNormals(int start_cnt) {
 	};
 	struct Vec3KeyHash {
 		std::size_t operator()(const Vec3Key& k) const {
+			// Simple hash combining
 			// Use bit_cast for better hashing if available, else stick to int cast
 			std::size_t hx = std::hash<int>()(static_cast<int>(k.x * 10000));
 			std::size_t hy = std::hash<int>()(static_cast<int>(k.y * 10000));
@@ -1106,6 +1109,7 @@ void SmoothNormals(int start_cnt) {
 		}
 	};
 
+	// Map from vertex position to indices
 	// Preallocate to avoid rehashing
 	std::unordered_map<Vec3Key, std::vector<int>, Vec3KeyHash> vertMap;
 	vertMap.reserve(static_cast<size_t>(cnt - start_cnt));
