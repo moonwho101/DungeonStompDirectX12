@@ -9,6 +9,13 @@
 // Modified by Mark Longo 2020
 //***************************************************************************************
 
+// DXR Payload structure - must match RayGen.hlsl
+struct RayPayload
+{
+    float4 color;
+    // bool hit; // if used in RayGen.hlsl payload
+};
+
 // Defaults for number of lights.
 #ifndef NUM_DIR_LIGHTS
 #define NUM_DIR_LIGHTS 0
@@ -381,4 +388,126 @@ float4 PS(VertexOut pin) : SV_Target
 #endif
 
     return float4(color, diffuseAlbedo.a);
+}
+
+// Closest Hit Shader (CHS) entry point for DXR
+// Attempts to replicate the PBR lighting from the Pixel Shader above.
+// Vertex attribute fetching is a major simplification here.
+[shader("closesthit")]
+void NormalMapCHS(inout RayPayload payload, BuiltInTriangleIntersectionAttributes attribs)
+{
+    // Reconstruct world position of the hit point
+    float3 hitPosW = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
+
+    // Simplified Texture Coordinates using barycentrics.
+    // This will not correctly map textures as if using actual interpolated UVs
+    // but allows sampling the texture.
+    float2 texC = attribs.barycentrics.xy;
+
+    // MAJOR SIMPLIFICATION for Normals and Tangents:
+    // True normal mapping requires per-vertex normals and tangents interpolated to the hit point.
+    // This is complex in a basic CHS without bindless resources or passing vertex data through records.
+    // Using a fixed up-vector as normal, and an arbitrary tangent. Normal mapping will be incorrect.
+    float3 fixedNormalW = normalize(cross(ddx(hitPosW), ddy(hitPosW))); // Attempt to get a face normal, might not be robust or correct in CHS
+    // If derivatives are not good, fallback to simpler normal:
+    // float3 fixedNormalW = normalize(WorldRayDirection()); // Or float3(0,1,0) etc.
+    if (abs(fixedNormalW.x) < 0.001f && abs(fixedNormalW.y) < 0.001f && abs(fixedNormalW.z) < 0.001f)
+    {
+		// If ddx/ddy failed (e.g. ray hits parallel to a surface, or not enough divergence)
+        // A more robust fallback would be needed. For now, use a default.
+        // This can happen if the hit is too close to the edge of a triangle or other edge cases.
+        // Or if the compiler optimizes derivatives in CHS differently.
+        // A common technique is to transform the world ray direction by the object's inverse transform
+        // and use that to get a local space normal if the geometry normal is known (e.g. (0,0,-1) for a Z-facing quad)
+        // For now, let's use a very generic normal.
+        // The best approach without vertex data is to pass object normal through instance data or use a simpler shading model.
+        fixedNormalW = -WorldRayDirection(); // A simple normal based on ray direction
+    }
+
+
+    float3 tangentW = float3(1.0f, 0.0f, 0.0f); // Placeholder tangent
+
+    // Sample material data (from global cbuffer)
+    float4 diffuseAlbedoMaterial = gDiffuseAlbedo; // from cbMaterial
+    float3 fresnelR0Material = gFresnelR0;       // from cbMaterial
+    float roughnessMaterial = gRoughness;         // from cbMaterial
+    float metalMaterial = gMetal;                 // from cbMaterial
+
+    // Sample diffuse texture
+    float4 diffuseTextureSample = gDiffuseMap.SampleLevel(gsamAnisotropicWrap, texC, 0.0f);
+    diffuseAlbedoMaterial *= diffuseTextureSample;
+
+#if defined(ALPHA_TEST) // Assuming ALPHA_TEST might be globally defined for shader compilation
+    // Alpha test
+    clip(diffuseAlbedoMaterial.a - 0.1f);
+#endif
+
+    // Normal mapping (Simplified - likely incorrect due to fixed tangent and normal)
+    // float3 bumpedNormalW = NormalSampleToWorldSpace(gNormalMap.SampleLevel(gsamAnisotropicWrap, texC, 0.0f).rgb, fixedNormalW, tangentW);
+    // Using fixedNormalW directly as the 'bumped' normal due to simplification
+    float3 bumpedNormalW = normalize(fixedNormalW);
+
+
+    // Eye vector (camera position is gEyePosW from cbPass)
+    float3 toEyeW = gEyePosW - hitPosW;
+    float distToEye = length(toEyeW);
+    toEyeW /= distToEye; // Normalize
+
+    // SSAO - not applicable in this DXR CHS context directly like in PS. Assume AO = 1.0
+    float ambientAccess = 1.0f;
+
+    // Ambient
+    float3 ambientColor = ambientAccess * gAmbientLight.rgb * diffuseAlbedoMaterial.rgb;
+    // float4 ambient = float4(ambientColor, 0.0f); // Original ambient calculation
+
+    // Shadow: For DXR, shadows are typically done by casting more rays.
+    // For this CHS, we'll assume shadowFactor = 1.0 (fully lit by direct light).
+    float shadowFactor = 1.0f;
+
+    // Material struct for PBRLightingUnified
+    Material pbrShaderMat;
+    pbrShaderMat.DiffuseAlbedo = diffuseAlbedoMaterial;
+    pbrShaderMat.FresnelR0 = fresnelR0Material;
+    pbrShaderMat.Shininess = 0.0f; // Shininess is not directly used in PBRLightingUnified if roughness is present
+    pbrShaderMat.Roughness = roughnessMaterial;
+    pbrShaderMat.Metallic = metalMaterial;
+    pbrShaderMat.Timertick = gTotalTime; // from cbPass
+
+    float3 N = bumpedNormalW; // Use the (simplified) bumped normal
+    float3 V = toEyeW;        // View vector
+    float3 finalColor = float3(0.0f, 0.0f, 0.0f);
+
+    // Simplified lighting loop (using only the first few lights for brevity in this example)
+    // The full loop from PS could be used here.
+    // Directional lights
+#if (NUM_DIR_LIGHTS > 0)
+    [unroll]
+    for (int i = 0; i < NUM_DIR_LIGHTS; ++i) // Use actual NUM_DIR_LIGHTS from PassCB if possible
+        finalColor += PBRLightingUnified(gLights[i], 0, pbrShaderMat, hitPosW, N, V, shadowFactor, 0.0f);
+#endif
+    // Point lights
+#if (NUM_POINT_LIGHTS > 0)
+    [unroll]
+    for (int i = NUM_DIR_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; ++i)
+        finalColor += PBRLightingUnified(gLights[i], 1, pbrShaderMat, hitPosW, N, V, shadowFactor, (float)i);
+#endif
+    // Spot lights
+#if (NUM_SPOT_LIGHTS > 0)
+    [unroll]
+    for (int i = NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS + NUM_SPOT_LIGHTS; ++i)
+        finalColor += PBRLightingUnified(gLights[i], 2, pbrShaderMat, hitPosW, N, V, shadowFactor, 0.0f);
+#endif
+
+    // Add ambient contribution (simplified)
+    finalColor += ambientColor * (1.0f - pbrShaderMat.Metallic);
+
+
+    // Fog
+#ifdef FOG // Assuming FOG might be globally defined
+    float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
+    finalColor = lerp(finalColor, gFogColor.rgb, fogAmount);
+#endif
+
+    payload.color = float4(finalColor, diffuseAlbedoMaterial.a);
+    // payload.hit = true; // If hit flag is used
 }

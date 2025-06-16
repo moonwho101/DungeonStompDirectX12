@@ -2,6 +2,18 @@
 #include "ShadowMap.h"
 #include "Ssao.h"
 
+// DirectX Raytracing (DXR) specific headers.
+// #include <d3d12.h> // This should already be included via d3dApp.h or d3dUtil.h
+// #include "d3dx12.h" // This is already present in src/ folder
+#include <dxgi1_6.h> // For IDXGIFactory6 for adapter enumeration
+
+// DXR fallback layer - Forward declare for now.
+// Actual headers would need to be integrated into the build system (e.g., vcpkg or copied locally)
+// For the purpose of this exercise, we'll assume they can be forward-declared
+// and the linking/header paths would be set up in a real build environment.
+struct ID3D12RaytracingFallbackDevice;
+struct ID3D12Device5;
+
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -115,6 +127,12 @@ private:
 	void UpdateShadowTransform(const GameTimer& gt, int light);
 	void CreateRtvAndDsvDescriptorHeaps();
 
+	// DXR specific methods
+	void BuildDxrPipelineObjects();
+	void BuildBottomLevelAccelerationStructure();
+	void BuildTopLevelAccelerationStructure();
+	void BuildShaderBindingTable();
+
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> GetStaticSamplers();
 
 	float GetHillsHeight(float x, float z)const;
@@ -210,6 +228,38 @@ private:
 
 	};
 	XMFLOAT3 mRotatedLightDirections[3];
+
+	// DXR related members
+	bool mDxrSupported = false;
+	Microsoft::WRL::ComPtr<ID3D12Device5> mDxrDevice;
+	Microsoft::WRL::ComPtr<ID3D12RaytracingFallbackDevice> mFallbackDevice;
+	Microsoft::WRL::ComPtr<ID3D12StateObject> mDxrStateObject; // DXR PSO
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> mDxrGlobalRootSignature; // Global root signature for DXR
+
+	// Acceleration Structures
+	Microsoft::WRL::ComPtr<ID3D12Resource> mBottomLevelAccelerationStructure;
+	Microsoft::WRL::ComPtr<ID3D12Resource> mBlasScratchBuffer; // Scratch buffer for BLAS build
+	Microsoft::WRL::ComPtr<ID3D12Resource> mTopLevelAccelerationStructure;
+	Microsoft::WRL::ComPtr<ID3D12Resource> mTlasScratchBuffer; // Scratch buffer for TLAS build
+	Microsoft::WRL::ComPtr<ID3D12Resource> mInstanceDescsUploadBuffer; // For TLAS instance descriptions
+
+	// DXR Output Texture
+	Microsoft::WRL::ComPtr<ID3D12Resource> mRaytracingOutput;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE mRaytracingOutputUavCpuHandle;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE mRaytracingOutputUavGpuHandle;
+	UINT mRaytracingOutputUavDescriptorHeapIndex = -1;
+
+	// TLAS SRV (for binding to RayGen shader)
+	CD3DX12_CPU_DESCRIPTOR_HANDLE mTlasSrvCpuHandle;
+	CD3DX12_GPU_DESCRIPTOR_HANDLE mTlasSrvGpuHandle;
+	UINT mTlasSrvDescriptorHeapIndex = -1;
+
+	// Shader Binding Table (SBT)
+	Microsoft::WRL::ComPtr<ID3D12Resource> mShaderTable;
+	UINT mShaderTableEntrySize = 0; // Size of one entry/record
+	D3D12_GPU_VIRTUAL_ADDRESS_RANGE mRayGenShaderSbtEntry;
+	D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE mMissShaderSbtEntry;
+	D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE mHitGroupSbtEntry;
 
 
 };
