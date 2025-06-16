@@ -240,144 +240,137 @@ void PlayerAnimation()
 
 }
 
-void StrifePlayer(FLOAT& fTimeKey, bool addVel)
-{
-	float step_left_angy = 0;
-	float r = 15.0f;
 
-	if (playermovestrife == 6)
-	{
-		step_left_angy = angy - 90;
-
-		if (step_left_angy < 0)
-			step_left_angy += 360;
-
-		if (step_left_angy >= 360)
-			step_left_angy = step_left_angy - 360;
-
-		r = (playerspeed)*fTimeKey;
-
-		if (addVel) {
-
-			savevelocity.x = r * sinf(step_left_angy * k) + savevelocity.x;
-			savevelocity.y = 0.0f;
-			savevelocity.z = r * cosf(step_left_angy * k) + savevelocity.z;
-		}
-		else {
-			savevelocity.x = r * sinf(step_left_angy * k);
-			savevelocity.y = 0.0f;
-			savevelocity.z = r * cosf(step_left_angy * k);
-		}
-	}
-
-	if (playermovestrife == 7)
-	{
-		step_left_angy = angy + 90;
-
-		if (step_left_angy < 0)
-			step_left_angy += 360;
-
-		if (step_left_angy >= 360)
-			step_left_angy = step_left_angy - 360;
-
-		r = (playerspeed)*fTimeKey;
-
-
-		if (addVel) {
-
-			savevelocity.x = r * sinf(step_left_angy * k) + savevelocity.x;
-			savevelocity.y = 0.0f;
-			savevelocity.z = r * cosf(step_left_angy * k) + savevelocity.z;
-		}
-		else {
-			savevelocity.x = r * sinf(step_left_angy * k);
-			savevelocity.y = 0.0f;
-			savevelocity.z = r * cosf(step_left_angy * k);
-
-		}
-	}
-}
+// Replace MovePlayer and StrifePlayer with more physics-like movement
 
 bool MovePlayer(const FLOAT& fTimeKey)
 {
-	bool addVel = false;
+    // Physics parameters
+    static XMFLOAT3 velocity = {0.0f, 0.0f, 0.0f};
+    static XMFLOAT3 acceleration = {0.0f, 0.0f, 0.0f};
+    const float maxSpeed = playerspeedmax;
+    const float accelRate = 1200.0f; // units/sec^2
+    const float friction = 8.0f;     // friction coefficient
 
-	float r = (playerspeed)*fTimeKey;
-	currentspeed = r;
+    // Calculate desired direction
+    XMFLOAT3 desiredDir = {0.0f, 0.0f, 0.0f};
+    if (playermove == 1) { // forward
+        desiredDir.x += sinf(angy * k);
+        desiredDir.z += cosf(angy * k);
+    }
+    if (playermove == 4) { // backward
+        desiredDir.x -= sinf(angy * k);
+        desiredDir.z -= cosf(angy * k);
+    }
 
-	savevelocity = { 0.0f, 0.0f, 0.0f };
+    // Normalize desired direction
+    float len = sqrtf(desiredDir.x * desiredDir.x + desiredDir.z * desiredDir.z);
+    if (len > 0.01f) {
+        desiredDir.x /= len;
+        desiredDir.z /= len;
+    }
 
-	direction = 0;
-	if (playermove == 1)
-	{
-		direction = 1;
-		directionlast = 1;
-	}
+    // Apply acceleration in desired direction
+    acceleration.x = desiredDir.x * accelRate;
+    acceleration.y = 0.0f;
+    acceleration.z = desiredDir.z * accelRate;
 
-	if (playermove == 4)
-	{
-		direction = -1;
-		directionlast = -1;
-	}
+    // Apply friction if no input
+    if (len < 0.01f) {
+        acceleration.x = -velocity.x * friction;
+        acceleration.z = -velocity.z * friction;
+    }
 
-	if (movespeed < playerspeedmax && directionlast != 0)
-	{
-		addVel = true;
+    // Integrate velocity
+    velocity.x += acceleration.x * fTimeKey;
+    velocity.z += acceleration.z * fTimeKey;
 
-		if (direction)
-		{
-			if (moveaccel * movetime >= playerspeedlevel)
-			{
-				movespeed = playerspeedlevel * fTimeKey;
-			}
-			else
-			{
-				movetime = movetime + fTimeKey;
-				movespeed = moveaccel * (0.5f * movetime * movetime);
-				movespeedsave = movespeed;
-				movespeed = movespeed - movespeedold;
-				movespeedold = movespeedsave;
-			}
+    // Clamp speed
+    float speed = sqrtf(velocity.x * velocity.x + velocity.z * velocity.z);
+    if (speed > maxSpeed) {
+        velocity.x = (velocity.x / speed) * maxSpeed;
+        velocity.z = (velocity.z / speed) * maxSpeed;
+    }
 
-			r = movespeed;
-		}
-		else
-		{
-			movetime = movetime - fTimeKey;
+    // Output to savevelocity for world collision
+    savevelocity.x = velocity.x * fTimeKey;
+    savevelocity.y = 0.0f;
+    savevelocity.z = velocity.z * fTimeKey;
 
-			if (movetime <= 0.0)
-			{
-				directionlast = 0;
-				movetime = 0;
-				r = 0;
-			}
-			else
-			{
-				movespeed = moveaccel * (0.5f * movetime * movetime);
-				movespeedsave = movespeed;
-				movespeed = movespeed - movespeedold;
-				movespeedold = movespeedsave;
+    // If velocity is very small, zero it out
+    if (fabsf(velocity.x) < 0.01f) velocity.x = 0.0f;
+    if (fabsf(velocity.z) < 0.01f) velocity.z = 0.0f;
 
-			}
-			r = -1 * movespeed;
-		}
-		//r = playerspeed * fTimeKey;
-
-		savevelocity.x = directionlast * r * sinf(angy * k);
-		savevelocity.y = 0.0f;
-		savevelocity.z = directionlast * r * cosf(angy * k);
-	}
-	else
-	{
-		movespeed = 0.0f;
-		movetime = 0.0f;
-		movespeedold = 0.0f;
-		r = 0.0f;
-	}
-
-	return addVel;
+    // Return true if we are moving (for strafe to add velocity)
+    return (speed > 0.01f);
 }
 
+void StrifePlayer(FLOAT& fTimeKey, bool addVel)
+{
+    // Physics parameters
+    static XMFLOAT3 strafeVel = {0.0f, 0.0f, 0.0f};
+    static XMFLOAT3 strafeAccel = {0.0f, 0.0f, 0.0f};
+    const float maxStrafeSpeed = playerspeedmax;
+    const float strafeAccelRate = 1200.0f;
+    const float strafeFriction = 8.0f;
+
+    XMFLOAT3 desiredStrafe = {0.0f, 0.0f, 0.0f};
+    if (playermovestrife == 6) { // left
+        float ang = angy - 90.0f;
+        if (ang < 0) ang += 360.0f;
+        desiredStrafe.x = sinf(ang * k);
+        desiredStrafe.z = cosf(ang * k);
+    }
+    if (playermovestrife == 7) { // right
+        float ang = angy + 90.0f;
+        if (ang >= 360.0f) ang -= 360.0f;
+        desiredStrafe.x = sinf(ang * k);
+        desiredStrafe.z = cosf(ang * k);
+    }
+
+    // Normalize
+    float len = sqrtf(desiredStrafe.x * desiredStrafe.x + desiredStrafe.z * desiredStrafe.z);
+    if (len > 0.01f) {
+        desiredStrafe.x /= len;
+        desiredStrafe.z /= len;
+    }
+
+    // Apply acceleration
+    strafeAccel.x = desiredStrafe.x * strafeAccelRate;
+    strafeAccel.y = 0.0f;
+    strafeAccel.z = desiredStrafe.z * strafeAccelRate;
+
+    // Apply friction if no input
+    if (len < 0.01f) {
+        strafeAccel.x = -strafeVel.x * strafeFriction;
+        strafeAccel.z = -strafeVel.z * strafeFriction;
+    }
+
+    // Integrate velocity
+    strafeVel.x += strafeAccel.x * fTimeKey;
+    strafeVel.z += strafeAccel.z * fTimeKey;
+
+    // Clamp speed
+    float speed = sqrtf(strafeVel.x * strafeVel.x + strafeVel.z * strafeVel.z);
+    if (speed > maxStrafeSpeed) {
+        strafeVel.x = (strafeVel.x / speed) * maxStrafeSpeed;
+        strafeVel.z = (strafeVel.z / speed) * maxStrafeSpeed;
+    }
+
+    // Add to savevelocity
+    if (addVel) {
+        savevelocity.x += strafeVel.x * fTimeKey;
+        savevelocity.z += strafeVel.z * fTimeKey;
+    } else {
+        savevelocity.x = strafeVel.x * fTimeKey;
+        savevelocity.z = strafeVel.z * fTimeKey;
+    }
+    savevelocity.y = 0.0f;
+
+    // Zero out if very small
+    if (fabsf(strafeVel.x) < 0.01f) strafeVel.x = 0.0f;
+    if (fabsf(strafeVel.z) < 0.01f) strafeVel.z = 0.0f;
+}
 void FindDoors(const FLOAT& fTimeKey)
 {
 	//Find doors
