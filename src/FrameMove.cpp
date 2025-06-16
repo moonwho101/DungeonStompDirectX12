@@ -92,60 +92,41 @@ void CheckAngle()
 		angy += 360;
 }
 
+
 void PlayerJump(const FLOAT& fTimeKey)
 {
 	XMFLOAT3 result;
 
 	if (gravityon == 1) {
-		if (jump == 1)
-		{
-			if (jumpvdir == 0)
-			{
-				jumpcount = 0.0f;
-				savevelocity.x = 0.0f;
-				savevelocity.y = (float)(400.0f) * fTimeKey;
-				savevelocity.z = 0.0f;
-				jumpv = savevelocity;
+		// Physics parameters
+		static float verticalVelocity = 0.0f;
+		const float gravity = -2600.0f; // units/sec^2 (downward)
+		const float jumpImpulse = 900.0f; // initial jump velocity
+		const float minLandVelocity = -880.0f;
+		static bool wasOnGround = false;
 
-				if (maingameloop)
-					jumpcount++;
-
-				if (jumpv.y <= 1.0f)
-				{
-					jumpv.y = 0.0f;
-				}
-			}
-		}
-
-		if (jumpstart == 1)
-		{
-			lastjumptime = 0.0f;
+		// Start jump
+		if (jumpstart == 1) {
 			jumpstart = 0;
-			cleanjumpspeed = 600.0f;
+			verticalVelocity = jumpImpulse;
+			lastjumptime = 0.0f;
+			gravitytime = 0.0f;
+			cleanjumpspeed = jumpImpulse;
 			totaldist = 0.0f;
-			gravityvector.y = -50.0f;
+			gravityvector.y = gravity / 2.0f; // for compatibility
+			jump = 1;
+			wasOnGround = false;
 		}
 
-		if (lastcollide == 1)
-		{
-			gravitytime = gravitytime + fTimeKey;
+		// Apply gravity
+		if (jump == 1 || !wasOnGround) {
+			verticalVelocity += gravity * fTimeKey;
 		}
 
-		modellocation = m_vEyePt;
-
+		// Integrate position
 		savevelocity.x = 0.0f;
-		savevelocity.y = (cleanjumpspeed * gravitytime) + -2600.0f * (0.5f * gravitytime * gravitytime);
+		savevelocity.y = verticalVelocity * fTimeKey;
 		savevelocity.z = 0.0f;
-
-		saveoldvelocity = savevelocity;
-		savevelocity.y = (savevelocity.y - gravityvectorold.y);
-		gravityvectorold.y = saveoldvelocity.y;
-
-		if (savevelocity.y == 0.0f && jump == 0)
-			savevelocity.y = -80.0f * fTimeKey;
-
-		if (savevelocity.y <= -80.0f)
-			savevelocity.y = -80.0f;
 
 		foundcollisiontrue = 0;
 
@@ -156,58 +137,35 @@ void PlayerJump(const FLOAT& fTimeKey)
 		m_vEyePt.y = result.y;
 		m_vEyePt.z = result.z;
 
-		if (foundcollisiontrue == 0)
-		{
-			nojumpallow = 1;
-
-			if (lastcollide == 1)
-			{
-				lastjumptime = gravitytime;
-				totaldist = totaldist + savevelocity.y;
-			}
-
-			lastcollide = 1;
-
-			gravityvector.y = -50.0f;
-			if (gravitydropcount == 0)
-				gravitydropcount = 1;
-		}
-		else
-		{
-			//something is under us
-
-			if (lastcollide == 1 && savevelocity.y <= 0)
-			{
-				if (gravitytime >= 0.4f)
+		// Check for ground collision
+		if (foundcollisiontrue != 0) {
+			// Landed
+			if (!wasOnGround && verticalVelocity < 0.0f) {
+				if (gravitytime >= 0.2f) // shorter time for more responsive landing
 					PlayWavSound(SoundID("jump_land"), 100);
 
-				gravityvector.y = 0.0f;
-				gravityvectorold.y = 0.0f;
-				cleanjumpspeed = -200.0f;
-
-				lastcollide = 0;
-				jump = 0;
-
-				gravitytime = 0.0f;
+				wasOnGround = true;
 			}
-			else if (lastcollide == 1 && savevelocity.y > 0)
-			{
-				if (gravitytime >= 0.4f)
-					PlayWavSound(SoundID("jump_land"), 100);
-
-				cleanjumpspeed = -200.0f;
-				lastcollide = 0;
-				gravitytime = 0.0f;
-				gravityvectorold.y = 0.0f;
-			}
+			verticalVelocity = 0.0f;
+			jump = 0;
 			nojumpallow = 0;
 			gravitydropcount = 0;
+			
+			gravitytime = 0.0f;
+		} else {
+			// In air
+			nojumpallow = 1;
+			gravitytime += fTimeKey;
+			wasOnGround = false;
 		}
+
+		// Clamp downward velocity
+		if (verticalVelocity < minLandVelocity)
+			verticalVelocity = minLandVelocity;
 
 		modellocation = m_vEyePt;
 	}
 }
-
 void PlayerAnimation()
 {
 	// 1 = forward
