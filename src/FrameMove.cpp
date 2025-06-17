@@ -143,12 +143,12 @@ void PlayerJump(const FLOAT& fTimeKey)
 			if (!wasOnGround && verticalVelocity < 0.0f) {
 				if (gravitytime >= 0.2f) // shorter time for more responsive landing
 					PlayWavSound(SoundID("jump_land"), 100);
-
+				nojumpallow = 0;
 				wasOnGround = true;
 			}
 			verticalVelocity = 0.0f;
 			jump = 0;
-			nojumpallow = 0;
+			
 			gravitydropcount = 0;
 			
 			gravitytime = 0.0f;
