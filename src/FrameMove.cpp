@@ -101,7 +101,7 @@ void PlayerJump(const FLOAT& fTimeKey)
 		// Physics parameters
 		static float verticalVelocity = 0.0f;
 		const float gravity = -2600.0f; // units/sec^2 (downward)
-		const float jumpImpulse = 900.0f; // initial jump velocity
+		const float jumpImpulse = 700.0f; // initial jump velocity
 		const float minLandVelocity = -880.0f;
 		static bool wasOnGround = false;
 
@@ -141,7 +141,7 @@ void PlayerJump(const FLOAT& fTimeKey)
 		if (foundcollisiontrue != 0) {
 			// Landed
 			if (!wasOnGround && verticalVelocity < 0.0f) {
-				if (gravitytime >= 0.2f) // shorter time for more responsive landing
+				if (gravitytime >= 0.4f) // shorter time for more responsive landing
 					PlayWavSound(SoundID("jump_land"), 100);
 				nojumpallow = 0;
 				wasOnGround = true;
