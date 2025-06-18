@@ -6,6 +6,7 @@
 #include <windowsx.h>
 #include "d3dtypes.h"
 #include "GlobalSettings.hpp"
+#include "Player.hpp" // Added Player.hpp
 #include <DirectXMath.h>
 
 using namespace DirectX;
@@ -184,74 +185,7 @@ typedef struct gunlist_typ
 
 } GUNLIST, * gunlist_ptr;
 
-typedef struct player_typ
-{
-	float x;
-	float y;
-	float z;
-	float rot_angle;
-	int monsterid;
-	int model_id;
-	int skin_tex_id;
-	int current_weapon;
-	int current_weapon_tex;
-	int current_car;
-	int current_frame;
-	int current_sequence;
-	int ping;
-	int frags;
-	int health;
-	BOOL draw_external_wep;
-	BOOL bIsFiring;
-	BOOL bIsRunning;
-	BOOL bIsPlayerAlive;
-	BOOL bIsPlayerInWalkMode;
-	BOOL bStopAnimating;
-	BOOL bIsPlayerValid;
-	char name[256];
-
-	DWORD RRnetID;
-
-	float gunx;
-	float guny;
-	float gunz;
-	int gunid;
-	int guntex;
-	float gunangle;
-	int animationdir;
-	int volume;
-	char chatstr[180];
-
-	float dist;
-	int sattack;
-	int sdie;
-	int syell;
-	int sweapon;
-	int mdmg;
-	int hd;
-	int ac;
-	int hp;
-	int damage1;
-	int damage2;
-	int thaco;
-	int xp;
-	int gold;
-	float speed;
-	char rname[80];
-	char gunname[80];
-	char texturename[80];
-	char monsterweapon[80];
-	int keys;
-	int rings;
-	int ability;
-	int closest;
-
-	int firespeed;
-	int attackspeed;
-	int applydamageonce;
-	int takedamageonce;
-
-} PLAYER, * player_ptr;
+// player_typ struct removed, Player class is used instead
 
 typedef struct pmdata_typ
 {
@@ -486,10 +420,10 @@ extern POLY_SORT ObjectsToDraw[MAX_NUM_QUADS];
 extern int countboundingbox;
 extern MODELLIST* model_list;
 extern GUNLIST* your_gun;
-extern PLAYER* monster_list;
-extern PLAYER* item_list;
-extern PLAYER* player_list2;
-extern PLAYER* player_list;
+extern Player* monster_list; // Changed PLAYER* to Player*
+extern Player* item_list;    // Changed PLAYER* to Player*
+extern Player* player_list2; // Changed PLAYER* to Player*
+extern Player* player_list;  // Changed PLAYER* to Player*
 extern int num_monsters;
 extern int countmodellist;
 extern int num_your_guns;

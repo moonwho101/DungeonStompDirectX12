@@ -15,7 +15,7 @@ float wHeight = 1;
 int num_players2 = 0;
 POLY_SORT ObjectsToDraw[MAX_NUM_QUADS];
 
-PLAYER* monster_list;
+Player* monster_list; // PLAYER* to Player*
 OBJECTLIST* oblist;
 
 LONGLONG DSTimer();
@@ -121,10 +121,10 @@ void InitDS()
 	pmdata = new PLAYERMODELDATA[MAX_NUM_PMMODELS];
 	your_gun = new GUNLIST[MAX_NUM_GUNS];
 	model_list = new MODELLIST[MAX_NUM_PLAYERS];
-	monster_list = new PLAYER[MAX_NUM_MONSTERS];
-	item_list = new PLAYER[MAX_NUM_ITEMS];
-	player_list2 = new PLAYER[MAX_NUM_ITEMS];
-	player_list = new PLAYER[1];
+	monster_list = new Player[MAX_NUM_MONSTERS]; // PLAYER to Player
+	item_list = new Player[MAX_NUM_ITEMS];       // PLAYER to Player
+	player_list2 = new Player[MAX_NUM_ITEMS];    // PLAYER to Player, MAX_NUM_ITEMS seems to be used here as per original
+	player_list = new Player[1];                 // PLAYER to Player
 	your_missle = new GUNLIST[MAX_MISSLE];
 	oblist = new OBJECTLIST[MAX_OBJECTLIST];
 
@@ -152,191 +152,191 @@ void InitDS()
 
 	for (int i = 0; i < 1; i++)
 	{
-		player_list[i].frags = 0;
-		player_list[i].x = 500;
-		player_list[i].y = 22;
-		player_list[i].z = 500;
-		player_list[i].dist = 0;
-		player_list[i].rot_angle = 0;
-		player_list[i].model_id = 0;
-		player_list[i].skin_tex_id = 0;
-		player_list[i].bIsFiring = FALSE;
-		player_list[i].ping = 0;
-		player_list[i].health = 20;
-		player_list[i].rings = 0;
-		player_list[i].keys = 0;
-		player_list[i].bIsPlayerAlive = TRUE;
-		player_list[i].bStopAnimating = FALSE;
-		player_list[i].current_weapon = 0;
-		player_list[i].current_car = 0;
-		player_list[i].current_frame = 0;
-		player_list[i].current_sequence = 0;
-		player_list[i].bIsPlayerInWalkMode = TRUE;
-		player_list[i].RRnetID = 0;
-		player_list[i].bIsPlayerValid = TRUE;
-		player_list[i].animationdir = 0;
-		player_list[i].gunid = 12;
-		player_list[i].guntex = 11;
-		player_list[i].volume = 0;
-		player_list[i].gold = 0;
-		player_list[i].sattack = 0;
-		player_list[i].sdie = 0;
-		player_list[i].sweapon = 0;
-		player_list[i].syell = 0;
-		player_list[i].ability = 0;
+		player_list[i].setFrags(0);
+		player_list[i].setX(500);
+		player_list[i].setY(22);
+		player_list[i].setZ(500);
+		player_list[i].setDist(0);
+		player_list[i].setRotAngle(0);
+		player_list[i].setModelId(0);
+		player_list[i].setSkinTexId(0);
+		player_list[i].setIsFiring(FALSE);
+		player_list[i].setPing(0);
+		player_list[i].setHealth(20);
+		player_list[i].setRings(0);
+		player_list[i].setKeys(0);
+		player_list[i].setIsPlayerAlive(TRUE);
+		player_list[i].setStopAnimating(FALSE);
+		player_list[i].setCurrentWeapon(0);
+		player_list[i].setCurrentCar(0);
+		player_list[i].setCurrentFrame(0);
+		player_list[i].setCurrentSequence(0);
+		player_list[i].setIsPlayerInWalkMode(TRUE);
+		player_list[i].setRRnetID(0);
+		player_list[i].setIsPlayerValid(TRUE);
+		player_list[i].setAnimationDir(0);
+		player_list[i].setGunId(12);
+		player_list[i].setGunTex(11);
+		player_list[i].setVolume(0);
+		player_list[i].setGold(0);
+		player_list[i].setSAttack(0);
+		player_list[i].setSDie(0);
+		player_list[i].setSWeapon(0);
+		player_list[i].setSYell(0);
+		player_list[i].setAbility(0);
 
-		strcpy_s(player_list[i].name, "");
-		strcpy_s(player_list[i].chatstr, "5");
-		strcpy_s(player_list[i].name, "Dungeon Stomp");
-		strcpy_s(player_list[i].rname, "Crom");
+		player_list[i].setName("");
+		player_list[i].setChatStr("5");
+		player_list[i].setName("Dungeon Stomp"); // Overwrites previous setName("")
+		player_list[i].setRName("Crom");
 
-		player_list[i].ac = 7;
-		player_list[i].hd = 1;
-		player_list[i].hp = 20;
-		player_list[i].damage1 = 1;
-		player_list[i].damage2 = 4;
-		player_list[i].thaco = 19;
-		player_list[i].xp = 0;
-		player_list[i].firespeed = 0;
-		player_list[i].attackspeed = 0;
-		player_list[i].applydamageonce = 0;
-		player_list[i].takedamageonce = 0;
-		//		player_list[i].gunid=FindModelID("AXE");
-		//		player_list[i].guntex=FindGunTexture("AXE");
+		player_list[i].setAc(7);
+		player_list[i].setHd(1);
+		player_list[i].setHp(20);
+		player_list[i].setDamage1(1);
+		player_list[i].setDamage2(4);
+		player_list[i].setThaco(19);
+		player_list[i].setXp(0);
+		player_list[i].setFireSpeed(0);
+		player_list[i].setAttackSpeed(0);
+		player_list[i].setApplyDamageOnce(0);
+		player_list[i].setTakeDamageOnce(0);
+		//		player_list[i].setGunId(FindModelID("AXE"));
+		//		player_list[i].setGunTex(FindGunTexture("AXE"));
 	}
 
-	for (int i = 0; i < MAX_NUM_3DS; i++)
+	for (int i = 0; i < MAX_NUM_3DS; i++) // Assuming MAX_NUM_3DS is the intended loop bound as in original
 	{
-		player_list2[i].frags = 0;
-		player_list2[i].dist = 500;
-		player_list2[i].x = 500;
-		player_list2[i].y = 22;
-		player_list2[i].z = 500;
-		player_list2[i].rot_angle = 0;
-		player_list2[i].model_id = 0;
-		player_list2[i].skin_tex_id = 0;
-		player_list2[i].bIsFiring = FALSE;
-		player_list2[i].ping = 0;
-		player_list2[i].health = 920;
-		player_list2[i].rings = 0;
-		player_list2[i].keys = 0;
-		player_list2[i].bIsPlayerAlive = TRUE;
-		player_list2[i].bStopAnimating = FALSE;
-		player_list2[i].current_weapon = 0;
-		player_list2[i].current_car = 0;
-		player_list2[i].current_frame = 0;
-		player_list2[i].current_sequence = 0;
-		player_list2[i].bIsPlayerInWalkMode = TRUE;
-		player_list2[i].RRnetID = 0;
-		player_list2[i].bIsPlayerValid = FALSE;
-		player_list2[i].animationdir = 0;
-		player_list2[i].gunid = 12;
-		player_list2[i].guntex = 11;
-		player_list2[i].volume = 0;
-		player_list2[i].gold = 0;
-		player_list2[i].sattack = 0;
-		player_list2[i].sdie = 0;
-		player_list2[i].sweapon = 0;
-		player_list2[i].syell = 0;
-		player_list2[i].ability = 0;
+		player_list2[i].setFrags(0);
+		player_list2[i].setDist(500);
+		player_list2[i].setX(500);
+		player_list2[i].setY(22);
+		player_list2[i].setZ(500);
+		player_list2[i].setRotAngle(0);
+		player_list2[i].setModelId(0);
+		player_list2[i].setSkinTexId(0);
+		player_list2[i].setIsFiring(FALSE);
+		player_list2[i].setPing(0);
+		player_list2[i].setHealth(920);
+		player_list2[i].setRings(0);
+		player_list2[i].setKeys(0);
+		player_list2[i].setIsPlayerAlive(TRUE);
+		player_list2[i].setStopAnimating(FALSE);
+		player_list2[i].setCurrentWeapon(0);
+		player_list2[i].setCurrentCar(0);
+		player_list2[i].setCurrentFrame(0);
+		player_list2[i].setCurrentSequence(0);
+		player_list2[i].setIsPlayerInWalkMode(TRUE);
+		player_list2[i].setRRnetID(0);
+		player_list2[i].setIsPlayerValid(FALSE);
+		player_list2[i].setAnimationDir(0);
+		player_list2[i].setGunId(12);
+		player_list2[i].setGunTex(11);
+		player_list2[i].setVolume(0);
+		player_list2[i].setGold(0);
+		player_list2[i].setSAttack(0);
+		player_list2[i].setSDie(0);
+		player_list2[i].setSWeapon(0);
+		player_list2[i].setSYell(0);
+		player_list2[i].setAbility(0);
 
-		strcpy_s(player_list2[i].name, "");
-		strcpy_s(player_list2[i].chatstr, "5");
-		strcpy_s(player_list2[i].name, "Dungeon Stomp");
+		player_list2[i].setName("");
+		player_list2[i].setChatStr("5");
+		player_list2[i].setName("Dungeon Stomp"); // Overwrites previous setName("")
 
-		player_list2[i].ac = 7;
-		player_list2[i].hd = 1;
-		player_list2[i].hp = 920;
-		player_list2[i].damage1 = 1;
-		player_list2[i].damage2 = 4;
-		player_list2[i].thaco = 19;
-		player_list2[i].xp = 0;
-		player_list2[i].firespeed = 0;
-		player_list2[i].attackspeed = 0;
-		player_list2[i].applydamageonce = 0;
-		player_list2[i].takedamageonce = 0;
+		player_list2[i].setAc(7);
+		player_list2[i].setHd(1);
+		player_list2[i].setHp(920);
+		player_list2[i].setDamage1(1);
+		player_list2[i].setDamage2(4);
+		player_list2[i].setThaco(19);
+		player_list2[i].setXp(0);
+		player_list2[i].setFireSpeed(0);
+		player_list2[i].setAttackSpeed(0);
+		player_list2[i].setApplyDamageOnce(0);
+		player_list2[i].setTakeDamageOnce(0);
 	}
 
 	for (int i = 0; i < MAX_NUM_MONSTERS; i++)
 	{
-		monster_list[i].frags = 0;
-		monster_list[i].x = 500;
-		monster_list[i].y = 22;
-		monster_list[i].z = 500;
-		monster_list[i].dist = 500;
-		monster_list[i].rot_angle = 0;
-		monster_list[i].model_id = 0;
-		monster_list[i].skin_tex_id = 0;
-		monster_list[i].bIsFiring = FALSE;
-		monster_list[i].ping = 0;
-		monster_list[i].health = 5;
-		monster_list[i].bIsPlayerAlive = TRUE;
-		monster_list[i].bStopAnimating = FALSE;
-		monster_list[i].current_weapon = 0;
-		monster_list[i].current_car = 0;
-		monster_list[i].current_frame = 0;
-		monster_list[i].current_sequence = 2;
-		monster_list[i].bIsPlayerInWalkMode = TRUE;
-		monster_list[i].RRnetID = 0;
-		monster_list[i].bIsPlayerValid = FALSE;
-		monster_list[i].animationdir = 0;
-		monster_list[i].volume = 0;
-		monster_list[i].gold = 0;
-		monster_list[i].rings = 0;
-		monster_list[i].keys = 0;
-		monster_list[i].ability = 0;
-		monster_list[i].sattack = 0;
-		monster_list[i].sdie = 0;
-		monster_list[i].sweapon = 0;
-		monster_list[i].syell = 0;
+		monster_list[i].setFrags(0);
+		monster_list[i].setX(500);
+		monster_list[i].setY(22);
+		monster_list[i].setZ(500);
+		monster_list[i].setDist(500);
+		monster_list[i].setRotAngle(0);
+		monster_list[i].setModelId(0);
+		monster_list[i].setSkinTexId(0);
+		monster_list[i].setIsFiring(FALSE);
+		monster_list[i].setPing(0);
+		monster_list[i].setHealth(5);
+		monster_list[i].setIsPlayerAlive(TRUE);
+		monster_list[i].setStopAnimating(FALSE);
+		monster_list[i].setCurrentWeapon(0);
+		monster_list[i].setCurrentCar(0);
+		monster_list[i].setCurrentFrame(0);
+		monster_list[i].setCurrentSequence(2);
+		monster_list[i].setIsPlayerInWalkMode(TRUE);
+		monster_list[i].setRRnetID(0);
+		monster_list[i].setIsPlayerValid(FALSE);
+		monster_list[i].setAnimationDir(0);
+		monster_list[i].setVolume(0);
+		monster_list[i].setGold(0);
+		monster_list[i].setRings(0);
+		monster_list[i].setKeys(0);
+		monster_list[i].setAbility(0);
+		monster_list[i].setSAttack(0);
+		monster_list[i].setSDie(0);
+		monster_list[i].setSWeapon(0);
+		monster_list[i].setSYell(0);
 
-		strcpy_s(monster_list[i].name, "");
-		strcpy_s(monster_list[i].chatstr, "5");
-		strcpy_s(monster_list[i].name, "Dungeon Stomp");
+		monster_list[i].setName("");
+		monster_list[i].setChatStr("5");
+		monster_list[i].setName("Dungeon Stomp"); // Overwrites previous setName("")
 
-		monster_list[i].ac = 7;
-		monster_list[i].hd = 1;
-		monster_list[i].hp = 8;
-		monster_list[i].damage1 = 1;
-		monster_list[i].damage2 = 8;
-		monster_list[i].thaco = 19;
-		monster_list[i].xp = 0;
-		monster_list[i].firespeed = 0;
-		monster_list[i].attackspeed = 0;
-		monster_list[i].applydamageonce = 0;
-		monster_list[i].takedamageonce = 0;
-		monster_list[i].closest = trueplayernum;
+		monster_list[i].setAc(7);
+		monster_list[i].setHd(1);
+		monster_list[i].setHp(8);
+		monster_list[i].setDamage1(1);
+		monster_list[i].setDamage2(8);
+		monster_list[i].setThaco(19);
+		monster_list[i].setXp(0);
+		monster_list[i].setFireSpeed(0);
+		monster_list[i].setAttackSpeed(0);
+		monster_list[i].setApplyDamageOnce(0);
+		monster_list[i].setTakeDamageOnce(0);
+		monster_list[i].setClosest(trueplayernum);
 	}
 
 	for (int i = 0; i < MAX_NUM_ITEMS; i++)
 	{
-		item_list[i].frags = 0;
-		item_list[i].x = 500;
-		item_list[i].y = 22;
-		item_list[i].z = 500;
-		item_list[i].dist = 500;
-		item_list[i].rot_angle = 0;
-		item_list[i].model_id = 0;
-		item_list[i].skin_tex_id = 0;
-		item_list[i].bIsFiring = FALSE;
-		item_list[i].ping = 0;
-		item_list[i].health = 5;
-		item_list[i].bIsPlayerAlive = TRUE;
-		item_list[i].bStopAnimating = FALSE;
-		item_list[i].current_weapon = 0;
-		item_list[i].current_car = 0;
-		item_list[i].current_frame = 0;
-		item_list[i].current_sequence = 2;
-		item_list[i].bIsPlayerInWalkMode = TRUE;
-		item_list[i].RRnetID = 0;
-		item_list[i].bIsPlayerValid = FALSE;
-		item_list[i].animationdir = 0;
-		item_list[i].gold = 0;
-		item_list[i].ability = 0;
-		item_list[i].firespeed = 0;
-		strcpy_s(item_list[i].name, "");
-		strcpy_s(item_list[i].chatstr, "5");
-		strcpy_s(item_list[i].name, "Dungeon Stomp");
+		item_list[i].setFrags(0);
+		item_list[i].setX(500);
+		item_list[i].setY(22);
+		item_list[i].setZ(500);
+		item_list[i].setDist(500);
+		item_list[i].setRotAngle(0);
+		item_list[i].setModelId(0);
+		item_list[i].setSkinTexId(0);
+		item_list[i].setIsFiring(FALSE);
+		item_list[i].setPing(0);
+		item_list[i].setHealth(5);
+		item_list[i].setIsPlayerAlive(TRUE);
+		item_list[i].setStopAnimating(FALSE);
+		item_list[i].setCurrentWeapon(0);
+		item_list[i].setCurrentCar(0);
+		item_list[i].setCurrentFrame(0);
+		item_list[i].setCurrentSequence(2);
+		item_list[i].setIsPlayerInWalkMode(TRUE);
+		item_list[i].setRRnetID(0);
+		item_list[i].setIsPlayerValid(FALSE);
+		item_list[i].setAnimationDir(0);
+		item_list[i].setGold(0);
+		item_list[i].setAbility(0);
+		item_list[i].setFireSpeed(0);
+		item_list[i].setName("");
+		item_list[i].setChatStr("5");
+		item_list[i].setName("Dungeon Stomp"); // Overwrites previous setName("")
 	}
 
 	for (int i = 0; i < MAX_NUM_GUNS; i++)
@@ -370,10 +370,10 @@ void InitDS()
 		your_missle[i].z_offset = 0;
 	}
 
-	player_list[trueplayernum].gunid = your_gun[current_gun].model_id;
-	player_list[trueplayernum].guntex = your_gun[current_gun].skin_tex_id;
-	player_list[trueplayernum].damage1 = your_gun[current_gun].damage1;
-	player_list[trueplayernum].damage2 = your_gun[current_gun].damage2;
+	player_list[trueplayernum].setGunId(your_gun[current_gun].model_id);
+	player_list[trueplayernum].setGunTex(your_gun[current_gun].skin_tex_id);
+	player_list[trueplayernum].setDamage1(your_gun[current_gun].damage1);
+	player_list[trueplayernum].setDamage2(your_gun[current_gun].damage2);
 
 	if (!pCWorld->LoadImportedModelList("modellist.dat"))
 	{
@@ -404,8 +404,8 @@ void InitDS()
 		cos_table[i] = (float)cos(fangle);
 	}
 
-	player_list[trueplayernum].gunid = FindModelID("AXE");
-	player_list[trueplayernum].guntex = FindGunTexture("AXE");
+	player_list[trueplayernum].setGunId(FindModelID("AXE"));
+	player_list[trueplayernum].setGunTex(FindGunTexture("AXE"));
 
 	//GiveWeapons();
 	initDSTimer();
@@ -450,7 +450,7 @@ void UpdateWorld(float fElapsedTime) {
 	if (gun_angle < 0)
 		gun_angle = gun_angle + 360;
 
-	player_list[trueplayernum].gunangle = gun_angle;
+	player_list[trueplayernum].setGunAngle(gun_angle);
 
 	ActivateSwitch();
 
@@ -521,9 +521,9 @@ void UpdateWorld(float fElapsedTime) {
 	//TODO: fix this
 	DirectX::XMFLOAT3 em = { 0.0f, 0.0f, 0.0f };
 	
-	float wx = player_list[trueplayernum].x;
-	float wy = player_list[trueplayernum].y;
-	float wz = player_list[trueplayernum].z;
+	float wx = player_list[trueplayernum].getX();
+	float wy = player_list[trueplayernum].getY();
+	float wz = player_list[trueplayernum].getZ();
 
 	FirePlayerMissle(wx,wy,wz, angy, trueplayernum, 0, em, look_up_ang, fElapsedTime);
 
@@ -538,9 +538,9 @@ void UpdateWorld(float fElapsedTime) {
 
 	playerObjectStart = number_of_polys_per_frame;
 	PlayerToD3DVertList(0,
-		player_list[trueplayernum].current_frame, player_list[trueplayernum].gunangle,
+		player_list[trueplayernum].getCurrentFrame(), player_list[trueplayernum].getGunAngle(),
 		112,
-		0, player_list[trueplayernum].x, player_list[trueplayernum].y - 55.0f, player_list[trueplayernum].z, nextFrame);
+		0, player_list[trueplayernum].getX(), player_list[trueplayernum].getY() - 55.0f, player_list[trueplayernum].getZ(), nextFrame);
 	//playerObjectEnd = number_of_polys_per_frame;
 
 	DrawPlayerGun(1);
@@ -575,16 +575,16 @@ void SetMonsterAnimationSequence(int player_number, int sequence_number)
 	int start_frame;
 
 	//turned on again for mulitplayer this is a problem getting a sequence out of order
-	if (monster_list[player_number].bIsPlayerValid == FALSE)
+	if (monster_list[player_number].getIsPlayerValid() == FALSE)
 		return;
 
-	monster_list[player_number].current_sequence = sequence_number;
+	monster_list[player_number].setCurrentSequence(sequence_number);
 
-	model_id = monster_list[player_number].model_id;
+	model_id = monster_list[player_number].getModelId();
 
-	monster_list[player_number].animationdir = 0;
+	monster_list[player_number].setAnimationDir(0);
 	start_frame = pmdata[model_id].sequence_start_frame[sequence_number];
-	monster_list[player_number].current_frame = start_frame;
+	monster_list[player_number].setCurrentFrame(start_frame);
 
 }
 
@@ -593,24 +593,24 @@ void SetPlayerAnimationSequence(int player_number, int sequence_number)
 	int model_id;
 	int start_frame;
 
-	if (player_list[trueplayernum].bIsPlayerAlive == FALSE && player_number == trueplayernum)
+	if (player_list[trueplayernum].getIsPlayerAlive() == FALSE && player_number == trueplayernum)
 		return;
 
-	if (player_list[player_number].bStopAnimating == TRUE)
+	if (player_list[player_number].getStopAnimating() == TRUE)
 		return;
 
-	player_list[player_number].current_sequence = sequence_number;
-	model_id = player_list[player_number].model_id;
-	player_list[player_number].animationdir = 0;
+	player_list[player_number].setCurrentSequence(sequence_number);
+	model_id = player_list[player_number].getModelId();
+	player_list[player_number].setAnimationDir(0);
 
 	start_frame = pmdata[model_id].sequence_start_frame[sequence_number];
 
 	if (start_frame == 66)
 	{
 		start_frame = 70;
-		player_list[player_number].animationdir = 1;
+		player_list[player_number].setAnimationDir(1);
 	}
-	player_list[player_number].current_frame = start_frame;
+	player_list[player_number].setCurrentFrame(start_frame);
 
 }
 
@@ -628,32 +628,32 @@ HRESULT AnimateCharacters()
 	int jump = 0;
 
 	//Only take damge from one swing
-	if (player_list[trueplayernum].current_frame == 52) {
+	if (player_list[trueplayernum].getCurrentFrame() == 52) {
 		for (i = 0; i < num_monsters; i++)
 		{
-			monster_list[i].takedamageonce = 0;
+			monster_list[i].setTakeDamageOnce(0);
 		}
 	}
 
 	for (int i = 0; i < 1; i++)
 	{
 
-		int mod_id = player_list[i].model_id;
-		curr_frame = player_list[i].current_frame;
-		stop_frame = pmdata[mod_id].sequence_stop_frame[player_list[i].current_sequence];
-		startframe = pmdata[mod_id].sequence_start_frame[player_list[i].current_sequence];
-		if (player_list[i].bStopAnimating == FALSE)
+		int mod_id = player_list[i].getModelId();
+		curr_frame = player_list[i].getCurrentFrame();
+		stop_frame = pmdata[mod_id].sequence_stop_frame[player_list[i].getCurrentSequence()];
+		startframe = pmdata[mod_id].sequence_start_frame[player_list[i].getCurrentSequence()];
+		if (player_list[i].getStopAnimating() == FALSE)
 		{
 
-			//if (player_list[i].animationdir == 0)
+			//if (player_list[i].getAnimationDir() == 0) // Assuming animationdir getter exists if uncommented
 			//{
 				if (curr_frame >= stop_frame)
 				{
-					curr_seq = player_list[i].current_sequence;
+					curr_seq = player_list[i].getCurrentSequence();
 					
-					player_list[i].animationdir = 1;
+					player_list[i].setAnimationDir(1);
 
-					if (player_list[i].current_frame == 71)
+					if (player_list[i].getCurrentFrame() == 71)
 					{
 						if (i == trueplayernum)
 						{
@@ -679,12 +679,12 @@ HRESULT AnimateCharacters()
 						}
 					}
 
-					player_list[i].current_frame = pmdata[mod_id].sequence_start_frame[curr_seq];
+					player_list[i].setCurrentFrame(pmdata[mod_id].sequence_start_frame[curr_seq]);
 
-					if (player_list[i].current_frame == 183 || player_list[i].current_frame == 189 || player_list[i].current_frame == 197)
+					if (player_list[i].getCurrentFrame() == 183 || player_list[i].getCurrentFrame() == 189 || player_list[i].getCurrentFrame() == 197)
 					{
 						//player is dead
-						player_list[i].bStopAnimating = TRUE;
+						player_list[i].setStopAnimating(TRUE);
 					}
 
 					if (i == trueplayernum && curr_seq == 1 && runflag == 1)
@@ -738,20 +738,20 @@ HRESULT AnimateCharacters()
 				}
 				else
 				{
-					player_list[i].current_frame++;
+					player_list[i].setCurrentFrame(player_list[i].getCurrentFrame() + 1);
 				}
 			//}
 			//else
 			//{
 			//	if (curr_frame <= startframe)
 			//	{
-			//		curr_seq = player_list[i].current_sequence;
-			//		player_list[i].current_frame = pmdata[mod_id].sequence_start_frame[curr_seq];
-			//		player_list[i].animationdir = 0;
+			//		curr_seq = player_list[i].getCurrentSequence();
+			//		player_list[i].setCurrentFrame(pmdata[mod_id].sequence_start_frame[curr_seq]);
+			//		player_list[i].setAnimationDir(0);
 			//	}
 			//	else
 			//	{
-			//		player_list[i].current_frame--;
+			//		player_list[i].setCurrentFrame(player_list[i].getCurrentFrame() - 1);
 			//	}
 			//}
 		}
@@ -760,32 +760,32 @@ HRESULT AnimateCharacters()
 
 	for (i = 0; i < num_monsters; i++)
 	{
-		int mod_id = monster_list[i].model_id;
-		curr_frame = monster_list[i].current_frame;
-		stop_frame = pmdata[mod_id].sequence_stop_frame[monster_list[i].current_sequence];
-		startframe = pmdata[mod_id].sequence_start_frame[monster_list[i].current_sequence];
-		if (monster_list[i].bStopAnimating == FALSE)
+		int mod_id = monster_list[i].getModelId();
+		curr_frame = monster_list[i].getCurrentFrame();
+		stop_frame = pmdata[mod_id].sequence_stop_frame[monster_list[i].getCurrentSequence()];
+		startframe = pmdata[mod_id].sequence_start_frame[monster_list[i].getCurrentSequence()];
+		if (monster_list[i].getStopAnimating() == FALSE)
 		{
-			if (monster_list[i].animationdir == 0)
+			if (monster_list[i].getAnimationDir() == 0)
 			{
 				if (curr_frame >= stop_frame)
 				{
-					curr_seq = monster_list[i].current_sequence;
-					monster_list[i].current_frame = pmdata[mod_id].sequence_stop_frame[curr_seq];
-					//monster_list[i].animationdir = 1;
+					curr_seq = monster_list[i].getCurrentSequence();
+					monster_list[i].setCurrentFrame(pmdata[mod_id].sequence_stop_frame[curr_seq]);
+					//monster_list[i].setAnimationDir(1); // Assuming animationdir setter
 
 					SetMonsterAnimationSequence(i, 0);
 
-					if (monster_list[i].current_frame == 183 || monster_list[i].current_frame == 189 || monster_list[i].current_frame == 197)
+					if (monster_list[i].getCurrentFrame() == 183 || monster_list[i].getCurrentFrame() == 189 || monster_list[i].getCurrentFrame() == 197)
 					{
-						monster_list[i].bStopAnimating = TRUE;
+						monster_list[i].setStopAnimating(TRUE);
 					}
 				}
 				else
 				{
-					if (monster_list[i].current_frame != 183 || monster_list[i].current_frame != 189 || monster_list[i].current_frame != 197)
+					if (monster_list[i].getCurrentFrame() != 183 || monster_list[i].getCurrentFrame() != 189 || monster_list[i].getCurrentFrame() != 197)
 					{
-						monster_list[i].current_frame++;
+						monster_list[i].setCurrentFrame(monster_list[i].getCurrentFrame() + 1);
 					}
 				}
 			}
@@ -793,13 +793,13 @@ HRESULT AnimateCharacters()
 			{
 				if (curr_frame <= startframe)
 				{
-					curr_seq = monster_list[i].current_sequence;
-					monster_list[i].current_frame = pmdata[mod_id].sequence_start_frame[curr_seq];
-					monster_list[i].animationdir = 0;
+					curr_seq = monster_list[i].getCurrentSequence();
+					monster_list[i].setCurrentFrame(pmdata[mod_id].sequence_start_frame[curr_seq]);
+					monster_list[i].setAnimationDir(0);
 				}
 				else
 				{
-					monster_list[i].current_frame--;
+					monster_list[i].setCurrentFrame(monster_list[i].getCurrentFrame() - 1);
 				}
 			}
 		}
@@ -807,10 +807,10 @@ HRESULT AnimateCharacters()
 
 	for (i = 0; i < itemlistcount; i++)
 	{
-		item_list[i].current_frame++;
+		item_list[i].setCurrentFrame(item_list[i].getCurrentFrame() + 1);
 
-		if (item_list[i].current_frame > 91)
-			item_list[i].current_frame = 87;
+		if (item_list[i].getCurrentFrame() > 91)
+			item_list[i].setCurrentFrame(87);
 	}
 
 	return 0;
