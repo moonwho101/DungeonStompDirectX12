@@ -833,21 +833,23 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.DeltaTime = gt.DeltaTime();
 
 	//mMainPassCB.AmbientLight = { 0.1f, 0.1f, 0.15f, 1.0f };
-	mMainPassCB.AmbientLight = { 0.65f, 0.65f, 0.65f, 1.0f };
+	mMainPassCB.AmbientLight = { 0.55f, 0.55f, 0.55f, 1.0f };
 	//XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
 	//XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
 	//mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
 
+
 	for (int i = 0; i < MaxLights; i++) {
-		mMainPassCB.Lights[i].Direction = LightContainer[i].Direction;
-		mMainPassCB.Lights[i].Strength = LightContainer[i].Strength;
-		mMainPassCB.Lights[i].Position = LightContainer[i].Position;
-		mMainPassCB.Lights[i].FalloffEnd = LightContainer[i].FalloffEnd;
-		mMainPassCB.Lights[i].FalloffStart = LightContainer[i].FalloffStart;
-		mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
+		mMainPassCB.Lights[i + 1].Direction = LightContainer[i].Direction;
+		mMainPassCB.Lights[i + 1].Strength = LightContainer[i].Strength;
+		mMainPassCB.Lights[i + 1].Position = LightContainer[i].Position;
+		mMainPassCB.Lights[i + 1].FalloffEnd = LightContainer[i].FalloffEnd;
+		mMainPassCB.Lights[i + 1].FalloffStart = LightContainer[i].FalloffStart;
+		mMainPassCB.Lights[i + 1].SpotPower = LightContainer[i].SpotPower;
 	}
 	
 
+	mMainPassCB.Lights[0].Strength =  { 0.15f, 0.15f, 0.15f };
 	//mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 	mMainPassCB.Lights[0].Direction = mRotatedLightDirections[0];
 	//mMainPassCB.Lights[0].Strength = { 0.4f, 0.4f, 0.4f };
