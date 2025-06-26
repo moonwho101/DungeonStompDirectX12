@@ -9,6 +9,8 @@ private:
     float s = 0;
     float a = 0;
     float f = 0;
+    bool centering = false;
+    float centerSpeed = 8.0f;
 
 public:
 
@@ -29,6 +31,8 @@ public:
     void CameraBob::setSpeed(float speed);
     void CameraBob::setAmplitude(float amplitude);
     void CameraBob::setFrequency(float frequency);
+    void startCentering(float speed = 8.0f);
+    void stopCentering();
 };
 
 #endif // CAMERABOB_H

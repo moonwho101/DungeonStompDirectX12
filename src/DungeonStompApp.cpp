@@ -587,55 +587,34 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 			centre = false;
 			stopx = false;
 			stopy = false;
+			bobX.stopCentering();
+			bobY.stopCentering();
 		}
 
 		if (playercurrentmove == 0) {
+			
+
 			if (!centre) {
 				centre = true;
 				centrex = bobX.getY();
 				centrey = bobY.getY();
+				bobX.startCentering(1.0f); // or tweak speed as needed
+				bobY.startCentering(1.0f);
 			}
+
+				//by = 0.0f;
+				//bobY.setX(0);
+				//bobY.setY(0);
+
+
+				//r = 1.0f;
+				//bobX.setX(0);
+				//bobX.setY(0);
+
+
+			
 		}
 
-		if (centre) {
-
-			//X bob bring to centre
-			if (centrex <= 0) {
-				if (bobX.getY() >= 0) {
-					stopx = true;
-				}
-			}
-			else if (centrex > 0) {
-				if (bobX.getY() <= 0) {
-					stopx = true;
-				}
-			}
-
-			//Y bob 
-			if (centrey <= 0) {
-				if (bobY.getY() >= 0) {
-					stopy = true;
-				}
-			}
-			else if (centrey > 0) {
-				if (bobY.getY() <= 0) {
-					stopy = true;
-				}
-			}
-
-		}
-
-		if (stopy) {
-			by = 0.0f;
-			bobY.setX(0);
-			bobY.setY(0);
-		}
-
-		if (stopx) {
-			r = 1.0f;
-			bobX.setX(0);
-			bobX.setY(0);
-		}
 
 		newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
 		newspot.y = player_list[trueplayernum].y + by;

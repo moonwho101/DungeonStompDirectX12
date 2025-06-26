@@ -8,11 +8,35 @@ void CameraBob::SinWave(float speed, float amplitude, float frequency) {
     s = speed;
     a = amplitude;
     f = frequency;
+    centering = false;
+    centerSpeed = 8.0f; // default smoothing speed
+}
+
+void CameraBob::startCentering(float speed) {
+    centering = true;
+    centerSpeed = speed;
+}
+
+void CameraBob::stopCentering() {
+    centering = false;
 }
 
 void CameraBob::update(float delta) {
-    x += s * delta;
-    y = (float)(a * sin(x * f));
+    if (centering) {
+        // Smoothly interpolate y towards 0
+        y += (0.0f - y) * (1.0f - expf(-centerSpeed * delta));
+        // Optionally, also smooth x to 0 if needed
+        x += (0.0f - x) * (1.0f - expf(-centerSpeed * delta));
+        // Optionally stop centering if close enough
+        if (fabs(y) < 0.001f && fabs(x) < 0.001f) {
+            y = 0.0f;
+            x = 0.0f;
+            centering = false;
+        }
+    } else {
+        x += s * delta;
+        y = (float)(a * sin(x * f));
+    }
 }
 
 float CameraBob::getX() {
