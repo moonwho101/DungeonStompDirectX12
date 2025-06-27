@@ -9,15 +9,18 @@ private:
     float s = 0;
     float a = 0;
     float f = 0;
+    bool isBobbing = false; // Added state variable
 
 public:
 
     CameraBob() {
-
+        isBobbing = false; // Initialize isBobbing
     }
 
     void SinWave(float speed, float amplitude, float frequency);
     void update(float delta);
+    void stopBobbing(); // Added declaration for stopBobbing
+    bool getIsBobbing() const; // Getter for isBobbing
     float CameraBob::getX();
 
     float CameraBob::getY();

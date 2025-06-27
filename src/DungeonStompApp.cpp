@@ -584,61 +584,21 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 
 
 		if (playercurrentmove == 1 || playercurrentmove == 4) {
-			centre = false;
-			stopx = false;
-			stopy = false;
+			// Player is moving, ensure bobbing is active
+			if (!bobX.getIsBobbing()) bobX.SinWave(bobX.getSpeed(), bobX.getAmplitude(), bobX.getFrequency());
+			if (!bobY.getIsBobbing()) bobY.SinWave(bobY.getSpeed(), bobY.getAmplitude(), bobY.getFrequency());
+		} else if (playercurrentmove == 0) {
+			// Player is not moving, stop bobbing
+			bobX.stopBobbing();
+			bobY.stopBobbing();
 		}
 
-		if (playercurrentmove == 0) {
-			if (!centre) {
-				centre = true;
-				centrex = bobX.getY();
-				centrey = bobY.getY();
-			}
-		}
-
-		if (centre) {
-
-			//X bob bring to centre
-			if (centrex <= 0) {
-				if (bobX.getY() >= 0) {
-					stopx = true;
-				}
-			}
-			else if (centrex > 0) {
-				if (bobX.getY() <= 0) {
-					stopx = true;
-				}
-			}
-
-			//Y bob 
-			if (centrey <= 0) {
-				if (bobY.getY() >= 0) {
-					stopy = true;
-				}
-			}
-			else if (centrey > 0) {
-				if (bobY.getY() <= 0) {
-					stopy = true;
-				}
-			}
-
-		}
-
-		if (stopy) {
-			by = 0.0f;
-			bobY.setX(0);
-			bobY.setY(0);
-		}
-
-		if (stopx) {
-			r = 1.0f;
-			bobX.setX(0);
-			bobX.setY(0);
-		}
+		// bx and by will now smoothly interpolate to 0 when bobbing stops,
+		// due to the changes in CameraBob::update()
+		r = bx; // bx is bobX.getY() which is updated with damping
 
 		newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
-		newspot.y = player_list[trueplayernum].y + by;
+		newspot.y = player_list[trueplayernum].y + by; // by is bobY.getY() which is updated with damping
 		newspot.z = player_list[trueplayernum].z + r * cosf(step_left_angy * k);
 
 		float cameradist = 50.0f;

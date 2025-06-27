@@ -1,18 +1,39 @@
 #include "CameraBob.hpp"
 #include <cmath>
 
+const float DAMPING_FACTOR = 0.85f; // Adjust this value for desired smoothness
 
 void CameraBob::SinWave(float speed, float amplitude, float frequency) {
     x = 0;
-    y = 0;
+    // y is not reset here, allowing smooth transition if already bobbing
     s = speed;
     a = amplitude;
     f = frequency;
+    isBobbing = true;
 }
 
 void CameraBob::update(float delta) {
-    x += s * delta;
-    y = (float)(a * sin(x * f));
+    if (isBobbing) {
+        x += s * delta;
+        float targetY = (float)(a * sin(x * f));
+        // Smoothly interpolate towards the target bobbing position
+        y += (targetY - y) * (1.0f - DAMPING_FACTOR);
+    } else {
+        // Smoothly interpolate back to center when not bobbing
+        y *= DAMPING_FACTOR;
+        // If y is very close to 0, snap it to 0 to avoid tiny oscillations
+        if (std::abs(y) < 0.001f) {
+            y = 0.0f;
+        }
+    }
+}
+
+void CameraBob::stopBobbing() {
+    isBobbing = false;
+}
+
+bool CameraBob::getIsBobbing() const {
+    return isBobbing;
 }
 
 float CameraBob::getX() {
