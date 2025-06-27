@@ -1,7 +1,7 @@
 #include "CameraBob.hpp"
 #include <cmath>
 
-const float DAMPING_FACTOR = 0.85f; // Adjust this value for desired smoothness
+const float DAMPING_FACTOR = 0.55f; // Adjust this value for desired smoothness
 
 void CameraBob::SinWave(float speed, float amplitude, float frequency) {
     x = 0;
