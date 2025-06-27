@@ -9,6 +9,8 @@
 #include "XAudio2Versions.h"
 #include "Dice.hpp"
 
+const float GRAVITY_CONSTANT = 100.0f; // Added for missile arc
+
 GUNLIST* your_missle;
 int firemissle = 0;
 XMFLOAT3 MissleSave;
@@ -98,7 +100,8 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 		{
 			float newangle = 0;
 			newangle = fixangle(look_up_ang, 90);
-			MissleVelocity.y = 32.0f * sinf(newangle * k);
+			// Adjusted for more arc: increased base velocity and added a small upward boost
+			MissleVelocity.y = (48.0f * sinf(newangle * k)) + 15.0f;
 		}
 
 		MissleVelocity.z = 32.0f * cosf(angy * k);
@@ -304,9 +307,12 @@ void FirePlayerMissle(float x, float y, float z, float angy, int owner, int shoo
 
 			float realspeed = 600.0f;
 
-			savevelocity.x = (savevelocity).x * realspeed * fTimeKeysave;
-			savevelocity.y = (savevelocity).y * realspeed * fTimeKeysave;
-			savevelocity.z = (savevelocity).z * realspeed * fTimeKeysave;
+			// Apply gravity to the y velocity
+			your_missle[misslecount].velocity.y -= GRAVITY_CONSTANT * fTimeKeysave;
+
+			savevelocity.x = your_missle[misslecount].velocity.x * realspeed * fTimeKeysave;
+			savevelocity.y = your_missle[misslecount].velocity.y * realspeed * fTimeKeysave;
+			savevelocity.z = your_missle[misslecount].velocity.z * realspeed * fTimeKeysave;
 
 			foundcollisiontrue = 0;
 			XMFLOAT3 result;
