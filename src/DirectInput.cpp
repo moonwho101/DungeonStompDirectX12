@@ -1080,7 +1080,7 @@ void smooth_mouse(float /*time_d*/, float realx, float realy) {
     filtery = sumY / mouseSamplesCollected;
 
     // Optionally, clamp filterx/filtery to avoid excessive jumps
-     float maxDelta = 20.0f;
+	// float maxDelta = 20.0f;
     // filterx = std::clamp(filterx, -maxDelta, maxDelta);
     // filtery = std::clamp(filtery, -maxDelta, maxDelta);
 
