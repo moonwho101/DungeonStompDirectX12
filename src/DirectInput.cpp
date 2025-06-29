@@ -1055,17 +1055,38 @@ void GiveWeapons()
 	your_gun[21].active = 1;
 }
 
-void smooth_mouse(float time_d, float realx, float realy) {
-	double d = 1 - exp(log(0.5) * springiness * time_d);
+// Improved mouse smoothing for FPS RPG using a circular buffer (moving average filter)
+constexpr int MOUSE_SMOOTHING_SAMPLES = 8;
+static float mouseXBuffer[MOUSE_SMOOTHING_SAMPLES] = { 0 };
+static float mouseYBuffer[MOUSE_SMOOTHING_SAMPLES] = { 0 };
+static int mouseBufferIndex = 0;
+static int mouseSamplesCollected = 0;
 
-	use_x += ((realx - use_x) * (float) d);
-	use_y += (realy - use_y) * (float) d;
+void smooth_mouse(float /*time_d*/, float realx, float realy) {
+    // Insert new sample into buffer
+    mouseXBuffer[mouseBufferIndex] = realx;
+    mouseYBuffer[mouseBufferIndex] = realy;
+    mouseBufferIndex = (mouseBufferIndex + 1) % MOUSE_SMOOTHING_SAMPLES;
+    if (mouseSamplesCollected < MOUSE_SMOOTHING_SAMPLES)
+        ++mouseSamplesCollected;
 
-	//sprintf(gActionMessage, "%9.6f %9.6f",use_x,use_y);
-	//UpdateScrollList(0, 255, 255);
+    // Compute average
+    float sumX = 0.0f, sumY = 0.0f;
+    for (int i = 0; i < mouseSamplesCollected; ++i) {
+        sumX += mouseXBuffer[i];
+        sumY += mouseYBuffer[i];
+    }
+    filterx = sumX / mouseSamplesCollected;
+    filtery = sumY / mouseSamplesCollected;
 
-	filterx = use_x;
-	filtery = use_y;
+    // Optionally, clamp filterx/filtery to avoid excessive jumps
+     float maxDelta = 20.0f;
+    // filterx = std::clamp(filterx, -maxDelta, maxDelta);
+    // filtery = std::clamp(filtery, -maxDelta, maxDelta);
+
+    // Optionally, reset use_x/use_y if you want to keep compatibility with old code
+    use_x = filterx;
+    use_y = filtery;
 }
 
 void level() {
