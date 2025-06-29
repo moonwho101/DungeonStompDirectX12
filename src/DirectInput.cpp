@@ -9,6 +9,7 @@
 #include "DirectInput.hpp"
 #include "GameLogic.hpp"
 #include "Dice.hpp"
+#include <cmath>
 
 //mouse sensitivity
 float mousediv = 25.0f;
@@ -1055,7 +1056,40 @@ void GiveWeapons()
 	your_gun[21].active = 1;
 }
 
-// Improved mouse smoothing for FPS RPG using a circular buffer (moving average filter)
+//// Improved mouse smoothing for FPS RPG using a circular buffer (moving average filter)
+//constexpr int MOUSE_SMOOTHING_SAMPLES = 8;
+//static float mouseXBuffer[MOUSE_SMOOTHING_SAMPLES] = { 0 };
+//static float mouseYBuffer[MOUSE_SMOOTHING_SAMPLES] = { 0 };
+//static int mouseBufferIndex = 0;
+//static int mouseSamplesCollected = 0;
+//
+//void smooth_mouse(float /*time_d*/, float realx, float realy) {
+//    // Insert new sample into buffer
+//    mouseXBuffer[mouseBufferIndex] = realx;
+//    mouseYBuffer[mouseBufferIndex] = realy;
+//    mouseBufferIndex = (mouseBufferIndex + 1) % MOUSE_SMOOTHING_SAMPLES;
+//    if (mouseSamplesCollected < MOUSE_SMOOTHING_SAMPLES)
+//        ++mouseSamplesCollected;
+//
+//    // Compute average
+//    float sumX = 0.0f, sumY = 0.0f;
+//    for (int i = 0; i < mouseSamplesCollected; ++i) {
+//        sumX += mouseXBuffer[i];
+//        sumY += mouseYBuffer[i];
+//    }
+//    filterx = sumX / mouseSamplesCollected;
+//    filtery = sumY / mouseSamplesCollected;
+//
+//    // Optionally, clamp filterx/filtery to avoid excessive jumps
+//	// float maxDelta = 20.0f;
+//    // filterx = std::clamp(filterx, -maxDelta, maxDelta);
+//    // filtery = std::clamp(filtery, -maxDelta, maxDelta);
+//
+//    // Optionally, reset use_x/use_y if you want to keep compatibility with old code
+//    use_x = filterx;
+//    use_y = filtery;
+//}
+
 constexpr int MOUSE_SMOOTHING_SAMPLES = 8;
 static float mouseXBuffer[MOUSE_SMOOTHING_SAMPLES] = { 0 };
 static float mouseYBuffer[MOUSE_SMOOTHING_SAMPLES] = { 0 };
@@ -1063,30 +1097,52 @@ static int mouseBufferIndex = 0;
 static int mouseSamplesCollected = 0;
 
 void smooth_mouse(float /*time_d*/, float realx, float realy) {
-    // Insert new sample into buffer
-    mouseXBuffer[mouseBufferIndex] = realx;
-    mouseYBuffer[mouseBufferIndex] = realy;
-    mouseBufferIndex = (mouseBufferIndex + 1) % MOUSE_SMOOTHING_SAMPLES;
-    if (mouseSamplesCollected < MOUSE_SMOOTHING_SAMPLES)
-        ++mouseSamplesCollected;
+	// Insert new sample into buffer
+	mouseXBuffer[mouseBufferIndex] = realx;
+	mouseYBuffer[mouseBufferIndex] = realy;
+	mouseBufferIndex = (mouseBufferIndex + 1) % MOUSE_SMOOTHING_SAMPLES;
+	if (mouseSamplesCollected < MOUSE_SMOOTHING_SAMPLES)
+		++mouseSamplesCollected;
 
-    // Compute average
-    float sumX = 0.0f, sumY = 0.0f;
-    for (int i = 0; i < mouseSamplesCollected; ++i) {
-        sumX += mouseXBuffer[i];
-        sumY += mouseYBuffer[i];
-    }
-    filterx = sumX / mouseSamplesCollected;
-    filtery = sumY / mouseSamplesCollected;
+	// Compute average
+	float sumX = 0.0f, sumY = 0.0f;
+	for (int i = 0; i < mouseSamplesCollected; ++i) {
+		sumX += mouseXBuffer[i];
+		sumY += mouseYBuffer[i];
+	}
+	float avgX = sumX / mouseSamplesCollected;
+	float avgY = sumY / mouseSamplesCollected;
 
-    // Optionally, clamp filterx/filtery to avoid excessive jumps
-	// float maxDelta = 20.0f;
-    // filterx = std::clamp(filterx, -maxDelta, maxDelta);
-    // filtery = std::clamp(filtery, -maxDelta, maxDelta);
+	// Compute delta from previous filtered position (optional memory)
+	static float prevFilteredX = 0.0f, prevFilteredY = 0.0f;
+	float deltaX = avgX - prevFilteredX;
+	float deltaY = avgY - prevFilteredY;
 
-    // Optionally, reset use_x/use_y if you want to keep compatibility with old code
-    use_x = filterx;
-    use_y = filtery;
+	// Acceleration: Increase sensitivity with faster movement
+	float accelFactor = 0.02f; // tweak as needed
+	float magnitude = std::sqrt(deltaX * deltaX + deltaY * deltaY);
+	float acceleration = 1.0f + accelFactor * magnitude;
+
+	deltaX *= acceleration;
+	deltaY *= acceleration;
+
+	// Sensitivity curve: nonlinear scaling (e.g., exponential)
+	float baseSensitivity = 1.0f;
+	auto apply_curve = [](float value) {
+		return value * std::pow(std::abs(value), 0.5f); // soft nonlinear curve
+		};
+	deltaX = apply_curve(deltaX) * baseSensitivity;
+	deltaY = apply_curve(deltaY) * baseSensitivity;
+
+	// Apply final filtered position
+	filterx = prevFilteredX + deltaX;
+	filtery = prevFilteredY + deltaY;
+
+	prevFilteredX = filterx;
+	prevFilteredY = filtery;
+
+	use_x = filterx;
+	use_y = filtery;
 }
 
 void level() {
