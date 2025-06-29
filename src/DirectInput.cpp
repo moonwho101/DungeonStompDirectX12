@@ -1056,6 +1056,37 @@ void GiveWeapons()
 	your_gun[21].active = 1;
 }
 
+
+// Circular buffer size for mouse smoothing
+//constexpr int MOUSE_BUFFER_SIZE = 8;
+//
+//void smooth_mouse(float time_d, float realx, float realy) {
+//	static float x_buffer[MOUSE_BUFFER_SIZE] = { 0 };
+//	static float y_buffer[MOUSE_BUFFER_SIZE] = { 0 };
+//	static int buffer_index = 0;
+//	static bool buffer_filled = false;
+//
+//	// Insert new values into the buffer
+//	x_buffer[buffer_index] = realx;
+//	y_buffer[buffer_index] = realy;
+//	buffer_index = (buffer_index + 1) % MOUSE_BUFFER_SIZE;
+//	if (buffer_index == 0) buffer_filled = true;
+//
+//	// Calculate the average (smoothed) value
+//	int count = buffer_filled ? MOUSE_BUFFER_SIZE : buffer_index;
+//	float sum_x = 0.0f, sum_y = 0.0f;
+//	for (int i = 0; i < count; ++i) {
+//		sum_x += x_buffer[i];
+//		sum_y += y_buffer[i];
+//	}
+//	use_x = sum_x / count;
+//	use_y = sum_y / count;
+//
+//	filterx = use_x;
+//	filtery = use_y;
+//}
+
+
 //// Improved mouse smoothing for FPS RPG using a circular buffer (moving average filter)
 //constexpr int MOUSE_SMOOTHING_SAMPLES = 8;
 //static float mouseXBuffer[MOUSE_SMOOTHING_SAMPLES] = { 0 };
