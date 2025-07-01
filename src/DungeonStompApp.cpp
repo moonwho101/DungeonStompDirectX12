@@ -881,10 +881,10 @@ void DungeonStompApp::UpdateSsaoCB(const GameTimer& gt)
 	ssaoCB.InvRenderTargetSize = XMFLOAT2(1.0f / mSsao->SsaoMapWidth(), 1.0f / mSsao->SsaoMapHeight());
 
 	// Coordinates given in view space.
-	ssaoCB.OcclusionRadius = 10.5f;
-	ssaoCB.OcclusionFadeStart = 0.3f;
-	ssaoCB.OcclusionFadeEnd = 2.0f;
-	ssaoCB.SurfaceEpsilon = 0.05f;
+	ssaoCB.OcclusionRadius = 7.0f;
+	ssaoCB.OcclusionFadeStart = 0.2f;
+	ssaoCB.OcclusionFadeEnd = 0.4f;
+	ssaoCB.SurfaceEpsilon = 0.20f;
 
 	auto currSsaoCB = mCurrFrameResource->SsaoCB.get();
 	currSsaoCB->CopyData(0, ssaoCB);
