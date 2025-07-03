@@ -73,6 +73,15 @@ struct SsaoConstants
     float SurfaceEpsilon = 0.05f;
 };
 
+struct RayGenConstants
+{
+    DirectX::XMFLOAT4X4 ProjectionToWorld = MathHelper::Identity4x4();
+    DirectX::XMFLOAT3 CameraPosition = { 0.0f, 0.0f, 0.0f };
+    float Padding; // To ensure alignment if CameraPosition was last element, making struct size multiple of 16.
+                   // XMFLOAT3 is 12 bytes. Next element starts at 12. If XMFLOAT4X4 is 64 bytes, total 76.
+                   // Next multiple of 16 is 80. So 4 bytes padding.
+};
+
 
 // Stores the resources needed for the CPU to build the command lists
 // for a frame.  
@@ -96,6 +105,7 @@ public:
     std::unique_ptr<UploadBuffer<MaterialConstants>> MaterialCB = nullptr;
     std::unique_ptr<UploadBuffer<ObjectConstants>> ObjectCB = nullptr;
     std::unique_ptr<UploadBuffer<SsaoConstants>> SsaoCB = nullptr;
+    std::unique_ptr<UploadBuffer<RayGenConstants>> RayGenCB = nullptr;
 
     // We cannot update a dynamic vertex buffer until the GPU is done processing
     // the commands that reference it.  So each frame needs their own.

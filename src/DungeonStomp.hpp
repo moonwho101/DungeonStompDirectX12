@@ -76,6 +76,7 @@ private:
 	void UpdateDungeon(const GameTimer& gt);
 	void UpdateShadowPassCB(const GameTimer& gt);
 	void UpdateSsaoCB(const GameTimer& gt);
+	void UpdateRaytracingPassCB(const GameTimer& gt);
 
 	void BuildRootSignature();
 	void BuildSsaoRootSignature();
@@ -211,6 +212,40 @@ private:
 	};
 	XMFLOAT3 mRotatedLightDirections[3];
 
+	// DXR Specific Members
+	Microsoft::WRL::ComPtr<ID3D12Device5> mDxrDevice;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4> mDxrCommandList;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> mDxrGlobalRootSignature; // Global Root Signature for DXR
+	D3D12_RAYTRACING_TIER mRaytracingTier = D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
+
+    // Preprocessed static geometry and their BLASes
+    std::vector<std::unique_ptr<MeshGeometry>> mStaticObjectGeometries;
+    std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> mStaticObjectBLASes;
+
+	// Top Level Acceleration Structure (scene)
+	Microsoft::WRL::ComPtr<ID3D12Resource> mSceneTlas;
+	Microsoft::WRL::ComPtr<ID3D12Resource> mSceneTlasInstanceDesc;
+
+	// Shader Binding Table (SBT) resources
+	Microsoft::WRL::ComPtr<ID3D12Resource> mSBTBuffer;
+	D3D12_GPU_VIRTUAL_ADDRESS_RANGE mRayGenSbtRecord = {};
+	D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE mMissSbtRecord = {};
+	D3D12_GPU_VIRTUAL_ADDRESS_RANGE_AND_STRIDE mHitGroupSbtRecord = {};
+
+	// DXR Output Resource (for Step 6, but declare here)
+	Microsoft::WRL::ComPtr<ID3D12Resource> mRaytracingOutput;
+	UINT mRaytracingOutputUavDescriptorHeapIndex = 0;
+
+
+	// DXR Helper Functions
+	void CheckRaytracingSupport();
+	void PreprocessStaticGeometriesForDXR(); // New: To create MeshGeometry for static types
+	void BuildAccelerationStructures();    // Renamed: Master AS build
+	void BuildStaticObjectBLASes();        // Renamed: Builds BLAS for all static mStaticObjectGeometries
+	void BuildSceneTLAS();                 // Renamed: Builds TLAS using mStaticObjectBLASes and scene instances
+	void CreateRaytracingOutputResource();
+	void BuildRaytracingPSO();
+	void BuildShaderBindingTable();
 
 };
 

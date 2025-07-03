@@ -12,6 +12,7 @@ FrameResource::FrameResource(ID3D12Device* device, UINT passCount, UINT objectCo
     SsaoCB = std::make_unique<UploadBuffer<SsaoConstants>>(device, 1, true);
     MaterialCB = std::make_unique<UploadBuffer<MaterialConstants>>(device, materialCount, true);
     ObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(device, objectCount, true);
+    RayGenCB = std::make_unique<UploadBuffer<RayGenConstants>>(device, 1, true);
 
     //DungeonVB = std::make_unique<UploadBuffer<Vertex>>(device, dungeonVertCount, false);
 
