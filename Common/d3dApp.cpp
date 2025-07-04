@@ -28,7 +28,8 @@ D3DApp* D3DApp::GetApp()
 }
 
 D3DApp::D3DApp(HINSTANCE hInstance)
-:	mhAppInst(hInstance)
+:	mhAppInst(hInstance),
+	mDxrSupported(false)
 {
     // Only one D3DApp can be constructed.
     assert(mApp == nullptr);
@@ -39,6 +40,10 @@ D3DApp::~D3DApp()
 {
 	if(md3dDevice != nullptr)
 		FlushCommandQueue();
+
+	// ComPtr will handle release, but explicit Reset can be used for clarity if preferred.
+    // if(mDxrDevice) mDxrDevice.Reset();
+    // if(mDxrCommandList) mDxrCommandList.Reset();
 
 	ShutDownSound();
 
@@ -455,6 +460,12 @@ bool D3DApp::InitDirect3D()
 			IID_PPV_ARGS(&md3dDevice)));
 	}
 
+    // Check for DXR support
+    if (SUCCEEDED(md3dDevice->QueryInterface(IID_PPV_ARGS(&mDxrDevice))))
+    {
+        mDxrSupported = true;
+    }
+
 	ThrowIfFailed(md3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE,
 		IID_PPV_ARGS(&mFence)));
 
@@ -512,6 +523,11 @@ void D3DApp::CreateCommandObjects()
 	// to the command list we will Reset it, and it needs to be closed before
 	// calling Reset.
 	mCommandList->Close();
+
+    if (mDxrSupported)
+    {
+        ThrowIfFailed(mCommandList->QueryInterface(IID_PPV_ARGS(&mDxrCommandList)));
+    }
 }
 
 void D3DApp::CreateSwapChain()
