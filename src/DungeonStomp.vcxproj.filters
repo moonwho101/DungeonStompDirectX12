@@ -243,5 +243,14 @@
     <Text Include="..\Shaders\RectanglePixelMapShader.hlsl">
       <Filter>Shaders</Filter>
     </Text>
+    <FxCompile Include="..\Shaders\TriangleGS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\TrianglePS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\TriangleVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

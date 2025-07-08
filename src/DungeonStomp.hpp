@@ -83,6 +83,7 @@ private:
 	void BuildLandGeometry();
 	void BuildDungeonGeometryBuffers();
 	void BuildPSOs();
+	void BuildTriangleResources(); // Declaration for new function
 	void BuildFrameResources();
 	void BuildMaterials();
 	void BuildRenderItems();
@@ -137,6 +138,11 @@ private:
 	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
 
 	std::vector<D3D12_INPUT_ELEMENT_DESC> mInputLayout;
+	std::vector<D3D12_INPUT_ELEMENT_DESC> mTriangleInputLayout;
+
+	ComPtr<ID3D12Resource> mTriangleVB;
+	ComPtr<ID3D12Resource> mTriangleVBUploader;
+	D3D12_VERTEX_BUFFER_VIEW mTriangleVBView;
 
 	RenderItem* mDungeonRitem = nullptr;
 

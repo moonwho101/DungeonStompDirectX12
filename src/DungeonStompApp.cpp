@@ -170,6 +170,8 @@ bool DungeonStompApp::Initialize()
 	BuildPSOs();
 	mSsao->SetPSOs(mPSOs["ssao"].Get(), mPSOs["ssaoBlur"].Get());
 
+	BuildTriangleResources(); // Call new function here
+
 	InitDS();
 
 	//Set headbob
@@ -352,6 +354,15 @@ void DungeonStompApp::Draw(const GameTimer& gt)
 	// Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+
+	// Draw the overlay triangle
+	// Ensure the correct root signature is bound if it changed.
+	// The triangle PSO uses mRootSignature.
+	mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
+	mCommandList->SetPipelineState(mPSOs["triangle"].Get());
+	mCommandList->IASetVertexBuffers(0, 1, &mTriangleVBView);
+	mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+	mCommandList->DrawInstanced(1, 1, 0, 0);
 
 	// Done recording commands.
 	ThrowIfFailed(mCommandList->Close());
@@ -1264,6 +1275,15 @@ void DungeonStompApp::BuildShadersAndInputLayout()
 	mShaders["ssaoBlurVS"] = d3dUtil::CompileShader(L"..\\Shaders\\SsaoBlur.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["ssaoBlurPS"] = d3dUtil::CompileShader(L"..\\Shaders\\SsaoBlur.hlsl", nullptr, "PS", "ps_5_1");
 
+	// Add new shaders for the triangle
+	mShaders["triangleVS"] = d3dUtil::CompileShader(L"..\\Shaders\\TriangleVS.hlsl", nullptr, "VS", "vs_5_0");
+	mShaders["triangleGS"] = d3dUtil::CompileShader(L"..\\Shaders\\TriangleGS.hlsl", nullptr, "GS", "gs_5_0");
+	mShaders["trianglePS"] = d3dUtil::CompileShader(L"..\\Shaders\\TrianglePS.hlsl", nullptr, "PS", "ps_5_0");
+
+    mTriangleInputLayout =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+    };
 
 	// Text PSO
 	ID3DBlob* errorBuff; // a buffer holding the error data if any
@@ -1969,10 +1989,72 @@ void DungeonStompApp::BuildPSOs()
 	};
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&ssaoBlurPsoDesc, IID_PPV_ARGS(&mPSOs["ssaoBlur"])));
 
+	//
+	// PSO for Triangle an overlay triangle.
+	//
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC trianglePsoDesc = opaquePsoDesc; // Start with a copy of opaque PSO desc
+	trianglePsoDesc.InputLayout = { mTriangleInputLayout.data(), (UINT)mTriangleInputLayout.size() };
+	trianglePsoDesc.pRootSignature = mRootSignature.Get(); // Assuming same root signature for simplicity, adjust if custom one is needed
+	trianglePsoDesc.VS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["triangleVS"]->GetBufferPointer()),
+		mShaders["triangleVS"]->GetBufferSize()
+	};
+	trianglePsoDesc.GS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["triangleGS"]->GetBufferPointer()),
+		mShaders["triangleGS"]->GetBufferSize()
+	};
+	trianglePsoDesc.PS =
+	{
+		reinterpret_cast<BYTE*>(mShaders["trianglePS"]->GetBufferPointer()),
+		mShaders["trianglePS"]->GetBufferSize()
+	};
+	trianglePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+	trianglePsoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; // No culling for a screen triangle
 
+	// Disable depth test and write for overlay
+	trianglePsoDesc.DepthStencilState.DepthEnable = FALSE;
+	trianglePsoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
+	// Blend state (can be default opaque or alpha blend if triangle has alpha)
+	// For now, using default opaque blend from opaquePsoDesc.
+	// If trianglePS outputs alpha and blending is desired:
+	// D3D12_RENDER_TARGET_BLEND_DESC transparencyBlendDesc;
+	// transparencyBlendDesc.BlendEnable = TRUE;
+	// transparencyBlendDesc.LogicOpEnable = FALSE;
+	// transparencyBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+	// transparencyBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+	// transparencyBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
+	// transparencyBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
+	// transparencyBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
+	// transparencyBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	// transparencyBlendDesc.LogicOp = D3D12_LOGIC_OP_NOOP;
+	// transparencyBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	// trianglePsoDesc.BlendState.RenderTarget[0] = transparencyBlendDesc;
 
+	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&trianglePsoDesc, IID_PPV_ARGS(&mPSOs["triangle"])));
 
+}
+
+void DungeonStompApp::BuildTriangleResources()
+{
+	struct TriangleVertex
+	{
+		XMFLOAT3 Pos;
+	};
+
+	TriangleVertex dummyVertex = { XMFLOAT3(0.0f, 0.0f, 0.0f) };
+
+	const UINT vbByteSize = sizeof(TriangleVertex);
+
+	// mTriangleVB will be the GPU resource, mTriangleVBUploader is its upload heap counterpart.
+	mTriangleVB = d3dUtil::CreateDefaultBuffer(md3dDevice.Get(),
+		mCommandList.Get(), &dummyVertex, vbByteSize, mTriangleVBUploader);
+
+	mTriangleVBView.BufferLocation = mTriangleVB->GetGPUVirtualAddress();
+	mTriangleVBView.StrideInBytes = sizeof(TriangleVertex);
+	mTriangleVBView.SizeInBytes = vbByteSize;
 }
 
 void DungeonStompApp::BuildFrameResources()
