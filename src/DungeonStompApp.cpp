@@ -65,6 +65,9 @@ bool enableNormalmapKey = false;
 bool enableShadowmapFeature = true;
 bool enableShadowmapFeatureKey = false;
 
+bool enablePlayerCaptions = true;
+bool enablePlayerCaptionsKey = false;
+
 extern int playerObjectStart;
 extern int playerGunObjectStart;
 extern int playerObjectEnd;
@@ -280,9 +283,8 @@ void DungeonStompApp::Update(const GameTimer& gt)
 	UpdateMainPassCB(gt);
 	UpdateSsaoCB(gt);
 	UpdateShadowPassCB(gt);
-
+	DisplayPlayerCaption();
 	UpdateDungeon(gt);
-
 }
 
 void DungeonStompApp::Draw(const GameTimer& gt)
@@ -553,6 +555,21 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
         enableShadowmapFeatureKey = true;
     } else {
         enableShadowmapFeatureKey = false;
+    }
+
+    if (GetAsyncKeyState('U') && !enablePlayerCaptionsKey) {
+        enablePlayerCaptions = !enablePlayerCaptions;
+        if (enablePlayerCaptions) {
+            strcpy_s(gActionMessage, "Player Captions Enabled");
+        } else {
+            strcpy_s(gActionMessage, "Player Captions Disabled");
+        }
+        UpdateScrollList(0, 255, 255);
+    }
+    if (GetAsyncKeyState('U')) {
+        enablePlayerCaptionsKey = true;
+    } else {
+        enablePlayerCaptionsKey = false;
     }
 
 }
@@ -908,9 +925,6 @@ void DungeonStompApp::UpdateSsaoCB(const GameTimer& gt)
 
 void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 {
-
-	DisplayPlayerCaption();
-
 	// Update the dungeon vertex buffer with the new solution.
 	auto currDungeonVB = mCurrFrameResource->DungeonVB.get();
 	Vertex v;
@@ -2160,12 +2174,13 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		//cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-		for (int i = 0; i < displayCapture; i++) {
-			for (int j = 0; j < displayCaptureCount[i]; j++) {
-				cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
+		if (enablePlayerCaptions) {
+			for (int i = 0; i < displayCapture; i++) {
+				for (int j = 0; j < displayCaptureCount[i]; j++) {
+					cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
+				}
 			}
 		}
-
 
 		//Draw the skybox
 		if (!gravityon || outside) {
