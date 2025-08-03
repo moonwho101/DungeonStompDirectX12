@@ -65,9 +65,6 @@ bool enableNormalmapKey = false;
 bool enableShadowmapFeature = true;
 bool enableShadowmapFeatureKey = false;
 
-bool enablePlayerCaptions = true;
-bool enablePlayerCaptionsKey = false;
-
 bool enablePlayerHUD = true;
 bool enablePlayerHUDKey = false;
 
@@ -558,21 +555,6 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
         enableShadowmapFeatureKey = true;
     } else {
         enableShadowmapFeatureKey = false;
-    }
-
-    if (GetAsyncKeyState('U') && !enablePlayerCaptionsKey) {
-        enablePlayerCaptions = !enablePlayerCaptions;
-        if (enablePlayerCaptions) {
-            strcpy_s(gActionMessage, "Player Captions Enabled");
-        } else {
-            strcpy_s(gActionMessage, "Player Captions Disabled");
-        }
-        UpdateScrollList(0, 255, 255);
-    }
-    if (GetAsyncKeyState('U')) {
-        enablePlayerCaptionsKey = true;
-    } else {
-        enablePlayerCaptionsKey = false;
     }
 
     if (GetAsyncKeyState('H') && !enablePlayerHUDKey) {
@@ -2192,7 +2174,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		//cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-		if (enablePlayerCaptions) {
+		if (enablePlayerHUD) {
 			for (int i = 0; i < displayCapture; i++) {
 				for (int j = 0; j < displayCaptureCount[i]; j++) {
 					cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
