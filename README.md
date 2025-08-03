@@ -48,6 +48,7 @@ Dungeon Stomp for Vulkan, a work in progress, is avaiable  [Dungeon Stomp Vulkan
 * V - Toggle VSync
 * J - Toggle Shadows
 * U - Toggle Player Captions
+* H - Toggle Player HUD
 * N - Toggle Normal map
 * ] - Next Dungeon Level
 * [ - Previous Dungeon Level

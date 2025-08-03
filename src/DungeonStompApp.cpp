@@ -68,6 +68,9 @@ bool enableShadowmapFeatureKey = false;
 bool enablePlayerCaptions = true;
 bool enablePlayerCaptionsKey = false;
 
+bool enablePlayerHUD = true;
+bool enablePlayerHUDKey = false;
+
 extern int playerObjectStart;
 extern int playerGunObjectStart;
 extern int playerObjectEnd;
@@ -570,6 +573,21 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
         enablePlayerCaptionsKey = true;
     } else {
         enablePlayerCaptionsKey = false;
+    }
+
+    if (GetAsyncKeyState('H') && !enablePlayerHUDKey) {
+        enablePlayerHUD = !enablePlayerHUD;
+        if (enablePlayerHUD) {
+            strcpy_s(gActionMessage, "Player HUD Enabled");
+        } else {
+            strcpy_s(gActionMessage, "Player HUD Disabled");
+        }
+        UpdateScrollList(0, 255, 255);
+    }
+    if (GetAsyncKeyState('H')) {
+        enablePlayerHUDKey = true;
+    } else {
+        enablePlayerHUDKey = false;
     }
 
 }
@@ -2188,7 +2206,10 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 			DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 		}
 
-		DisplayHud();
+		if (enablePlayerHUD) {
+			DisplayHud();
+		}
+		
 		SetDungeonText();
 
 		ScanMod(gt.DeltaTime());
