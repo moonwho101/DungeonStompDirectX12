@@ -46,8 +46,7 @@ Dungeon Stomp for Vulkan, a work in progress, is avaiable  [Dungeon Stomp Vulkan
 * O - Toggle SSAO (Screen space ambient occlusion)
 * B - Toggle Camera head bob
 * V - Toggle VSync
-* J - Toggle Shadows
-* U - Toggle Player Captions
+* J - Toggle Shadow map
 * H - Toggle Player HUD
 * N - Toggle Normal map
 * ] - Next Dungeon Level
