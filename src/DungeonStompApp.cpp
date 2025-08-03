@@ -62,6 +62,8 @@ bool enableVsyncKey = false;
 bool enableNormalmap = true;
 bool enableNormalmapKey = false;
 
+bool enableShadowmapFeature = true;
+bool enableShadowmapFeatureKey = false;
 
 extern int playerObjectStart;
 extern int playerGunObjectStart;
@@ -538,6 +540,20 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 		enableVsyncKey = 0;
 	}
 
+    if (GetAsyncKeyState('J') && !enableShadowmapFeatureKey) {
+        enableShadowmapFeature = !enableShadowmapFeature;
+        if (enableShadowmapFeature) {
+            strcpy_s(gActionMessage, "Shadowmap Feature Enabled");
+        } else {
+            strcpy_s(gActionMessage, "Shadowmap Feature Disabled");
+        }
+        UpdateScrollList(0, 255, 255);
+    }
+    if (GetAsyncKeyState('J')) {
+        enableShadowmapFeatureKey = true;
+    } else {
+        enableShadowmapFeatureKey = false;
+    }
 
 }
 
@@ -1090,10 +1106,11 @@ void DungeonStompApp::DrawSceneToShadowMap(const GameTimer& gt)
 
 	mCommandList->SetPipelineState(mPSOs["shadow_opaque"].Get());
 
-	drawingShadowMap = true;
-	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
-	drawingShadowMap = false;
-	//DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
+	if (enableShadowmapFeature) {
+		drawingShadowMap = true;
+		DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
+		drawingShadowMap = false;
+	}
 
 	// Change back to GENERIC_READ so we can read the texture in a shader.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mShadowMap->Resource(),
