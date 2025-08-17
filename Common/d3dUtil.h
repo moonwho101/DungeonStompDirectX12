@@ -222,7 +222,7 @@ struct Light
     float SpotPower = 64.0f;                            // spot light only
 };
 
-#define MaxLights 31
+#define MaxLights 32
 
 struct MaterialConstants
 {

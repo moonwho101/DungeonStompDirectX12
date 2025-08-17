@@ -62,6 +62,11 @@ bool enableVsyncKey = false;
 bool enableNormalmap = true;
 bool enableNormalmapKey = false;
 
+bool enableShadowmapFeature = true;
+bool enableShadowmapFeatureKey = false;
+
+bool enablePlayerHUD = true;
+bool enablePlayerHUDKey = false;
 
 extern int playerObjectStart;
 extern int playerGunObjectStart;
@@ -278,9 +283,8 @@ void DungeonStompApp::Update(const GameTimer& gt)
 	UpdateMainPassCB(gt);
 	UpdateSsaoCB(gt);
 	UpdateShadowPassCB(gt);
-
+	DisplayPlayerCaption();
 	UpdateDungeon(gt);
-
 }
 
 void DungeonStompApp::Draw(const GameTimer& gt)
@@ -538,6 +542,35 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer& gt)
 		enableVsyncKey = 0;
 	}
 
+    if (GetAsyncKeyState('J') && !enableShadowmapFeatureKey) {
+        enableShadowmapFeature = !enableShadowmapFeature;
+        if (enableShadowmapFeature) {
+            strcpy_s(gActionMessage, "Shadowmap Feature Enabled");
+        } else {
+            strcpy_s(gActionMessage, "Shadowmap Feature Disabled");
+        }
+        UpdateScrollList(0, 255, 255);
+    }
+    if (GetAsyncKeyState('J')) {
+        enableShadowmapFeatureKey = true;
+    } else {
+        enableShadowmapFeatureKey = false;
+    }
+
+    if (GetAsyncKeyState('H') && !enablePlayerHUDKey) {
+        enablePlayerHUD = !enablePlayerHUD;
+        if (enablePlayerHUD) {
+            strcpy_s(gActionMessage, "Player HUD Enabled");
+        } else {
+            strcpy_s(gActionMessage, "Player HUD Disabled");
+        }
+        UpdateScrollList(0, 255, 255);
+    }
+    if (GetAsyncKeyState('H')) {
+        enablePlayerHUDKey = true;
+    } else {
+        enablePlayerHUDKey = false;
+    }
 
 }
 
@@ -584,61 +617,21 @@ void DungeonStompApp::UpdateCamera(const GameTimer& gt)
 
 
 		if (playercurrentmove == 1 || playercurrentmove == 4) {
-			centre = false;
-			stopx = false;
-			stopy = false;
+			// Player is moving, ensure bobbing is active
+			if (!bobX.getIsBobbing()) bobX.SinWave(bobX.getSpeed(), bobX.getAmplitude(), bobX.getFrequency());
+			if (!bobY.getIsBobbing()) bobY.SinWave(bobY.getSpeed(), bobY.getAmplitude(), bobY.getFrequency());
+		} else if (playercurrentmove == 0) {
+			// Player is not moving, stop bobbing
+			bobX.stopBobbing();
+			bobY.stopBobbing();
 		}
 
-		if (playercurrentmove == 0) {
-			if (!centre) {
-				centre = true;
-				centrex = bobX.getY();
-				centrey = bobY.getY();
-			}
-		}
-
-		if (centre) {
-
-			//X bob bring to centre
-			if (centrex <= 0) {
-				if (bobX.getY() >= 0) {
-					stopx = true;
-				}
-			}
-			else if (centrex > 0) {
-				if (bobX.getY() <= 0) {
-					stopx = true;
-				}
-			}
-
-			//Y bob 
-			if (centrey <= 0) {
-				if (bobY.getY() >= 0) {
-					stopy = true;
-				}
-			}
-			else if (centrey > 0) {
-				if (bobY.getY() <= 0) {
-					stopy = true;
-				}
-			}
-
-		}
-
-		if (stopy) {
-			by = 0.0f;
-			bobY.setX(0);
-			bobY.setY(0);
-		}
-
-		if (stopx) {
-			r = 1.0f;
-			bobX.setX(0);
-			bobX.setY(0);
-		}
+		// bx and by will now smoothly interpolate to 0 when bobbing stops,
+		// due to the changes in CameraBob::update()
+		r = bx; // bx is bobX.getY() which is updated with damping
 
 		newspot.x = player_list[trueplayernum].x + r * sinf(step_left_angy * k);
-		newspot.y = player_list[trueplayernum].y + by;
+		newspot.y = player_list[trueplayernum].y + by; // by is bobY.getY() which is updated with damping
 		newspot.z = player_list[trueplayernum].z + r * cosf(step_left_angy * k);
 
 		float cameradist = 50.0f;
@@ -833,21 +826,23 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer& gt)
 	mMainPassCB.DeltaTime = gt.DeltaTime();
 
 	//mMainPassCB.AmbientLight = { 0.1f, 0.1f, 0.15f, 1.0f };
-	mMainPassCB.AmbientLight = { 0.65f, 0.65f, 0.65f, 1.0f };
+	mMainPassCB.AmbientLight = { 0.55f, 0.55f, 0.55f, 1.0f };
 	//XMVECTOR lightDir = -MathHelper::SphericalToCartesian(1.0f, mSunTheta, mSunPhi);
 	//XMStoreFloat3(&mMainPassCB.Lights[0].Direction, lightDir);
 	//mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
 
+
 	for (int i = 0; i < MaxLights; i++) {
-		mMainPassCB.Lights[i].Direction = LightContainer[i].Direction;
-		mMainPassCB.Lights[i].Strength = LightContainer[i].Strength;
-		mMainPassCB.Lights[i].Position = LightContainer[i].Position;
-		mMainPassCB.Lights[i].FalloffEnd = LightContainer[i].FalloffEnd;
-		mMainPassCB.Lights[i].FalloffStart = LightContainer[i].FalloffStart;
-		mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
+		mMainPassCB.Lights[i + 1].Direction = LightContainer[i].Direction;
+		mMainPassCB.Lights[i + 1].Strength = LightContainer[i].Strength;
+		mMainPassCB.Lights[i + 1].Position = LightContainer[i].Position;
+		mMainPassCB.Lights[i + 1].FalloffEnd = LightContainer[i].FalloffEnd;
+		mMainPassCB.Lights[i + 1].FalloffStart = LightContainer[i].FalloffStart;
+		mMainPassCB.Lights[i + 1].SpotPower = LightContainer[i].SpotPower;
 	}
 	
 
+	mMainPassCB.Lights[0].Strength =  { 0.15f, 0.15f, 0.15f };
 	//mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
 	mMainPassCB.Lights[0].Direction = mRotatedLightDirections[0];
 	//mMainPassCB.Lights[0].Strength = { 0.4f, 0.4f, 0.4f };
@@ -919,10 +914,10 @@ void DungeonStompApp::UpdateSsaoCB(const GameTimer& gt)
 	ssaoCB.InvRenderTargetSize = XMFLOAT2(1.0f / mSsao->SsaoMapWidth(), 1.0f / mSsao->SsaoMapHeight());
 
 	// Coordinates given in view space.
-	ssaoCB.OcclusionRadius = 10.5f;
-	ssaoCB.OcclusionFadeStart = 0.3f;
-	ssaoCB.OcclusionFadeEnd = 2.0f;
-	ssaoCB.SurfaceEpsilon = 0.05f;
+	ssaoCB.OcclusionRadius = 7.0f;
+	ssaoCB.OcclusionFadeStart = 0.2f;
+	ssaoCB.OcclusionFadeEnd = 0.4f;
+	ssaoCB.SurfaceEpsilon = 0.20f;
 
 	auto currSsaoCB = mCurrFrameResource->SsaoCB.get();
 	currSsaoCB->CopyData(0, ssaoCB);
@@ -930,9 +925,6 @@ void DungeonStompApp::UpdateSsaoCB(const GameTimer& gt)
 
 void DungeonStompApp::UpdateDungeon(const GameTimer& gt)
 {
-
-	DisplayPlayerCaption();
-
 	// Update the dungeon vertex buffer with the new solution.
 	auto currDungeonVB = mCurrFrameResource->DungeonVB.get();
 	Vertex v;
@@ -1128,10 +1120,11 @@ void DungeonStompApp::DrawSceneToShadowMap(const GameTimer& gt)
 
 	mCommandList->SetPipelineState(mPSOs["shadow_opaque"].Get());
 
-	drawingShadowMap = true;
-	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
-	drawingShadowMap = false;
-	//DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
+	if (enableShadowmapFeature) {
+		drawingShadowMap = true;
+		DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
+		drawingShadowMap = false;
+	}
 
 	// Change back to GENERIC_READ so we can read the texture in a shader.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mShadowMap->Resource(),
@@ -2181,12 +2174,13 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 		cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 		//cmdList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-		for (int i = 0; i < displayCapture; i++) {
-			for (int j = 0; j < displayCaptureCount[i]; j++) {
-				cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
+		if (enablePlayerHUD) {
+			for (int i = 0; i < displayCapture; i++) {
+				for (int j = 0; j < displayCaptureCount[i]; j++) {
+					cmdList->DrawInstanced(4, 1, displayCaptureIndex[i] + (j * 4), 0);
+				}
 			}
 		}
-
 
 		//Draw the skybox
 		if (!gravityon || outside) {
@@ -2194,8 +2188,10 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const 
 			DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 		}
 
-		DisplayHud();
-		SetDungeonText();
+		if (enablePlayerHUD) {
+			DisplayHud();
+			SetDungeonText();
+		}
 
 		ScanMod(gt.DeltaTime());
 	}

@@ -4,7 +4,7 @@
 // Contains API for shader lighting.
 //***************************************************************************************
 
-#define MaxLights 31
+#define MaxLights 32
 
 struct Light
 {

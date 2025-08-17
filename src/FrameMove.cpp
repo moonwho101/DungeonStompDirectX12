@@ -348,80 +348,70 @@ void FindDoors(const FLOAT& fTimeKey)
 
 void GameTimers(const FLOAT& fTimeKey)
 {
+    static LARGE_INTEGER frequency = { 0 };
+    static LARGE_INTEGER lastTime = { 0 };
+    static float elapsedTime = 0.0f;
+    float kAnimationSpeed = 7.0f;
 
-	static float elapsedTime = 0.0f;
-	static float lastTime = 0.0f;
-	float kAnimationSpeed = 7.0f;
+    // Initialize frequency and lastTime on first call
+    if (frequency.QuadPart == 0) {
+        QueryPerformanceFrequency(&frequency);
+        QueryPerformanceCounter(&lastTime);
+    }
 
+    LARGE_INTEGER currentTime;
+    QueryPerformanceCounter(&currentTime);
 
+    // Calculate elapsed time in milliseconds
+    elapsedTime = (float)((currentTime.QuadPart - lastTime.QuadPart) * 1000.0 / frequency.QuadPart);
 
-	// Get the current time in milliseconds
-	float time = (float)GetTickCount64();
+    // To find the current t we divide the elapsed time by the ratio of 1 second / our anim speed.
+    // Since we aren't using 1 second as our t = 1, we need to divide the speed by 1000
+    // milliseconds to get our new ratio, which is a 5th of a second.
+    float t = elapsedTime / (1000.0f / kAnimationSpeed);
+    gametimerAnimation = t;
 
-	// Find the time that has elapsed since the last time that was stored
-	elapsedTime = time - lastTime;
+    // If our elapsed time goes over a 5th of a second, we start over and go to the next key frame
+    if (elapsedTime >= (1000.0f / kAnimationSpeed))
+    {
+        // Animation Cycle
+        maingameloop3 = 1;
+        QueryPerformanceCounter(&lastTime);
+    }
+    else {
+        maingameloop3 = 0;
+    }
 
-	// To find the current t we divide the elapsed time by the ratio of 1 second / our anim speed.
-	// Since we aren't using 1 second as our t = 1, we need to divide the speed by 1000
-	// milliseconds to get our new ratio, which is a 5th of a second.
-	float t = elapsedTime / (1000.0f / kAnimationSpeed);
-	gametimerAnimation = t;
-	// If our elapsed time goes over a 5th of a second, we start over and go to the next key frame
-	if (elapsedTime >= (1000.0f / kAnimationSpeed))
-	{
-		//Animation Cycle
-		maingameloop3 = 1;
-		lastTime = (float)GetTickCount64();
+    if (maingameloop3) {
+        AnimateCharacters();
+    }
 
-	}
-	else {
-		maingameloop3 = 0;
-	}
+    gametimer2 = DSTimer();
 
+    if ((gametimer2 - gametimerlast2) * time_factor >= 60.0f / 1000.0f)
+    {
+        // Torch & Teleport Cycle
+        maingameloop2 = 1;
+        gametimerlast2 = DSTimer();
+    }
+    else
+    {
+        maingameloop2 = 0;
+    }
 
-	if (maingameloop3) {
-		AnimateCharacters();
-	}
+    gametimer = DSTimer();
 
+    if ((gametimer - gametimerlast) * time_factor >= 40.0f / 1000)
+    {
+        // Rotation coins, keys, diamonds
+        maingameloop = 1;
+        gametimerlast = DSTimer();
+    }
+    else
+    {
+        maingameloop = 0;
+    }
 
-	//gametimerAnimation
-
-		// To find the current t we divide the elapsed time by the ratio of 1 second / our anim speed.
-	// Since we aren't using 1 second as our t = 1, we need to divide the speed by 1000
-	// milliseconds to get our new ratio, which is a 5th of a second.
-	
-
-
-	//if ((gametimer3 - gametimerlast3) * time_factor >= 110.0f / 1000.0f)
-
-
-
-	gametimer2 = DSTimer();
-
-	if ((gametimer2 - gametimerlast2) * time_factor >= 60.0f / 1000.0f)
-	{
-		//Torch & Teleport Cycle
-		maingameloop2 = 1;
-		gametimerlast2 = DSTimer();
-	}
-	else
-	{
-		maingameloop2 = 0;
-	}
-
-	gametimer = DSTimer();
-
-	if ((gametimer - gametimerlast) * time_factor >= 40.0f / 1000)
-	{
-		//Rotation coins, keys, diamonds
-		maingameloop = 1;
-		gametimerlast = DSTimer();
-	}
-	else
-	{
-		maingameloop = 0;
-	}
-
-	fTimeKeysave = fTimeKey;
-	elapsegametimersave = fTimeKey;
+    fTimeKeysave = fTimeKey;
+    elapsegametimersave = fTimeKey;
 }

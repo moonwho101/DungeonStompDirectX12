@@ -73,6 +73,7 @@ float gFps = 0;
 float gMspf = 0;
 
 extern bool enableVsync;
+extern bool enablePlayerHUD;
 
 Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight)
 {
@@ -339,7 +340,7 @@ void DungeonStompApp::RenderRectangle(Font font, int index, int textureid, XMFLO
 void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color)
 {
 
-	if (drawingShadowMap || drawingSSAO)
+	if (drawingShadowMap || drawingSSAO || !enablePlayerHUD)
 		return;
 
 	// clear the depth buffer so we can draw over everything
