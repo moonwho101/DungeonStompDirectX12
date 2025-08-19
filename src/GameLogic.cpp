@@ -3304,7 +3304,6 @@ void GetItem()
 						sprintf_s(gActionMessage, "You found a potion worth %d health", hp);
 						UpdateScrollList(255, 255, 255);
 						foundsomething = 1;
-						//LevelUp(player_list[trueplayernum].xp);
 					}
 				}
 				else if (strcmp(item_list[i].rname, "cheese1") == 0)
@@ -3325,7 +3324,6 @@ void GetItem()
 						sprintf_s(gActionMessage, "You found some cheese %d health", hp);
 						UpdateScrollList(255, 255, 255);
 						foundsomething = 1;
-						//LevelUp(player_list[trueplayernum].xp);
 					}
 				}
 				else if (strcmp(item_list[i].rname, "bread1") == 0)
@@ -3346,7 +3344,6 @@ void GetItem()
 						sprintf_s(gActionMessage, "You found some bread %d health", hp);
 						UpdateScrollList(255, 255, 255);
 						foundsomething = 1;
-						//LevelUp(player_list[trueplayernum].xp);
 					}
 				}
 				else if (strcmp(item_list[i].rname, "spellbook") == 0)
@@ -3390,7 +3387,7 @@ void GetItem()
 
 					player_list[trueplayernum].gold += item_list[i].gold;
 					player_list[trueplayernum].xp += item_list[i].gold;
-					//LevelUp(player_list[trueplayernum].xp);
+
 					PlayWavSound(SoundID("coin"), 100);
 					item_list[i].bIsPlayerAlive = FALSE;
 					item_list[i].bIsPlayerValid = FALSE;
@@ -3398,7 +3395,7 @@ void GetItem()
 					foundsomething = 1;
 					sprintf_s(gActionMessage, "You found %d coin", item_list[i].gold);
 					UpdateScrollList(0, 255, 0);
-					//LevelUp(player_list[trueplayernum].xp);
+					LevelUp(player_list[trueplayernum].xp);
 				}
 				else if (strcmp(item_list[i].rname, "GOBLET") == 0)
 				{
@@ -3415,7 +3412,7 @@ void GetItem()
 					foundsomething = 1;
 					sprintf_s(gActionMessage, "You found a goblet worth %d coin", item_list[i].gold);
 					UpdateScrollList(0, 255, 0);
-					//LevelUp(player_list[trueplayernum].xp);
+					LevelUp(player_list[trueplayernum].xp);
 				}
 
 				else if (strcmp(item_list[i].rname, "KEY2") == 0)
@@ -3430,7 +3427,7 @@ void GetItem()
 					foundsomething = 1;
 					sprintf_s(gActionMessage, "You found a key");
 					UpdateScrollList(255, 255, 0);
-					//LevelUp(player_list[trueplayernum].xp);
+					LevelUp(player_list[trueplayernum].xp);
 				}
 				else if (strcmp(item_list[i].rname, "diamond") == 0)
 				{
@@ -3443,7 +3440,7 @@ void GetItem()
 					foundsomething = 1;
 					sprintf_s(gActionMessage, "You found a diamond worth %d coin", item_list[i].gold);
 					UpdateScrollList(0, 255, 0);
-					//LevelUp(player_list[trueplayernum].xp);
+					LevelUp(player_list[trueplayernum].xp);
 				}
 				else if (strcmp(item_list[i].rname, "armour") == 0)
 				{
@@ -3458,6 +3455,7 @@ void GetItem()
 					PlayWavSound(SoundID("goal4"), 100);
 					item_list[i].bIsPlayerAlive = FALSE;
 					item_list[i].bIsPlayerValid = FALSE;
+					LevelUp(player_list[trueplayernum].xp);
 				}
 			}
 		}

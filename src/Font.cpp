@@ -757,7 +757,7 @@ void DungeonStompApp::ScanMod(float fElapsedTime)
 						sprintf_s(gActionMessage, "You got %d XP!.", xp);
 						UpdateScrollList(255, 0, 255);
 						player_list[trueplayernum].xp += xp;
-						//LevelUp(player_list[trueplayernum].xp);
+						LevelUp(player_list[trueplayernum].xp);
 					}
 				}
 
