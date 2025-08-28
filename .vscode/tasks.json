@@ -1,0 +1,104 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "dungeonStomp build (release)",
+            "type": "shell",
+            "command": "msbuild",
+            "args": [
+                "src\\DungeonStomp.sln",
+                "/property:GenerateFullPaths=true",
+                "/t:build",
+                "/p:Configuration=Release",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "dungeonStomp build (debug)",
+            "type": "shell",
+            "command": "msbuild",
+            "args": [
+                "src\\DungeonStomp.sln",
+                "/property:GenerateFullPaths=true",
+                "/t:build",
+                "/p:Configuration=Debug",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "dungeonStomp launch",
+            "type": "shell",
+            "command": "${workspaceFolder}/bin/DungeonStomp.exe",
+            "options": {
+                "cwd": "${workspaceFolder}/bin"
+            },
+            "group": "none",
+            "problemMatcher": []
+        },
+        {
+            "label": "dungeonStomp clean (debug)",
+            "type": "shell",
+            "command": "msbuild",
+            "args": [
+                "src\\DungeonStomp.sln",
+                "/property:GenerateFullPaths=true",
+                "/p:Configuration=Debug",                
+                "/t:Clean"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "dungeonStomp clean (release)",
+            "type": "shell",
+            "command": "msbuild",
+            "args": [
+                "src\\DungeonStomp.sln",
+                "/property:GenerateFullPaths=true",
+                "/p:Configuration=Release",                
+                "/t:Clean"
+            ],
+            "problemMatcher": []
+        },
+        {
+      "label": "dungeonStomp with CL",
+      "type": "shell",
+      "command": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX86\\x64\\cl.exe",
+      "args": [
+        "/c", "/ZI", "/JMC", "/nologo", "/W3", "/WX-", "/diagnostics:column", "/Od",
+        "/D", "WIN32", "/D", "_DEBUG", "/D", "_WINDOWS", "/D", "_UNICODE", "/D", "UNICODE",
+        "/Gm-", "/EHsc", "/RTC1", "/MDd", "/GS", "/fp:precise", "/Zc:wchar_t", "/Zc:forScope", "/Zc:inline",
+        "/Fo:DungeonStomp\\x64\\Debug\\", "/Fd:DungeonStomp\\x64\\Debug\\vc143.pdb",
+        "/external:W3", "/Gd", "/TP", "/FC", "/errorReport:queue",
+        "..\\Common\\d3dApp.cpp", "..\\Common\\d3dUtil.cpp", "..\\Common\\GameTimer.cpp",
+        "..\\Common\\GeometryGenerator.cpp", "..\\Common\\MathHelper.cpp",
+        "CameraBob.cpp", "col_response.cpp", "col_step.cpp", "col_types.cpp",
+        "DDSTextureLoader.cpp", "Dice.cpp", "DirectInput.cpp", "Font.cpp",
+        "FrameMove.cpp", "FrameResource.cpp", "GameLogic.cpp", "Import3DS.cpp",
+        "ImportMD2.cpp", "DungeonStompApp.cpp", "LoadWorld.cpp", "Missle.cpp",
+        "ProcessModel.cpp", "Dungeon.cpp", "ShadowMap.cpp", "Ssao.cpp",
+        "WAVFileReader.cpp", "World.cpp", "XAudio2BasicSound.cpp"
+        
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}//src"
+      },
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+    ]
+}
