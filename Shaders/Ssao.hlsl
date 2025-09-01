@@ -196,5 +196,5 @@ float4 PS(VertexOut pin) : SV_Target
 	float access = 1.0f - occlusionSum;
 
 	// Sharpen the contrast of the SSAO map to make the SSAO affect more dramatic.
-	return saturate(pow(access, 90.0f));
+	return saturate(pow(abs(access), 90.0f));
 }

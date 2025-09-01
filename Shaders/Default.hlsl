@@ -351,23 +351,24 @@ float4 PS(VertexOut pin) : SV_Target
     float3 N = normalize(bumpedNormalW);
     float3 V = normalize(toEyeW);
     float3 color = 0.0f;
+    int i = 0;
 
     // Directional lights
 #if (NUM_DIR_LIGHTS > 0)
     [unroll]
-    for (int i = 0; i < NUM_DIR_LIGHTS; ++i)
+    for (i = 0; i < NUM_DIR_LIGHTS; ++i)
         color += PBRLightingUnified(gLights[i], 0, mat, pin.PosW, N, V, shadowFactor, 0.0f);
 #endif
     // Point lights (torch flicker)
 #if (NUM_POINT_LIGHTS > 0)
     [unroll]
-    for (int i = NUM_DIR_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; ++i)
+    for (i = NUM_DIR_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; ++i)
         color += PBRLightingUnified(gLights[i], 1, mat, pin.PosW, N, V, shadowFactor, (float) i);
 #endif
     // Spot lights
 #if (NUM_SPOT_LIGHTS > 0)
     [unroll]
-    for (int i = NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS + NUM_SPOT_LIGHTS; ++i)
+    for (i = NUM_DIR_LIGHTS + NUM_POINT_LIGHTS; i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS + NUM_SPOT_LIGHTS; ++i)
         color += PBRLightingUnified(gLights[i], 2, mat, pin.PosW, N, V, shadowFactor, 0.0f);
 #endif
 
