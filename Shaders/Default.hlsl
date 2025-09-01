@@ -44,6 +44,72 @@ struct Material
     float Timertick;
 };
 
+
+Texture2D gDiffuseMap : register(t0);
+Texture2D gNormalMap : register(t1);
+Texture2D gShadowMap : register(t2);
+TextureCube gCubeMap : register(t4);
+Texture2D gSsaoMap : register(t5);
+
+SamplerState gsamPointWrap : register(s0);
+SamplerState gsamPointClamp : register(s1);
+SamplerState gsamLinearWrap : register(s2);
+SamplerState gsamLinearClamp : register(s3);
+SamplerState gsamAnisotropicWrap : register(s4);
+SamplerState gsamAnisotropicClamp : register(s5);
+SamplerComparisonState gsamShadow : register(s6);
+
+cbuffer cbPerObject : register(b0)
+{
+    float4x4 gWorld;
+    float4x4 gTexTransform;
+};
+
+cbuffer cbMaterial : register(b1)
+{
+    float4 gDiffuseAlbedo;
+    float3 gFresnelR0;
+    float gRoughness;
+    float4x4 gMatTransform;
+    float gMetal;
+    float gTimertick;
+};
+
+cbuffer cbPass : register(b2)
+{
+    float4x4 gView;
+    float4x4 gInvView;
+    float4x4 gProj;
+    float4x4 gInvProj;
+    float4x4 gViewProj;
+    float4x4 gInvViewProj;
+    float4x4 gViewProjTex;
+    float4x4 gShadowTransform;
+    float3 gEyePosW;
+    float cbPerObjectPad1;
+    float2 gRenderTargetSize;
+    float2 gInvRenderTargetSize;
+    float gNearZ;
+    float gFarZ;
+    float gTotalTime;
+    float gDeltaTime;
+    float4 gAmbientLight;
+    float4 gFogColor;
+    float gFogStart;
+    float gFogRange;
+    float2 cbPerObjectPad2;
+    Light gLights[MaxLights];
+};
+
+struct MaterialData
+{
+    float4 DiffuseAlbedo;
+    float3 FresnelR0;
+    float Roughness;
+    float4x4 MatTransform;
+};
+
+
 float3 LinearToSRGB(float3 color)
 {
     return pow(color, 1.0f / 2.2f);
@@ -159,70 +225,6 @@ float3 PBRLightingUnified(
     float3 lightStrength = L.Strength * flicker;
     return (diffuse + specular) * lightStrength * NdotL * attenuation * shadowFactor;
 }
-
-Texture2D gDiffuseMap : register(t0);
-Texture2D gNormalMap : register(t1);
-Texture2D gShadowMap : register(t2);
-TextureCube gCubeMap : register(t4);
-Texture2D gSsaoMap : register(t5);
-
-SamplerState gsamPointWrap : register(s0);
-SamplerState gsamPointClamp : register(s1);
-SamplerState gsamLinearWrap : register(s2);
-SamplerState gsamLinearClamp : register(s3);
-SamplerState gsamAnisotropicWrap : register(s4);
-SamplerState gsamAnisotropicClamp : register(s5);
-SamplerComparisonState gsamShadow : register(s6);
-
-cbuffer cbPerObject : register(b0)
-{
-    float4x4 gWorld;
-    float4x4 gTexTransform;
-};
-
-cbuffer cbMaterial : register(b1)
-{
-    float4 gDiffuseAlbedo;
-    float3 gFresnelR0;
-    float gRoughness;
-    float4x4 gMatTransform;
-    float gMetal;
-    float gTimertick;
-};
-
-cbuffer cbPass : register(b2)
-{
-    float4x4 gView;
-    float4x4 gInvView;
-    float4x4 gProj;
-    float4x4 gInvProj;
-    float4x4 gViewProj;
-    float4x4 gInvViewProj;
-    float4x4 gViewProjTex;
-    float4x4 gShadowTransform;
-    float3 gEyePosW;
-    float cbPerObjectPad1;
-    float2 gRenderTargetSize;
-    float2 gInvRenderTargetSize;
-    float gNearZ;
-    float gFarZ;
-    float gTotalTime;
-    float gDeltaTime;
-    float4 gAmbientLight;
-    float4 gFogColor;
-    float gFogStart;
-    float gFogRange;
-    float2 cbPerObjectPad2;
-    Light gLights[MaxLights];
-};
-
-struct MaterialData
-{
-    float4 DiffuseAlbedo;
-    float3 FresnelR0;
-    float Roughness;
-    float4x4 MatTransform;
-};
 
 float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
 {
