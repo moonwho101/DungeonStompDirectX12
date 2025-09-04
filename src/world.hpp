@@ -376,7 +376,6 @@ typedef struct Merchant
 
 typedef struct poly_sort
 {
-	float dist;
 	int vert_index;
 	int srcstart;
 	int srcfstart;

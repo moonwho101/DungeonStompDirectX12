@@ -180,8 +180,6 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
         int num_vert = obdata[ob_type].num_vert[w];
         int fan_cnt = cnt;
         int ctext;
-        float zaveragedist = 0.0f;
-        int zaveragedistcount = 0;
 
         // Reset mx/my/mz only for used vertices
         for (int v = 0; v < num_vert; v++) {
@@ -234,16 +232,9 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
             my[vert_cnt] = wy + v.y;
             mz[vert_cnt] = wz + (v.x * sine + v.z * cosine);
 
-            zaveragedist += mz[vert_cnt];
-            zaveragedistcount++;
-
             ob_vert_count++;
             g_ob_vert_count++;
         }
-
-        float centroidx = (mx[0] + mx[1] + mx[2]) * QVALUE;
-        float centroidy = (my[0] + my[1] + my[2]) * QVALUE;
-        float centroidz = (mz[0] + mz[1] + mz[2]) * QVALUE;
 
         verts_per_poly[number_of_polys_per_frame] = num_vert;
         ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = num_vert;
@@ -287,10 +278,7 @@ void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
                 CalculateTangentBinormal(src_v[cnt - 3], src_v[cnt - 2], src_v[cnt - 1]);
         }
 
-        float qdist = FastDistance(m_vEyePt.x - centroidx, m_vEyePt.y - centroidy, m_vEyePt.z - centroidz);
-
         ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
-        ObjectsToDraw[number_of_polys_per_frame].dist = qdist;
 
         dp_commands[number_of_polys_per_frame] = poly_command;
         dp_command_index_mode[number_of_polys_per_frame] = USE_NON_INDEXED_DP;
@@ -325,7 +313,6 @@ void DrawBoundingBox() {
 	ObjectsToDraw[number_of_polys_per_frame].srcfstart = 0;
 
 	ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
-	ObjectsToDraw[number_of_polys_per_frame].dist = 0;
 	ObjectsToDraw[number_of_polys_per_frame].texture = 276;
 	ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = 3;
 	ObjectsToDraw[number_of_polys_per_frame].facesperpoly = 1;
@@ -720,7 +707,6 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture
 		//	m_vEyePt.z - centroidz);
 
 		ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
-		ObjectsToDraw[number_of_polys_per_frame].dist = qdist;
 		ObjectsToDraw[number_of_polys_per_frame].texture = texture_alias;
 		ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = num_verts_per_poly;
 
@@ -2047,7 +2033,6 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, float angle, int 
 		ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
 		ObjectsToDraw[number_of_polys_per_frame].texture = texture_alias;
 
-		ObjectsToDraw[number_of_polys_per_frame].dist = qdist;
 		ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = num_verts_per_poly;
 		ObjectsToDraw[number_of_polys_per_frame].facesperpoly = num_faces_per_poly;
 
