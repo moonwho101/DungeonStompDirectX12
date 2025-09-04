@@ -163,460 +163,147 @@ bool ObjectHasShadow(int object_id) {
 
 void ObjectToD3DVertList(int ob_type, float angle, int oblist_index)
 {
-
-	int ob_vert_count = 0;
-	int poly;
-	float qdist = 0;
-	int num_vert;
-	int vert_cnt;
-	int w, i;
-	float x, y, z;
-
-	D3DPRIMITIVETYPE poly_command;
-	BOOL poly_command_error = TRUE;
-
-	float workx, worky, workz;
-	int countnorm = 0;
-
-	float zaveragedist;
-	int zaveragedistcount = 0;
-
-	float  wx = oblist[oblist_index].x;
-	float  wy = oblist[oblist_index].y;
-	float  wz = oblist[oblist_index].z;
-
-	//float cosine = cos_table[angle];
-	//float sine = sin_table[angle];
-
-	float cosine = (float)cos(angle * k);
-	float sine = (float)sin(angle * k);
-
-	ob_vert_count = 0;
-	poly = num_polys_per_object[ob_type];
-
-	int start_cnt = cnt;
-
-	for (w = 0; w < poly; w++)
-	{
-		num_vert = obdata[ob_type].num_vert[w];
-
-		mx[0] = 0.0f;
-		mx[1] = 0.0f;
-		mx[2] = 0.0f;
-		mx[3] = 0.0f;
-		my[0] = 0.0f;
-		my[1] = 0.0f;
-		my[2] = 0.0f;
-		my[3] = 0.0f;
-		mz[0] = 0.0f;
-		mz[1] = 0.0f;
-		mz[2] = 0.0f;
-		mz[3] = 0.0f;
-
-		zaveragedist = 0.0f;
-		int ctext;
-
-		int fan_cnt = -1;
-
-		//if (p_command == D3DPT_TRIANGLEFAN) {
-		fan_cnt = cnt;
-
-
-		if (strstr(oblist[oblist_index].name, "!") != NULL)
-		{
-			ObjectsToDraw[number_of_polys_per_frame].texture = oblist[oblist_index].monstertexture;
-			ctext = oblist[oblist_index].monstertexture;
-
-			ObjectsToDraw[number_of_polys_per_frame].objectId = ob_type;
-		}
-		else
-		{
-			ObjectsToDraw[number_of_polys_per_frame].texture = obdata[ob_type].tex[w];
-			ctext = obdata[ob_type].tex[w];
-
-			ObjectsToDraw[number_of_polys_per_frame].objectId = ob_type;// -99;
-		}
-
-
-		//The object casts a shadow
-		if (oblist[oblist_index].castshadow == 0) {
-			ObjectsToDraw[number_of_polys_per_frame].castshaddow = 0;
-		}
-		else {
-			ObjectsToDraw[number_of_polys_per_frame].castshaddow = 1;
-		}
-
-		texture_list_buffer[number_of_polys_per_frame] = ctext;
-
-		int cresult;
-
-		cresult = CycleBitMap(ctext);
-
-		if (cresult != -1)
-		{
-			oblist[oblist_index].monstertexture = cresult;
-
-			XMFLOAT3 normroadold;
-			XMFLOAT3 work1, work2;
-
-			normroadold.x = 50;
-			normroadold.y = 0;
-			normroadold.z = 0;
-
-			work1.x = m_vEyePt.x;
-			work1.y = m_vEyePt.y;
-			work1.z = m_vEyePt.z;
-
-			work2.x = wx;
-			work2.y = wy;
-			work2.z = wz;
-
-			XMVECTOR P1 = XMLoadFloat3(&work1);
-			XMVECTOR P2 = XMLoadFloat3(&work2);
-			XMVECTOR vDiff = P1 - P2;
-
-			XMVECTOR final = XMVector3Normalize(vDiff);
-			XMVECTOR final2 = XMVector3Normalize(XMLoadFloat3(&normroadold));
-
-			XMVECTOR fDotVector = XMVector3Dot(final, final2);
-			float fDot = XMVectorGetX(fDotVector);
-
-			float convangle;
-			convangle = (float)acos(fDot) / k;
-
-			fDot = convangle;
-
-			if (work2.z < work1.z)
-			{
-			}
-			else
-			{
-				fDot = 180.0f + (180.0f - fDot);
-			}
-
-			//cosine = cos_table[(int)fDot];
-			//sine = sin_table[(int)fDot];
-
-			cosine = (float)cos(fDot * k);
-			sine = (float)sin(fDot * k);
-
-			
-		}
-
-		for (vert_cnt = 0; vert_cnt < num_vert; vert_cnt++)
-		{
-			x = obdata[ob_type].v[ob_vert_count].x;
-			y = obdata[ob_type].v[ob_vert_count].y;
-			z = obdata[ob_type].v[ob_vert_count].z;
-
-			tx[vert_cnt] = obdata[ob_type].t[ob_vert_count].x;
-			ty[vert_cnt] = obdata[ob_type].t[ob_vert_count].y;
-
-			mx[vert_cnt] = wx + (x * cosine - z * sine);
-			my[vert_cnt] = wy + y;
-			mz[vert_cnt] = wz + (x * sine + z * cosine);
-
-			zaveragedist = zaveragedist + mz[vert_cnt];
-			zaveragedistcount++;
-
-			ob_vert_count++;
-			g_ob_vert_count++;
-
-		}
-		float centroidx = (mx[0] + mx[1] + mx[2]) * QVALUE;
-		float centroidy = (my[0] + my[1] + my[2]) * QVALUE;
-		float centroidz = (mz[0] + mz[1] + mz[2]) * QVALUE;
-
-		//zaveragedist = zaveragedist / zaveragedistcount;
-		verts_per_poly[number_of_polys_per_frame] = num_vert;
-
-		ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = num_vert;
-		ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
-
-		poly_command = obdata[ob_type].poly_cmd[w];
-
-		if (obdata[ob_type].use_texmap[w] == FALSE)
-		{
-			for (i = 0; i < verts_per_poly[number_of_polys_per_frame]; i++)
-			{
-				src_v[cnt].x = D3DVAL(mx[i]);
-				src_v[cnt].y = D3DVAL(my[i]);
-				src_v[cnt].z = D3DVAL(mz[i]);
-				src_v[cnt].tu = D3DVAL(tx[i]);
-				src_v[cnt].tv = D3DVAL(ty[i]);
-
-				if (objectcollide == 1)
-					src_collide[cnt] = 1;
-				else
-					src_collide[cnt] = 0;
-
-				if (i == 0)
-				{
-					XMFLOAT3  vw1, vw2, vw3;
-
-					vw1.x = D3DVAL(mx[i]);
-					vw1.y = D3DVAL(my[i]);
-					vw1.z = D3DVAL(mz[i]);
-
-					vw2.x = D3DVAL(mx[i + 1]);
-					vw2.y = D3DVAL(my[i + 1]);
-					vw2.z = D3DVAL(mz[i + 1]);
-
-					vw3.x = D3DVAL(mx[i + 2]);
-					vw3.y = D3DVAL(my[i + 2]);
-					vw3.z = D3DVAL(mz[i + 2]);
-
-					// calculate the NORMAL for the road using the CrossProduct <-important!
-
-					XMVECTOR   vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
-					XMVECTOR   vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
-
-					XMVECTOR  vCross, final;
-					vCross = XMVector3Cross(vDiff, vDiff2);
-					final = XMVector3Normalize(vCross);
-					XMFLOAT3 final2;
-					XMStoreFloat3(&final2, final);
-
-					workx = -final2.x;
-					worky = -final2.y;
-					workz = -final2.z;
-				}
-
-				src_v[cnt].nx = workx;
-				src_v[cnt].ny = worky;
-				src_v[cnt].nz = workz;
-
-				cnt++;
-
-				if (i == 2)
-				{
-					CalculateTangentBinormal(src_v[cnt - 3], src_v[cnt - 2], src_v[cnt - 1]);
-				}
-
-			}
-		}
-		else
-		{
-			for (i = 0; i < verts_per_poly[number_of_polys_per_frame]; i++)
-			{
-				src_v[cnt].x = D3DVAL(mx[i]);
-				src_v[cnt].y = D3DVAL(my[i]);
-				src_v[cnt].z = D3DVAL(mz[i]);
-
-				src_v[cnt].tu = D3DVAL(TexMap[ctext].tu[i]);
-				src_v[cnt].tv = D3DVAL(TexMap[ctext].tv[i]);
-
-				if (objectcollide == 1)
-					src_collide[cnt] = 1;
-				else
-					src_collide[cnt] = 0;
-
-				if (i == 0)
-				{
-					XMFLOAT3 vw1, vw2, vw3;
-
-					vw1.x = D3DVAL(mx[i]);
-					vw1.y = D3DVAL(my[i]);
-					vw1.z = D3DVAL(mz[i]);
-
-					vw2.x = D3DVAL(mx[i + 1]);
-					vw2.y = D3DVAL(my[i + 1]);
-					vw2.z = D3DVAL(mz[i + 1]);
-
-					vw3.x = D3DVAL(mx[i + 2]);
-					vw3.y = D3DVAL(my[i + 2]);
-					vw3.z = D3DVAL(mz[i + 2]);
-
-					// calculate the NORMAL for the road using the CrossProduct <-important!
-					XMVECTOR vCross, final;
-					XMVECTOR   vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
-					XMVECTOR   vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
-
-					vCross = XMVector3Cross(vDiff, vDiff2);
-					final = XMVector3Normalize(vCross);
-
-					XMFLOAT3 final2;
-					XMStoreFloat3(&final2, final);
-
-					workx = -final2.x;
-					worky = -final2.y;
-					workz = -final2.z;
-				}
-				src_v[cnt].nx = workx;
-				src_v[cnt].ny = worky;
-				src_v[cnt].nz = workz;
-
-				cnt++;
-
-				if (i == 2)
-				{
-					CalculateTangentBinormal(src_v[cnt - 3], src_v[cnt - 2], src_v[cnt - 1]);
-				}
-
-			}
-		}
-
-		qdist = FastDistance(
-			m_vEyePt.x - centroidx,
-			m_vEyePt.y - centroidy,
-			m_vEyePt.z - centroidz);
-
-		ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
-		ObjectsToDraw[number_of_polys_per_frame].dist = qdist;
-
-		dp_commands[number_of_polys_per_frame] = poly_command;
-		dp_command_index_mode[number_of_polys_per_frame] = USE_NON_INDEXED_DP;
-		
-
-		if ((poly_command == D3DPT_TRIANGLESTRIP) || (poly_command == D3DPT_TRIANGLEFAN)) {
-			ConvertTraingleStrip(fan_cnt);
-
-			//dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
-
-			dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
-
-			if (num_vert > 3) {
-				num_vert = (num_vert - 3) * 3;
-				verts_per_poly[number_of_polys_per_frame] = (num_vert + 3);
-			}
-
-
-
-			num_triangles_in_scene += (num_vert - 2);
-		}
-		
-		if (poly_command == D3DPT_TRIANGLELIST)
-			num_triangles_in_scene += (num_vert / 3);
-		number_of_polys_per_frame++;
-		num_verts_in_scene += num_vert;
-		num_dp_commands_in_scene++;
-
-		//if ((poly_command < 0) || (poly_command > 6))
-			//PrintMessage(NULL, "CMyD3DApplication::ObjectToD3DVertList -  ERROR UNRECOGNISED COMMAND", NULL, LOGFILE_ONLY);
-	}
-
-	//121=pillar 58=torch 169=house1 170=house2
-
-	//if (ob_type == 121 || ob_type == 169 || ob_type == 170 || ob_type == 58
-	//	|| strstr(oblist[oblist_index].name, "door") != NULL) {
-	//SmoothNormals(start_cnt);
-	//}
-
-	//return;
+    int ob_vert_count = 0;
+    int poly = num_polys_per_object[ob_type];
+    float wx = oblist[oblist_index].x;
+    float wy = oblist[oblist_index].y;
+    float wz = oblist[oblist_index].z;
+	float workx=0; float worky=0; float workz=0;
+
+    float cosine = (float)cos(angle * k);
+    float sine = (float)sin(angle * k);
+
+    int start_cnt = cnt;
+
+    for (int w = 0; w < poly; w++)
+    {
+        int num_vert = obdata[ob_type].num_vert[w];
+        int fan_cnt = cnt;
+        int ctext;
+
+        // Reset mx/my/mz only for used vertices
+        for (int v = 0; v < num_vert; v++) {
+            mx[v] = my[v] = mz[v] = 0.0f;
+        }
+
+        // Texture selection
+        if (strstr(oblist[oblist_index].name, "!") != NULL) {
+            ObjectsToDraw[number_of_polys_per_frame].texture = oblist[oblist_index].monstertexture;
+            ctext = oblist[oblist_index].monstertexture;
+            ObjectsToDraw[number_of_polys_per_frame].objectId = ob_type;
+        } else {
+            ObjectsToDraw[number_of_polys_per_frame].texture = obdata[ob_type].tex[w];
+            ctext = obdata[ob_type].tex[w];
+            ObjectsToDraw[number_of_polys_per_frame].objectId = ob_type;
+        }
+
+        ObjectsToDraw[number_of_polys_per_frame].castshaddow = oblist[oblist_index].castshadow ? 1 : 0;
+        texture_list_buffer[number_of_polys_per_frame] = ctext;
+
+        int cresult = CycleBitMap(ctext);
+        if (cresult != -1)
+        {
+            oblist[oblist_index].monstertexture = cresult;
+
+            XMFLOAT3 normroadold{50, 0, 0};
+            XMFLOAT3 work1{m_vEyePt.x, m_vEyePt.y, m_vEyePt.z};
+            XMFLOAT3 work2{wx, wy, wz};
+
+            XMVECTOR final = XMVector3Normalize(XMLoadFloat3(&work1) - XMLoadFloat3(&work2));
+            XMVECTOR final2 = XMVector3Normalize(XMLoadFloat3(&normroadold));
+            float fDot = XMVectorGetX(XMVector3Dot(final, final2));
+            float convangle = (float)acos(fDot) / k;
+            fDot = (work2.z < work1.z) ? convangle : 180.0f + (180.0f - convangle);
+
+            cosine = (float)cos(fDot * k);
+            sine = (float)sin(fDot * k);
+        }
+
+        // Vertex transformation and texture coordinates
+        for (int vert_cnt = 0; vert_cnt < num_vert; vert_cnt++)
+        {
+            const auto& v = obdata[ob_type].v[ob_vert_count];
+            const auto& t = obdata[ob_type].t[ob_vert_count];
+
+            tx[vert_cnt] = t.x;
+            ty[vert_cnt] = t.y;
+
+            mx[vert_cnt] = wx + (v.x * cosine - v.z * sine);
+            my[vert_cnt] = wy + v.y;
+            mz[vert_cnt] = wz + (v.x * sine + v.z * cosine);
+
+            ob_vert_count++;
+            g_ob_vert_count++;
+        }
+
+        verts_per_poly[number_of_polys_per_frame] = num_vert;
+        ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = num_vert;
+        ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
+
+        D3DPRIMITIVETYPE poly_command = obdata[ob_type].poly_cmd[w];
+
+        // Texture mapping branch
+        bool use_texmap = obdata[ob_type].use_texmap[w] != FALSE;
+        for (int i = 0; i < num_vert; i++)
+        {
+            src_v[cnt].x = D3DVAL(mx[i]);
+            src_v[cnt].y = D3DVAL(my[i]);
+            src_v[cnt].z = D3DVAL(mz[i]);
+            src_v[cnt].tu = D3DVAL(use_texmap ? TexMap[ctext].tu[i] : tx[i]);
+            src_v[cnt].tv = D3DVAL(use_texmap ? TexMap[ctext].tv[i] : ty[i]);
+            src_collide[cnt] = objectcollide == 1 ? 1 : 0;
+
+            // Calculate normal for first vertex
+            if (i == 0 && num_vert >= 3)
+            {
+                XMFLOAT3 vw1{D3DVAL(mx[i]), D3DVAL(my[i]), D3DVAL(mz[i])};
+                XMFLOAT3 vw2{D3DVAL(mx[i + 1]), D3DVAL(my[i + 1]), D3DVAL(mz[i + 1])};
+                XMFLOAT3 vw3{D3DVAL(mx[i + 2]), D3DVAL(my[i + 2]), D3DVAL(mz[i + 2])};
+
+                XMVECTOR vCross = XMVector3Cross(XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2), XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2));
+                XMFLOAT3 final2;
+                XMStoreFloat3(&final2, XMVector3Normalize(vCross));
+                workx = -final2.x;
+                worky = -final2.y;
+                workz = -final2.z;
+            }
+
+            src_v[cnt].nx = workx;
+            src_v[cnt].ny = worky;
+            src_v[cnt].nz = workz;
+
+            cnt++;
+
+            if (i == 2)
+                CalculateTangentBinormal(src_v[cnt - 3], src_v[cnt - 2], src_v[cnt - 1]);
+        }
+
+        ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
+
+        dp_commands[number_of_polys_per_frame] = poly_command;
+        dp_command_index_mode[number_of_polys_per_frame] = USE_NON_INDEXED_DP;
+
+        if ((poly_command == D3DPT_TRIANGLESTRIP) || (poly_command == D3DPT_TRIANGLEFAN)) {
+            ConvertTraingleStrip(fan_cnt);
+            dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
+            if (num_vert > 3) {
+                num_vert = (num_vert - 3) * 3;
+                verts_per_poly[number_of_polys_per_frame] = (num_vert + 3);
+            }
+            num_triangles_in_scene += (num_vert - 2);
+        }
+        if (poly_command == D3DPT_TRIANGLELIST)
+            num_triangles_in_scene += (num_vert / 3);
+
+        number_of_polys_per_frame++;
+        num_verts_in_scene += num_vert;
+        num_dp_commands_in_scene++;
+    }
+    // Uncomment if you want to smooth normals for specific objects
+    // if (ob_type == 121 || ob_type == 169 || ob_type == 170 || ob_type == 58 || strstr(oblist[oblist_index].name, "door") != NULL) {
+    //     SmoothNormals(start_cnt);
+    // }
 }
-
-/*
-void AddWorldLight(int ob_type, int angle, int oblist_index, IDirect3DDevice9* pd3dDevice) {
-
-	if (oblist[oblist_index].light_source->command != 0)
-	{
-		// Set up the light structure
-		D3DLIGHT9 light;
-		ZeroMemory(&light, sizeof(D3DLIGHT9));
-
-		light.Diffuse.r = .5f;
-		light.Diffuse.g = .5f;
-		light.Diffuse.b = .5f;
-
-		light.Ambient.r = 0.3f;
-		light.Ambient.g = 0.4f;
-		light.Ambient.b = 0.6f;
-
-		light.Specular.r = 0.2f;
-		light.Specular.g = 0.2f;
-		light.Specular.b = 0.2f;
-
-		light.Range = 600.0f;
-		light.Ambient.r = oblist[oblist_index].light_source->rcolour;
-		light.Ambient.g = oblist[oblist_index].light_source->gcolour;
-		light.Ambient.b = oblist[oblist_index].light_source->bcolour;
-
-
-		float pos_x = oblist[oblist_index].light_source->position_x;
-		float pos_y = oblist[oblist_index].light_source->position_y;
-		float pos_z = oblist[oblist_index].light_source->position_z;
-
-		float dir_x = oblist[oblist_index].light_source->direction_x;
-		float dir_y = oblist[oblist_index].light_source->direction_y;
-		float dir_z = oblist[oblist_index].light_source->direction_z;
-
-		switch (oblist[oblist_index].light_source->command)
-		{
-
-		case POINT_LIGHT_SOURCE:
-			light.Position = D3DXVECTOR3(pos_x, pos_y, pos_z);
-			light.Attenuation0 = 1.0f;
-			light.Type = D3DLIGHT_POINT;
-
-			break;
-
-		case DIRECTIONAL_LIGHT_SOURCE:
-			light.Direction = D3DXVECTOR3(dir_x, dir_y, dir_z);
-			light.Type = D3DLIGHT_DIRECTIONAL;
-
-			break;
-
-		case SPOT_LIGHT_SOURCE:
-
-			light.Type = D3DLIGHT_SPOT;
-			light.Position = D3DXVECTOR3(pos_x, pos_y, pos_z);
-			light.Direction = D3DXVECTOR3(dir_x, dir_y, dir_z);
-			light.Falloff = 250.0f;
-			light.Range = (float)550.0f;
-
-			light.Theta = 2.0f; // spotlight's inner cone
-			light.Phi = 2.5f;	  // spotlight's outer cone
-
-			light.Theta = 1.4f; // spotlight's inner cone
-			light.Phi = 2.1f;	  // spotlight's outer cone
-
-			light.Attenuation0 = 2.0f;
-
-			light.Ambient.r = 0.5f;
-			light.Ambient.g = 0.5f;
-			light.Ambient.b = 0.5f;
-
-			light.Diffuse.r = oblist[oblist_index].light_source->rcolour;
-			light.Diffuse.g = oblist[oblist_index].light_source->gcolour;
-			light.Diffuse.b = oblist[oblist_index].light_source->bcolour;
-			break;
-
-		case 900:
-			light.Position = D3DXVECTOR3(pos_x, pos_y, pos_z);
-			light.Type = D3DLIGHT_POINT;
-
-			light.Attenuation0 = 1.0f;
-			light.Range = 150.f;
-			light.Ambient.r = 1.0f;
-			light.Ambient.g = 1.0f;
-			light.Ambient.b = 1.0f;
-
-			light.Diffuse.r = 1.0f;
-			light.Diffuse.g = 1.0f;
-			light.Diffuse.b = 1.0f;
-
-
-			break;
-		}
-
-		//if (oblist[oblist_index].light_source->command == 900) {
-		pd3dDevice->SetLight(num_light_sources, &light);
-		pd3dDevice->LightEnable((DWORD)num_light_sources, TRUE);
-		//}
-
-		num_light_sources++;
-
-
-
-	}
-
-	return;
-}
-
-
-*/
-
-
 
 void DrawBoundingBox() {
 	
@@ -626,7 +313,6 @@ void DrawBoundingBox() {
 	ObjectsToDraw[number_of_polys_per_frame].srcfstart = 0;
 
 	ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
-	ObjectsToDraw[number_of_polys_per_frame].dist = 0;
 	ObjectsToDraw[number_of_polys_per_frame].texture = 276;
 	ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = 3;
 	ObjectsToDraw[number_of_polys_per_frame].facesperpoly = 1;
@@ -1021,7 +707,6 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture
 		//	m_vEyePt.z - centroidz);
 
 		ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
-		ObjectsToDraw[number_of_polys_per_frame].dist = qdist;
 		ObjectsToDraw[number_of_polys_per_frame].texture = texture_alias;
 		ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = num_verts_per_poly;
 
@@ -2348,7 +2033,6 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, float angle, int 
 		ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
 		ObjectsToDraw[number_of_polys_per_frame].texture = texture_alias;
 
-		ObjectsToDraw[number_of_polys_per_frame].dist = qdist;
 		ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = num_verts_per_poly;
 		ObjectsToDraw[number_of_polys_per_frame].facesperpoly = num_faces_per_poly;
 

@@ -1035,7 +1035,6 @@ void DungeonStompApp::DisplayPlayerCaption() {
 	ObjectsToDraw[number_of_polys_per_frame].srcfstart = 0;
 
 	ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
-	ObjectsToDraw[number_of_polys_per_frame].dist = 0;
 	ObjectsToDraw[number_of_polys_per_frame].texture = 378;
 	ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = 3;
 	ObjectsToDraw[number_of_polys_per_frame].facesperpoly = 1;
