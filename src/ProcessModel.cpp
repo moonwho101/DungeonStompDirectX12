@@ -1786,286 +1786,177 @@ void DrawItems(float fElapsedTime)
 	}
 }
 
+
 void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, float angle, int texture_alias, int tex_flag, float xt, float yt, float zt)
 {
-
-	float qdist = 0;
-	int i, j;
-	int num_verts_per_poly;
-	int num_faces_per_poly;
-	int num_poly;
-	int poly_command;
-	int i_count, face_i_count;
-	float x, y, z;
-	float rx, ry, rz;
-	float tx, ty;
-	int count_v = 0;
-	float mx[6000];
-	float my[6000];
-	float mz[6000];
-	float workx, worky, workz;
-	XMFLOAT3 vw1, vw2, vw3;
-
-	float x_off = 0;
-	float y_off = 0;
-	float z_off = 0;
-
-	float wx = xt;
-	float wy = yt;
-	float wz = zt;
-
-	if (curr_frame >= pmdata[pmodel_id].num_frames)
-		curr_frame = 0;
-
-	curr_frame = 0;
-	//float cosine = cos_table[angle];
-	//float sine = sin_table[angle];
-
-	float cosine = (float)cos(angle * k);
-	float sine = (float)sin(angle * k);
-
-	i_count = 0;
-	face_i_count = 0;
-
-	/*if (rendering_first_frame == TRUE)
-	{
-		if (fopen_s(&fp, "ds.log", "a") != 0)
-		{
-		}
-	}*/
-
-	// process and transfer the model data from the pmdata structure
-	// to the array of D3DVERTEX2 structures, src_v
-
-	num_poly = pmdata[pmodel_id].num_polys_per_frame;
-
-	ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
-	ObjectsToDraw[number_of_polys_per_frame].objectId = -1;
-
-	int start_cnt = cnt;
-
-	for (i = 0; i < num_poly; i++)
-	{
-		poly_command = pmdata[pmodel_id].poly_cmd[i];
-		num_verts_per_poly = pmdata[pmodel_id].num_verts_per_object[i];
-		num_faces_per_poly = pmdata[pmodel_id].num_faces_per_object[i];
-		count_v = 0;
-
-		ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
-
-		int counttri = 0;
-		for (j = 0; j < num_verts_per_poly; j++)
-		{
-
-			x = pmdata[pmodel_id].w[curr_frame][i_count].x + x_off;
-			z = pmdata[pmodel_id].w[curr_frame][i_count].y + y_off;
-			y = pmdata[pmodel_id].w[curr_frame][i_count].z + z_off;
-
-			rx = wx + (x * cosine - z * sine);
-			ry = wy + y;
-			rz = wz + (x * sine + z * cosine);
-
-			if (fDot2 != 0.0f)
-			{
-				float newx, newy, newz;
-
-				newx = x;
-				newy = y;
-				newz = z;
-
-				rx = (newy * sinf(fDot2 * k) + newx * cosf(fDot2 * k));
-				ry = (newy * cosf(fDot2 * k) - newx * sinf(fDot2 * k));
-				rz = newz;
-
-				newx = rx;
-				newy = ry;
-				newz = rz;
-
-				rx = (newx * cosine - newz * sine);
-				ry = newy;
-				rz = (newx * sine + newz * cosine);
-
-				newx = rx;
-				newy = ry;
-				newz = rz;
-				rx = newx;
-				ry = (newy * cosf(0.0f * k) - newz * sinf(0.0f * k));
-				rz = (newy * sinf(0.0f * k) + newz * cosf(0.0f * k));
-			}
-			else
-			{
-
-				rx = (x * cosine - z * sine);
-				ry = y;
-				rz = (x * sine + z * cosine);
-			}
-
-			rx = rx + wx;
-			ry = ry + wy;
-			rz = rz + wz;
-
-			tx = pmdata[pmodel_id].t[i_count].x * pmdata[pmodel_id].skx;
-			ty = pmdata[pmodel_id].t[i_count].y * pmdata[pmodel_id].sky;
-			ty = 1.0f - ty;
-
-			src_v[cnt].x = D3DVAL(rx);
-			src_v[cnt].y = D3DVAL(ry);
-			src_v[cnt].z = D3DVAL(rz);
-			src_v[cnt].tu = D3DVAL(tx);
-			src_v[cnt].tv = D3DVAL(ty);
-
-			src_collide[cnt] = 1;
-			/*
-			if (rendering_first_frame == TRUE)
-			{
-				fprintf(fp, "%f %f %f, ",
-					src_v[cnt].x,
-					src_v[cnt].y,
-					src_v[cnt].z);
-			}*/
-			mx[j] = rx;
-			my[j] = ry;
-			mz[j] = rz;
-
-
-
-			if (counttri == 2)
-			{
-				vw1.x = D3DVAL(mx[j - 2]);
-				vw1.y = D3DVAL(my[j - 2]);
-				vw1.z = D3DVAL(mz[j - 2]);
-
-				vw2.x = D3DVAL(mx[j - 1]);
-				vw2.y = D3DVAL(my[j - 1]);
-				vw2.z = D3DVAL(mz[j - 1]);
-
-				vw3.x = D3DVAL(mx[j]);
-				vw3.y = D3DVAL(my[j]);
-				vw3.z = D3DVAL(mz[j]);
-
-				// calculate the NORMAL for the road using the CrossProduct <-important!
-
-				XMVECTOR vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
-				XMVECTOR vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
-				XMVECTOR vCross, final;
-
-				//D3DXVec3Cross(&vCross, &vDiff, &vDiff2);
-				//D3DXVec3Normalize(&final, &vCross);
-
-				vCross = XMVector3Cross(vDiff, vDiff2);
-				final = XMVector3Normalize(vCross);
-
-				//if (FastDistance(final.x,final.y,final.z) < 0.1f)
-					//final = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
-				XMFLOAT3 final2;
-				XMStoreFloat3(&final2, final);
-
-				workx = (-final2.x);
-				worky = (-final2.y);
-				workz = (-final2.z);
-
-				src_v[cnt - 2].nx = workx;
-				src_v[cnt - 2].ny = worky;
-				src_v[cnt - 2].nz = workz;
-
-				src_v[cnt - 1].nx = workx;
-				src_v[cnt - 1].ny = worky;
-				src_v[cnt - 1].nz = workz;
-
-				src_v[cnt].nx = workx;
-				src_v[cnt].ny = worky;
-				src_v[cnt].nz = workz;
-
-
-				CalculateTangentBinormal(src_v[cnt -2 ], src_v[cnt - 1], src_v[cnt]);
-
-				counttri = 0;
-			}
-			else {
-				counttri++;
-			}
-
-
-			//if (j >= 2)
-			//{
-
-			//	src_v[cnt].nx = workx;
-			//	src_v[cnt].ny = worky;
-			//	src_v[cnt].nz = workz;
-			//}
-
-
-			//src_v[cnt].nx = 1.0f;
-			//src_v[cnt].ny = 1.0f;
-			//src_v[cnt].nz = 0.3f;
-
-			cnt++;
-			i_count++;
-
-			
-
-		} // end for j
-		ObjectsToDraw[number_of_polys_per_frame].srcfstart = cnt_f;
-		//			face_i_count = 0;
-		for (j = 0; j < num_faces_per_poly * 3; j++)
-		{
-			src_f[cnt_f] = pmdata[pmodel_id].f[face_i_count];
-
-			//if (rendering_first_frame == TRUE)
-			//{
-			//fprintf( fp, "%d ", src_f[cnt_f] );
-			//}
-
-			cnt_f++;
-			face_i_count++;
-		}
-
-		float centroidx = (mx[0] + mx[1] + mx[2]) * QVALUE;
-		float centroidy = (my[0] + my[1] + my[2]) * QVALUE;
-		float centroidz = (mz[0] + mz[1] + mz[2]) * QVALUE;
-
-		qdist = FastDistance(
-			m_vEyePt.x - centroidx,
-			m_vEyePt.y - centroidy,
-			m_vEyePt.z - centroidz);
-
-		ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
-		ObjectsToDraw[number_of_polys_per_frame].texture = texture_alias;
-
-		ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = num_verts_per_poly;
-		ObjectsToDraw[number_of_polys_per_frame].facesperpoly = num_faces_per_poly;
-
-		verts_per_poly[number_of_polys_per_frame] = num_verts_per_poly;
-		faces_per_poly[number_of_polys_per_frame] = num_faces_per_poly;
-
-		dp_command_index_mode[number_of_polys_per_frame] = USE_INDEXED_DP;
-		dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
-
-		num_triangles_in_scene += num_faces_per_poly;
-		num_verts_in_scene += num_verts_per_poly;
-		num_dp_commands_in_scene++;
-
-		if (tex_flag == USE_PLAYERS_SKIN)
-			texture_list_buffer[number_of_polys_per_frame] = texture_alias;
-		else
-			texture_list_buffer[number_of_polys_per_frame] = pmdata[pmodel_id].texture_list[i];
-
-		number_of_polys_per_frame++;
-
-	} // end for vert_cnt
-
-	/*if (rendering_first_frame == TRUE)
-	{
-		fprintf(fp, " \n\n");
-		fclose(fp);
-	}*/
-
-
-
-
-
-	return;
+    float qdist = 0.0f;
+
+    int num_poly;
+    int i_count, face_i_count;
+    float x, y, z;
+    float rx, ry, rz;
+    float tx, ty;
+
+    float wx = xt;
+    float wy = yt;
+    float wz = zt;
+
+    if (curr_frame >= pmdata[pmodel_id].num_frames)
+        curr_frame = 0;
+
+    // Use radians once
+    const float cosine = (float)cos(angle * k);
+    const float sine   = (float)sin(angle * k);
+
+    i_count = 0;
+    face_i_count = 0;
+
+    num_poly = pmdata[pmodel_id].num_polys_per_frame;
+
+    ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
+    ObjectsToDraw[number_of_polys_per_frame].objectId = -1;
+
+    const int start_cnt = cnt;
+
+    for (int i = 0; i < num_poly; i++)
+    {
+        const int num_verts_per_poly  = pmdata[pmodel_id].num_verts_per_object[i];
+        const int num_faces_per_poly  = pmdata[pmodel_id].num_faces_per_object[i];
+
+        ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
+
+        int triVertexCounter = 0;
+        bool centroidComputed = false;
+
+        for (int j = 0; j < num_verts_per_poly; j++)
+        {
+            // Read source vertex
+            x = pmdata[pmodel_id].w[curr_frame][i_count].x;
+            z = pmdata[pmodel_id].w[curr_frame][i_count].y;
+            y = pmdata[pmodel_id].w[curr_frame][i_count].z;
+
+            // Apply optional pitch (fDot2) then yaw (angle)
+            if (fDot2 != 0.0f)
+            {
+                float newx = (y * sinf(fDot2 * k) + x * cosf(fDot2 * k));
+                float newy = (y * cosf(fDot2 * k) - x * sinf(fDot2 * k));
+                float newz = z;
+
+                // yaw
+                float yawx = (newx * cosine - newz * sine);
+                float yawy = newy;
+                float yawz = (newx * sine + newz * cosine);
+
+                // roll is 0 in original code path
+                rx = yawx + wx;
+                ry = yawy + wy;
+                rz = yawz + wz;
+            }
+            else
+            {
+                // yaw only
+                rx = (x * cosine - z * sine) + wx;
+                ry = y + wy;
+                rz = (x * sine + z * cosine) + wz;
+            }
+
+            // UVs (v flipped)
+            tx = pmdata[pmodel_id].t[i_count].x * pmdata[pmodel_id].skx;
+            ty = pmdata[pmodel_id].t[i_count].y * pmdata[pmodel_id].sky;
+            ty = 1.0f - ty;
+
+            // Write vertex
+            src_v[cnt].x  = D3DVAL(rx);
+            src_v[cnt].y  = D3DVAL(ry);
+            src_v[cnt].z  = D3DVAL(rz);
+            src_v[cnt].tu = D3DVAL(tx);
+            src_v[cnt].tv = D3DVAL(ty);
+            src_collide[cnt] = 1;
+
+            // When a full triangle is present (streamed as list), compute normal and tangent
+            if (triVertexCounter == 2)
+            {
+                const D3DVERTEX2& v1 = src_v[cnt - 2];
+                const D3DVERTEX2& v2 = src_v[cnt - 1];
+                const D3DVERTEX2& v3 = src_v[cnt];
+
+                XMFLOAT3 p1{ v1.x, v1.y, v1.z };
+                XMFLOAT3 p2{ v2.x, v2.y, v2.z };
+                XMFLOAT3 p3{ v3.x, v3.y, v3.z };
+
+                XMVECTOR vDiff  = XMLoadFloat3(&p1) - XMLoadFloat3(&p2);
+                XMVECTOR vDiff2 = XMLoadFloat3(&p3) - XMLoadFloat3(&p2);
+                XMVECTOR nrm    = XMVector3Normalize(XMVector3Cross(vDiff, vDiff2));
+
+                XMFLOAT3 n3;
+                XMStoreFloat3(&n3, nrm);
+
+                // Original code uses flipped normal
+                const float nx = -n3.x, ny = -n3.y, nz = -n3.z;
+
+                src_v[cnt - 2].nx = nx; src_v[cnt - 2].ny = ny; src_v[cnt - 2].nz = nz;
+                src_v[cnt - 1].nx = nx; src_v[cnt - 1].ny = ny; src_v[cnt - 1].nz = nz;
+                src_v[cnt    ].nx = nx; src_v[cnt    ].ny = ny; src_v[cnt    ].nz = nz;
+
+                CalculateTangentBinormal(src_v[cnt - 2], src_v[cnt - 1], src_v[cnt]);
+
+                // Compute centroid/qdist once using the first triangle
+                if (!centroidComputed)
+                {
+                    const float centroidx = (p1.x + p2.x + p3.x) * QVALUE;
+                    const float centroidy = (p1.y + p2.y + p3.y) * QVALUE;
+                    const float centroidz = (p1.z + p2.z + p3.z) * QVALUE;
+
+                    qdist = FastDistance(
+                        m_vEyePt.x - centroidx,
+                        m_vEyePt.y - centroidy,
+                        m_vEyePt.z - centroidz);
+
+                    centroidComputed = true;
+                }
+
+                triVertexCounter = 0;
+            }
+            else
+            {
+                triVertexCounter++;
+            }
+
+            cnt++;
+            i_count++;
+        } // end for vertices
+
+        ObjectsToDraw[number_of_polys_per_frame].srcfstart = cnt_f;
+
+        // Copy indices for this poly
+        for (int j = 0; j < num_faces_per_poly * 3; j++)
+        {
+            src_f[cnt_f++] = pmdata[pmodel_id].f[face_i_count++];
+        }
+
+        ObjectsToDraw[number_of_polys_per_frame].vert_index    = number_of_polys_per_frame;
+        ObjectsToDraw[number_of_polys_per_frame].texture       = texture_alias;
+        ObjectsToDraw[number_of_polys_per_frame].vertsperpoly  = num_verts_per_poly;
+        ObjectsToDraw[number_of_polys_per_frame].facesperpoly  = num_faces_per_poly;
+
+        verts_per_poly[number_of_polys_per_frame] = num_verts_per_poly;
+        faces_per_poly[number_of_polys_per_frame] = num_faces_per_poly;
+
+        dp_command_index_mode[number_of_polys_per_frame] = USE_INDEXED_DP;
+        dp_commands[number_of_polys_per_frame]           = D3DPT_TRIANGLELIST;
+
+        num_triangles_in_scene += num_faces_per_poly;
+        num_verts_in_scene     += num_verts_per_poly;
+        num_dp_commands_in_scene++;
+
+        if (tex_flag == USE_PLAYERS_SKIN)
+            texture_list_buffer[number_of_polys_per_frame] = texture_alias;
+        else
+            texture_list_buffer[number_of_polys_per_frame] = pmdata[pmodel_id].texture_list[i];
+
+        number_of_polys_per_frame++;
+    } // end for polys
+    return;
 }
 
 void AddModel(float x, float y, float z, float rot_angle, float monsterid, float monstertexture, float monnum, char modelid[80], char modeltexture[80], int ability)
@@ -2197,197 +2088,3 @@ int CycleBitMap(int i)
 
 	return -1;
 }
-
-/*
-void DrawBoundingBox(IDirect3DDevice9* pd3dDevice)
-{
-
-	pd3dDevice->SetTexture(0, g_pTextureList[157]); //set texture
-
-	g_pVB->Lock(0, sizeof(&pBoundingBox), (void**)&pBoundingBox, 0);
-	for (int i = 0; i < countboundingbox; i++)
-	{
-		D3DXVECTOR3 a = D3DXVECTOR3(boundingbox[i].x, boundingbox[i].y, boundingbox[i].z);
-		pBoundingBox[i].position = a;
-		pBoundingBox[i].color = D3DCOLOR_RGBA(105, 105, 105, 0); //0xffffffff;
-	}
-	g_pVB->Unlock();
-
-	int g = 1;
-	for (int i = 0; i < countboundingbox; i = i + 4)
-	{
-		pd3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, i, 2);
-	}
-}
-*/
-
-/*
-void FlashLight(IDirect3DDevice9* pd3dDevice) {
-
-	bool bIsFlashlightOn = true;
-	float radius = 20.0f; // used for flashlight
-	int lighttype = 1;
-	// Set up the light structure
-	D3DLIGHT9 light;
-	ZeroMemory(&light, sizeof(D3DLIGHT9));
-
-	light.Diffuse.r = 1.0f;
-	light.Diffuse.g = 1.0f;
-	light.Diffuse.b = 1.0f;
-
-	light.Ambient.r = 0.3f;
-	light.Ambient.g = 0.3f;
-	light.Ambient.b = 0.3f;
-
-
-	light.Range = 500.0f; // D3DLIGHT_RANGE_MAX
-
-	// Calculate the flashlight's lookat point, from
-	// the player's view direction angy.
-
-	float lx = m_vEyePt.x + radius * sinf(angy * k);
-	float ly = 0;
-	float lz = m_vEyePt.z + radius * cosf(angy * k);
-
-	// Calculate direction vector for flashlight
-	float dir_x = lx - m_vEyePt.x;
-	float dir_y = 0; //ly - m_vEyePt.y;
-	float dir_z = lz - m_vEyePt.z;
-
-	// set flashlight's position to player's position
-	float pos_x = player_list[trueplayernum].x;
-	float pos_y = player_list[trueplayernum].y;
-	float pos_z = player_list[trueplayernum].z;
-
-	if (lighttype == 0)
-	{
-		light.Position = D3DXVECTOR3(pos_x, pos_y, pos_z);
-		light.Direction = D3DXVECTOR3(dir_x, dir_y, dir_z);
-		light.Falloff = .1f;
-		light.Theta = .6f; // spotlight's inner cone
-		light.Phi = 1.3f;	 // spotlight's outer cone
-		light.Attenuation0 = 1.0f;
-		light.Type = D3DLIGHT_SPOT;
-	}
-	else
-	{
-
-		light.Type = D3DLIGHT_POINT;
-
-		if (strstr(your_gun[current_gun].gunname, "LIGHTNINGSWORD"))
-		{
-			light.Ambient.r = 1.0f;
-			light.Ambient.g = 1.0f;
-			light.Ambient.b = 1.0f;
-		}
-		else if (strstr(your_gun[current_gun].gunname, "FLAME") != NULL)
-		{
-			light.Ambient.r = 1.0f;
-			light.Ambient.g = 0.2f;
-			light.Ambient.b = 0.3f;
-		}
-		else
-		{
-			light.Ambient.r = 0.4f;
-			light.Ambient.g = 0.3f;
-			light.Ambient.b = 1.0f;
-		}
-
-		light.Diffuse.r = light.Ambient.r;
-		light.Diffuse.g = light.Ambient.g;
-		light.Diffuse.b = light.Ambient.b;
-
-		light.Specular.r = 0.0f;
-		light.Specular.g = 0.0f;
-		light.Specular.b = 0.0f;
-		light.Range = 200.0f;
-		light.Position.x = pos_x;
-		light.Position.y = pos_y;
-		light.Position.z = pos_z;
-
-		light.Attenuation0 = 1.0f;
-	}
-
-	if (bIsFlashlightOn == TRUE)
-	{
-		pd3dDevice->SetLight(num_light_sources, &light);
-		pd3dDevice->LightEnable((DWORD)num_light_sources, TRUE);
-		num_light_sources++;
-	}
-
-}
-
-void AddMissleLight(IDirect3DDevice9* pd3dDevice) {
-
-	for (int misslecount = 0; misslecount < MAX_MISSLE; misslecount++)
-	{
-		if (your_missle[misslecount].active == 1)
-		{
-			D3DVECTOR collidenow;
-			D3DVECTOR saveeye;
-			float qdist = FastDistance(
-				player_list[trueplayernum].x - your_missle[misslecount].x,
-				player_list[trueplayernum].y - your_missle[misslecount].y,
-				player_list[trueplayernum].z - your_missle[misslecount].z);
-			your_missle[misslecount].qdist = qdist;
-
-			your_missle[misslecount].qdist = qdist;
-
-			if (qdist > culldist)
-			{
-				your_missle[misslecount].active = 0;
-			}
-			else
-			{
-				// Set up the light structure
-				D3DLIGHT9 light;
-				ZeroMemory(&light, sizeof(D3DLIGHT9));
-
-
-				if (current_gun == 18)
-				{
-					light.Ambient.r = 1.0f;
-					light.Ambient.g = 1.0f;
-					light.Ambient.b = 1.0f;
-				}
-				else if (current_gun == 19)
-				{
-					light.Ambient.r = 1.0f;
-					light.Ambient.g = 0.2f;
-					light.Ambient.b = 0.3f;
-				}
-				else
-				{
-					light.Ambient.r = 0.4f;
-					light.Ambient.g = 0.3f;
-					light.Ambient.b = 1.0f;
-				}
-
-				light.Diffuse.r = light.Ambient.r;
-				light.Diffuse.g = light.Ambient.g;
-				light.Diffuse.b = light.Ambient.b;
-
-				light.Specular.r = 0.2f;
-				light.Specular.g = 0.2f;
-				light.Specular.b = 0.2f;
-
-				light.Range = 100.0f;
-
-				light.Position = D3DXVECTOR3(your_missle[misslecount].x,
-					your_missle[misslecount].y, your_missle[misslecount].z);
-
-				light.Attenuation0 = 1.0f;
-				light.Type = D3DLIGHT_POINT;
-
-				//if (num_light_sources < 7) {
-				pd3dDevice->SetLight(num_light_sources, &light);
-				pd3dDevice->LightEnable((DWORD)num_light_sources, TRUE);
-				num_light_sources++;
-				//}
-				//num_light_sources++;
-			}
-		}
-	}
-}
-
-*/
