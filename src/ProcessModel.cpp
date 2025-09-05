@@ -1612,7 +1612,6 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, float angle, int 
         ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
 
         int triVertexCounter = 0;
-        bool centroidComputed = false;
 
         for (int j = 0; j < num_verts_per_poly; j++)
         {
@@ -1685,21 +1684,6 @@ void PlayerToD3DIndexedVertList(int pmodel_id, int curr_frame, float angle, int 
                 src_v[cnt    ].nx = nx; src_v[cnt    ].ny = ny; src_v[cnt    ].nz = nz;
 
                 CalculateTangentBinormal(src_v[cnt - 2], src_v[cnt - 1], src_v[cnt]);
-
-                // Compute centroid/qdist once using the first triangle
-                if (!centroidComputed)
-                {
-                    const float centroidx = (p1.x + p2.x + p3.x) * QVALUE;
-                    const float centroidy = (p1.y + p2.y + p3.y) * QVALUE;
-                    const float centroidz = (p1.z + p2.z + p3.z) * QVALUE;
-
-                    qdist = FastDistance(
-                        m_vEyePt.x - centroidx,
-                        m_vEyePt.y - centroidy,
-                        m_vEyePt.z - centroidz);
-
-                    centroidComputed = true;
-                }
 
                 triVertexCounter = 0;
             }
