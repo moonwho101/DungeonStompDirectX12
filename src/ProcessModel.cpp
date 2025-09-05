@@ -382,391 +382,177 @@ void DrawBoundingBox() {
 
 }
 
+
 void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture_alias, int tex_flag, float xt, float yt, float zt, int nextFrame)
 {
-
-
-	float qdist = 0;
-
-	int i, j;
-	int num_verts_per_poly;
-	int num_poly;
-	int i_count;
-	short v_index;
-	float x, y, z;
-	float rx, ry, rz;
-	float tx, ty;
-	int count_v;
-
-	vert_ptr tp;
-	vert_ptr tpNextFrame;
-	DWORD r, g, b;
-	D3DPRIMITIVETYPE p_command;
-	BOOL error = TRUE;
-	float mx[224];
-	float my[224];
-	float mz[224];
-
-	XMFLOAT3 vw1, vw2, vw3;
-	float workx, worky, workz;
-
-	if (angle >= 360)
-		angle = angle - 360;
-	if (angle < 0)
-		angle += 360;
-
-	float x_off = 0;
-	float y_off = 0;
-	float z_off = 0;
-
-	float  wx = xt;
-	float  wy = yt;
-	float  wz = zt;
-
-	if (pmdata[pmodel_id].use_indexed_primitive == TRUE)
-	{
-		//3ds models
-		PlayerToD3DIndexedVertList(pmodel_id, 0, angle, texture_alias, tex_flag, wx, wy, wz);
-		return;
-	}
-
-
-	//md2 models
-	//float cosine = cos_table[angle];
-	//float sine = sin_table[angle];
-
-	float cosine = (float)cos(angle * k);
-	float sine = (float)sin(angle * k);
-
-	if (curr_frame >= pmdata[pmodel_id].num_frames)
-		curr_frame = 0;
-
-	i_count = 0;
-
-	num_poly = pmdata[pmodel_id].num_polys_per_frame;
-
-	int start_cnt = cnt;
-
-	int startFrame = pmdata[pmodel_id].sequence_start_frame[0];
-	int endFrame = pmdata[pmodel_id].sequence_stop_frame[0];
-
-
-	for (i = 0; i < num_poly; i++)
-	{
-		p_command = pmdata[pmodel_id].poly_cmd[i];
-		num_verts_per_poly = pmdata[pmodel_id].num_vert[i];
-
-		count_v = 0;
-
-		ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
-
-		ObjectsToDraw[number_of_polys_per_frame].objectId = -1;
-
-		int counttri = 0;
-		int firstcount = 0;
-		int fan_cnt = -1;
-
-		//if (p_command == D3DPT_TRIANGLEFAN) {
-		fan_cnt = cnt;
-		//}
-
-		for (j = 0; j < num_verts_per_poly; j++)
-		{
-			v_index = pmdata[pmodel_id].f[i_count];
-
-			tp = &pmdata[pmodel_id].w[curr_frame][v_index];
-
-
-			if (nextFrame != -1) {
-
-				tpNextFrame = &pmdata[pmodel_id].w[nextFrame][v_index];
-
-
-				if (gametimerAnimation > 0.0f && gametimerAnimation < 1.0f ) {
-
-					x = tp->x + gametimerAnimation * (tpNextFrame->x - tp->x);
-					z = tp->y + gametimerAnimation * (tpNextFrame->y - tp->y);
-					y = tp->z + gametimerAnimation * (tpNextFrame->z - tp->z);
-				}
-				else {
-					x = tp->x + x_off;
-					z = tp->y + y_off;
-					y = (tp->z + z_off);
-
-				}
-
-				if (weapondrop == 1)
-				{
-					y = y - 40.0f;
-				}
-
-			}
-			else {
-
-				if (weapondrop == 1)
-				{
-					x = tp->x + x_off;
-					z = tp->y + y_off;
-					y = (tp->z + z_off) - 40.0f;
-				}
-				else
-				{
-					x = tp->x + x_off;
-					z = tp->y + y_off;
-					y = (tp->z + z_off);
-				}
-
-			}
-
-
-
-			if (weapondrop == 0)
-			{
-				rx = wx + (x * cosine - z * sine);
-				ry = wy + y;
-				rz = wz + (x * sine + z * cosine);
-			}
-			else
-			{
-				rx = wx + x * sinf(fDot2 * k) * sinf(angle * k);
-				ry = wy + y * cosf(fDot2 * k);
-				rz = wz + (z)*sinf(fDot2 * k) * cosf(angle * k);
-			}
-
-			if (weapondrop == 1)
-			{
-				//pitch
-
-				float newx, newy, newz;
-
-				newx = x;
-				newy = y;
-				newz = z;
-
-				rx = (newy * sinf(fDot2 * k) + newx * cosf(fDot2 * k));
-				ry = (newy * cosf(fDot2 * k) - newx * sinf(fDot2 * k));
-				rz = newz;
-
-				newx = rx;
-				newy = ry;
-				newz = rz;
-
-				rx = (newx * cosine - newz * sine);
-				ry = newy;
-				rz = (newx * sine + newz * cosine);
-
-				newx = rx;
-				newy = ry;
-				newz = rz;
-				rx = newx;
-				ry = (newy * cosf(0.0f * k) - newz * sinf(0.0f * k));
-				rz = (newy * sinf(0.0f * k) + newz * cosf(0.0f * k));
-
-
-			}
-			else
-			{
-				rx = (x * cosine - z * sine);
-				ry = y;
-				rz = (x * sine + z * cosine);
-			}
-
-			rx = rx + wx;
-			ry = ry + wy;
-
-			rz = rz + wz;
-
-			tx = pmdata[pmodel_id].t[i_count].x * pmdata[pmodel_id].skx;
-			ty = pmdata[pmodel_id].t[i_count].y * pmdata[pmodel_id].sky;
-
-			r = 0;
-			g = 0;
-			b = 0;
-
-			src_v[cnt].x = D3DVAL(rx);
-			src_v[cnt].y = D3DVAL(ry);
-			src_v[cnt].z = D3DVAL(rz);
-			src_v[cnt].tu = D3DVAL(tx);
-			src_v[cnt].tv = D3DVAL(ty);
-
-			src_collide[cnt] = 1;
-
-			mx[j] = D3DVAL(rx);
-			my[j] = D3DVAL(ry);
-			mz[j] = D3DVAL(rz);
-
-			if (counttri == 2 && firstcount == 0 || firstcount == 1)
-			{
-				vw1.x = D3DVAL(mx[j - 2]);
-				vw1.y = D3DVAL(my[j - 2]);
-				vw1.z = D3DVAL(mz[j - 2]);
-
-				vw2.x = D3DVAL(mx[j - 1]);
-				vw2.y = D3DVAL(my[j - 1]);
-				vw2.z = D3DVAL(mz[j - 1]);
-
-				vw3.x = D3DVAL(mx[j]);
-				vw3.y = D3DVAL(my[j]);
-				vw3.z = D3DVAL(mz[j]);
-
-				// calculate the NORMAL for the road using the CrossProduct <-important!
-
-				//D3DXVECTOR3 vDiff = vw1 - vw2;
-				//vDiff2 = vw3 - vw2;
-
-				XMVECTOR   vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
-				XMVECTOR   vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
-
-				//D3DXVECTOR3 vCross, final;
-
-				//D3DXVec3Cross(&vCross, &vDiff, &vDiff2);
-				//D3DXVec3Normalize(&final, &vCross);
-
-				XMVECTOR  vCross, final;
-				vCross = XMVector3Cross(vDiff, vDiff2);
-				final = XMVector3Normalize(vCross);
-
-				XMFLOAT3 final2;
-				XMStoreFloat3(&final2, final);
-
-				//workx = -final2.x;
-				//worky = -final2.y;
-				//workz = -final2.z;
-
-				//TODO: Why is this not negative now?
-				workx = final2.x;
-				worky = final2.y;
-				workz = final2.z;
-
-
-				if (firstcount == 1)
-				{
-
-					src_v[cnt - 2].nx = workx;
-					src_v[cnt - 2].ny = worky;
-					src_v[cnt - 2].nz = workz;
-
-
-					src_v[cnt - 1].nx = workx;
-					src_v[cnt - 1].ny = worky;
-					src_v[cnt - 1].nz = workz;
-
-
-					src_v[cnt].nx = workx;
-					src_v[cnt].ny = worky;
-					src_v[cnt].nz = workz;
-
-
-					CalculateTangentBinormal(src_v[cnt - 2], src_v[cnt - 1], src_v[cnt]);
-
-				}
-				else {
-
-
-					src_v[cnt - 2].nx = workx;
-					src_v[cnt - 2].ny = worky;
-					src_v[cnt - 2].nz = workz;
-
-					src_v[cnt - 1].nx = workx;
-					src_v[cnt - 1].ny = worky;
-					src_v[cnt - 1].nz = workz;
-
-					src_v[cnt].nx = workx;
-					src_v[cnt].ny = worky;
-					src_v[cnt].nz = workz;
-
-					CalculateTangentBinormal(src_v[cnt - 2], src_v[cnt - 1], src_v[cnt]);
-				}
-				firstcount = 1;
-				counttri = 0;
-			}
-			else {
-				counttri++;
-			}
-
-
-			//if (j >= 2)
-			//{
-			//	src_v[cnt].nx = workx;
-			//	src_v[cnt].ny = worky;
-			//	src_v[cnt].nz = workz;
-			//}
-
-
-			cnt++;
-			i_count++;
-		}
-
-		float centroidx = (mx[0] + mx[1] + mx[2]) * QVALUE;
-		float centroidy = (my[0] + my[1] + my[2]) * QVALUE;
-		float centroidz = (mz[0] + mz[1] + mz[2]) * QVALUE;
-
-		//qdist = FastDistance(
-		//	m_vEyePt.x - centroidx,
-		//	m_vEyePt.y - centroidy,
-		//	m_vEyePt.z - centroidz);
-
-		ObjectsToDraw[number_of_polys_per_frame].vert_index = number_of_polys_per_frame;
-		ObjectsToDraw[number_of_polys_per_frame].texture = texture_alias;
-		ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = num_verts_per_poly;
-
-		verts_per_poly[number_of_polys_per_frame] = num_verts_per_poly;
-		dp_command_index_mode[number_of_polys_per_frame] = USE_NON_INDEXED_DP;
-		dp_commands[number_of_polys_per_frame] = p_command;
-
-		if (p_command == D3DPT_TRIANGLESTRIP) {
-			num_triangles_in_scene += (num_verts_per_poly - 2);
-
-			ConvertTraingleStrip(fan_cnt);
-			dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
-
-			if (num_verts_per_poly > 3) {
-				num_verts_per_poly = (num_verts_per_poly - 3) * 3;
-
-				verts_per_poly[number_of_polys_per_frame] = (num_verts_per_poly + 3);
-			}
-
-
-		}
-
-
-		if (p_command == D3DPT_TRIANGLELIST)
-			num_triangles_in_scene += (num_verts_per_poly / 3);
-
-		if (p_command == D3DPT_TRIANGLEFAN) {
-
-			ConvertTraingleFan(fan_cnt);
-			dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
-			//todo: fix this
-			num_triangles_in_scene += (num_verts_per_poly - 2);
-
-			if (num_verts_per_poly > 3) {
-				num_verts_per_poly = (num_verts_per_poly - 3) * 3;
-
-				verts_per_poly[number_of_polys_per_frame] = (num_verts_per_poly + 3);
-			}
-
-		}
-
-
-
-		num_verts_in_scene += num_verts_per_poly;
-		num_dp_commands_in_scene++;
-
-		if (tex_flag == USE_PLAYERS_SKIN)
-			texture_list_buffer[number_of_polys_per_frame] = texture_alias;
-		else
-			texture_list_buffer[number_of_polys_per_frame] = pmdata[pmodel_id].texture_list[i];
-
-		texture_list_buffer[number_of_polys_per_frame] = texture_alias;
-
-		number_of_polys_per_frame++;
-
-	} // end for vert_cnt
-
-	SmoothNormals(start_cnt);
-
-	return;
+    // Normalize angle (degrees)
+    if (angle >= 360.0f) angle -= 360.0f;
+    if (angle < 0.0f)    angle += 360.0f;
+
+    // Indexed 3DS models: forward to indexed path with the correct frame
+    if (pmdata[pmodel_id].use_indexed_primitive == TRUE)
+    {
+        PlayerToD3DIndexedVertList(pmodel_id, curr_frame, angle, texture_alias, tex_flag, xt, yt, zt);
+        return;
+    }
+
+    // MD2 models
+    if (curr_frame >= pmdata[pmodel_id].num_frames)
+        curr_frame = 0;
+
+    const float cosine = (float)cos(angle * k);
+    const float sine   = (float)sin(angle * k);
+
+    const float wx = xt;
+    const float wy = yt;
+    const float wz = zt;
+
+    int i_count = 0;
+    const int num_poly = pmdata[pmodel_id].num_polys_per_frame;
+    const int start_cnt = cnt;
+
+    for (int i = 0; i < num_poly; i++)
+    {
+        const D3DPRIMITIVETYPE p_command = pmdata[pmodel_id].poly_cmd[i];
+        int num_verts_per_poly = pmdata[pmodel_id].num_vert[i];
+
+        ObjectsToDraw[number_of_polys_per_frame].srcstart = cnt;
+        ObjectsToDraw[number_of_polys_per_frame].objectId = -1;
+
+        const int fan_cnt = cnt;
+        int triVertexCounter = 0;
+
+        for (int j = 0; j < num_verts_per_poly; j++)
+        {
+            const short v_index = pmdata[pmodel_id].f[i_count];
+
+            const vert_ptr tp = &pmdata[pmodel_id].w[curr_frame][v_index];
+
+            float x, y, z;
+            if (nextFrame != -1) {
+                const vert_ptr tpNextFrame = &pmdata[pmodel_id].w[nextFrame][v_index];
+                const float t = (gametimerAnimation > 0.0f && gametimerAnimation < 1.0f) ? gametimerAnimation : 0.0f;
+
+                if (t > 0.0f) {
+                    x = tp->x + t * (tpNextFrame->x - tp->x);
+                    z = tp->y + t * (tpNextFrame->y - tp->y);
+                    y = tp->z + t * (tpNextFrame->z - tp->z);
+                } else {
+                    x = tp->x; z = tp->y; y = tp->z;
+                }
+            } else {
+                x = tp->x; z = tp->y; y = tp->z;
+            }
+
+            if (weapondrop == 1) {
+                y -= 40.0f;
+            }
+
+            // Apply optional pitch (fDot2) only for weapondrop path (matches previous behavior)
+            if (weapondrop == 1 && fDot2 != 0.0f) {
+                const float cp = cosf(fDot2 * k);
+                const float sp = sinf(fDot2 * k);
+                const float px = (y * sp + x * cp);
+                const float py = (y * cp - x * sp);
+                // z unchanged
+                x = px; y = py;
+            }
+
+            // Yaw
+            float rx = (x * cosine - z * sine);
+            float ry = y;
+            float rz = (x * sine + z * cosine);
+
+            // Translate
+            rx += wx; ry += wy; rz += wz;
+
+            // UVs
+            const float tx = pmdata[pmodel_id].t[i_count].x * pmdata[pmodel_id].skx;
+            const float ty = pmdata[pmodel_id].t[i_count].y * pmdata[pmodel_id].sky;
+
+            // Write vertex
+            src_v[cnt].x  = D3DVAL(rx);
+            src_v[cnt].y  = D3DVAL(ry);
+            src_v[cnt].z  = D3DVAL(rz);
+            src_v[cnt].tu = D3DVAL(tx);
+            src_v[cnt].tv = D3DVAL(ty);
+            src_collide[cnt] = 1;
+
+            // For triangle list streams, compute normal/tangent per tri as it forms
+            if (p_command == D3DPT_TRIANGLELIST) {
+                if (triVertexCounter == 2) {
+                    D3DVERTEX2& v1 = src_v[cnt - 2];
+                    D3DVERTEX2& v2 = src_v[cnt - 1];
+                    D3DVERTEX2& v3 = src_v[cnt];
+
+                    XMFLOAT3 p1{ v1.x, v1.y, v1.z };
+                    XMFLOAT3 p2{ v2.x, v2.y, v2.z };
+                    XMFLOAT3 p3{ v3.x, v3.y, v3.z };
+
+                    XMVECTOR nrm = XMVector3Normalize(
+                        XMVector3Cross(XMLoadFloat3(&p1) - XMLoadFloat3(&p2),
+                                       XMLoadFloat3(&p3) - XMLoadFloat3(&p2)));
+
+                    XMFLOAT3 n3;
+                    XMStoreFloat3(&n3, nrm);
+
+                    // Keep current convention (positive normal)
+                    v1.nx = n3.x; v1.ny = n3.y; v1.nz = n3.z;
+                    v2.nx = n3.x; v2.ny = n3.y; v2.nz = n3.z;
+                    v3.nx = n3.x; v3.ny = n3.y; v3.nz = n3.z;
+
+                    CalculateTangentBinormal(v1, v2, v3);
+                    triVertexCounter = 0;
+                } else {
+                    triVertexCounter++;
+                }
+            }
+
+            cnt++;
+            i_count++;
+        }
+
+        ObjectsToDraw[number_of_polys_per_frame].vert_index   = number_of_polys_per_frame;
+        ObjectsToDraw[number_of_polys_per_frame].texture      = texture_alias;
+        ObjectsToDraw[number_of_polys_per_frame].vertsperpoly = num_verts_per_poly;
+
+        verts_per_poly[number_of_polys_per_frame]       = num_verts_per_poly;
+        dp_command_index_mode[number_of_polys_per_frame] = USE_NON_INDEXED_DP;
+        dp_commands[number_of_polys_per_frame]           = p_command;
+
+        if (p_command == D3DPT_TRIANGLESTRIP) {
+            num_triangles_in_scene += (num_verts_per_poly - 2);
+            ConvertTraingleStrip(fan_cnt);
+            dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
+
+            if (num_verts_per_poly > 3) {
+                num_verts_per_poly = (num_verts_per_poly - 3) * 3;
+                verts_per_poly[number_of_polys_per_frame] = (num_verts_per_poly + 3);
+            }
+        } else if (p_command == D3DPT_TRIANGLEFAN) {
+            ConvertTraingleFan(fan_cnt);
+            dp_commands[number_of_polys_per_frame] = D3DPT_TRIANGLELIST;
+            num_triangles_in_scene += (num_verts_per_poly - 2);
+
+            if (num_verts_per_poly > 3) {
+                num_verts_per_poly = (num_verts_per_poly - 3) * 3;
+                verts_per_poly[number_of_polys_per_frame] = (num_verts_per_poly + 3);
+            }
+        } else if (p_command == D3DPT_TRIANGLELIST) {
+            num_triangles_in_scene += (num_verts_per_poly / 3);
+        }
+
+        num_verts_in_scene     += num_verts_per_poly;
+        num_dp_commands_in_scene++;
+
+		texture_list_buffer[number_of_polys_per_frame] = texture_alias;			
+
+        number_of_polys_per_frame++;
+    }
+
+    // Keep smoothing for MD2
+    SmoothNormals(start_cnt);
+    return;
 }
 
 int tracknormal[MAX_NUM_QUADS];
