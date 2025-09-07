@@ -218,6 +218,7 @@ float3 PBRLightingUnified(
 
     float3 kS = F;
     float3 kD = 1.0f - kS;
+    // apply metallic & flicker to diffuse
     kD *= 1.0f - mat.Metallic * flicker;
 
     float3 diffuse = kD * albedo / 3.14159265f;
@@ -377,20 +378,21 @@ float4 PS(VertexOut pin) : SV_Target
     // Add ambient (diffuse only, no IBL)
     color += ambient.rgb * (1.0f - metal);
 
-   // Improved rim lighting: Fresnel-based, roughness-aware, energy-conservative
-   float NdotV_main = saturate(dot(N, V));
-   float rimBase = 1.0f - NdotV_main;
-   float rimPow = lerp(4.0f, 2.0f, roughness); // sharper on smoother surfaces
-   float rim = pow(rimBase, rimPow);
-   rim *= (0.3f + 0.7f * (1.0f - roughness)); // stronger on smooth materials
+    // --- Rim lighting moved here (view-dependent, roughness-aware) ---
+    {
+        float3 albedo = diffuseAlbedo.rgb;
+        float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), albedo, metal);
+        float NdotV = max(dot(N, V), 0.0f);
+        float rimIntensity = 0.09f;
+        float rimExponent = lerp(1.0f, 8.0f, 1.0f - roughness);
+        float rimTerm = pow(saturate(1.0f - NdotV), rimExponent);
+        float rimEnergy = saturate(rimTerm * rimIntensity);
+        float3 rimF = FresnelSchlick(NdotV, F0);
+        float3 rimSpecular = rimF * rimEnergy;
+        // Add rim as an additive specular-like term (keeps it small and view-dependent)
+        color += rimSpecular;
+    }
 
-   float3 F0rim = lerp(float3(0.04f, 0.04f, 0.04f), fresnelR0, metal); // material F0
-   float3 rimF = FresnelSchlick(NdotV_main, F0rim); // grazing behavior
-   float3 rimTint = lerp(diffuseAlbedo.rgb, fresnelR0, metal);
-   float3 rimColor = rimF * rimTint;
-
-   color += rim * rimColor * 0.5f; // conservative scale
-    
     // Fog
 #ifdef FOG
     float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
@@ -399,3 +401,4 @@ float4 PS(VertexOut pin) : SV_Target
 
     return float4(color, diffuseAlbedo.a);
 }
+//
