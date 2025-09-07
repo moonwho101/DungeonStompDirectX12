@@ -212,18 +212,43 @@ float3 PBRLightingUnified(
     float NdotV = max(dot(N, V), 0.0f);
     float3 F = FresnelSchlick(max(dot(H, V), 0.0f), F0);
 
+    // --- Rim lighting: Fresnel-based, roughness-aware, energy-conservative ---
+    // Rim uses view angle (NdotV). When grazing (NdotV small) Fresnel increases.
+    // Roughness controls rim width: smooth surfaces => sharp rim (larger exponent).
+    // We steal a small amount of diffuse energy to feed the rim so overall energy remains bounded.
+    float rimIntensity = 0.45f; // artistic tuning factor
+    float rimExponent = lerp(1.0f, 8.0f, 1.0f - mat.Roughness); // roughness-aware width
+    float rimTerm = pow(saturate(1.0f - NdotV), rimExponent);
+    float rimEnergy = saturate(rimTerm * rimIntensity);
+
+    // Rim Fresnel (grazing enhancement). Uses same F0 as specular so metals tint the rim.
+    float3 rimF = FresnelSchlick(NdotV, F0);
+
+    // Withdraw rim energy from diffuse (energy conservation heuristic)
+    // Ensure we do not drive kD negative later.
+    // kD will be computed below; apply a scalar multiplier to represent energy taken by rim.
+    // The rim will be added as an additional specular-like term.
+    // -------------------------------------------------------------------------------
+
     float3 numerator = NDF * G * F;
     float denominator = 4.0f * NdotV * NdotL + 0.001f;
     float3 specular = numerator / denominator;
 
     float3 kS = F;
     float3 kD = 1.0f - kS;
+    // apply metallic & flicker to diffuse
     kD *= 1.0f - mat.Metallic * flicker;
+
+    // pull rimEnergy from diffuse (scalar)
+    kD *= (1.0f - rimEnergy);
 
     float3 diffuse = kD * albedo / 3.14159265f;
 
+    // rim as additional specular lobe (uses Fresnel tint, scaled by rimEnergy)
+    float3 rimSpecular = rimF * rimEnergy;
+
     float3 lightStrength = L.Strength * flicker;
-    return (diffuse + specular) * lightStrength * NdotL * attenuation * shadowFactor;
+    return (diffuse + specular + rimSpecular) * lightStrength * NdotL * attenuation * shadowFactor;
 }
 
 float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
@@ -376,20 +401,6 @@ float4 PS(VertexOut pin) : SV_Target
 
     // Add ambient (diffuse only, no IBL)
     color += ambient.rgb * (1.0f - metal);
-
-   // Improved rim lighting: Fresnel-based, roughness-aware, energy-conservative
-   float NdotV_main = saturate(dot(N, V));
-   float rimBase = 1.0f - NdotV_main;
-   float rimPow = lerp(4.0f, 2.0f, roughness); // sharper on smoother surfaces
-   float rim = pow(rimBase, rimPow);
-   rim *= (0.3f + 0.7f * (1.0f - roughness)); // stronger on smooth materials
-
-   float3 F0rim = lerp(float3(0.04f, 0.04f, 0.04f), fresnelR0, metal); // material F0
-   float3 rimF = FresnelSchlick(NdotV_main, F0rim); // grazing behavior
-   float3 rimTint = lerp(diffuseAlbedo.rgb, fresnelR0, metal);
-   float3 rimColor = rimF * rimTint;
-
-   color += rim * rimColor * 0.5f; // conservative scale
     
     // Fog
 #ifdef FOG
