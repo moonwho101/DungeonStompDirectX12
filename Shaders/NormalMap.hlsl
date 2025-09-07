@@ -377,6 +377,12 @@ float4 PS(VertexOut pin) : SV_Target
     // Add ambient (diffuse only, no IBL)
     color += ambient.rgb * (1.0f - metal);
 
+    // Cool effects: Rim lighting for edge highlights
+    float rim = 1.0 - saturate(dot(N, V));
+    rim = pow(rim, 3.0f); // sharper rim
+    float3 rimColor = float3(0.4, 0.4, 0.4) * 0.5f;
+    color += rim * rimColor * diffuseAlbedo.rgb;
+    
     // Fog
 #ifdef FOG
     float fogAmount = saturate((distToEye - gFogStart) / gFogRange);
