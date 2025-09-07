@@ -377,11 +377,19 @@ float4 PS(VertexOut pin) : SV_Target
     // Add ambient (diffuse only, no IBL)
     color += ambient.rgb * (1.0f - metal);
 
-    // Cool effects: Rim lighting for edge highlights
-    float rim = 1.0 - saturate(dot(N, V));
-    rim = pow(rim, 3.0f); // sharper rim
-    float3 rimColor = float3(0.4, 0.4, 0.4) * 0.5f;
-    color += rim * rimColor * diffuseAlbedo.rgb;
+   // Improved rim lighting: Fresnel-based, roughness-aware, energy-conservative
+   float NdotV_main = saturate(dot(N, V));
+   float rimBase = 1.0f - NdotV_main;
+   float rimPow = lerp(4.0f, 2.0f, roughness); // sharper on smoother surfaces
+   float rim = pow(rimBase, rimPow);
+   rim *= (0.3f + 0.7f * (1.0f - roughness)); // stronger on smooth materials
+
+   float3 F0rim = lerp(float3(0.04f, 0.04f, 0.04f), fresnelR0, metal); // material F0
+   float3 rimF = FresnelSchlick(NdotV_main, F0rim); // grazing behavior
+   float3 rimTint = lerp(diffuseAlbedo.rgb, fresnelR0, metal);
+   float3 rimColor = rimF * rimTint;
+
+   color += rim * rimColor * 0.5f; // conservative scale
     
     // Fog
 #ifdef FOG
