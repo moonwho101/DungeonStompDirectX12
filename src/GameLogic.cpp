@@ -1495,7 +1495,7 @@ void MakeBoundingBox()
 							float wy = monster_list[i].y;
 							float wz = monster_list[i].z;
 
-							PlayerNonIndexedBox(monsterobject[cullloop], 0, (int)monster_list[i].rot_angle, wx, wy, wz);
+							PlayerNonIndexedBox(monsterobject[cullloop], 0, (int)monster_list[i].rot_angle, wx, wy, wz,i);
 							//monstertrueheight[cullloop] = objecttrueheight;
 							//monsterheight[cullloop] = objectheight;
 							//monsterx[cullloop] = objectx;
@@ -1509,7 +1509,7 @@ void MakeBoundingBox()
 	}
 }
 
-void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float wy, float wz)
+void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float wy, float wz, int monsterid)
 {
 	int i, j;
 	int num_verts_per_poly;
@@ -1776,6 +1776,10 @@ void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, flo
 	boundingbox[countboundingbox].monster = 1;
 
 	countboundingbox++;
+
+
+	monster_list[monsterid].captionheight = objecttrueheight;
+
 
 	return;
 }

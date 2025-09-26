@@ -1086,7 +1086,7 @@ void DungeonStompApp::DisplayPlayerCaption() {
 					flag = 0;
 
 				float x = monster_list[j].x;
-				float y = monster_list[j].y + 28.0f - yadjust;
+				float y = (monster_list[j].y + monster_list[j].captionheight) - 70.0f - yadjust;
 				float z = monster_list[j].z;
 
 				yadjust += 6.0f;

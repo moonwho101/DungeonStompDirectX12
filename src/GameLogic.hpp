@@ -46,7 +46,7 @@ int pnpoly(int npol, float* xp, float* yp, float x, float y);
 int SceneInBox(D3DVECTOR point);
 int CalculateView(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, bool distancecheck);
 int CalculateViewMonster(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, float angy);
-void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float wy, float wz);
+void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float wy, float wz, int monsterid);
 void PlayerIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float wy, float wz);
 void MakeBoundingBox();
 int FindGunTexture(char* p);
