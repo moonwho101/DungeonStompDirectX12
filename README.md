@@ -18,8 +18,8 @@ Dungeon Stomp DirectX12 with Physically based rendering (PBR).
 * XBOX game controller is supported (you can enable it in DirectInput.cpp)
 * Used "Introduction to 3D Game Programming with DirectX 12" by Frank Luna as a reference
 * Written in Microsoft C++
+* Run DungeonStomp.exe from the bin directory to try the game.
 
-Run DungeonStomp.exe from the bin directory to try the game.
 It will compile using Microsoft Visual Studio 2022 community edition.  For best results compile in 'Release' mode.
 Happy Dungeon Stomping - Breeyark!
 
