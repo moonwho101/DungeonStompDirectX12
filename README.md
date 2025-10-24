@@ -16,7 +16,7 @@ Dungeon Stomp DirectX12 with Physically based rendering (PBR).
 * Screen space ambient occlusion (ssao)
 * Fog, Alpha transparency and Alpha testing
 * Head bob using two sine waves
-* Bitmap fonts are in Hiero AngelCode format for fast GPU text rendering
+* Bitmap fonts are in Hiero AngelCode format (BMFont) for fast GPU text rendering
 * XBOX game controller is supported (you can enable it in DirectInput.cpp)
 * Used "Introduction to 3D Game Programming with DirectX 12" by Frank Luna as a reference
 * Written in Microsoft C++
