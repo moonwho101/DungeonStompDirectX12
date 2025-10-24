@@ -4,6 +4,7 @@
 
 Dungeon Stomp DirectX12 with Physically based rendering (PBR).
 
+* Run DungeonStomp.exe from the bin directory to try the game
 * Dungeon Stomp is a DirectX12 3D dungeon game that uses Direct3D, DirectInput and XAudio2
 * It is a complete game with level advancement and 15 levels
 * Materials (Diffuse Albedo, Fresnel, Roughness, Metallicness)
@@ -15,10 +16,10 @@ Dungeon Stomp DirectX12 with Physically based rendering (PBR).
 * Screen space ambient occlusion (ssao)
 * Fog, Alpha transparency and Alpha testing
 * Head bob using two sine waves
+* Bitmap fonts are in Hiero AngelCode format for fast GPU text rendering
 * XBOX game controller is supported (you can enable it in DirectInput.cpp)
 * Used "Introduction to 3D Game Programming with DirectX 12" by Frank Luna as a reference
 * Written in Microsoft C++
-* Run DungeonStomp.exe from the bin directory to try the game.
 
 It will compile using Microsoft Visual Studio 2022 community edition.  For best results compile in 'Release' mode.
 Happy Dungeon Stomping - Breeyark!
