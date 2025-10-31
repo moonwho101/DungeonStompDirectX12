@@ -4,9 +4,7 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-
-typedef struct doors
-{
+typedef struct doors {
 	int doornum;
 	float angle;
 	int swing;
@@ -20,8 +18,7 @@ typedef struct doors
 
 } DOORS;
 
-typedef struct scrolllisting
-{
+typedef struct scrolllisting {
 
 	int num;
 	float angle;
@@ -42,21 +39,21 @@ extern int slistcounter;
 extern int sliststart;
 extern int scrolllistnum;
 extern int scount;
-int pnpoly(int npol, float* xp, float* yp, float x, float y);
+int pnpoly(int npol, float *xp, float *yp, float x, float y);
 int SceneInBox(D3DVECTOR point);
 int CalculateView(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, bool distancecheck);
 int CalculateViewMonster(XMFLOAT3 EyeBall, XMFLOAT3 LookPoint, float angle, float angy);
 void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float wy, float wz, int monsterid);
 void PlayerIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float wy, float wz);
 void MakeBoundingBox();
-int FindGunTexture(char* p);
+int FindGunTexture(char *p);
 void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture_alias, int tex_flag, float xt, float yt, float zt, int nextFrame = -1);
-int FindModelID(char* p);
+int FindModelID(char *p);
 void AddTreasure(float x, float y, float z, int gold);
 void SetMonsterAnimationSequence(int player_number, int sequence_number);
 int UpdateScrollList(int r, int g, int b);
 void ApplyPlayerDamage(int playerid, int damage);
-int DisplayDialogText(char* text, float yloc);
+int DisplayDialogText(char *text, float yloc);
 int DisplayDamage(float x, float y, float z, int owner, int id, bool criticalhit);
 int XpPoints(int hd, int hp);
 int LevelUp(int xp);

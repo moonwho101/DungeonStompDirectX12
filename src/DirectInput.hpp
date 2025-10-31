@@ -1,8 +1,7 @@
 #ifndef __DIRECTINPUT_H
 #define __DIRECTINPUT_H
 
-typedef struct Controls_typ
-{
+typedef struct Controls_typ {
 	BOOL Escape;
 	int bLeft, bRight;
 	BOOL bForward, bBackward;
@@ -31,8 +30,7 @@ typedef struct Controls_typ
 	BOOL bMusicOn;
 	BOOL bNextLevel;
 	BOOL bPreviousLevel;
-} CONTROLS, * Controls_ptr;
-
+} CONTROLS, *Controls_ptr;
 
 extern FLOAT elapsegametimersave;
 extern int playermove;
@@ -43,9 +41,7 @@ void CycleNextWeapon();
 void CyclePreviousWeapon();
 void GiveWeapons();
 
-
-
-VOID MovePlayer(CONTROLS* Controls);
+VOID MovePlayer(CONTROLS *Controls);
 void DestroyInputDevice();
 float fixangle(float angle, float adjust);
 HRESULT SelectInputDevice();

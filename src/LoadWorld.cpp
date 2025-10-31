@@ -21,10 +21,10 @@
 #define MD2_MODEL 0
 #define k3DS_MODEL 1
 
-OBJECTDATA* obdata;
+OBJECTDATA *obdata;
 int obdata_length = 0;
 int oblist_length = 0;
-int* num_vert_per_object;
+int *num_vert_per_object;
 int num_polys_per_object[500];
 int num_triangles_in_scene = 0;
 int num_verts_in_scene = 0;
@@ -64,32 +64,31 @@ extern int usespell;
 extern struct gametext gtext[200];
 extern int ResetSound();
 
-TEXTUREMAPPING  TexMap[MAX_NUM_TEXTURES];
+TEXTUREMAPPING TexMap[MAX_NUM_TEXTURES];
 
 MSOUNDLIST slist[500];
 
-CLoadWorld* pCWorld;
-int load_level(char* filename);
+CLoadWorld *pCWorld;
+int load_level(char *filename);
 void MakeDamageDice();
 /*
 struct doors
 {
 
-	int doornum;
-	float angle;
-	int swing;
-	int key;
-	int open;
-	float saveangle;
-	int type;
-	int listen;
-	int y;
-	float up;
+    int doornum;
+    float angle;
+    int swing;
+    int key;
+    int open;
+    float saveangle;
+    int type;
+    int listen;
+    int y;
+    float up;
 };
 
 */
-typedef struct startposition
-{
+typedef struct startposition {
 	float x;
 	float y;
 	float z;
@@ -101,13 +100,13 @@ int current_level;
 extern D3DVALUE angy;
 extern D3DVALUE look_up_ang;
 
-extern PLAYER* item_list;
-extern PLAYER* player_list2;
-extern PLAYER* player_list;
+extern PLAYER *item_list;
+extern PLAYER *player_list2;
+extern PLAYER *player_list;
 extern int num_monsters;
 extern int countswitches;
 
-//typedef enum _D3DPRIMITIVETYPE {
+// typedef enum _D3DPRIMITIVETYPE {
 //	D3DPT_POINTLIST = 1,
 //	D3DPT_LINELIST = 2,
 //	D3DPT_LINESTRIP = 3,
@@ -115,23 +114,21 @@ extern int countswitches;
 //	D3DPT_TRIANGLESTRIP = 5,
 //	D3DPT_TRIANGLEFAN = 6,
 //	D3DPT_FORCE_DWORD = 0x7fffffff, /* force 32-bit size enum */
-//} D3DPRIMITIVETYPE;
+// } D3DPRIMITIVETYPE;
 
 struct startposition startpos[200];
 
-LEVELMOD* levelmodify;
-SWITCHMOD* switchmodify;
+LEVELMOD *levelmodify;
+SWITCHMOD *switchmodify;
 
 int DSound_Replicate_Sound(int id);
 
-CLoadWorld::CLoadWorld()
-{
+CLoadWorld::CLoadWorld() {
 	pCWorld = this;
 }
 
-BOOL CLoadWorld::LoadWorldMap(char* filename)
-{
-	FILE* fp;
+BOOL CLoadWorld::LoadWorldMap(char *filename) {
+	FILE *fp;
 	char s[256];
 	char p[256];
 	int y_count = 30;
@@ -156,8 +153,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 	int bufc2 = 0;
 	int loop1 = 0;
 
-	//oblist = new OBJECTLIST[1000];
-
+	// oblist = new OBJECTLIST[1000];
 
 	doorcounter = 0;
 	textcounter = 0;
@@ -168,54 +164,43 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 
 	char path[255];
 
-	//sprintf(path, "..\\bin\\%s", filename);
+	// sprintf(path, "..\\bin\\%s", filename);
 	sprintf_s(path, "%s", filename);
 
-	if (fopen_s(&fp, path, "r") != 0)
-	{
-		//PrintMessage(hwnd, "Error can't load file ", filename, SCN_AND_FILE);
-		//MessageBox(hwnd, "Error can't load file", NULL, MB_OK);
+	if (fopen_s(&fp, path, "r") != 0) {
+		// PrintMessage(hwnd, "Error can't load file ", filename, SCN_AND_FILE);
+		// MessageBox(hwnd, "Error can't load file", NULL, MB_OK);
 		return FALSE;
 	}
 
-	//PrintMessage(hwnd, "Loading map ", filename, SCN_AND_FILE);
+	// PrintMessage(hwnd, "Loading map ", filename, SCN_AND_FILE);
 	int num_light_sources_in_map = 0;
 	int num_light_sources = 0;
 	outside = 0;
-	while (done == 0)
-	{
+	while (done == 0) {
 		fscanf_s(fp, "%s", &s, 256);
 
-		if (strcmp(s, "OBJECT") == 0)
-		{
+		if (strcmp(s, "OBJECT") == 0) {
 			fscanf_s(fp, "%s", &p, 256);
 
-			object_id = CheckObjectId((char*)&p);
+			object_id = CheckObjectId((char *)&p);
 
-			if (strstr(p, "door") != NULL)
-			{
+			if (strstr(p, "door") != NULL) {
 				addanewdoor = 1;
-			}
-			else if (strstr(p, "text") != NULL)
-			{
+			} else if (strstr(p, "text") != NULL) {
 				addanewtext = 1;
-			}
-			else if (strstr(p, "startpos") != NULL)
-			{
+			} else if (strstr(p, "startpos") != NULL) {
 				addanewstartpos = 1;
-			}
-			else if (strstr(p, "!") != NULL)
-			{
+			} else if (strstr(p, "!") != NULL) {
 				if (object_id == 35)
 					addanewplayer = 2;
 				else
 					addanewplayer = 1;
 			}
 
-			if (object_id == -1)
-			{
-				//PrintMessage(hwnd, "Error Bad Object ID in: LoadWorld ", p, SCN_AND_FILE);
-				//MessageBox(hwnd, "Error Bad Object ID in: LoadWorld", NULL, MB_OK);
+			if (object_id == -1) {
+				// PrintMessage(hwnd, "Error Bad Object ID in: LoadWorld ", p, SCN_AND_FILE);
+				// MessageBox(hwnd, "Error Bad Object ID in: LoadWorld", NULL, MB_OK);
 				return FALSE;
 			}
 			if (lwm_start_flag == FALSE)
@@ -225,8 +210,8 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 			oblist[object_count].castshadow = 1;
 			strcpy_s(oblist[object_count].name, 10000, p);
 
-			//num_lverts = num_vert_per_object[object_id];
-			//mem_counter += sizeof(LIGHT) * num_lverts;
+			// num_lverts = num_vert_per_object[object_id];
+			// mem_counter += sizeof(LIGHT) * num_lverts;
 
 			oblist[object_count].light_source = new LIGHTSOURCE;
 			oblist[object_count].light_source->command = 0;
@@ -234,8 +219,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 			lwm_start_flag = FALSE;
 		}
 
-		if (strcmp(s, "CO_ORDINATES") == 0)
-		{
+		if (strcmp(s, "CO_ORDINATES") == 0) {
 			fscanf_s(fp, "%s", &p, 256);
 			oblist[object_count].x = (float)atof(p);
 
@@ -245,16 +229,14 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 			fscanf_s(fp, "%s", &p, 256);
 			oblist[object_count].z = (float)atof(p);
 
-			if (addanewplayer > 0)
-			{
+			if (addanewplayer > 0) {
 
 				monx = oblist[object_count].x;
 				mony = oblist[object_count].y + 44.0f;
 				monz = oblist[object_count].z;
 			}
 
-			if (addanewstartpos == 1)
-			{
+			if (addanewstartpos == 1) {
 
 				startpos[startposcounter].x = oblist[object_count].x;
 				startpos[startposcounter].y = oblist[object_count].y + 100.0f;
@@ -262,22 +244,19 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 			}
 		}
 
-		if (strcmp(s, "SHADOW") == 0)
-		{
+		if (strcmp(s, "SHADOW") == 0) {
 			fscanf_s(fp, "%s", &p, 256);
 			oblist[object_count].castshadow = (int)atoi(p);
 		}
 
-		if (strcmp(s, "ROT_ANGLE") == 0)
-		{
+		if (strcmp(s, "ROT_ANGLE") == 0) {
 			float mid = 0;
 			float mtex = 0;
 			float monnum = 0;
 
 			int truemonsterid = 0;
 
-			if (addanewplayer > 0)
-			{
+			if (addanewplayer > 0) {
 				fscanf_s(fp, "%s", &p, 256);
 				fscanf_s(fp, "%s", &monsterid, 256);
 				fscanf_s(fp, "%s", &monstertexture, 256);
@@ -286,8 +265,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 
 				truemonsterid = (int)atof(monsterid);
 
-				if (addanewplayer == 2)
-				{
+				if (addanewplayer == 2) {
 					mid = (float)FindModelID(monsterid);
 
 					if (strcmp(monstertexture, "0") == 0)
@@ -298,38 +276,31 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 						mtex = (float)FindTextureAlias(monstertexture);
 
 					monnum = (float)atof(mnum);
-				}
-				else
-				{
+				} else {
 					mid = (float)atof(monsterid);
 					mtex = (float)FindTextureAlias(monstertexture);
 					monnum = (float)atof(mnum);
 				}
 
-
 				if (mtex == 94) {
-					//94-101
-					int raction = random_num(7);  // 94 + 7 = 101
+					// 94-101
+					int raction = random_num(7); // 94 + 7 = 101
 					mtex += raction;
 				}
 
 				oblist[object_count].rot_angle = (float)atof(p);
 				ability = (int)atof(abil);
 				oblist[object_count].ability = (int)atof(abil);
-			}
-			else
-			{
+			} else {
 
-				if (addanewtext == 1)
-				{
+				if (addanewtext == 1) {
 
 					fscanf_s(fp, "%s", &abil, 256);
 					fgets(bigbuf, 2048, fp);
 
 					bufc2 = 0;
 
-					for (loop1 = 1; loop1 < (int)strlen(bigbuf); loop1++)
-					{
+					for (loop1 = 1; loop1 < (int)strlen(bigbuf); loop1++) {
 
 						if (bigbuf[loop1] != 13 && bigbuf[loop1] != 10)
 							bigbuf2[bufc2++] = bigbuf[loop1];
@@ -338,19 +309,15 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 					bigbuf2[bufc2] = '\0';
 
 					strcpy_s(globaltext, bigbuf2);
-					if (strstr(bigbuf2, "outside") != NULL)
-					{
+					if (strstr(bigbuf2, "outside") != NULL) {
 						outside = 1;
 					}
 
 					oblist[object_count].rot_angle = (float)0;
 					oblist[object_count].ability = (int)atof(abil);
-				}
-				else
-				{
+				} else {
 
-					if (addanewdoor == 1)
-					{
+					if (addanewdoor == 1) {
 						fscanf_s(fp, "%s", &p, 256);
 						fscanf_s(fp, "%s", &abil, 256);
 
@@ -358,9 +325,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 						ability = (int)atof(abil);
 						oblist[object_count].ability = (int)atof(abil);
 						addanewkey = 0;
-					}
-					else if (addanewstartpos == 1)
-					{
+					} else if (addanewstartpos == 1) {
 
 						fscanf_s(fp, "%s", &p, 256);
 						oblist[object_count].rot_angle = (float)atof(p);
@@ -369,8 +334,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 						addanewstartpos = 0;
 					}
 
-					else
-					{
+					else {
 
 						fscanf_s(fp, "%s", &p, 256);
 						oblist[object_count].rot_angle = (float)atof(p);
@@ -378,26 +342,18 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 				}
 			}
 
-			if (addanewplayer > 0)
-			{
+			if (addanewplayer > 0) {
 
-				if (addanewplayer == 2)
-				{
-					if (mtex == 0)
-					{
+				if (addanewplayer == 2) {
+					if (mtex == 0) {
 						AddModel(monx, mony, monz, (float)atof(p), mid, mtex, monnum, monsterid, monstertexture, ability);
-					}
-					else if (mtex == -1) {
+					} else if (mtex == -1) {
 						AddItem(monx, mony - 10.0f, monz, (float)atof(p), mid, mtex, monnum, monsterid, monstertexture, ability);
 
-						//AddItem(monx, mony - 10.0f, monz, (float)atof(p), 6, -1, 455, "POTION", "-1", ability);
-					}
-					else if (mtex == -2)
-					{
-						//AddItem(monx, mony - 10.0f, monz, (float)atof(p), mid, mtex, monnum, monsterid, monstertexture, ability);
-					}
-					else
-					{
+						// AddItem(monx, mony - 10.0f, monz, (float)atof(p), 6, -1, 455, "POTION", "-1", ability);
+					} else if (mtex == -2) {
+						// AddItem(monx, mony - 10.0f, monz, (float)atof(p), mid, mtex, monnum, monsterid, monstertexture, ability);
+					} else {
 
 						int sc = 0;
 
@@ -406,10 +362,8 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 						char name[80];
 						char dm[80];
 
-						for (sc = 0; sc < slistcount; sc++)
-						{
-							if (slist[sc].id == mid)
-							{
+						for (sc = 0; sc < slistcount; sc++) {
+							if (slist[sc].id == mid) {
 								s1 = slist[sc].attack;
 								s2 = slist[sc].die;
 								s3 = slist[sc].weapon;
@@ -430,15 +384,12 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 
 				addanewplayer = 0;
 
-
 				oblist[object_count].monstertexture = (int)mtex;
-
 
 				oblist[object_count].monsterid = (int)monnum;
 			}
 
-			if (addanewdoor == 1)
-			{
+			if (addanewdoor == 1) {
 
 				door[doorcounter].angle = (float)atof(p);
 				door[doorcounter].saveangle = (float)atof(p);
@@ -454,8 +405,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 				doorcounter++;
 			}
 
-			if (addanewtext == 1)
-			{
+			if (addanewtext == 1) {
 				strcpy_s(gtext[textcounter].text, globaltext);
 				gtext[textcounter].textnum = object_count;
 				gtext[textcounter].type = (int)atof(abil);
@@ -465,8 +415,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 			}
 		}
 
-		if (strcmp(s, "LIGHT_ON_VERT") == 0)
-		{
+		if (strcmp(s, "LIGHT_ON_VERT") == 0) {
 			fscanf_s(fp, "%s", &p, 256);
 			lit_vert = atoi(p);
 
@@ -483,8 +432,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 			oblist[object_count].lit[lit_vert].b = blue;
 		}
 
-		if (strcmp(s, "LIGHT_SOURCE") == 0)
-		{
+		if (strcmp(s, "LIGHT_SOURCE") == 0) {
 			fscanf_s(fp, "%s", &p, 256);
 
 			if (strcmp(p, "Spotlight") == 0)
@@ -501,14 +449,13 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 
 			fscanf_s(fp, "%s", &p, 256);
 
-			if (strcmp(p, "POS") == 0)
-			{
+			if (strcmp(p, "POS") == 0) {
 
-				//oblist[object_count].light_source->flickerrangedir = 0;
-				//int raction = random_num(10);
-				//oblist[object_count].light_source->flickeratt = (float)raction * 0.1f;
-				//raction = random_num(15);
-				//oblist[object_count].light_source->flickerrange = (float)raction;
+				// oblist[object_count].light_source->flickerrangedir = 0;
+				// int raction = random_num(10);
+				// oblist[object_count].light_source->flickeratt = (float)raction * 0.1f;
+				// raction = random_num(15);
+				// oblist[object_count].light_source->flickerrange = (float)raction;
 				fscanf_s(fp, "%s", &p, 256);
 				oblist[object_count].light_source->position_x = (float)atof(p);
 				fscanf_s(fp, "%s", &p, 256);
@@ -519,8 +466,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 
 			fscanf_s(fp, "%s", &p, 256);
 
-			if (strcmp(p, "DIR") == 0)
-			{
+			if (strcmp(p, "DIR") == 0) {
 				fscanf_s(fp, "%s", &p, 256);
 				oblist[object_count].light_source->direction_x = (float)atof(p);
 				fscanf_s(fp, "%s", &p, 256);
@@ -531,8 +477,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 
 			fscanf_s(fp, "%s", &p, 256);
 
-			if (strcmp(p, "COLOUR") == 0)
-			{
+			if (strcmp(p, "COLOUR") == 0) {
 				fscanf_s(fp, "%s", &p, 256);
 				oblist[object_count].light_source->rcolour = (float)atof(p);
 				fscanf_s(fp, "%s", &p, 256);
@@ -543,8 +488,7 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 			num_light_sources_in_map++;
 		}
 
-		if (strcmp(s, "END_FILE") == 0)
-		{
+		if (strcmp(s, "END_FILE") == 0) {
 			fscanf_s(fp, "%s", &p, 256);
 			oblist_length = object_count + 1;
 			done = 1;
@@ -553,43 +497,39 @@ BOOL CLoadWorld::LoadWorldMap(char* filename)
 	fclose(fp);
 
 	//_itoa_s(oblist_length, buffer, 100, 10);
-	//PrintMessage(hwnd, buffer, " map objects loaded (oblist_length)", SCN_AND_FILE);
-	//PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
+	// PrintMessage(hwnd, buffer, " map objects loaded (oblist_length)", SCN_AND_FILE);
+	// PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
 
 	/*
 	for (int i = 0; i < 100;i++) {
 
-		char buf[100];
-		sprintf_s(buf, 100, "%s",oblist[i].name);
+	    char buf[100];
+	    sprintf_s(buf, 100, "%s",oblist[i].name);
 	}
 	*/
 
 	return TRUE;
 }
 
-int CLoadWorld::CheckObjectId(char* p)
-{
+int CLoadWorld::CheckObjectId(char *p) {
 	int i;
-	char* buffer2;
+	char *buffer2;
 
-	for (i = 0; i < obdata_length; i++)
-	{
+	for (i = 0; i < obdata_length; i++) {
 		buffer2 = obdata[i].name;
 
-		if (strcmp(buffer2, p) == 0)
-		{
+		if (strcmp(buffer2, p) == 0) {
 			return i;
 		}
 	}
-	//PrintMessage(hwnd, buffer2, "ERROR bad ID in : CheckObjectId ", SCN_AND_FILE);
-	//MessageBox(hwnd, buffer2, "Bad ID in :CheckObjectId", MB_OK);
+	// PrintMessage(hwnd, buffer2, "ERROR bad ID in : CheckObjectId ", SCN_AND_FILE);
+	// MessageBox(hwnd, buffer2, "Bad ID in :CheckObjectId", MB_OK);
 
-	return -1; //error
+	return -1; // error
 }
 
-BOOL CLoadWorld::LoadObjectData(char* filename)
-{
-	FILE* fp;
+BOOL CLoadWorld::LoadObjectData(char *filename) {
+	FILE *fp;
 	int i;
 	int done = 0;
 	int object_id = 0;
@@ -614,17 +554,15 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 	int vertcountfinal = 0;
 	int polycountfinal = 0;
 
-	if (fopen_s(&fp, filename, "r") != 0)
-	{
-		//PrintMessage(hwnd, "ERROR can't load ", filename, SCN_AND_FILE);
-		//MessageBox(hwnd, filename, "Error can't load file", MB_OK);
+	if (fopen_s(&fp, filename, "r") != 0) {
+		// PrintMessage(hwnd, "ERROR can't load ", filename, SCN_AND_FILE);
+		// MessageBox(hwnd, filename, "Error can't load file", MB_OK);
 		return FALSE;
 	}
 
-	//PrintMessage(hwnd, "Loading ", filename, SCN_AND_FILE);
+	// PrintMessage(hwnd, "Loading ", filename, SCN_AND_FILE);
 
-	while (done == 0)
-	{
+	while (done == 0) {
 		command_error = TRUE;
 
 		fscanf_s(fp, "%s", &s, 256);
@@ -644,9 +582,8 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 			if (object_id > object_count)
 				object_count = object_id;
 
-			if ((object_id < 0) || (object_id > 399))
-			{
-				//MessageBox(hwnd, "Error Bad Object ID in: LoadObjectData", NULL, MB_OK);
+			if ((object_id < 0) || (object_id > 399)) {
+				// MessageBox(hwnd, "Error Bad Object ID in: LoadObjectData", NULL, MB_OK);
 				return FALSE;
 			}
 
@@ -661,71 +598,63 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 			if (vert_count > maxvertcount)
 				maxvertcount = vert_count;
 
-			//PrintMessage(hwnd, buffer, " vert_count objects", LOGFILE_ONLY);
+			// PrintMessage(hwnd, buffer, " vert_count objects", LOGFILE_ONLY);
 			_itoa_s(poly_count, buffer, _countof(buffer), 10);
-			//PrintMessage(hwnd, buffer, " polycount objects", LOGFILE_ONLY);
+			// PrintMessage(hwnd, buffer, " polycount objects", LOGFILE_ONLY);
 
-			//PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
+			// PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
 
 			vert_count = 0;
 			poly_count = 0;
 			conn_cnt = 0;
 
 			fscanf_s(fp, "%s", &p, 256); // read object name
-			//PrintMessage(hwnd, p, " vert_count objects", LOGFILE_ONLY);
+			// PrintMessage(hwnd, p, " vert_count objects", LOGFILE_ONLY);
 
-			strcpy_s((char*)obdata[object_id].name, 256, (char*)&p);
+			strcpy_s((char *)obdata[object_id].name, 256, (char *)&p);
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "SCALE") == 0)
-		{
+		if (strcmp(s, "SCALE") == 0) {
 			fscanf_s(fp, "%s", &p, 256);
 			dat_scale = (float)atof(p);
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "SHADOW") == 0)
-		{
+		if (strcmp(s, "SHADOW") == 0) {
 			fscanf_s(fp, "%s", &p, 256);
 			int shadow = (int)atoi(p);
-			
+
 			obdata[object_id].shadow = shadow;
 
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "TEXTURE") == 0)
-		{
+		if (strcmp(s, "TEXTURE") == 0) {
 			fscanf_s(fp, "%s", &p, 256);
 
 			texture = CheckValidTextureAlias(p);
 
+			// TODO: fix texture
 
-			//TODO: fix texture
+			// texture = 1;
 
-			//texture = 1;
-
-			if (texture == -1)
-			{
-				//PrintMessage(hwnd, "Error in objects.dat - Bad Texture ID", p, LOGFILE_ONLY);
-				//MessageBox(hwnd, "Error in objects.dat", "Bad Texture ID", MB_OK);
+			if (texture == -1) {
+				// PrintMessage(hwnd, "Error in objects.dat - Bad Texture ID", p, LOGFILE_ONLY);
+				// MessageBox(hwnd, "Error in objects.dat", "Bad Texture ID", MB_OK);
 				fclose(fp);
 				return FALSE;
 			}
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "TYPE") == 0)
-		{
+		if (strcmp(s, "TYPE") == 0) {
 			fscanf_s(fp, "%s", &p, 256);
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "TRI") == 0)
-		{
-			for (i = 0; i < 3; i++)
-			{
+		if (strcmp(s, "TRI") == 0) {
+			for (i = 0; i < 3; i++) {
 				ReadObDataVert(fp, object_id, vert_count, dat_scale);
 				vert_count++;
 			}
@@ -733,13 +662,12 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 			obdata[object_id].use_texmap[poly_count] = TRUE;
 			obdata[object_id].tex[poly_count] = texture;
 			obdata[object_id].num_vert[poly_count] = 3;
-			obdata[object_id].poly_cmd[poly_count] = D3DPT_TRIANGLELIST; //POLY_CMD_TRI;
+			obdata[object_id].poly_cmd[poly_count] = D3DPT_TRIANGLELIST; // POLY_CMD_TRI;
 			poly_count++;
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "QUAD") == 0)
-		{
+		if (strcmp(s, "QUAD") == 0) {
 			ReadObDataVert(fp, object_id, vert_count, dat_scale);
 			ReadObDataVert(fp, object_id, vert_count + 1, dat_scale);
 			ReadObDataVert(fp, object_id, vert_count + 3, dat_scale);
@@ -750,15 +678,13 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 			obdata[object_id].use_texmap[poly_count] = TRUE;
 			obdata[object_id].tex[poly_count] = texture;
 			obdata[object_id].num_vert[poly_count] = 4;
-			obdata[object_id].poly_cmd[poly_count] = D3DPT_TRIANGLESTRIP; //POLY_CMD_QUAD;
+			obdata[object_id].poly_cmd[poly_count] = D3DPT_TRIANGLESTRIP; // POLY_CMD_QUAD;
 			poly_count++;
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "TRITEX") == 0)
-		{
-			for (i = 0; i < 3; i++)
-			{
+		if (strcmp(s, "TRITEX") == 0) {
+			for (i = 0; i < 3; i++) {
 				ReadObDataVertEx(fp, object_id, vert_count, dat_scale);
 				vert_count++;
 			}
@@ -771,8 +697,7 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "QUADTEX") == 0)
-		{
+		if (strcmp(s, "QUADTEX") == 0) {
 			ReadObDataVertEx(fp, object_id, vert_count, dat_scale);
 			ReadObDataVertEx(fp, object_id, vert_count + 1, dat_scale);
 			ReadObDataVertEx(fp, object_id, vert_count + 3, dat_scale);
@@ -783,19 +708,17 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 			obdata[object_id].use_texmap[poly_count] = FALSE;
 			obdata[object_id].tex[poly_count] = texture;
 			obdata[object_id].num_vert[poly_count] = 4;
-			obdata[object_id].poly_cmd[poly_count] = D3DPT_TRIANGLESTRIP; //POLY_CMD_QUAD_TEX;
+			obdata[object_id].poly_cmd[poly_count] = D3DPT_TRIANGLESTRIP; // POLY_CMD_QUAD_TEX;
 			poly_count++;
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "TRI_STRIP") == 0)
-		{
+		if (strcmp(s, "TRI_STRIP") == 0) {
 			// Get numbers of verts in triangle strip
 			fscanf_s(fp, "%s", &p, 256);
 			num_v = atoi(p);
 
-			for (i = 0; i < num_v; i++)
-			{
+			for (i = 0; i < num_v; i++) {
 				ReadObDataVertEx(fp, object_id, vert_count, dat_scale);
 				vert_count++;
 			}
@@ -803,19 +726,17 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 			obdata[object_id].use_texmap[poly_count] = TRUE;
 			obdata[object_id].tex[poly_count] = texture;
 			obdata[object_id].num_vert[poly_count] = num_v;
-			obdata[object_id].poly_cmd[poly_count] = D3DPT_TRIANGLESTRIP; //POLY_CMD_TRI_STRIP;
+			obdata[object_id].poly_cmd[poly_count] = D3DPT_TRIANGLESTRIP; // POLY_CMD_TRI_STRIP;
 			poly_count++;
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "TRI_FAN") == 0)
-		{
+		if (strcmp(s, "TRI_FAN") == 0) {
 			// Get numbers of verts in triangle fan
 			fscanf_s(fp, "%s", &p, 256);
 			num_v = atoi(p);
 
-			for (i = 0; i < num_v; i++)
-			{
+			for (i = 0; i < num_v; i++) {
 				ReadObDataVertEx(fp, object_id, vert_count, dat_scale);
 				vert_count++;
 			}
@@ -823,15 +744,13 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 			obdata[object_id].use_texmap[poly_count] = TRUE;
 			obdata[object_id].tex[poly_count] = texture;
 			obdata[object_id].num_vert[poly_count] = num_v;
-			obdata[object_id].poly_cmd[poly_count] = D3DPT_TRIANGLEFAN; //POLY_CMD_TRI_FAN;
+			obdata[object_id].poly_cmd[poly_count] = D3DPT_TRIANGLEFAN; // POLY_CMD_TRI_FAN;
 			poly_count++;
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "CONNECTION") == 0)
-		{
-			if (conn_cnt < 4)
-			{
+		if (strcmp(s, "CONNECTION") == 0) {
+			if (conn_cnt < 4) {
 				fscanf_s(fp, "%s", &p, 256);
 				obdata[object_id].connection[conn_cnt].x = (float)atof(p);
 				fscanf_s(fp, "%s", &p, 256);
@@ -839,9 +758,7 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 				fscanf_s(fp, "%s", &p, 256);
 				obdata[object_id].connection[conn_cnt].z = (float)atof(p);
 				conn_cnt++;
-			}
-			else
-			{
+			} else {
 				fscanf_s(fp, "%s", &p, 256);
 				fscanf_s(fp, "%s", &p, 256);
 				fscanf_s(fp, "%s", &p, 256);
@@ -849,8 +766,7 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 			command_error = FALSE;
 		}
 
-		if (strcmp(s, "END_FILE") == 0)
-		{
+		if (strcmp(s, "END_FILE") == 0) {
 			num_vert_per_object[object_id] = vert_count;
 			num_polys_per_object[object_id] = poly_count;
 			obdata_length = object_count + 1;
@@ -858,11 +774,10 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 			done = 1;
 		}
 
-		if (command_error == TRUE)
-		{
+		if (command_error == TRUE) {
 			_itoa_s(object_id, buffer, _countof(buffer), 10);
-			//PrintMessage(NULL, "CLoadWorld::LoadObjectData - ERROR in objects.dat, object : ", buffer, LOGFILE_ONLY);
-			//MessageBox(hwnd, s, "Unrecognised command", MB_OK);
+			// PrintMessage(NULL, "CLoadWorld::LoadObjectData - ERROR in objects.dat, object : ", buffer, LOGFILE_ONLY);
+			// MessageBox(hwnd, s, "Unrecognised command", MB_OK);
 			fclose(fp);
 			return FALSE;
 		}
@@ -871,35 +786,34 @@ BOOL CLoadWorld::LoadObjectData(char* filename)
 
 	//_itoa_s(obdata_length, buffer, _countof(buffer), 10);
 
-	//PrintMessage(hwnd, buffer, " DAT objects loaded", SCN_AND_FILE);
+	// PrintMessage(hwnd, buffer, " DAT objects loaded", SCN_AND_FILE);
 
-	//PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
+	// PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
 
 	//_itoa_s(vertcountfinal, buffer, _countof(buffer), 10);
-	//PrintMessage(hwnd, buffer, " vert_count objects", SCN_AND_FILE);
-	//PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
+	// PrintMessage(hwnd, buffer, " vert_count objects", SCN_AND_FILE);
+	// PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
 	//_itoa_s(polycountfinal, buffer, _countof(buffer), 10);
-	//PrintMessage(hwnd, buffer, " polycount objects", SCN_AND_FILE);
+	// PrintMessage(hwnd, buffer, " polycount objects", SCN_AND_FILE);
 
-	//PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
+	// PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
 
 	//	char buf2[100];
 
-	//sprintf_s(buffer, "MAXVERTCOUNT %d", maxvertcount);
-	//PrintMessage(hwnd, buffer, "", LOGFILE_ONLY);
+	// sprintf_s(buffer, "MAXVERTCOUNT %d", maxvertcount);
+	// PrintMessage(hwnd, buffer, "", LOGFILE_ONLY);
 
-	//for (i = 0; i < obdata_length; i++)
+	// for (i = 0; i < obdata_length; i++)
 	//{
 
-//		sprintf_s(buffer, "%d %s", i, obdata[i].name);
+	//		sprintf_s(buffer, "%d %s", i, obdata[i].name);
 	//	PrintMessage(hwnd, buffer, "", LOGFILE_ONLY);
 	//}
 
 	return TRUE;
 }
 
-BOOL CLoadWorld::ReadObDataVertEx(FILE* fp, int object_id, int vert_count, float dat_scale)
-{
+BOOL CLoadWorld::ReadObDataVertEx(FILE *fp, int object_id, int vert_count, float dat_scale) {
 	float x, y, z;
 	char p[256];
 
@@ -924,8 +838,7 @@ BOOL CLoadWorld::ReadObDataVertEx(FILE* fp, int object_id, int vert_count, float
 	return TRUE;
 }
 
-BOOL CLoadWorld::ReadObDataVert(FILE* fp, int object_id, int vert_count, float dat_scale)
-{
+BOOL CLoadWorld::ReadObDataVert(FILE *fp, int object_id, int vert_count, float dat_scale) {
 	float x, y, z;
 	char p[256];
 
@@ -947,304 +860,297 @@ BOOL CLoadWorld::ReadObDataVert(FILE* fp, int object_id, int vert_count, float d
 /*
 BOOL CLoadWorld::LoadRRTextures(char* filename, IDirect3DDevice9* pd3dDevice)
 {
-	FILE* fp;
-	char s[256];
-	char p[256];
+    FILE* fp;
+    char s[256];
+    char p[256];
 
-	int y_count = 30;
-	int done = 0;
-	int object_count = 0;
-	int vert_count = 0;
-	int pv_count = 0;
-	int poly_count = 0;
-	int tex_alias_counter = 0;
-	int tex_counter = 0;
-	int i;
-	BOOL start_flag = TRUE;
-	BOOL found;
-	//LPDIRECTDRAWSURFACE7 lpDDsurface;
+    int y_count = 30;
+    int done = 0;
+    int object_count = 0;
+    int vert_count = 0;
+    int pv_count = 0;
+    int poly_count = 0;
+    int tex_alias_counter = 0;
+    int tex_counter = 0;
+    int i;
+    BOOL start_flag = TRUE;
+    BOOL found;
+    //LPDIRECTDRAWSURFACE7 lpDDsurface;
 
-	if (fopen_s(&fp, filename, "r") != 0)
-	{
-		//PrintMessage(hwnd, "ERROR can't open ", filename, SCN_AND_FILE);
-		//MessageBox(hwnd, filename, "Error can't open", MB_OK);
-		//return FALSE;
-	}
+    if (fopen_s(&fp, filename, "r") != 0)
+    {
+        //PrintMessage(hwnd, "ERROR can't open ", filename, SCN_AND_FILE);
+        //MessageBox(hwnd, filename, "Error can't open", MB_OK);
+        //return FALSE;
+    }
 
-	//D3DTextr_InvalidateAllTextures();
+    //D3DTextr_InvalidateAllTextures();
 
-	//for (i = 0; i < MAX_NUM_TEXTURES; i++)
-		//TexMap[i].is_alpha_texture = FALSE;
+    //for (i = 0; i < MAX_NUM_TEXTURES; i++)
+        //TexMap[i].is_alpha_texture = FALSE;
 
-	//for (i = 0; i < MAX_NUM_TEXTURES; i++)
-		//lpddsImagePtr[i] = NULL;
+    //for (i = 0; i < MAX_NUM_TEXTURES; i++)
+        //lpddsImagePtr[i] = NULL;
 
-	//NumTextures = 0;
+    //NumTextures = 0;
 
-	while (done == 0)
-	{
-		found = FALSE;
-		fscanf_s(fp, "%s", &s, 256);
+    while (done == 0)
+    {
+        found = FALSE;
+        fscanf_s(fp, "%s", &s, 256);
 
-		if (strcmp(s, "AddTexture") == 0)
-		{
-			fscanf_s(fp, "%s", &p, 256);
-			//PrintMessage(hwnd, "Loading ", p, LOGFILE_ONLY);
-			//strcpy_s(ImageFile[tex_counter], p);
+        if (strcmp(s, "AddTexture") == 0)
+        {
+            fscanf_s(fp, "%s", &p, 256);
+            //PrintMessage(hwnd, "Loading ", p, LOGFILE_ONLY);
+            //strcpy_s(ImageFile[tex_counter], p);
 
-			if (strstr(p, "die8s2.bmp") != NULL)
-			{
+            if (strstr(p, "die8s2.bmp") != NULL)
+            {
 
-				int aaa = 1;
-			}
+                int aaa = 1;
+            }
 
-			//if (D3DTextr_CreateTextureFromFile(p, 0, 0) != S_OK)
-				//PrintMessage(NULL, "CLoadWorld::LoadRRTextures() - Can't load texture ", p, LOGFILE_ONLY);
-
-
-				// Use D3DX to create a texture from a file based image
-			//if (FAILED(D3DXCreateTextureFromFile(pd3dDevice, charToWChar(p), &g_pTextureList[tex_counter])))
+            //if (D3DTextr_CreateTextureFromFile(p, 0, 0) != S_OK)
+                //PrintMessage(NULL, "CLoadWorld::LoadRRTextures() - Can't load texture ", p, LOGFILE_ONLY);
 
 
-			//TODO: Fix this
+                // Use D3DX to create a texture from a file based image
+            //if (FAILED(D3DXCreateTextureFromFile(pd3dDevice, charToWChar(p), &g_pTextureList[tex_counter])))
 
-			//if (D3DXCreateTextureFromFile(pd3dDevice, charToWChar(p), &g_pTextureList[tex_counter]))
-			//{
-			//	int a = 1;
-			//}
-			//else {
-			//	tex_counter++;
-			//	found = TRUE;
-			//}
-		}
 
-		if (strcmp(s, "Alias") == 0)
-		{
-			fscanf_s(fp, "%s", &p, 256);
+            //TODO: Fix this
 
-			fscanf_s(fp, "%s", &p, 256);
+            //if (D3DXCreateTextureFromFile(pd3dDevice, charToWChar(p), &g_pTextureList[tex_counter]))
+            //{
+            //	int a = 1;
+            //}
+            //else {
+            //	tex_counter++;
+            //	found = TRUE;
+            //}
+        }
 
-			strcpy_s((char*)TexMap[tex_alias_counter].tex_alias_name, 100, (char*)&p);
+        if (strcmp(s, "Alias") == 0)
+        {
+            fscanf_s(fp, "%s", &p, 256);
 
-			TexMap[tex_alias_counter].texture = tex_counter - 1;
+            fscanf_s(fp, "%s", &p, 256);
 
-			fscanf_s(fp, "%s", &p, 256);
-			if (strcmp(p, "AlphaTransparent") == 0)
-				TexMap[tex_alias_counter].is_alpha_texture = TRUE;
+            strcpy_s((char*)TexMap[tex_alias_counter].tex_alias_name, 100, (char*)&p);
 
-			i = tex_alias_counter;
-			fscanf_s(fp, "%s", &p, 256);
+            TexMap[tex_alias_counter].texture = tex_counter - 1;
 
-			if (strcmp(p, "WHOLE") == 0)
-			{
-				TexMap[i].tu[0] = (float)0.0;
-				TexMap[i].tv[0] = (float)1.0;
-				TexMap[i].tu[1] = (float)0.0;
-				TexMap[i].tv[1] = (float)0.0;
-				TexMap[i].tu[2] = (float)1.0;
-				TexMap[i].tv[2] = (float)1.0;
-				TexMap[i].tu[3] = (float)1.0;
-				TexMap[i].tv[3] = (float)0.0;
-			}
+            fscanf_s(fp, "%s", &p, 256);
+            if (strcmp(p, "AlphaTransparent") == 0)
+                TexMap[tex_alias_counter].is_alpha_texture = TRUE;
 
-			if (strcmp(p, "TL_QUAD") == 0)
-			{
-				TexMap[i].tu[0] = (float)0.0;
-				TexMap[i].tv[0] = (float)0.5;
-				TexMap[i].tu[1] = (float)0.0;
-				TexMap[i].tv[1] = (float)0.0;
-				TexMap[i].tu[2] = (float)0.5;
-				TexMap[i].tv[2] = (float)0.5;
-				TexMap[i].tu[3] = (float)0.5;
-				TexMap[i].tv[3] = (float)0.0;
-			}
+            i = tex_alias_counter;
+            fscanf_s(fp, "%s", &p, 256);
 
-			if (strcmp(p, "TR_QUAD") == 0)
-			{
-				TexMap[i].tu[0] = (float)0.5;
-				TexMap[i].tv[0] = (float)0.5;
-				TexMap[i].tu[1] = (float)0.5;
-				TexMap[i].tv[1] = (float)0.0;
-				TexMap[i].tu[2] = (float)1.0;
-				TexMap[i].tv[2] = (float)0.5;
-				TexMap[i].tu[3] = (float)1.0;
-				TexMap[i].tv[3] = (float)0.0;
-			}
-			if (strcmp(p, "LL_QUAD") == 0)
-			{
-				TexMap[i].tu[0] = (float)0.0;
-				TexMap[i].tv[0] = (float)1.0;
-				TexMap[i].tu[1] = (float)0.0;
-				TexMap[i].tv[1] = (float)0.5;
-				TexMap[i].tu[2] = (float)0.5;
-				TexMap[i].tv[2] = (float)1.0;
-				TexMap[i].tu[3] = (float)0.5;
-				TexMap[i].tv[3] = (float)0.5;
-			}
-			if (strcmp(p, "LR_QUAD") == 0)
-			{
-				TexMap[i].tu[0] = (float)0.5;
-				TexMap[i].tv[0] = (float)1.0;
-				TexMap[i].tu[1] = (float)0.5;
-				TexMap[i].tv[1] = (float)0.5;
-				TexMap[i].tu[2] = (float)1.0;
-				TexMap[i].tv[2] = (float)1.0;
-				TexMap[i].tu[3] = (float)1.0;
-				TexMap[i].tv[3] = (float)0.5;
-			}
-			if (strcmp(p, "TOP_HALF") == 0)
-			{
-				TexMap[i].tu[0] = (float)0.0;
-				TexMap[i].tv[0] = (float)0.5;
-				TexMap[i].tu[1] = (float)0.0;
-				TexMap[i].tv[1] = (float)0.0;
-				TexMap[i].tu[2] = (float)1.0;
-				TexMap[i].tv[2] = (float)0.5;
-				TexMap[i].tu[3] = (float)1.0;
-				TexMap[i].tv[3] = (float)0.0;
-			}
-			if (strcmp(p, "BOT_HALF") == 0)
-			{
-				TexMap[i].tu[0] = (float)0.0;
-				TexMap[i].tv[0] = (float)1.0;
-				TexMap[i].tu[1] = (float)0.0;
-				TexMap[i].tv[1] = (float)0.5;
-				TexMap[i].tu[2] = (float)1.0;
-				TexMap[i].tv[2] = (float)1.0;
-				TexMap[i].tu[3] = (float)1.0;
-				TexMap[i].tv[3] = (float)0.5;
-			}
-			if (strcmp(p, "LEFT_HALF") == 0)
-			{
-				TexMap[i].tu[0] = (float)0.0;
-				TexMap[i].tv[0] = (float)1.0;
-				TexMap[i].tu[1] = (float)0.0;
-				TexMap[i].tv[1] = (float)0.0;
-				TexMap[i].tu[2] = (float)0.5;
-				TexMap[i].tv[2] = (float)1.0;
-				TexMap[i].tu[3] = (float)0.5;
-				TexMap[i].tv[3] = (float)0.0;
-			}
-			if (strcmp(p, "RIGHT_HALF") == 0)
-			{
-				TexMap[i].tu[0] = (float)0.5;
-				TexMap[i].tv[0] = (float)1.0;
-				TexMap[i].tu[1] = (float)0.5;
-				TexMap[i].tv[1] = (float)0.0;
-				TexMap[i].tu[2] = (float)1.0;
-				TexMap[i].tv[2] = (float)1.0;
-				TexMap[i].tu[3] = (float)1.0;
-				TexMap[i].tv[3] = (float)0.0;
-			}
-			if (strcmp(p, "TL_TRI") == 0)
-			{
-				TexMap[i].tu[0] = (float)0.0;
-				TexMap[i].tv[0] = (float)0.0;
-				TexMap[i].tu[1] = (float)1.0;
-				TexMap[i].tv[1] = (float)0.0;
-				TexMap[i].tu[2] = (float)0.0;
-				TexMap[i].tv[2] = (float)1.0;
-			}
-			if (strcmp(p, "BR_TRI") == 0)
-			{
-			}
+            if (strcmp(p, "WHOLE") == 0)
+            {
+                TexMap[i].tu[0] = (float)0.0;
+                TexMap[i].tv[0] = (float)1.0;
+                TexMap[i].tu[1] = (float)0.0;
+                TexMap[i].tv[1] = (float)0.0;
+                TexMap[i].tu[2] = (float)1.0;
+                TexMap[i].tv[2] = (float)1.0;
+                TexMap[i].tu[3] = (float)1.0;
+                TexMap[i].tv[3] = (float)0.0;
+            }
 
-			tex_alias_counter++;
-			found = TRUE;
-		}
+            if (strcmp(p, "TL_QUAD") == 0)
+            {
+                TexMap[i].tu[0] = (float)0.0;
+                TexMap[i].tv[0] = (float)0.5;
+                TexMap[i].tu[1] = (float)0.0;
+                TexMap[i].tv[1] = (float)0.0;
+                TexMap[i].tu[2] = (float)0.5;
+                TexMap[i].tv[2] = (float)0.5;
+                TexMap[i].tu[3] = (float)0.5;
+                TexMap[i].tv[3] = (float)0.0;
+            }
 
-		if (strcmp(s, "END_FILE") == 0)
-		{
-			//PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
-			number_of_tex_aliases = tex_alias_counter;
-			//NumTextures = tex_counter;
-			found = TRUE;
-			done = 1;
-		}
+            if (strcmp(p, "TR_QUAD") == 0)
+            {
+                TexMap[i].tu[0] = (float)0.5;
+                TexMap[i].tv[0] = (float)0.5;
+                TexMap[i].tu[1] = (float)0.5;
+                TexMap[i].tv[1] = (float)0.0;
+                TexMap[i].tu[2] = (float)1.0;
+                TexMap[i].tv[2] = (float)0.5;
+                TexMap[i].tu[3] = (float)1.0;
+                TexMap[i].tv[3] = (float)0.0;
+            }
+            if (strcmp(p, "LL_QUAD") == 0)
+            {
+                TexMap[i].tu[0] = (float)0.0;
+                TexMap[i].tv[0] = (float)1.0;
+                TexMap[i].tu[1] = (float)0.0;
+                TexMap[i].tv[1] = (float)0.5;
+                TexMap[i].tu[2] = (float)0.5;
+                TexMap[i].tv[2] = (float)1.0;
+                TexMap[i].tu[3] = (float)0.5;
+                TexMap[i].tv[3] = (float)0.5;
+            }
+            if (strcmp(p, "LR_QUAD") == 0)
+            {
+                TexMap[i].tu[0] = (float)0.5;
+                TexMap[i].tv[0] = (float)1.0;
+                TexMap[i].tu[1] = (float)0.5;
+                TexMap[i].tv[1] = (float)0.5;
+                TexMap[i].tu[2] = (float)1.0;
+                TexMap[i].tv[2] = (float)1.0;
+                TexMap[i].tu[3] = (float)1.0;
+                TexMap[i].tv[3] = (float)0.5;
+            }
+            if (strcmp(p, "TOP_HALF") == 0)
+            {
+                TexMap[i].tu[0] = (float)0.0;
+                TexMap[i].tv[0] = (float)0.5;
+                TexMap[i].tu[1] = (float)0.0;
+                TexMap[i].tv[1] = (float)0.0;
+                TexMap[i].tu[2] = (float)1.0;
+                TexMap[i].tv[2] = (float)0.5;
+                TexMap[i].tu[3] = (float)1.0;
+                TexMap[i].tv[3] = (float)0.0;
+            }
+            if (strcmp(p, "BOT_HALF") == 0)
+            {
+                TexMap[i].tu[0] = (float)0.0;
+                TexMap[i].tv[0] = (float)1.0;
+                TexMap[i].tu[1] = (float)0.0;
+                TexMap[i].tv[1] = (float)0.5;
+                TexMap[i].tu[2] = (float)1.0;
+                TexMap[i].tv[2] = (float)1.0;
+                TexMap[i].tu[3] = (float)1.0;
+                TexMap[i].tv[3] = (float)0.5;
+            }
+            if (strcmp(p, "LEFT_HALF") == 0)
+            {
+                TexMap[i].tu[0] = (float)0.0;
+                TexMap[i].tv[0] = (float)1.0;
+                TexMap[i].tu[1] = (float)0.0;
+                TexMap[i].tv[1] = (float)0.0;
+                TexMap[i].tu[2] = (float)0.5;
+                TexMap[i].tv[2] = (float)1.0;
+                TexMap[i].tu[3] = (float)0.5;
+                TexMap[i].tv[3] = (float)0.0;
+            }
+            if (strcmp(p, "RIGHT_HALF") == 0)
+            {
+                TexMap[i].tu[0] = (float)0.5;
+                TexMap[i].tv[0] = (float)1.0;
+                TexMap[i].tu[1] = (float)0.5;
+                TexMap[i].tv[1] = (float)0.0;
+                TexMap[i].tu[2] = (float)1.0;
+                TexMap[i].tv[2] = (float)1.0;
+                TexMap[i].tu[3] = (float)1.0;
+                TexMap[i].tv[3] = (float)0.0;
+            }
+            if (strcmp(p, "TL_TRI") == 0)
+            {
+                TexMap[i].tu[0] = (float)0.0;
+                TexMap[i].tv[0] = (float)0.0;
+                TexMap[i].tu[1] = (float)1.0;
+                TexMap[i].tv[1] = (float)0.0;
+                TexMap[i].tu[2] = (float)0.0;
+                TexMap[i].tv[2] = (float)1.0;
+            }
+            if (strcmp(p, "BR_TRI") == 0)
+            {
+            }
 
-		if (found == FALSE)
-		{
-			//PrintMessage(hwnd, "File Error: Syntax problem :", p, SCN_AND_FILE);
-			//MessageBox(hwnd, "p", "File Error: Syntax problem ", MB_OK);
-			//return FALSE;
-		}
-	}
-	fclose(fp);
+            tex_alias_counter++;
+            found = TRUE;
+        }
 
-	//D3DTextr_RestoreAllTextures(GetDevice());
-	//DDCOLORKEY ckey;
-	// set color key to black, for crosshair texture.
-	// so any pixels in crosshair texture with color RGB 0,0,0 will be transparent
-	//ckey.dwColorSpaceLowValue = RGB_MAKE(0, 0, 0);
-	//ckey.dwColorSpaceHighValue = 0L;
+        if (strcmp(s, "END_FILE") == 0)
+        {
+            //PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
+            number_of_tex_aliases = tex_alias_counter;
+            //NumTextures = tex_counter;
+            found = TRUE;
+            done = 1;
+        }
 
-	//for (i = 0; i < NumTextures; i++)
-	//{
-	//	lpDDsurface = D3DTextr_GetSurface(ImageFile[i]);
-	//	lpddsImagePtr[i] = lpDDsurface;
+        if (found == FALSE)
+        {
+            //PrintMessage(hwnd, "File Error: Syntax problem :", p, SCN_AND_FILE);
+            //MessageBox(hwnd, "p", "File Error: Syntax problem ", MB_OK);
+            //return FALSE;
+        }
+    }
+    fclose(fp);
 
-	//	if (strstr(ImageFile[i], "@") != NULL || strstr(ImageFile[i], "fontA") != NULL || strstr(ImageFile[i], "die") != NULL || strstr(ImageFile[i], "dungeont") != NULL || strstr(ImageFile[i], "button") != NULL || strstr(ImageFile[i], "lightmap") != NULL || strstr(ImageFile[i], "flare") != NULL || strstr(ImageFile[i], "pb8") != NULL || strstr(ImageFile[i], "pb0") != NULL || strstr(ImageFile[i], "crosshair") != NULL || strstr(ImageFile[i], "pbm") != NULL || strstr(ImageFile[i], "box1") != NULL)
-	//	{
+    //D3DTextr_RestoreAllTextures(GetDevice());
+    //DDCOLORKEY ckey;
+    // set color key to black, for crosshair texture.
+    // so any pixels in crosshair texture with color RGB 0,0,0 will be transparent
+    //ckey.dwColorSpaceLowValue = RGB_MAKE(0, 0, 0);
+    //ckey.dwColorSpaceHighValue = 0L;
 
-	//		if (lpddsImagePtr[i])
-	//			lpddsImagePtr[i]->SetColorKey(DDCKEY_SRCBLT, &ckey);
-	//	}
-	//	else
-	//	{
+    //for (i = 0; i < NumTextures; i++)
+    //{
+    //	lpDDsurface = D3DTextr_GetSurface(ImageFile[i]);
+    //	lpddsImagePtr[i] = lpDDsurface;
 
-	//		DDCOLORKEY ckeyfix;
-	//		ckeyfix.dwColorSpaceLowValue = RGB_MAKE(9, 99, 99);
-	//		ckeyfix.dwColorSpaceHighValue = 0L;
+    //	if (strstr(ImageFile[i], "@") != NULL || strstr(ImageFile[i], "fontA") != NULL || strstr(ImageFile[i], "die") != NULL || strstr(ImageFile[i], "dungeont") != NULL || strstr(ImageFile[i], "button") != NULL || strstr(ImageFile[i], "lightmap") != NULL || strstr(ImageFile[i], "flare") != NULL || strstr(ImageFile[i], "pb8") != NULL || strstr(ImageFile[i], "pb0") != NULL || strstr(ImageFile[i], "crosshair") != NULL || strstr(ImageFile[i], "pbm") != NULL || strstr(ImageFile[i], "box1") != NULL)
+    //	{
 
-	//		if (lpddsImagePtr[i])
-	//			lpddsImagePtr[i]->SetColorKey(DDCKEY_SRCBLT, &ckeyfix);
-	//	}
-	//}
-	//PrintMessage(hwnd, "CMyD3DApplication::LoadRRTextures - suceeded", NULL, LOGFILE_ONLY);
+    //		if (lpddsImagePtr[i])
+    //			lpddsImagePtr[i]->SetColorKey(DDCKEY_SRCBLT, &ckey);
+    //	}
+    //	else
+    //	{
 
-	return TRUE;
+    //		DDCOLORKEY ckeyfix;
+    //		ckeyfix.dwColorSpaceLowValue = RGB_MAKE(9, 99, 99);
+    //		ckeyfix.dwColorSpaceHighValue = 0L;
+
+    //		if (lpddsImagePtr[i])
+    //			lpddsImagePtr[i]->SetColorKey(DDCKEY_SRCBLT, &ckeyfix);
+    //	}
+    //}
+    //PrintMessage(hwnd, "CMyD3DApplication::LoadRRTextures - suceeded", NULL, LOGFILE_ONLY);
+
+    return TRUE;
 }
 
 */
 
-int CheckValidTextureAlias(char* alias)
-{
+int CheckValidTextureAlias(char *alias) {
 	int i;
-	char* buffer2;
+	char *buffer2;
 
-	for (i = 0; i < number_of_tex_aliases; i++)
-	{
+	for (i = 0; i < number_of_tex_aliases; i++) {
 		buffer2 = TexMap[i].tex_alias_name;
 
-		if (_strcmpi(buffer2, alias) == 0)
-		{
+		if (_strcmpi(buffer2, alias) == 0) {
 			return i;
 		}
 	}
 
-	return -1; //error
+	return -1; // error
 }
 
-int FindTextureAlias(char* alias)
-{
+int FindTextureAlias(char *alias) {
 	int i;
-	char* buffer2;
+	char *buffer2;
 
-	for (i = 0; i < number_of_tex_aliases; i++)
-	{
+	for (i = 0; i < number_of_tex_aliases; i++) {
 		buffer2 = TexMap[i].tex_alias_name;
 
-		if (_strcmpi(buffer2, alias) == 0)
-		{
+		if (_strcmpi(buffer2, alias) == 0) {
 			return i;
 		}
 	}
 
-	return -1; //error
+	return -1; // error
 }
 
-int random_num(int num)
-{
+int random_num(int num) {
 
 	UINT rndNum;
 
@@ -1253,17 +1159,16 @@ int random_num(int num)
 	return rndNum;
 }
 
-BOOL CLoadWorld::LoadImportedModelList(char* filename)
-{
-	FILE* fp;
-	FILE* fp2;
+BOOL CLoadWorld::LoadImportedModelList(char *filename) {
+	FILE *fp;
+	FILE *fp2;
 	char p[256];
 	int done = 0;
 	//	int i;
 	char command[256];
 	float f;
 	int model_id;
-	//char model_name[256];
+	// char model_name[256];
 	char model_filename[256];
 	int model_tex_alias;
 
@@ -1277,15 +1182,13 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 	int num_op_guns = 0;
 	int model_format;
 
-
-	if (fopen_s(&fp, filename, "r") != 0)
-	{
-		//PrintMessage(hwnd, "ERROR can't load ", filename, SCN_AND_FILE);
-		//MessageBox(hwnd, filename, "Error can't load file", MB_OK);
+	if (fopen_s(&fp, filename, "r") != 0) {
+		// PrintMessage(hwnd, "ERROR can't load ", filename, SCN_AND_FILE);
+		// MessageBox(hwnd, filename, "Error can't load file", MB_OK);
 		return FALSE;
 	}
 
-	//PrintMessage(hwnd, "Loading ", filename, SCN_AND_FILE);
+	// PrintMessage(hwnd, "Loading ", filename, SCN_AND_FILE);
 
 	fscanf_s(fp, "%s", &command, 256);
 
@@ -1294,8 +1197,7 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 	else
 		return FALSE;
 
-	while (done == 0)
-	{
+	while (done == 0) {
 		command_recognised = FALSE;
 		scale = (float)0.4;
 
@@ -1306,14 +1208,12 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 
 		fscanf_s(fp, "%s", &p, 256); // find model file foramt, MD2 or 3DS ?
 
-		if (strcmp(p, "MD2") == 0)
-		{
+		if (strcmp(p, "MD2") == 0) {
 			mtype = 0;
 			model_format = MD2_MODEL;
 		}
 
-		if (strcmp(p, "3DS") == 0)
-		{
+		if (strcmp(p, "3DS") == 0) {
 			model_format = k3DS_MODEL;
 			mtype = 1;
 		}
@@ -1331,8 +1231,7 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 
 		model_tex_alias = FindTextureAlias(p) + 1;
 
-		if (strcmp(command, "PLAYER") == 0)
-		{
+		if (strcmp(command, "PLAYER") == 0) {
 			fscanf_s(fp, "%s", &p, 256); // ignore comment pos
 			fscanf_s(fp, "%s", &p, 256); // x pos
 			fscanf_s(fp, "%s", &p, 256); // y pos
@@ -1344,24 +1243,23 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 			scale = f;
 
 			fscanf_s(fp, "%s", &p, 256); // Don't draw players external weapon
-										 //			if(strcmp(p, "NO_EXTERNAL_WEP") == 0)
-										 //				player_list[type_num].draw_external_wep = FALSE;
-
+			                             //			if(strcmp(p, "NO_EXTERNAL_WEP") == 0)
+			                             //				player_list[type_num].draw_external_wep = FALSE;
 
 			fscanf_s(fp, "%s", &p, 256);
 
-			//char junk[255];
-			//sprintf(junk, "..\\bin\\%s", p);
+			// char junk[255];
+			// sprintf(junk, "..\\bin\\%s", p);
 
 			if (fopen_s(&fp2, p, "r") != 0)
-				//			if (fopen_s(&fp2, junk, "r") != 0)
+			//			if (fopen_s(&fp2, junk, "r") != 0)
 			{
-				//PrintMessage(hwnd, "ERROR can't load ", filename, SCN_AND_FILE);
-				//MessageBox(hwnd, filename, "Error can't load file", MB_OK);
+				// PrintMessage(hwnd, "ERROR can't load ", filename, SCN_AND_FILE);
+				// MessageBox(hwnd, filename, "Error can't load file", MB_OK);
 				return FALSE;
 			}
 
-			//load .snd file
+			// load .snd file
 
 			fscanf_s(fp2, "%s", &p, 256);
 			slist[slistcount].attack = SoundID(p);
@@ -1376,27 +1274,27 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 
 			fclose(fp2);
 
-			//ac
+			// ac
 			fscanf_s(fp, "%s", &p, 256);
 			fscanf_s(fp, "%s", &p, 256);
 			slist[slistcount].ac = atoi(p);
-			//hd
+			// hd
 			fscanf_s(fp, "%s", &p, 256);
 			fscanf_s(fp, "%s", &p, 256);
 			slist[slistcount].hd = atoi(p);
-			//damage
+			// damage
 			fscanf_s(fp, "%s", &p, 256);
 			fscanf_s(fp, "%s", &p, 256);
 			strcpy_s(slist[slistcount].damage, p);
-			//thaco
+			// thaco
 			fscanf_s(fp, "%s", &p, 256);
 			fscanf_s(fp, "%s", &p, 256);
 			slist[slistcount].thaco = atoi(p);
-			//name
+			// name
 			fscanf_s(fp, "%s", &p, 256); //
 			strcpy_s(slist[slistcount].name, p);
 			strcpy_s(model_list[countmodellist].name, p);
-			//speed
+			// speed
 			fscanf_s(fp, "%s", &p, 256); //
 			slist[slistcount].speed = (float)atof(p);
 
@@ -1420,8 +1318,7 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 			command_recognised = TRUE;
 		}
 
-		if (strcmp(command, "YOURGUN") == 0)
-		{
+		if (strcmp(command, "YOURGUN") == 0) {
 			fscanf_s(fp, "%s", &p, 256); // ignore comment pos
 
 			fscanf_s(fp, "%s", &p, 256); // x pos
@@ -1454,22 +1351,15 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 			strcpy_s(d, p);
 			int i = 0;
 			int flag = 0, count = 0, count2 = 0;
-			for (i = 0; i < (int)strlen(d); i++)
-			{
+			for (i = 0; i < (int)strlen(d); i++) {
 
-				if (d[i] == 'd')
-				{
+				if (d[i] == 'd') {
 					flag = 1;
-				}
-				else
-				{
+				} else {
 
-					if (flag == 0)
-					{
+					if (flag == 0) {
 						build[count++] = d[i];
-					}
-					else
-					{
+					} else {
 						build2[count2++] = d[i];
 					}
 				}
@@ -1500,21 +1390,18 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 			your_gun[type_num].guntype = atoi(p);
 
 			your_gun_count++;
-			//LoadYourGunAnimationSequenceList(model_id);
+			// LoadYourGunAnimationSequenceList(model_id);
 			command_recognised = TRUE;
 		}
 
-		if (strcmp(command, "END_FILE") == 0)
-		{
+		if (strcmp(command, "END_FILE") == 0) {
 			done = 1;
 			command_recognised = TRUE;
 		}
 
-		if (command_recognised == TRUE)
-		{
-			if (Model_loaded_flags[model_id] == FALSE)
-			{
-				//PrintMessage(hwnd, "loading  ", model_filename, LOGFILE_ONLY);
+		if (command_recognised == TRUE) {
+			if (Model_loaded_flags[model_id] == FALSE) {
+				// PrintMessage(hwnd, "loading  ", model_filename, LOGFILE_ONLY);
 
 				if (model_format == MD2_MODEL)
 					ImportMD2_GLCMD(model_filename, model_tex_alias, model_id, scale);
@@ -1525,41 +1412,34 @@ BOOL CLoadWorld::LoadImportedModelList(char* filename)
 				Model_loaded_flags[model_id] = TRUE;
 				Q2M_Anim_Counter++;
 			}
-		}
-		else
-		{
-			//PrintMessage(hwnd, "command unrecognised ", command, SCN_AND_FILE);
-			//MessageBox(hwnd, command, "command unrecognised", MB_OK);
+		} else {
+			// PrintMessage(hwnd, "command unrecognised ", command, SCN_AND_FILE);
+			// MessageBox(hwnd, command, "command unrecognised", MB_OK);
 			return FALSE;
 		}
 
 	} // end while loop
 
 	num_imported_models_loaded = player_count + your_gun_count + op_gun_count;
-	//PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
+	// PrintMessage(hwnd, "\n", NULL, LOGFILE_ONLY);
 	fclose(fp);
 	return TRUE;
 }
 
-int CLoadWorld::FindModelID(char* p)
-{
+int CLoadWorld::FindModelID(char *p) {
 
 	int i = 0;
 
-	for (i = 0; i < countmodellist; i++)
-	{
+	for (i = 0; i < countmodellist; i++) {
 
-		if (strcmp(model_list[i].name, p) == 0)
-		{
+		if (strcmp(model_list[i].name, p) == 0) {
 			return model_list[i].model_id;
 		}
 	}
 
-	for (i = 0; i < num_your_guns; i++)
-	{
+	for (i = 0; i < num_your_guns; i++) {
 
-		if (strcmp(your_gun[i].gunname, p) == 0)
-		{
+		if (strcmp(your_gun[i].gunname, p) == 0) {
 			return your_gun[i].model_id;
 		}
 	}
@@ -1567,11 +1447,10 @@ int CLoadWorld::FindModelID(char* p)
 	return 0;
 }
 
-void CLoadWorld::AddMonster(float x, float y, float z, float rot_angle, float monsterid, float monstertexture, float monnum, int s1, int s2, int s3, int s4, int s5, int s6, char damage[80], int thaco, char name[80], float speed, int ability)
-{
+void CLoadWorld::AddMonster(float x, float y, float z, float rot_angle, float monsterid, float monstertexture, float monnum, int s1, int s2, int s3, int s4, int s5, int s6, char damage[80], int thaco, char name[80], float speed, int ability) {
 
-	//if (monsterenable == 0)
-		//return;
+	// if (monsterenable == 0)
+	// return;
 
 	char build[80];
 	int count = 0;
@@ -1592,12 +1471,11 @@ void CLoadWorld::AddMonster(float x, float y, float z, float rot_angle, float mo
 
 	int gd = random_num(5) + 1;
 
-
 	monster_list[num_monsters].current_frame = (int)40 + gd;
 	monster_list[num_monsters].animationdir = 0;
 
-	//if (gd == 1 || gd == 2)
-		//monster_list[num_monsters].animationdir = 1;
+	// if (gd == 1 || gd == 2)
+	// monster_list[num_monsters].animationdir = 1;
 
 	int speedadj = random_num(10);
 
@@ -1623,22 +1501,15 @@ void CLoadWorld::AddMonster(float x, float y, float z, float rot_angle, float mo
 
 	int i = 0;
 
-	for (i = 0; i < (int)strlen(damage); i++)
-	{
+	for (i = 0; i < (int)strlen(damage); i++) {
 
-		if (damage[i] == 'd')
-		{
+		if (damage[i] == 'd') {
 			flag = 1;
-		}
-		else
-		{
+		} else {
 
-			if (flag == 0)
-			{
+			if (flag == 0) {
 				build[count++] = damage[i];
-			}
-			else
-			{
+			} else {
 				build2[count2++] = damage[i];
 			}
 		}
@@ -1652,13 +1523,11 @@ void CLoadWorld::AddMonster(float x, float y, float z, float rot_angle, float mo
 
 	strcpy_s(monster_list[num_monsters].chatstr, "5");
 
-	if (monsterid == 0 || monsterid == 2)
-	{
+	if (monsterid == 0 || monsterid == 2) {
 		monster_list[num_monsters].draw_external_wep = TRUE;
 	}
 
-	else
-	{
+	else {
 		monster_list[num_monsters].draw_external_wep = FALSE;
 	}
 
@@ -1668,8 +1537,7 @@ void CLoadWorld::AddMonster(float x, float y, float z, float rot_angle, float mo
 
 	monster_list[num_monsters].bStopAnimating = FALSE;
 
-	if (ability == 3)
-	{
+	if (ability == 3) {
 		SetMonsterAnimationSequence(num_monsters, 12);
 		monster_list[num_monsters].bIsPlayerAlive = FALSE;
 		monster_list[num_monsters].bIsPlayerValid = FALSE;
@@ -1685,11 +1553,10 @@ void CLoadWorld::AddMonster(float x, float y, float z, float rot_angle, float mo
 	strcpy_s(monster_list[num_monsters].rname, name);
 
 	num_monsters++;
-	//countplayers++;
+	// countplayers++;
 }
 
-void CLoadWorld::LoadPlayerAnimationSequenceList(int model_id)
-{
+void CLoadWorld::LoadPlayerAnimationSequenceList(int model_id) {
 	int i;
 
 	i = model_id;
@@ -1739,54 +1606,50 @@ void CLoadWorld::LoadPlayerAnimationSequenceList(int model_id)
 	pmdata[i].sequence_start_frame[14] = 190; // death
 	pmdata[i].sequence_stop_frame[14] = 197;
 
-	//178-183
-	//184-189
-	//190-197
+	// 178-183
+	// 184-189
+	// 190-197
 }
 
-void SetStartSpot()
-{
+void SetStartSpot() {
 
 	int result;
 
-	//m_pd3dDevice->SetRenderState(D3DRENDERSTATE_AMBIENT, NULL);
+	// m_pd3dDevice->SetRenderState(D3DRENDERSTATE_AMBIENT, NULL);
 
 	/*
 	if (strcmp(ds_reg->registered,"0") ==0 && current_level>=3 && multiplay_flag==FALSE) {
-		DSPostQuit();
-		Pause(TRUE);
-		UINT resultclick = MessageBox(main_window_handle,"Please register at http://www.murk.on.ca","Register Game",MB_OK);
-		Pause(FALSE);
-		PostQuitMessage(0);
+	    DSPostQuit();
+	    Pause(TRUE);
+	    UINT resultclick = MessageBox(main_window_handle,"Please register at http://www.murk.on.ca","Register Game",MB_OK);
+	    Pause(FALSE);
+	    PostQuitMessage(0);
 	}
 	*/
 
 	if (startposcounter == 0)
 		return;
 
-	//result = random_num(startposcounter);
+	// result = random_num(startposcounter);
 
-	result = 0; //first teleporter
+	result = 0; // first teleporter
 
 	m_vEyePt.x = startpos[result].x;
 	m_vEyePt.y = startpos[result].y;
 	m_vEyePt.z = startpos[result].z;
 
-
-	//m_vLookatPt = m_vEyePt;
-	//cameraf.x = m_vLookatPt.x;
-	//cameraf.y = m_vLookatPt.y;
-	//cameraf.z = m_vLookatPt.z;
+	// m_vLookatPt = m_vEyePt;
+	// cameraf.x = m_vLookatPt.x;
+	// cameraf.y = m_vLookatPt.y;
+	// cameraf.z = m_vLookatPt.z;
 	angy = startpos[result].angle;
 
-	//modellocation = m_vEyePt;
-	//UpdateMainPlayer();
-
+	// modellocation = m_vEyePt;
+	// UpdateMainPlayer();
 }
 
-BOOL CLoadWorld::LoadMod(char* filename)
-{
-	FILE* fp;
+BOOL CLoadWorld::LoadMod(char *filename) {
+	FILE *fp;
 	char s[256];
 	//	char p[256];
 	int counter = 0;
@@ -1794,48 +1657,43 @@ BOOL CLoadWorld::LoadMod(char* filename)
 	char bigbuf[2048];
 
 	char path[255];
-	//sprintf(path, "..\\bin\\%s", filename);
+	// sprintf(path, "..\\bin\\%s", filename);
 	sprintf_s(path, "%s", filename);
 
-	if (fopen_s(&fp, path, "r") != 0)
-	{
-		//PrintMessage(hwnd, "Error can't load file ", filename, SCN_AND_FILE);
-		//MessageBox(hwnd, "Error can't load file", NULL, MB_OK);
+	if (fopen_s(&fp, path, "r") != 0) {
+		// PrintMessage(hwnd, "Error can't load file ", filename, SCN_AND_FILE);
+		// MessageBox(hwnd, "Error can't load file", NULL, MB_OK);
 		return FALSE;
 	}
 
-	//PrintMessage(hwnd, "Loading map ", filename, SCN_AND_FILE);
+	// PrintMessage(hwnd, "Loading map ", filename, SCN_AND_FILE);
 
-	while (done == 0)
-	{
+	while (done == 0) {
 
 		fscanf_s(fp, "%s", &s, 256);
-		//objectid
+		// objectid
 
-		if (strcmp(s, "END_FILE") == 0)
-		{
+		if (strcmp(s, "END_FILE") == 0) {
 			done = 1;
-		}
-		else
-		{
-			//num
+		} else {
+			// num
 			levelmodify[counter].num = atoi(s);
-			//objectid
+			// objectid
 			fscanf_s(fp, "%s", &s, 256);
 			levelmodify[counter].objectid = atoi(s);
-			//active
+			// active
 			fscanf_s(fp, "%s", &s, 256);
 			levelmodify[counter].active = atoi(s);
-			//Function
+			// Function
 			fscanf_s(fp, "%s", &s, 256);
 			strcpy_s(levelmodify[counter].Function, s);
-			//jump
+			// jump
 			fscanf_s(fp, "%s", &s, 256);
 			levelmodify[counter].jump = atoi(s);
-			//text1
+			// text1
 			fgets(bigbuf, 2048, fp);
 			strcpy_s(levelmodify[counter].Text1, bigbuf);
-			//text2
+			// text2
 			strcpy_s(levelmodify[counter].Text2, "");
 			levelmodify[counter].currentheight = -9999;
 		}
@@ -1847,33 +1705,27 @@ BOOL CLoadWorld::LoadMod(char* filename)
 	return TRUE;
 }
 
-int save_game(char* filename)
-{
+int save_game(char *filename) {
 	sprintf_s(gActionMessage, "Saving Game...");
 	UpdateScrollList(0, 255, 0);
 
 	int perspectiveview = 1;
 
-	FILE* fp;
+	FILE *fp;
 	int montry;
-	//Pause(TRUE);
-	//UINT resultclick = MessageBox(main_window_handle, "Save Game?", "Save Game", MB_ICONQUESTION | MB_YESNO);
-	//Pause(FALSE);
-	//if (resultclick == IDYES)
+	// Pause(TRUE);
+	// UINT resultclick = MessageBox(main_window_handle, "Save Game?", "Save Game", MB_ICONQUESTION | MB_YESNO);
+	// Pause(FALSE);
+	// if (resultclick == IDYES)
 	//{
 
-	if (strlen(filename) > 0)
-	{
-		if (fopen_s(&fp, filename, "wb+") != 0)
-		{
+	if (strlen(filename) > 0) {
+		if (fopen_s(&fp, filename, "wb+") != 0) {
 			return 0;
 		}
-	}
-	else
-	{
+	} else {
 
-		if (fopen_s(&fp, "ds.sav", "wb+") != 0)
-		{
+		if (fopen_s(&fp, "ds.sav", "wb+") != 0) {
 			return 0;
 		}
 	}
@@ -1888,46 +1740,38 @@ int save_game(char* filename)
 	fwrite(&player_list[trueplayernum], sizeof(struct player_typ), 1, fp);
 
 	fwrite(&num_players2, sizeof(int), 1, fp);
-	for (montry = 0; montry < num_players2; montry++)
-	{
+	for (montry = 0; montry < num_players2; montry++) {
 		fwrite(&player_list2[montry], sizeof(struct player_typ), 1, fp);
 	}
 
 	fwrite(&num_monsters, sizeof(int), 1, fp);
-	for (montry = 0; montry < num_monsters; montry++)
-	{
+	for (montry = 0; montry < num_monsters; montry++) {
 		fwrite(&monster_list[montry], sizeof(struct player_typ), 1, fp);
 	}
 	fwrite(&itemlistcount, sizeof(int), 1, fp);
-	for (montry = 0; montry < itemlistcount; montry++)
-	{
+	for (montry = 0; montry < itemlistcount; montry++) {
 		fwrite(&item_list[montry], sizeof(struct player_typ), 1, fp);
 	}
 	fwrite(&doorcounter, sizeof(int), 1, fp);
-	for (montry = 0; montry < doorcounter; montry++)
-	{
+	for (montry = 0; montry < doorcounter; montry++) {
 		fwrite(&door[montry], sizeof(struct doors), 1, fp);
 	}
 
 	fwrite(&num_your_guns, sizeof(int), 1, fp);
-	for (montry = 0; montry < num_your_guns; montry++)
-	{
+	for (montry = 0; montry < num_your_guns; montry++) {
 		fwrite(&your_gun[montry], sizeof(struct gunlist_typ), 1, fp);
 	}
 
 	fwrite(&countswitches, sizeof(int), 1, fp);
-	for (montry = 0; montry < countswitches; montry++)
-	{
+	for (montry = 0; montry < countswitches; montry++) {
 		fwrite(&switchmodify[montry], sizeof(struct SwitchMod), 1, fp);
 	}
 	fwrite(&totalmod, sizeof(int), 1, fp);
-	for (montry = 0; montry < totalmod; montry++)
-	{
+	for (montry = 0; montry < totalmod; montry++) {
 		fwrite(&levelmodify[montry], sizeof(struct LevelMod), 1, fp);
 	}
 	fwrite(&textcounter, sizeof(int), 1, fp);
-	for (montry = 0; montry < textcounter; montry++)
-	{
+	for (montry = 0; montry < textcounter; montry++) {
 		fwrite(&gtext[montry], sizeof(struct gametext), 1, fp);
 	}
 
@@ -1935,39 +1779,31 @@ int save_game(char* filename)
 	return 1;
 	//}
 
-	//return 0;
+	// return 0;
 }
 
-int load_game(char* filename)
-{
+int load_game(char *filename) {
 
 	sprintf_s(gActionMessage, "Loading Game...");
 	UpdateScrollList(0, 255, 0);
 
-
-
 	int perspectiveview = 1;
-	FILE* fp;
+	FILE *fp;
 	int montry;
-	//Pause(TRUE);
-	//UINT resultclick = MessageBox(main_window_handle, "Load Game?", "Load Game", MB_ICONQUESTION | MB_YESNO);
-	//Pause(FALSE);
-	//if (resultclick == IDYES)
+	// Pause(TRUE);
+	// UINT resultclick = MessageBox(main_window_handle, "Load Game?", "Load Game", MB_ICONQUESTION | MB_YESNO);
+	// Pause(FALSE);
+	// if (resultclick == IDYES)
 	//{
 
-	if (strlen(filename) > 0)
-	{
+	if (strlen(filename) > 0) {
 
-		if (fopen_s(&fp, filename, "rb") != 0)
-		{
+		if (fopen_s(&fp, filename, "rb") != 0) {
 			return 0;
 		}
-	}
-	else
-	{
+	} else {
 
-		if (fopen_s(&fp, "ds.sav", "rb") != 0)
-		{
+		if (fopen_s(&fp, "ds.sav", "rb") != 0) {
 			return 0;
 		}
 	}
@@ -1981,7 +1817,7 @@ int load_game(char* filename)
 	load_level(levelname);
 	fread(&player_list[trueplayernum], sizeof(struct player_typ), 1, fp);
 
-	//player_list[trueplayernum].y += 100.0f;
+	// player_list[trueplayernum].y += 100.0f;
 	m_vEyePt.x = player_list[trueplayernum].x;
 	m_vEyePt.y = player_list[trueplayernum].y;
 	m_vEyePt.z = player_list[trueplayernum].z;
@@ -1992,29 +1828,25 @@ int load_game(char* filename)
 
 	fread(&num_players2, sizeof(int), 1, fp);
 
-	for (montry = 0; montry < num_players2; montry++)
-	{
+	for (montry = 0; montry < num_players2; montry++) {
 		fread(&player_list2[montry], sizeof(struct player_typ), 1, fp);
 	}
 
 	fread(&num_monsters, sizeof(int), 1, fp);
 
-	for (montry = 0; montry < num_monsters; montry++)
-	{
+	for (montry = 0; montry < num_monsters; montry++) {
 		fread(&monster_list[montry], sizeof(struct player_typ), 1, fp);
 	}
 
 	fread(&itemlistcount, sizeof(int), 1, fp);
 
-	for (montry = 0; montry < itemlistcount; montry++)
-	{
+	for (montry = 0; montry < itemlistcount; montry++) {
 		fread(&item_list[montry], sizeof(struct player_typ), 1, fp);
 	}
 
 	fread(&doorcounter, sizeof(int), 1, fp);
 
-	for (montry = 0; montry < doorcounter; montry++)
-	{
+	for (montry = 0; montry < doorcounter; montry++) {
 		fread(&door[montry], sizeof(struct doors), 1, fp);
 		oblist[door[montry].doornum].rot_angle = (float)door[montry].angle;
 
@@ -2023,41 +1855,32 @@ int load_game(char* filename)
 	}
 
 	fread(&num_your_guns, sizeof(int), 1, fp);
-	for (montry = 0; montry < num_your_guns; montry++)
-	{
+	for (montry = 0; montry < num_your_guns; montry++) {
 		fread(&your_gun[montry], sizeof(struct gunlist_typ), 1, fp);
 	}
 
-	//SwitchGun(current_gun);
+	// SwitchGun(current_gun);
 	player_list[trueplayernum].gunid = your_gun[current_gun].model_id;
 	player_list[trueplayernum].guntex = your_gun[current_gun].skin_tex_id;
 	player_list[trueplayernum].damage1 = your_gun[current_gun].damage1;
 	player_list[trueplayernum].damage2 = your_gun[current_gun].damage2;
 
-	if (strstr(your_gun[current_gun].gunname, "SCROLL") != NULL)
-	{
+	if (strstr(your_gun[current_gun].gunname, "SCROLL") != NULL) {
 		usespell = 1;
-	}
-	else
-	{
+	} else {
 		usespell = 0;
 	}
 
-	
-
 	fread(&countswitches, sizeof(int), 1, fp);
-	for (montry = 0; montry < countswitches; montry++)
-	{
+	for (montry = 0; montry < countswitches; montry++) {
 		fread(&switchmodify[montry], sizeof(struct SwitchMod), 1, fp);
 	}
 	fread(&totalmod, sizeof(int), 1, fp);
-	for (montry = 0; montry < totalmod; montry++)
-	{
+	for (montry = 0; montry < totalmod; montry++) {
 		fread(&levelmodify[montry], sizeof(struct LevelMod), 1, fp);
 	}
 	fread(&textcounter, sizeof(int), 1, fp);
-	for (montry = 0; montry < textcounter; montry++)
-	{
+	for (montry = 0; montry < textcounter; montry++) {
 		fread(&gtext[montry], sizeof(struct gametext), 1, fp);
 	}
 
@@ -2069,104 +1892,89 @@ int load_game(char* filename)
 
 	return 1;
 	//}
-	//return 0;
+	// return 0;
 }
 
 void ClearObjectList();
 
-int load_level(char* filename)
-{
+int load_level(char *filename) {
 
 	char level[255];
 
 	/*
 	if (strcmp(pCMyApp->ds_reg->registered,"0") ==0 && pCMyApp->current_level>=3) {
 
-		Pause(TRUE);
-		UINT resultclick = MessageBox(main_window_handle,"Please register at http://www.murk.on.ca","Register Game",MB_OK);
-		Pause(FALSE);
-		PostQuitMessage(0);
+	    Pause(TRUE);
+	    UINT resultclick = MessageBox(main_window_handle,"Please register at http://www.murk.on.ca","Register Game",MB_OK);
+	    Pause(FALSE);
+	    PostQuitMessage(0);
 	}
 	*/
 
-	if (strlen(filename) > 0)
-	{
+	if (strlen(filename) > 0) {
 		strcpy_s(level, filename);
 		strcat_s(level, ".map");
 		strcpy_s(levelname, filename);
-	}
-	else
-	{
+	} else {
 		sprintf_s(levelname, "level%d", current_level);
 		strcpy_s(level, levelname);
 		strcat_s(level, ".map");
 	}
 
-	if (!pCWorld->LoadWorldMap(level))
-	{
+	if (!pCWorld->LoadWorldMap(level)) {
 	}
 
 	num_players2 = 0;
 	itemlistcount = 0;
 	num_monsters = 0;
-	
 
 	ClearObjectList();
 	ResetSound();
-	//pCWorld->LoadSoundFiles(m_hWnd, "sounds.dat");
+	// pCWorld->LoadSoundFiles(m_hWnd, "sounds.dat");
 
-	if (!pCWorld->LoadWorldMap(level))
-	{
-		//PrintMessage(m_hWnd, "LoadWorldMap failed", NULL, LOGFILE_ONLY);
-		//return FALSE;
+	if (!pCWorld->LoadWorldMap(level)) {
+		// PrintMessage(m_hWnd, "LoadWorldMap failed", NULL, LOGFILE_ONLY);
+		// return FALSE;
 	}
 
 	strcpy_s(level, levelname);
 	strcat_s(level, ".cmp");
 
-	//if (!pCWorld->InitPreCompiledWorldMap(m_hWnd, level))
+	// if (!pCWorld->InitPreCompiledWorldMap(m_hWnd, level))
 	//{
 	//	PrintMessage(m_hWnd, "InitPreCompiledWorldMap failed", NULL, LOGFILE_ONLY);
 	//	return FALSE;
-	//}
+	// }
 
-	for (int i = 0; i < MAX_NUM_GUNS; i++)
-	{
+	for (int i = 0; i < MAX_NUM_GUNS; i++) {
 
-		if (i == 0)
-		{
+		if (i == 0) {
 			your_gun[i].active = 1;
 			your_gun[i].x_offset = 0;
-		}
-		else if (i == 18)
-		{
+		} else if (i == 18) {
 			your_gun[i].active = 1;
 			your_gun[i].x_offset = 2;
-		}
-		else
-		{
+		} else {
 			your_gun[i].active = 0;
 
 			your_gun[i].x_offset = 0;
 		}
 	}
 
-
 	player_list[trueplayernum].gunid = your_gun[current_gun].model_id;
 	player_list[trueplayernum].guntex = your_gun[current_gun].skin_tex_id;
 	player_list[trueplayernum].damage1 = your_gun[current_gun].damage1;
 	player_list[trueplayernum].damage2 = your_gun[current_gun].damage2;
 
-	//MakeDamageDice();
+	// MakeDamageDice();
 
-	for (int i = 0; i < MAX_MISSLE; i++)
-	{
+	for (int i = 0; i < MAX_MISSLE; i++) {
 
-		//if (your_missle[i].sexplode != 0)
-			//DSound_Delete_Sound(your_missle[i].sexplode);
+		// if (your_missle[i].sexplode != 0)
+		// DSound_Delete_Sound(your_missle[i].sexplode);
 
-		//if (your_missle[i].smove != 0)
-			//DSound_Delete_Sound(your_missle[i].smove);
+		// if (your_missle[i].smove != 0)
+		// DSound_Delete_Sound(your_missle[i].smove);
 
 		your_missle[i].model_id = 10;
 		your_missle[i].skin_tex_id = 137;
@@ -2187,8 +1995,5 @@ int load_level(char* filename)
 
 	pCWorld->LoadMod(level);
 
-
-
 	return 1;
 }
-

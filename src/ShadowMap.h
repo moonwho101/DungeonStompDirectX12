@@ -6,39 +6,37 @@
 
 #include "../Common/d3dUtil.h"
 
-class ShadowMap
-{
-public:
-	ShadowMap(ID3D12Device* device,
-		UINT width, UINT height);
-		
-	ShadowMap(const ShadowMap& rhs)=delete;
-	ShadowMap& operator=(const ShadowMap& rhs)=delete;
-	~ShadowMap()=default;
+class ShadowMap {
+  public:
+	ShadowMap(ID3D12Device *device,
+	          UINT width, UINT height);
 
-    UINT Width()const;
-    UINT Height()const;
-	ID3D12Resource* Resource();
-	CD3DX12_GPU_DESCRIPTOR_HANDLE Srv()const;
-	CD3DX12_CPU_DESCRIPTOR_HANDLE Dsv()const;
+	ShadowMap(const ShadowMap &rhs) = delete;
+	ShadowMap &operator=(const ShadowMap &rhs) = delete;
+	~ShadowMap() = default;
 
-	D3D12_VIEWPORT Viewport()const;
-	D3D12_RECT ScissorRect()const;
+	UINT Width() const;
+	UINT Height() const;
+	ID3D12Resource *Resource();
+	CD3DX12_GPU_DESCRIPTOR_HANDLE Srv() const;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE Dsv() const;
+
+	D3D12_VIEWPORT Viewport() const;
+	D3D12_RECT ScissorRect() const;
 
 	void BuildDescriptors(
-		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuSrv,
-		CD3DX12_GPU_DESCRIPTOR_HANDLE hGpuSrv,
-		CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuDsv);
+	    CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuSrv,
+	    CD3DX12_GPU_DESCRIPTOR_HANDLE hGpuSrv,
+	    CD3DX12_CPU_DESCRIPTOR_HANDLE hCpuDsv);
 
 	void OnResize(UINT newWidth, UINT newHeight);
 
-private:
+  private:
 	void BuildDescriptors();
 	void BuildResource();
 
-private:
-
-	ID3D12Device* md3dDevice = nullptr;
+  private:
+	ID3D12Device *md3dDevice = nullptr;
 
 	D3D12_VIEWPORT mViewport;
 	D3D12_RECT mScissorRect;
@@ -53,5 +51,3 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> mShadowMap = nullptr;
 };
-
- 

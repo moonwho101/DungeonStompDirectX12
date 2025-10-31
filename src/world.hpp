@@ -19,23 +19,21 @@ using namespace DirectX;
 #define DIRECTIONAL_LIGHT_SOURCE 2
 #define POINT_LIGHT_SOURCE 3
 
-#define USE_DEFAULT_MODEL_TEX	0
-#define USE_PLAYERS_SKIN		1
+#define USE_DEFAULT_MODEL_TEX 0
+#define USE_PLAYERS_SKIN 1
 
 // A structure for our custom vertex type. We added texture coordinates
-typedef struct CUSTOMVERTEXTEST
-{
+typedef struct CUSTOMVERTEXTEST {
 	XMFLOAT3 position; // The position
 	D3DCOLOR color;    // The color
-	FLOAT nx, ny, nz;   // Normals
+	FLOAT nx, ny, nz;  // Normals
 #ifndef SHOW_HOW_TO_USE_TCI
-	FLOAT tu, tv;   // The texture coordinates
+	FLOAT tu, tv; // The texture coordinates
 
 #endif
 } CUSTOMVERT;
 
-typedef struct texturemapping_typ
-{
+typedef struct texturemapping_typ {
 	float tu[4];
 	float tv[4];
 	int texture;
@@ -43,43 +41,38 @@ typedef struct texturemapping_typ
 	BOOL is_alpha_texture;
 	char material[100];
 	int normalmaptextureid = -1;
-} TEXTUREMAPPING, * texturemapping_ptr;
+} TEXTUREMAPPING, *texturemapping_ptr;
 
-typedef struct tagD3DAppMode
-{
-	int w;				   /* width */
-	int h;				   /* height */
-	int bpp;			   /* bits per pixel */
+typedef struct tagD3DAppMode {
+	int w;                 /* width */
+	int h;                 /* height */
+	int bpp;               /* bits per pixel */
 	BOOL bThisDriverCanDo; /*can current D3D driver render in this mode?*/
 } D3DAppMode;
 
-typedef struct setupinfo_typ
-{
+typedef struct setupinfo_typ {
 	D3DAppMode vmode;
 	int screen;
 	int control;
 	BOOL sound;
 
-} SETUPINFO, * setupinfo_ptr;
+} SETUPINFO, *setupinfo_ptr;
 
-typedef struct vert_typ
-{
+typedef struct vert_typ {
 	float x;
 	float y;
 	float z;
 
-} VERT, * vert_ptr;
+} VERT, *vert_ptr;
 
-typedef struct light_typ
-{
+typedef struct light_typ {
 	BYTE r;
 	BYTE g;
 	BYTE b;
 
-} LIGHT, * light_ptr;
+} LIGHT, *light_ptr;
 
-typedef struct lightsource_typ
-{
+typedef struct lightsource_typ {
 	BYTE r;
 	BYTE g;
 	BYTE b;
@@ -102,10 +95,9 @@ typedef struct lightsource_typ
 	int flickerrangedir;
 	float flickeratt;
 
-} LIGHTSOURCE, * lightsouce_ptr;
+} LIGHTSOURCE, *lightsouce_ptr;
 
-typedef struct objectlist_typ
-{
+typedef struct objectlist_typ {
 	float x;
 	float y;
 	float z;
@@ -116,13 +108,12 @@ typedef struct objectlist_typ
 	int ability;
 	char name[50];
 	int castshadow;
-	LIGHT* lit;
-	LIGHTSOURCE* light_source;
+	LIGHT *lit;
+	LIGHTSOURCE *light_source;
 
-} OBJECTLIST, * objectlist_ptr;
+} OBJECTLIST, *objectlist_ptr;
 
-typedef struct dsonline_typ
-{
+typedef struct dsonline_typ {
 	char ds_name[50];
 	char ds_numplayers[50];
 	char ds_ipaddress[50];
@@ -133,19 +124,15 @@ typedef struct dsonline_typ
 	char ds_message[255];
 	char ds_version[50];
 	char ds_game[50];
-} DSONLINE, * dsonline_ptr;
+} DSONLINE, *dsonline_ptr;
 
-
-
-typedef struct dsini_typ
-{
+typedef struct dsini_typ {
 	int x;
 	int y;
 
-} DSINI, * dsini_ptr;
+} DSINI, *dsini_ptr;
 
-typedef struct gunlist_typ
-{
+typedef struct gunlist_typ {
 	float x;
 	float y;
 	float z;
@@ -182,10 +169,9 @@ typedef struct gunlist_typ
 	bool critical;
 	bool blood;
 
-} GUNLIST, * gunlist_ptr;
+} GUNLIST, *gunlist_ptr;
 
-typedef struct player_typ
-{
+typedef struct player_typ {
 	float x;
 	float y;
 	float z;
@@ -252,18 +238,17 @@ typedef struct player_typ
 	int takedamageonce;
 	float captionheight;
 
-} PLAYER, * player_ptr;
+} PLAYER, *player_ptr;
 
-typedef struct pmdata_typ
-{
-	VERT** w;
-	VERT* t;
-	int* f;
-	int* num_vert;
-	D3DPRIMITIVETYPE* poly_cmd;
-	int* texture_list;
-	int* num_verts_per_object; // new line added by BILL
-	int* num_faces_per_object; // new line added by BILL
+typedef struct pmdata_typ {
+	VERT **w;
+	VERT *t;
+	int *f;
+	int *num_vert;
+	D3DPRIMITIVETYPE *poly_cmd;
+	int *texture_list;
+	int *num_verts_per_object; // new line added by BILL
+	int *num_faces_per_object; // new line added by BILL
 
 	int tex_alias;
 	int num_frames;
@@ -281,14 +266,13 @@ typedef struct pmdata_typ
 	float scale;
 	char name[256];
 
-} PLAYERMODELDATA, * pmdata_ptr;
+} PLAYERMODELDATA, *pmdata_ptr;
 
-typedef struct objectdata_typ
-{
+typedef struct objectdata_typ {
 
-	//watch this carefully .. ds.log
-	//v and t are vertices -
-	// everything else polygones
+	// watch this carefully .. ds.log
+	// v and t are vertices -
+	//  everything else polygones
 
 	VERT v[2900]; // 6000
 	VERT t[2900]; // 6000 //2200
@@ -307,9 +291,8 @@ typedef struct objectdata_typ
 	int damage;
 	int shadow = 0;
 
-} OBJECTDATA, * objectdata_ptr;
-typedef struct modellistdisplay
-{
+} OBJECTDATA, *objectdata_ptr;
+typedef struct modellistdisplay {
 
 	int model_id;
 	int modeltexture;
@@ -318,10 +301,9 @@ typedef struct modellistdisplay
 	char monsterweapon[80];
 	int mtype;
 
-} MODELLIST, * modellist_ptr;
+} MODELLIST, *modellist_ptr;
 
-typedef struct LevelMod
-{
+typedef struct LevelMod {
 	int num;
 	int objectid;
 	int jump;
@@ -331,10 +313,9 @@ typedef struct LevelMod
 	int active;
 	float currentheight;
 
-} LEVELMOD, * levelmod_ptr;
+} LEVELMOD, *levelmod_ptr;
 
-typedef struct SwitchMod
-{
+typedef struct SwitchMod {
 	int num;
 	int count;
 	int objectid;
@@ -345,26 +326,23 @@ typedef struct SwitchMod
 	float y;
 	float z;
 
-} SWITCHMOD, * swithcmod_ptr;
+} SWITCHMOD, *swithcmod_ptr;
 
-typedef struct DSRegistry
-{
+typedef struct DSRegistry {
 	char name[255];
 	char key[255];
 	char registered[255];
 
-} DSREGISTRY, * dsregistry_ptr;
+} DSREGISTRY, *dsregistry_ptr;
 
-typedef struct DSServerInfo
-{
+typedef struct DSServerInfo {
 	char name[255];
 	char ipaddress[255];
 	char players[255];
 
-} DSSERVERINFO, * dsserverinfo_ptr;
+} DSSERVERINFO, *dsserverinfo_ptr;
 
-typedef struct Merchant
-{
+typedef struct Merchant {
 	int object;
 	int price;
 	float qty;
@@ -373,10 +351,9 @@ typedef struct Merchant
 	int active;
 	int show;
 
-} MERCHANT, * merchant_ptr;
+} MERCHANT, *merchant_ptr;
 
-typedef struct poly_sort
-{
+typedef struct poly_sort {
 	int vert_index;
 	int srcstart;
 	int srcfstart;
@@ -388,8 +365,7 @@ typedef struct poly_sort
 
 } POLY_SORT;
 
-typedef struct camera_float
-{
+typedef struct camera_float {
 	float x;
 	float y;
 	float z;
@@ -398,71 +374,70 @@ typedef struct camera_float
 
 typedef struct _D3DVERTEX2 {
 	union {
-		D3DVALUE     x;             /* Homogeneous coordinates */
-		D3DVALUE     dvX;
+		D3DVALUE x; /* Homogeneous coordinates */
+		D3DVALUE dvX;
 	};
 	union {
-		D3DVALUE     y;
-		D3DVALUE     dvY;
+		D3DVALUE y;
+		D3DVALUE dvY;
 	};
 	union {
-		D3DVALUE     z;
-		D3DVALUE     dvZ;
+		D3DVALUE z;
+		D3DVALUE dvZ;
 	};
 	union {
-		D3DVALUE     nx;            /* Normal */
-		D3DVALUE     dvNX;
+		D3DVALUE nx; /* Normal */
+		D3DVALUE dvNX;
 	};
 	union {
-		D3DVALUE     ny;
-		D3DVALUE     dvNY;
+		D3DVALUE ny;
+		D3DVALUE dvNY;
 	};
 	union {
-		D3DVALUE     nz;
-		D3DVALUE     dvNZ;
+		D3DVALUE nz;
+		D3DVALUE dvNZ;
 	};
 	union {
-		D3DVALUE     tu;            /* Texture coordinates */
-		D3DVALUE     dvTU;
+		D3DVALUE tu; /* Texture coordinates */
+		D3DVALUE dvTU;
 	};
 	union {
-		D3DVALUE     tv;
-		D3DVALUE     dvTV;
+		D3DVALUE tv;
+		D3DVALUE dvTV;
 	};
 	union {
-		D3DVALUE     nmx;            /* Normal */
-		D3DVALUE     dvNMX;
+		D3DVALUE nmx; /* Normal */
+		D3DVALUE dvNMX;
 	};
 	union {
-		D3DVALUE     nmy;
-		D3DVALUE     dvNMY;
+		D3DVALUE nmy;
+		D3DVALUE dvNMY;
 	};
 	union {
-		D3DVALUE     nmz;
-		D3DVALUE     dvNMZ;
+		D3DVALUE nmz;
+		D3DVALUE dvNMZ;
 	};
 
 	float weight;
 	float area;
 	bool monster;
 
-} D3DVERTEX2, * LPD3DVERTEX2;
+} D3DVERTEX2, *LPD3DVERTEX2;
 
+extern PLAYERMODELDATA *pmdata;
 
-extern PLAYERMODELDATA* pmdata;
-
-extern int* verts_per_poly;
+extern int *verts_per_poly;
 extern int number_of_polys_per_frame;
-extern int* faces_per_poly;
-extern int* src_f;
+extern int *faces_per_poly;
+extern int *src_f;
 extern D3DVERTEX2 temp_v[120000]; // debug
-extern D3DVERTEX2* src_v;
-extern D3DPRIMITIVETYPE* dp_commands;
-extern BOOL* dp_command_index_mode;
-extern int* num_vert_per_object;
+extern D3DVERTEX2 *src_v;
+extern D3DPRIMITIVETYPE *dp_commands;
+extern BOOL *dp_command_index_mode;
+extern int *num_vert_per_object;
 extern float sin_table[361];
 extern float cos_table[361];
-extern int* num_vert_per_object;
+extern int *num_vert_per_object;
 extern int num_polys_per_object[500];
 extern int num_triangles_in_scene;
 extern int num_verts_in_scene;
@@ -471,34 +446,34 @@ extern int cnt;
 extern int tempvcounter;
 extern int num_light_sources;
 extern int oblist_length;
-//extern LPDIRECT3DVERTEXBUFFER9 g_pVB;
-//extern LPDIRECT3DVERTEXBUFFER9 g_pVBBoundingBox;
-//extern LPDIRECT3DVERTEXBUFFER9 g_pVBMonsterCaption;
+// extern LPDIRECT3DVERTEXBUFFER9 g_pVB;
+// extern LPDIRECT3DVERTEXBUFFER9 g_pVBBoundingBox;
+// extern LPDIRECT3DVERTEXBUFFER9 g_pVBMonsterCaption;
 
 extern float playerx;
 extern float playery;
 extern float playerz;
 extern float rotatex;
 extern float rotatey;
-extern OBJECTLIST* oblist;
+extern OBJECTLIST *oblist;
 extern TEXTUREMAPPING TexMap[MAX_NUM_TEXTURES];
 extern POLY_SORT ObjectsToDraw[MAX_NUM_QUADS];
 extern int countboundingbox;
-extern MODELLIST* model_list;
-extern GUNLIST* your_gun;
-extern PLAYER* monster_list;
-extern PLAYER* item_list;
-extern PLAYER* player_list2;
-extern PLAYER* player_list;
+extern MODELLIST *model_list;
+extern GUNLIST *your_gun;
+extern PLAYER *monster_list;
+extern PLAYER *item_list;
+extern PLAYER *player_list2;
+extern PLAYER *player_list;
 extern int num_monsters;
 extern int countmodellist;
 extern int num_your_guns;
 extern int itemlistcount;
 extern int num_players2;
-extern int* texture_list_buffer;
-extern CUSTOMVERTEXTEST* pVertices;
-extern CUSTOMVERTEXTEST* pBoundingBox;
-extern CUSTOMVERTEXTEST* pMonsterCaption;
+extern int *texture_list_buffer;
+extern CUSTOMVERTEXTEST *pVertices;
+extern CUSTOMVERTEXTEST *pBoundingBox;
+extern CUSTOMVERTEXTEST *pMonsterCaption;
 
 extern int cnt_f;
 
@@ -529,17 +504,17 @@ void DrawItems(float fElapsedTime);
 void DrawIndexedItems(int fakel, int vert_index);
 void UpdateWorld(float fElapsedTime);
 int random_num(int num);
-void PrintMessage(HWND hwnd, char* message1, char* message2, int message_mode);
-char* _itoa(int x);
+void PrintMessage(HWND hwnd, char *message1, char *message2, int message_mode);
+char *_itoa(int x);
 void InitDS();
 HRESULT AnimateCharacters();
 float FastDistance(float fx, float fy, float fz);
-int FindModelID(char* p);
-int FindGunTexture(char* p);
+int FindModelID(char *p);
+int FindGunTexture(char *p);
 float fixangle(float angle, float adjust);
 void SetMonsterAnimationSequence(int player_number, int sequence_number);
 int initDSTimer();
-void RenderText(char* p);
+void RenderText(char *p);
 void MakeBoundingBox();
 int OpenDoor(int doornum, float dist, FLOAT fTimeKey);
 void MoveMonsters(float fElapsedTime);
@@ -553,14 +528,14 @@ XMFLOAT3 RadiusDivide(XMFLOAT3 vector, XMFLOAT3 eRadius);
 void display_message(float x, float y, char text[2048], int r, int g, int b, float fontx, float fonty, int fonttype);
 void SetPlayerAnimationSequence(int player_number, int sequence_number);
 void ActivateSwitch();
-void PlayWaveFile(char* filename);
+void PlayWaveFile(char *filename);
 void GetItem();
 void PlayWavSound(int id, int volume);
-int SoundID(char* name);
+int SoundID(char *name);
 int FreeSlave();
 void CheckMidiMusic();
 int MakeDice();
-wchar_t* charToWChar(const char* text);
+wchar_t *charToWChar(const char *text);
 int GetNextFramePlayer();
 
 #endif // __WORLD_H__

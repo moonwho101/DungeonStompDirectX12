@@ -2,8 +2,7 @@
 #ifndef __DICE_H
 #define __DICE_H
 
-typedef struct diceroll
-{
+typedef struct diceroll {
 
 	char name[40];
 	char monster[50];
@@ -19,4 +18,4 @@ typedef struct diceroll
 extern diceroll dice[50];
 extern int numdice;
 extern int showsavingthrow;
-#endif 
+#endif

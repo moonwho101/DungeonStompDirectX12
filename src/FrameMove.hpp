@@ -26,7 +26,7 @@ extern float gametimerlast3;
 extern int maingameloop3;
 extern FLOAT fTimeKeysave;
 extern float playerspeed;
-//Move
+// Move
 extern int direction;
 extern int directionlast;
 extern int savelastmove;
@@ -62,4 +62,4 @@ extern XMFLOAT3 modellocation;
 extern XMFLOAT3 LookTrue;
 extern CAMERAFLOAT cameraf;
 
-#endif 
+#endif

@@ -2,9 +2,8 @@
 #include <DirectXMath.h>
 using namespace DirectX;
 
-class VECTOR
-{
-public:
+class VECTOR {
+  public:
 	float x, y, z;
 
 	VECTOR();
@@ -26,9 +25,8 @@ public:
 	VECTOR cross(VECTOR &V);
 };
 
-class PLANE
-{
-public:
+class PLANE {
+  public:
 	float equation[4];
 	VECTOR origin;
 	VECTOR normal;
@@ -40,8 +38,7 @@ public:
 	double signedDistanceTo(VECTOR point);
 };
 
-struct CollisionPacket
-{
+struct CollisionPacket {
 	VECTOR R3Position;
 	VECTOR R3Velocity;
 

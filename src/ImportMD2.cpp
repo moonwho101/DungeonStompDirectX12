@@ -5,13 +5,12 @@
 #include "world.hpp"
 #include "ImportMD2.hpp"
 
-PLAYERMODELDATA* pmdata;
-MODELLIST* model_list;
-GUNLIST* your_gun;
+PLAYERMODELDATA *pmdata;
+MODELLIST *model_list;
+GUNLIST *your_gun;
 
-BOOL ImportMD2_GLCMD(char* filename, int texture_alias,int pmodel_id, float scale)
-{
-	FILE* fp;
+BOOL ImportMD2_GLCMD(char *filename, int texture_alias, int pmodel_id, float scale) {
+	FILE *fp;
 	MD2HEADER header;
 	MD2VERTEX bverts;
 	float bscale[3];
@@ -31,12 +30,11 @@ BOOL ImportMD2_GLCMD(char* filename, int texture_alias,int pmodel_id, float scal
 	int glv_cnt;
 	int glc_cnt;
 
-	//fp = fopen(filename,"rb");
+	// fp = fopen(filename,"rb");
 
-	if (fopen_s(&fp, filename, "rb") != 0)
-	{
-		//MessageBox(hwnd, "Can't open md2", NULL, MB_OK);
-		//return FALSE;
+	if (fopen_s(&fp, filename, "rb") != 0) {
+		// MessageBox(hwnd, "Can't open md2", NULL, MB_OK);
+		// return FALSE;
 	}
 
 	// read file header into MD2HEADER structure
@@ -52,29 +50,25 @@ BOOL ImportMD2_GLCMD(char* filename, int texture_alias,int pmodel_id, float scal
 
 	fseek(fp, (UINT)header.offset_glcmds, SEEK_SET);
 
-	if (header.offset_end == header.offset_glcmds)
-	{
-		//MessageBox(hwnd, "NO GL Commands in this md2", NULL, MB_OK);
-		//PrintMessage(NULL, "ERROR : NO GL Commands in this md2", NULL, LOGFILE_ONLY);
-		//return FALSE;
+	if (header.offset_end == header.offset_glcmds) {
+		// MessageBox(hwnd, "NO GL Commands in this md2", NULL, MB_OK);
+		// PrintMessage(NULL, "ERROR : NO GL Commands in this md2", NULL, LOGFILE_ONLY);
+		// return FALSE;
 	}
 
 	glv_cnt = 0;
 	glc_cnt = 0;
 
-	while (id != 0)
-	{
+	while (id != 0) {
 		fread(&id, sizeof(int), 1, fp);
 
-		if (id != 0)
-		{
+		if (id != 0) {
 			glc[glc_cnt] = id;
 			glc_cnt++;
 
 			num_glverts_per_command = abs(id);
 
-			for (j = 0; j < num_glverts_per_command; j++)
-			{
+			for (j = 0; j < num_glverts_per_command; j++) {
 				fread(&f, sizeof(float), 1, fp);
 				glv[glv_cnt].s = f;
 				fread(&f, sizeof(float), 1, fp);
@@ -95,15 +89,15 @@ BOOL ImportMD2_GLCMD(char* filename, int texture_alias,int pmodel_id, float scal
 	_itoa_s(glv_cnt, buf, _countof(buf), 10);
 	strcat_s(buffer2, buf);
 
-	//PrintMessage(NULL, buffer, buffer2, LOGFILE_ONLY);
+	// PrintMessage(NULL, buffer, buffer2, LOGFILE_ONLY);
 
 	_itoa_s(header.num_verts, buffer, _countof(buffer), 10);
 
-	//PrintMessage(NULL, "verts = ", buffer, LOGFILE_ONLY);
+	// PrintMessage(NULL, "verts = ", buffer, LOGFILE_ONLY);
 
 	// allocate memory dynamically
 
-	pmdata[pmodel_id].w = new VERT * [header.num_frames];
+	pmdata[pmodel_id].w = new VERT *[header.num_frames];
 
 	for (i = 0; i < header.num_frames; i++)
 		pmdata[pmodel_id].w[i] = new VERT[header.num_verts];
@@ -126,17 +120,15 @@ BOOL ImportMD2_GLCMD(char* filename, int texture_alias,int pmodel_id, float scal
 
 	_itoa_s(mem, buffer, _countof(buffer), 10);
 	strcat_s(buffer, " KB\n");
-	//PrintMessage(NULL, "Memory allocated = ", buffer, LOGFILE_ONLY);
+	// PrintMessage(NULL, "Memory allocated = ", buffer, LOGFILE_ONLY);
 
 	// load GL Commands into pmdata structure
 
 	cnt = 0;
 
-	for (i = 0; i < glc_cnt; i++)
-	{
-		if (glc[i] == 0)
-		{
-			//PrintMessage(NULL, "ERROR MD2 GL COMMAND DATA", NULL, LOGFILE_ONLY);
+	for (i = 0; i < glc_cnt; i++) {
+		if (glc[i] == 0) {
+			// PrintMessage(NULL, "ERROR MD2 GL COMMAND DATA", NULL, LOGFILE_ONLY);
 			return FALSE;
 		}
 
@@ -151,8 +143,7 @@ BOOL ImportMD2_GLCMD(char* filename, int texture_alias,int pmodel_id, float scal
 		glnum_verts = abs(glc[i]);
 		pmdata[pmodel_id].num_vert[i] = glnum_verts;
 
-		for (j = 0; j < glnum_verts; j++)
-		{
+		for (j = 0; j < glnum_verts; j++) {
 			pmdata[pmodel_id].f[cnt] = glv[cnt].index;
 
 			pmdata[pmodel_id].t[cnt].x = glv[cnt].s * header.skinwidth;
@@ -166,13 +157,12 @@ BOOL ImportMD2_GLCMD(char* filename, int texture_alias,int pmodel_id, float scal
 
 	fseek(fp, (UINT)header.offset_frames, SEEK_SET);
 
-	for (frame_num = 0; frame_num < header.num_frames; frame_num++)
-	{
+	for (frame_num = 0; frame_num < header.num_frames; frame_num++) {
 		fread(bscale, sizeof(float), 3, fp);
 		fread(translate, sizeof(float), 3, fp);
 		fread(name, 1, 16, fp);
 
-		//strcpy_s(frame_list[frame_num].framename, name );
+		// strcpy_s(frame_list[frame_num].framename, name );
 
 		for (j = 0; j < header.num_verts; j++) // VERTS
 		{
@@ -186,7 +176,7 @@ BOOL ImportMD2_GLCMD(char* filename, int texture_alias,int pmodel_id, float scal
 
 	pmdata[pmodel_id].num_polys_per_frame = glc_cnt;
 	pmdata[pmodel_id].num_faces = glc_cnt;
-	pmdata[pmodel_id].num_verts = cnt; //glv_cnt; // cnt;
+	pmdata[pmodel_id].num_verts = cnt; // glv_cnt; // cnt;
 	pmdata[pmodel_id].scale = scale;
 	fclose(fp);
 

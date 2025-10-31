@@ -11,19 +11,18 @@
 
 extern int gravityon;
 int movement = 1;
-void PlayerJump(const FLOAT& fTimeKey);
-void FindDoors(const FLOAT& fTimeKey);
-void GameTimers(const FLOAT& fTimeKey);
-bool MovePlayer(const FLOAT& fTimeKey);
-void StrifePlayer(FLOAT& fTimeKey, bool addVel);
+void PlayerJump(const FLOAT &fTimeKey);
+void FindDoors(const FLOAT &fTimeKey);
+void GameTimers(const FLOAT &fTimeKey);
+bool MovePlayer(const FLOAT &fTimeKey);
+void StrifePlayer(FLOAT &fTimeKey, bool addVel);
 void PlayerAnimation();
 void CheckAngle();
 
 extern CameraBob bobY;
 int playercurrentmove = 0;
 
-HRESULT FrameMove(double fTime, FLOAT fTimeKey)
-{
+HRESULT FrameMove(double fTime, FLOAT fTimeKey) {
 	float cameradist = 50.0f;
 
 	GameTimers(fTimeKey);
@@ -55,7 +54,6 @@ HRESULT FrameMove(double fTime, FLOAT fTimeKey)
 	if (look_up_ang > 89.3f)
 		look_up_ang = 89.3f;
 
-
 	float newangle = 0;
 	newangle = fixangle(look_up_ang, 90);
 
@@ -78,13 +76,12 @@ HRESULT FrameMove(double fTime, FLOAT fTimeKey)
 	cameraf.y = LookTrue.y;
 	cameraf.z = LookTrue.z;
 
-	//GunTruesave = EyeTrue;
+	// GunTruesave = EyeTrue;
 
 	return S_OK;
 }
 
-void CheckAngle()
-{
+void CheckAngle() {
 	if (angy >= 360)
 		angy = angy - 360;
 
@@ -92,15 +89,12 @@ void CheckAngle()
 		angy += 360;
 }
 
-void PlayerJump(const FLOAT& fTimeKey)
-{
+void PlayerJump(const FLOAT &fTimeKey) {
 	XMFLOAT3 result;
 
 	if (gravityon == 1) {
-		if (jump == 1)
-		{
-			if (jumpvdir == 0)
-			{
+		if (jump == 1) {
+			if (jumpvdir == 0) {
 				jumpcount = 0.0f;
 				savevelocity.x = 0.0f;
 				savevelocity.y = (float)(400.0f) * fTimeKey;
@@ -110,15 +104,13 @@ void PlayerJump(const FLOAT& fTimeKey)
 				if (maingameloop)
 					jumpcount++;
 
-				if (jumpv.y <= 1.0f)
-				{
+				if (jumpv.y <= 1.0f) {
 					jumpv.y = 0.0f;
 				}
 			}
 		}
 
-		if (jumpstart == 1)
-		{
+		if (jumpstart == 1) {
 			lastjumptime = 0.0f;
 			jumpstart = 0;
 			cleanjumpspeed = 600.0f;
@@ -126,8 +118,7 @@ void PlayerJump(const FLOAT& fTimeKey)
 			gravityvector.y = -50.0f;
 		}
 
-		if (lastcollide == 1)
-		{
+		if (lastcollide == 1) {
 			gravitytime = gravitytime + fTimeKey;
 		}
 
@@ -156,12 +147,10 @@ void PlayerJump(const FLOAT& fTimeKey)
 		m_vEyePt.y = result.y;
 		m_vEyePt.z = result.z;
 
-		if (foundcollisiontrue == 0)
-		{
+		if (foundcollisiontrue == 0) {
 			nojumpallow = 1;
 
-			if (lastcollide == 1)
-			{
+			if (lastcollide == 1) {
 				lastjumptime = gravitytime;
 				totaldist = totaldist + savevelocity.y;
 			}
@@ -171,13 +160,10 @@ void PlayerJump(const FLOAT& fTimeKey)
 			gravityvector.y = -50.0f;
 			if (gravitydropcount == 0)
 				gravitydropcount = 1;
-		}
-		else
-		{
-			//something is under us
+		} else {
+			// something is under us
 
-			if (lastcollide == 1 && savevelocity.y <= 0)
-			{
+			if (lastcollide == 1 && savevelocity.y <= 0) {
 				if (gravitytime >= 0.4f)
 					PlayWavSound(SoundID("jump_land"), 100);
 
@@ -189,9 +175,7 @@ void PlayerJump(const FLOAT& fTimeKey)
 				jump = 0;
 
 				gravitytime = 0.0f;
-			}
-			else if (lastcollide == 1 && savevelocity.y > 0)
-			{
+			} else if (lastcollide == 1 && savevelocity.y > 0) {
 				if (gravitytime >= 0.4f)
 					PlayWavSound(SoundID("jump_land"), 100);
 
@@ -208,45 +192,35 @@ void PlayerJump(const FLOAT& fTimeKey)
 	}
 }
 
-void PlayerAnimation()
-{
+void PlayerAnimation() {
 	// 1 = forward
-	// 2 = left 
+	// 2 = left
 	// 3 = right
-	// 4 = backward  
+	// 4 = backward
 
-	if (player_list[trueplayernum].current_sequence != 2)
-	{
+	if (player_list[trueplayernum].current_sequence != 2) {
 
-		if ((playermove == 1 || playermove == 4) && movement == 0)
-		{
-			if (savelastmove != playermove && jump == 0)
-			{
+		if ((playermove == 1 || playermove == 4) && movement == 0) {
+			if (savelastmove != playermove && jump == 0) {
 				SetPlayerAnimationSequence(trueplayernum, 1);
 			}
 
 			movement = 1;
-		}
-		else if (playermove == 0 && movement == 1)
-		{
-			if (savelastmove != playermove && jump == 0)
-			{
+		} else if (playermove == 0 && movement == 1) {
+			if (savelastmove != playermove && jump == 0) {
 				SetPlayerAnimationSequence(trueplayernum, 0);
 			}
 
 			movement = 0;
 		}
 	}
-
 }
 
-void StrifePlayer(FLOAT& fTimeKey, bool addVel)
-{
+void StrifePlayer(FLOAT &fTimeKey, bool addVel) {
 	float step_left_angy = 0;
 	float r = 15.0f;
 
-	if (playermovestrife == 6)
-	{
+	if (playermovestrife == 6) {
 		step_left_angy = angy - 90;
 
 		if (step_left_angy < 0)
@@ -262,16 +236,14 @@ void StrifePlayer(FLOAT& fTimeKey, bool addVel)
 			savevelocity.x = r * sinf(step_left_angy * k) + savevelocity.x;
 			savevelocity.y = 0.0f;
 			savevelocity.z = r * cosf(step_left_angy * k) + savevelocity.z;
-		}
-		else {
+		} else {
 			savevelocity.x = r * sinf(step_left_angy * k);
 			savevelocity.y = 0.0f;
 			savevelocity.z = r * cosf(step_left_angy * k);
 		}
 	}
 
-	if (playermovestrife == 7)
-	{
+	if (playermovestrife == 7) {
 		step_left_angy = angy + 90;
 
 		if (step_left_angy < 0)
@@ -282,24 +254,20 @@ void StrifePlayer(FLOAT& fTimeKey, bool addVel)
 
 		r = (playerspeed)*fTimeKey;
 
-
 		if (addVel) {
 
 			savevelocity.x = r * sinf(step_left_angy * k) + savevelocity.x;
 			savevelocity.y = 0.0f;
 			savevelocity.z = r * cosf(step_left_angy * k) + savevelocity.z;
-		}
-		else {
+		} else {
 			savevelocity.x = r * sinf(step_left_angy * k);
 			savevelocity.y = 0.0f;
 			savevelocity.z = r * cosf(step_left_angy * k);
-
 		}
 	}
 }
 
-bool MovePlayer(const FLOAT& fTimeKey)
-{
+bool MovePlayer(const FLOAT &fTimeKey) {
 	bool addVel = false;
 
 	float r = (playerspeed)*fTimeKey;
@@ -308,30 +276,23 @@ bool MovePlayer(const FLOAT& fTimeKey)
 	savevelocity = { 0.0f, 0.0f, 0.0f };
 
 	direction = 0;
-	if (playermove == 1)
-	{
+	if (playermove == 1) {
 		direction = 1;
 		directionlast = 1;
 	}
 
-	if (playermove == 4)
-	{
+	if (playermove == 4) {
 		direction = -1;
 		directionlast = -1;
 	}
 
-	if (movespeed < playerspeedmax && directionlast != 0)
-	{
+	if (movespeed < playerspeedmax && directionlast != 0) {
 		addVel = true;
 
-		if (direction)
-		{
-			if (moveaccel * movetime >= playerspeedlevel)
-			{
+		if (direction) {
+			if (moveaccel * movetime >= playerspeedlevel) {
 				movespeed = playerspeedlevel * fTimeKey;
-			}
-			else
-			{
+			} else {
 				movetime = movetime + fTimeKey;
 				movespeed = moveaccel * (0.5f * movetime * movetime);
 				movespeedsave = movespeed;
@@ -340,35 +301,27 @@ bool MovePlayer(const FLOAT& fTimeKey)
 			}
 
 			r = movespeed;
-		}
-		else
-		{
+		} else {
 			movetime = movetime - fTimeKey;
 
-			if (movetime <= 0.0)
-			{
+			if (movetime <= 0.0) {
 				directionlast = 0;
 				movetime = 0;
 				r = 0;
-			}
-			else
-			{
+			} else {
 				movespeed = moveaccel * (0.5f * movetime * movetime);
 				movespeedsave = movespeed;
 				movespeed = movespeed - movespeedold;
 				movespeedold = movespeedsave;
-
 			}
 			r = -1 * movespeed;
 		}
-		//r = playerspeed * fTimeKey;
+		// r = playerspeed * fTimeKey;
 
 		savevelocity.x = directionlast * r * sinf(angy * k);
 		savevelocity.y = 0.0f;
 		savevelocity.z = directionlast * r * cosf(angy * k);
-	}
-	else
-	{
+	} else {
 		movespeed = 0.0f;
 		movetime = 0.0f;
 		movespeedold = 0.0f;
@@ -378,89 +331,77 @@ bool MovePlayer(const FLOAT& fTimeKey)
 	return addVel;
 }
 
-void FindDoors(const FLOAT& fTimeKey)
-{
-	//Find doors
-	for (int q = 0; q < oblist_length; q++)
-	{
-		if (strstr(oblist[q].name, "door") != NULL)
-		{
-			//door
+void FindDoors(const FLOAT &fTimeKey) {
+	// Find doors
+	for (int q = 0; q < oblist_length; q++) {
+		if (strstr(oblist[q].name, "door") != NULL) {
+			// door
 			float qdist = FastDistance(
-				m_vLookatPt.x - oblist[q].x,
-				m_vLookatPt.y - oblist[q].y,
-				m_vLookatPt.z - oblist[q].z);
+			    m_vLookatPt.x - oblist[q].x,
+			    m_vLookatPt.y - oblist[q].y,
+			    m_vLookatPt.z - oblist[q].z);
 			OpenDoor(q, qdist, fTimeKey);
 		}
 	}
 }
 
-void GameTimers(const FLOAT& fTimeKey)
-{
-    static LARGE_INTEGER frequency = { 0 };
-    static LARGE_INTEGER lastTime = { 0 };
-    static float elapsedTime = 0.0f;
-    float kAnimationSpeed = 7.0f;
+void GameTimers(const FLOAT &fTimeKey) {
+	static LARGE_INTEGER frequency = { 0 };
+	static LARGE_INTEGER lastTime = { 0 };
+	static float elapsedTime = 0.0f;
+	float kAnimationSpeed = 7.0f;
 
-    // Initialize frequency and lastTime on first call
-    if (frequency.QuadPart == 0) {
-        QueryPerformanceFrequency(&frequency);
-        QueryPerformanceCounter(&lastTime);
-    }
+	// Initialize frequency and lastTime on first call
+	if (frequency.QuadPart == 0) {
+		QueryPerformanceFrequency(&frequency);
+		QueryPerformanceCounter(&lastTime);
+	}
 
-    LARGE_INTEGER currentTime;
-    QueryPerformanceCounter(&currentTime);
+	LARGE_INTEGER currentTime;
+	QueryPerformanceCounter(&currentTime);
 
-    // Calculate elapsed time in milliseconds
-    elapsedTime = (float)((currentTime.QuadPart - lastTime.QuadPart) * 1000.0 / frequency.QuadPart);
+	// Calculate elapsed time in milliseconds
+	elapsedTime = (float)((currentTime.QuadPart - lastTime.QuadPart) * 1000.0 / frequency.QuadPart);
 
-    // To find the current t we divide the elapsed time by the ratio of 1 second / our anim speed.
-    // Since we aren't using 1 second as our t = 1, we need to divide the speed by 1000
-    // milliseconds to get our new ratio, which is a 5th of a second.
-    float t = elapsedTime / (1000.0f / kAnimationSpeed);
-    gametimerAnimation = t;
+	// To find the current t we divide the elapsed time by the ratio of 1 second / our anim speed.
+	// Since we aren't using 1 second as our t = 1, we need to divide the speed by 1000
+	// milliseconds to get our new ratio, which is a 5th of a second.
+	float t = elapsedTime / (1000.0f / kAnimationSpeed);
+	gametimerAnimation = t;
 
-    // If our elapsed time goes over a 5th of a second, we start over and go to the next key frame
-    if (elapsedTime >= (1000.0f / kAnimationSpeed))
-    {
-        // Animation Cycle
-        maingameloop3 = 1;
-        QueryPerformanceCounter(&lastTime);
-    }
-    else {
-        maingameloop3 = 0;
-    }
+	// If our elapsed time goes over a 5th of a second, we start over and go to the next key frame
+	if (elapsedTime >= (1000.0f / kAnimationSpeed)) {
+		// Animation Cycle
+		maingameloop3 = 1;
+		QueryPerformanceCounter(&lastTime);
+	} else {
+		maingameloop3 = 0;
+	}
 
-    if (maingameloop3) {
-        AnimateCharacters();
-    }
+	if (maingameloop3) {
+		AnimateCharacters();
+	}
 
-    gametimer2 = DSTimer();
+	gametimer2 = DSTimer();
 
-    if ((gametimer2 - gametimerlast2) * time_factor >= 60.0f / 1000.0f)
-    {
-        // Torch & Teleport Cycle
-        maingameloop2 = 1;
-        gametimerlast2 = DSTimer();
-    }
-    else
-    {
-        maingameloop2 = 0;
-    }
+	if ((gametimer2 - gametimerlast2) * time_factor >= 60.0f / 1000.0f) {
+		// Torch & Teleport Cycle
+		maingameloop2 = 1;
+		gametimerlast2 = DSTimer();
+	} else {
+		maingameloop2 = 0;
+	}
 
-    gametimer = DSTimer();
+	gametimer = DSTimer();
 
-    if ((gametimer - gametimerlast) * time_factor >= 40.0f / 1000)
-    {
-        // Rotation coins, keys, diamonds
-        maingameloop = 1;
-        gametimerlast = DSTimer();
-    }
-    else
-    {
-        maingameloop = 0;
-    }
+	if ((gametimer - gametimerlast) * time_factor >= 40.0f / 1000) {
+		// Rotation coins, keys, diamonds
+		maingameloop = 1;
+		gametimerlast = DSTimer();
+	} else {
+		maingameloop = 0;
+	}
 
-    fTimeKeysave = fTimeKey;
-    elapsegametimersave = fTimeKey;
+	fTimeKeysave = fTimeKey;
+	elapsegametimersave = fTimeKey;
 }

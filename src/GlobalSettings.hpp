@@ -25,5 +25,4 @@
 
 #define MaxRectangle 4
 
-
 #endif
