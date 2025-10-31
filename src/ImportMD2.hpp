@@ -81,9 +81,6 @@ typedef struct
 	VERT v[600];
 } FRAME;
 
-
-
-BOOL ImportMD2_GLCMD(char* filename, int texture_alias, int pmodel_id, float scale);
-
+BOOL ImportMD2_GLCMD(char *filename, int texture_alias, int pmodel_id, float scale);
 
 #endif //__IMPORTMD2_H

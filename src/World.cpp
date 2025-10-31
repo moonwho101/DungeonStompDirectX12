@@ -9,14 +9,14 @@
 
 int endc = 0;
 
-//TODO: fix
+// TODO: fix
 float wWidth = 1;
 float wHeight = 1;
 int num_players2 = 0;
 POLY_SORT ObjectsToDraw[MAX_NUM_QUADS];
 
-PLAYER* monster_list;
-OBJECTLIST* oblist;
+PLAYER *monster_list;
+OBJECTLIST *oblist;
 
 LONGLONG DSTimer();
 double time_factor = 0;
@@ -45,7 +45,7 @@ D3DVECTOR realEye;
 XMFLOAT3 EyeTrue;
 D3DMATRIX matView;
 
-//Move
+// Move
 int direction = 0;
 int directionlast = 0;
 int savelastmove = 0;
@@ -77,8 +77,8 @@ XMFLOAT3 modellocation;
 CAMERAFLOAT cameraf;
 extern int src_collide[MAX_NUM_QUADS];
 
-extern LEVELMOD* levelmodify;
-extern SWITCHMOD* switchmodify;
+extern LEVELMOD *levelmodify;
+extern SWITCHMOD *switchmodify;
 float fDot2last = 0;
 int playerObjectStart = 0;
 int playerGunObjectStart = 0;
@@ -105,11 +105,10 @@ extern int nojumpallow;
 int gravitydropcount = 0;
 extern int jump;
 
-void CalculateTangentBinormal(D3DVERTEX2& vertex1, D3DVERTEX2& vertex2, D3DVERTEX2& vertex3);
+void CalculateTangentBinormal(D3DVERTEX2 &vertex1, D3DVERTEX2 &vertex2, D3DVERTEX2 &vertex3);
 void DrawBoundingBox();
 
-void InitDS()
-{
+void InitDS() {
 	verts_per_poly = new int[MAX_NUM_QUADS];
 	src_v = new D3DVERTEX2[MAX_NUM_QUADS];
 	dp_commands = new D3DPRIMITIVETYPE[MAX_NUM_QUADS];
@@ -141,17 +140,15 @@ void InitDS()
 	m_vEyePt.y = 290;
 	m_vEyePt.z = 1000;
 
-	CLoadWorld* pCWorld;
+	CLoadWorld *pCWorld;
 	pCWorld = new CLoadWorld();
 
-	for (int i = 0; i < MAX_NUM_QUADS; i++)
-	{
-		//src_on[i] = 1;
+	for (int i = 0; i < MAX_NUM_QUADS; i++) {
+		// src_on[i] = 1;
 		src_collide[i] = 1;
 	}
 
-	for (int i = 0; i < 1; i++)
-	{
+	for (int i = 0; i < 1; i++) {
 		player_list[i].frags = 0;
 		player_list[i].x = 500;
 		player_list[i].y = 22;
@@ -205,8 +202,7 @@ void InitDS()
 		//		player_list[i].guntex=FindGunTexture("AXE");
 	}
 
-	for (int i = 0; i < MAX_NUM_3DS; i++)
-	{
+	for (int i = 0; i < MAX_NUM_3DS; i++) {
 		player_list2[i].frags = 0;
 		player_list2[i].dist = 500;
 		player_list2[i].x = 500;
@@ -257,8 +253,7 @@ void InitDS()
 		player_list2[i].takedamageonce = 0;
 	}
 
-	for (int i = 0; i < MAX_NUM_MONSTERS; i++)
-	{
+	for (int i = 0; i < MAX_NUM_MONSTERS; i++) {
 		monster_list[i].frags = 0;
 		monster_list[i].x = 500;
 		monster_list[i].y = 22;
@@ -308,8 +303,7 @@ void InitDS()
 		monster_list[i].closest = trueplayernum;
 	}
 
-	for (int i = 0; i < MAX_NUM_ITEMS; i++)
-	{
+	for (int i = 0; i < MAX_NUM_ITEMS; i++) {
 		item_list[i].frags = 0;
 		item_list[i].x = 500;
 		item_list[i].y = 22;
@@ -339,8 +333,7 @@ void InitDS()
 		strcpy_s(item_list[i].name, "Dungeon Stomp");
 	}
 
-	for (int i = 0; i < MAX_NUM_GUNS; i++)
-	{
+	for (int i = 0; i < MAX_NUM_GUNS; i++) {
 		your_gun[i].model_id = 0;
 		your_gun[i].current_frame = 0;
 		your_gun[i].current_sequence = 0;
@@ -355,8 +348,7 @@ void InitDS()
 		your_gun[i].damage2 = 4;
 	}
 
-	for (int i = 0; i < MAX_MISSLE; i++)
-	{
+	for (int i = 0; i < MAX_MISSLE; i++) {
 		your_missle[i].model_id = 10;
 		your_missle[i].skin_tex_id = 137;
 		your_missle[i].current_frame = 0;
@@ -375,30 +367,26 @@ void InitDS()
 	player_list[trueplayernum].damage1 = your_gun[current_gun].damage1;
 	player_list[trueplayernum].damage2 = your_gun[current_gun].damage2;
 
-	if (!pCWorld->LoadImportedModelList("modellist.dat"))
-	{
-		//PrintMessage(m_hWnd, "LoadImportedModelList failed", NULL, LOGFILE_ONLY);
-		//return FALSE;
+	if (!pCWorld->LoadImportedModelList("modellist.dat")) {
+		// PrintMessage(m_hWnd, "LoadImportedModelList failed", NULL, LOGFILE_ONLY);
+		// return FALSE;
 	}
 
-	if (!pCWorld->LoadObjectData("objects.dat"))
-	{
-		//PrintMessage(m_hWnd, "LoadObjectData failed", NULL, LOGFILE_ONLY);
-		//return FALSE;
+	if (!pCWorld->LoadObjectData("objects.dat")) {
+		// PrintMessage(m_hWnd, "LoadObjectData failed", NULL, LOGFILE_ONLY);
+		// return FALSE;
 	}
 
-	if (!pCWorld->LoadWorldMap("level1.map"))
-	{
-		//PrintMessage(m_hWnd, "LoadObjectData failed", NULL, LOGFILE_ONLY);
-		//return FALSE;
+	if (!pCWorld->LoadWorldMap("level1.map")) {
+		// PrintMessage(m_hWnd, "LoadObjectData failed", NULL, LOGFILE_ONLY);
+		// return FALSE;
 	}
 
 	pCWorld->LoadMod("level1.mod");
 	SetStartSpot();
 	float fangle = (float)90 * k;
 
-	for (int i = 0; i <= 360; i++)
-	{
+	for (int i = 0; i <= 360; i++) {
 		float fangle = (float)i * k;
 		sin_table[i] = (float)sin(fangle);
 		cos_table[i] = (float)cos(fangle);
@@ -407,7 +395,7 @@ void InitDS()
 	player_list[trueplayernum].gunid = FindModelID("AXE");
 	player_list[trueplayernum].guntex = FindGunTexture("AXE");
 
-	//GiveWeapons();
+	// GiveWeapons();
 	initDSTimer();
 
 	MakeDice();
@@ -458,38 +446,32 @@ void UpdateWorld(float fElapsedTime) {
 		CheckMidiMusic();
 	}
 
-
 	float distance = 1500.0f;
 
 	if (outside) {
 		distance = 3000.0f;
 	}
 
-
-	for (int q = 0; q < oblist_length; q++)
-	{
+	for (int q = 0; q < oblist_length; q++) {
 		float angle = oblist[q].rot_angle;
 		int ob_type = oblist[q].type;
 
-		//120 text   //6 lamp post
-		//35  monster //57 flamesnothit
-		//131 startpos /58 torch
-		//120 = text
+		// 120 text   //6 lamp post
+		// 35  monster //57 flamesnothit
+		// 131 startpos /58 torch
+		// 120 = text
 
-		//if (ob_type != 120 && ob_type != 35 && ob_type != 131 && ob_type != 6)
-		if (ob_type != 35 && ob_type != 131 && ob_type != 6 && ob_type != 120)
-		{
-			float	qdist = FastDistance(m_vEyePt.x - oblist[q].x, m_vEyePt.y - oblist[q].y, m_vEyePt.z - oblist[q].z);
+		// if (ob_type != 120 && ob_type != 35 && ob_type != 131 && ob_type != 6)
+		if (ob_type != 35 && ob_type != 131 && ob_type != 6 && ob_type != 120) {
+			float qdist = FastDistance(m_vEyePt.x - oblist[q].x, m_vEyePt.y - oblist[q].y, m_vEyePt.z - oblist[q].z);
 
 			objectcollide = 1;
 
-			if (strstr(oblist[q].name, "nohit") != NULL)
-			{
+			if (strstr(oblist[q].name, "nohit") != NULL) {
 				objectcollide = 0;
 			}
 
-			if (qdist < distance)
-			{
+			if (qdist < distance) {
 				ObjectToD3DVertList(ob_type, angle, q);
 			}
 		}
@@ -505,76 +487,65 @@ void UpdateWorld(float fElapsedTime) {
 	DrawMonsters();
 	DrawModel();
 	DrawItems(fElapsedTime);
-	
 
-	
-
-
-	//PlayerToD3DVertList(player_list[trueplayernum].model_id,
+	// PlayerToD3DVertList(player_list[trueplayernum].model_id,
 	//	player_list[trueplayernum].current_frame, angy,
 	//	player_list[trueplayernum].skin_tex_id,
 	//	0, player_list[trueplayernum].x + 200.0f, player_list[trueplayernum].y, player_list[trueplayernum].z);
 
-
 	MakeBoundingBox();
 
-	//TODO: fix this
+	// TODO: fix this
 	DirectX::XMFLOAT3 em = { 0.0f, 0.0f, 0.0f };
-	
+
 	float wx = player_list[trueplayernum].x;
 	float wy = player_list[trueplayernum].y;
 	float wz = player_list[trueplayernum].z;
 
-	FirePlayerMissle(wx,wy,wz, angy, trueplayernum, 0, em, look_up_ang, fElapsedTime);
+	FirePlayerMissle(wx, wy, wz, angy, trueplayernum, 0, em, look_up_ang, fElapsedTime);
 
 	DrawMissle(fElapsedTime);
-
 
 	playerGunObjectStart = number_of_polys_per_frame;
 	DrawPlayerGun(0);
 
-	//Draw player model
+	// Draw player model
 	int nextFrame = GetNextFramePlayer();
 
 	playerObjectStart = number_of_polys_per_frame;
 	PlayerToD3DVertList(0,
-		player_list[trueplayernum].current_frame, player_list[trueplayernum].gunangle,
-		112,
-		0, player_list[trueplayernum].x, player_list[trueplayernum].y - 55.0f, player_list[trueplayernum].z, nextFrame);
-	//playerObjectEnd = number_of_polys_per_frame;
+	                    player_list[trueplayernum].current_frame, player_list[trueplayernum].gunangle,
+	                    112,
+	                    0, player_list[trueplayernum].x, player_list[trueplayernum].y - 55.0f, player_list[trueplayernum].z, nextFrame);
+	// playerObjectEnd = number_of_polys_per_frame;
 
 	DrawPlayerGun(1);
 	playerObjectEnd = number_of_polys_per_frame;
 
 	int lsort = 0;
-	for (lsort = 0; lsort < number_of_polys_per_frame; lsort++)
-	{
+	for (lsort = 0; lsort < number_of_polys_per_frame; lsort++) {
 		int i = ObjectsToDraw[lsort].vert_index;
 		int vert_index = ObjectsToDraw[lsort].srcstart;
 		int fperpoly = ObjectsToDraw[lsort].srcfstart;
 		int face_index = ObjectsToDraw[lsort].srcfstart;
 
-		if (dp_command_index_mode[i] == 1) {  //USE_NON_INDEXED_DP
+		if (dp_command_index_mode[i] == 1) { // USE_NON_INDEXED_DP
 
-
-		}
-		else {
+		} else {
 			DrawIndexedItems(lsort, vert_index);
 		}
 	}
 
-	//DrawBoundingBox();
+	// DrawBoundingBox();
 
 	num_light_sources = 0;
-
 }
 
-void SetMonsterAnimationSequence(int player_number, int sequence_number)
-{
+void SetMonsterAnimationSequence(int player_number, int sequence_number) {
 	int model_id;
 	int start_frame;
 
-	//turned on again for mulitplayer this is a problem getting a sequence out of order
+	// turned on again for mulitplayer this is a problem getting a sequence out of order
 	if (monster_list[player_number].bIsPlayerValid == FALSE)
 		return;
 
@@ -585,11 +556,9 @@ void SetMonsterAnimationSequence(int player_number, int sequence_number)
 	monster_list[player_number].animationdir = 0;
 	start_frame = pmdata[model_id].sequence_start_frame[sequence_number];
 	monster_list[player_number].current_frame = start_frame;
-
 }
 
-void SetPlayerAnimationSequence(int player_number, int sequence_number)
-{
+void SetPlayerAnimationSequence(int player_number, int sequence_number) {
 	int model_id;
 	int start_frame;
 
@@ -605,17 +574,14 @@ void SetPlayerAnimationSequence(int player_number, int sequence_number)
 
 	start_frame = pmdata[model_id].sequence_start_frame[sequence_number];
 
-	if (start_frame == 66)
-	{
+	if (start_frame == 66) {
 		start_frame = 70;
 		player_list[player_number].animationdir = 1;
 	}
 	player_list[player_number].current_frame = start_frame;
-
 }
 
-HRESULT AnimateCharacters()
-{
+HRESULT AnimateCharacters() {
 	int i;
 	int startframe;
 	int curr_frame;
@@ -624,124 +590,94 @@ HRESULT AnimateCharacters()
 	static LONGLONG fLastTimeRun = 0;
 	static LONGLONG fLastTimeRunLast = 0;
 
-	//TODO:
+	// TODO:
 	int jump = 0;
 
-	//Only take damge from one swing
+	// Only take damge from one swing
 	if (player_list[trueplayernum].current_frame == 52) {
-		for (i = 0; i < num_monsters; i++)
-		{
+		for (i = 0; i < num_monsters; i++) {
 			monster_list[i].takedamageonce = 0;
 		}
 	}
 
-	for (int i = 0; i < 1; i++)
-	{
+	for (int i = 0; i < 1; i++) {
 
 		int mod_id = player_list[i].model_id;
 		curr_frame = player_list[i].current_frame;
 		stop_frame = pmdata[mod_id].sequence_stop_frame[player_list[i].current_sequence];
 		startframe = pmdata[mod_id].sequence_start_frame[player_list[i].current_sequence];
-		if (player_list[i].bStopAnimating == FALSE)
-		{
+		if (player_list[i].bStopAnimating == FALSE) {
 
-			//if (player_list[i].animationdir == 0)
+			// if (player_list[i].animationdir == 0)
 			//{
-				if (curr_frame >= stop_frame)
-				{
-					curr_seq = player_list[i].current_sequence;
-					
-					player_list[i].animationdir = 1;
+			if (curr_frame >= stop_frame) {
+				curr_seq = player_list[i].current_sequence;
 
-					if (player_list[i].current_frame == 71)
-					{
-						if (i == trueplayernum)
-						{
-							//current player
-							jump = 0;
+				player_list[i].animationdir = 1;
 
-							if (runflag == 1 && jump == 0)
-							{
-								SetPlayerAnimationSequence(i, 1);
-							}
-							else if (runflag == 1 && jump == 1)
-							{
-							}
-							else
-							{
+				if (player_list[i].current_frame == 71) {
+					if (i == trueplayernum) {
+						// current player
+						jump = 0;
+
+						if (runflag == 1 && jump == 0) {
+							SetPlayerAnimationSequence(i, 1);
+						} else if (runflag == 1 && jump == 1) {
+						} else {
+							SetPlayerAnimationSequence(i, 0);
+						}
+					} else {
+
+						// SetPlayerAnimationSequence(i, 0);
+					}
+				}
+
+				player_list[i].current_frame = pmdata[mod_id].sequence_start_frame[curr_seq];
+
+				if (player_list[i].current_frame == 183 || player_list[i].current_frame == 189 || player_list[i].current_frame == 197) {
+					// player is dead
+					player_list[i].bStopAnimating = TRUE;
+				}
+
+				if (i == trueplayernum && curr_seq == 1 && runflag == 1) {
+				} else {
+					if (curr_seq == 0 || curr_seq == 1 || curr_seq == 6) {
+						if (i == trueplayernum && curr_seq == 0 && jump == 0) {
+
+							// TODO:Remove
+							SetPlayerAnimationSequence(i, 0);
+
+							int raction = random_num(8);
+
+							// if (raction == 0)
+							//	SetPlayerAnimationSequence(i, 7);// flip
+							// else if (raction == 1)
+							//	SetPlayerAnimationSequence(i, 8);// Salute
+							// else if (raction == 2)
+							//	SetPlayerAnimationSequence(i, 9);// Taunt
+							// else if (raction == 3)
+							//	SetPlayerAnimationSequence(i, 10);// Wave
+							// else if (raction == 4)
+							//	SetPlayerAnimationSequence(i, 11); // Point
+							// else
+							//	SetPlayerAnimationSequence(i, 0);
+						}
+					} else {
+						if (runflag == 1 && i == trueplayernum && jump == 0) {
+							SetPlayerAnimationSequence(i, 1);
+						} else {
+							if (i == trueplayernum && jump == 1) {
+							} else {
 								SetPlayerAnimationSequence(i, 0);
-							}
-						}
-						else
-						{
-
-							//SetPlayerAnimationSequence(i, 0);
-						}
-					}
-
-					player_list[i].current_frame = pmdata[mod_id].sequence_start_frame[curr_seq];
-
-					if (player_list[i].current_frame == 183 || player_list[i].current_frame == 189 || player_list[i].current_frame == 197)
-					{
-						//player is dead
-						player_list[i].bStopAnimating = TRUE;
-					}
-
-					if (i == trueplayernum && curr_seq == 1 && runflag == 1)
-					{
-					}
-					else
-					{
-						if (curr_seq == 0 || curr_seq == 1 || curr_seq == 6)
-						{
-							if (i == trueplayernum && curr_seq == 0 && jump == 0)
-							{
-
-								//TODO:Remove
-								SetPlayerAnimationSequence(i, 0);
-
-								int raction = random_num(8);
-
-								//if (raction == 0)
-								//	SetPlayerAnimationSequence(i, 7);// flip
-								//else if (raction == 1)
-								//	SetPlayerAnimationSequence(i, 8);// Salute
-								//else if (raction == 2)
-								//	SetPlayerAnimationSequence(i, 9);// Taunt
-								//else if (raction == 3)
-								//	SetPlayerAnimationSequence(i, 10);// Wave
-								//else if (raction == 4)
-								//	SetPlayerAnimationSequence(i, 11); // Point
-								//else
-								//	SetPlayerAnimationSequence(i, 0);
-
-							}
-						}
-						else
-						{
-							if (runflag == 1 && i == trueplayernum && jump == 0)
-							{
-								SetPlayerAnimationSequence(i, 1);
-							}
-							else
-							{
-								if (i == trueplayernum && jump == 1)
-								{
-								}
-								else {
-									SetPlayerAnimationSequence(i, 0);
-								}
-
 							}
 						}
 					}
 				}
-				else
-				{
-					player_list[i].current_frame++;
-				}
+			} else {
+				player_list[i].current_frame++;
+			}
 			//}
-			//else
+			// else
 			//{
 			//	if (curr_frame <= startframe)
 			//	{
@@ -757,56 +693,41 @@ HRESULT AnimateCharacters()
 		}
 	}
 
-
-	for (i = 0; i < num_monsters; i++)
-	{
+	for (i = 0; i < num_monsters; i++) {
 		int mod_id = monster_list[i].model_id;
 		curr_frame = monster_list[i].current_frame;
 		stop_frame = pmdata[mod_id].sequence_stop_frame[monster_list[i].current_sequence];
 		startframe = pmdata[mod_id].sequence_start_frame[monster_list[i].current_sequence];
-		if (monster_list[i].bStopAnimating == FALSE)
-		{
-			if (monster_list[i].animationdir == 0)
-			{
-				if (curr_frame >= stop_frame)
-				{
+		if (monster_list[i].bStopAnimating == FALSE) {
+			if (monster_list[i].animationdir == 0) {
+				if (curr_frame >= stop_frame) {
 					curr_seq = monster_list[i].current_sequence;
 					monster_list[i].current_frame = pmdata[mod_id].sequence_stop_frame[curr_seq];
-					//monster_list[i].animationdir = 1;
+					// monster_list[i].animationdir = 1;
 
 					SetMonsterAnimationSequence(i, 0);
 
-					if (monster_list[i].current_frame == 183 || monster_list[i].current_frame == 189 || monster_list[i].current_frame == 197)
-					{
+					if (monster_list[i].current_frame == 183 || monster_list[i].current_frame == 189 || monster_list[i].current_frame == 197) {
 						monster_list[i].bStopAnimating = TRUE;
 					}
-				}
-				else
-				{
-					if (monster_list[i].current_frame != 183 || monster_list[i].current_frame != 189 || monster_list[i].current_frame != 197)
-					{
+				} else {
+					if (monster_list[i].current_frame != 183 || monster_list[i].current_frame != 189 || monster_list[i].current_frame != 197) {
 						monster_list[i].current_frame++;
 					}
 				}
-			}
-			else
-			{
-				if (curr_frame <= startframe)
-				{
+			} else {
+				if (curr_frame <= startframe) {
 					curr_seq = monster_list[i].current_sequence;
 					monster_list[i].current_frame = pmdata[mod_id].sequence_start_frame[curr_seq];
 					monster_list[i].animationdir = 0;
-				}
-				else
-				{
+				} else {
 					monster_list[i].current_frame--;
 				}
 			}
 		}
 	}
 
-	for (i = 0; i < itemlistcount; i++)
-	{
+	for (i = 0; i < itemlistcount; i++) {
 		item_list[i].current_frame++;
 
 		if (item_list[i].current_frame > 91)
@@ -816,26 +737,20 @@ HRESULT AnimateCharacters()
 	return 0;
 }
 
-float fixangle(float angle, float adjust)
-{
+float fixangle(float angle, float adjust) {
 
 	float chunka = 0;
 
-	if (adjust >= 0)
-	{
+	if (adjust >= 0) {
 		angle = angle + adjust;
-		if (angle >= 360)
-		{
+		if (angle >= 360) {
 			chunka = (float)fabs((float)angle) - 360.0f;
 			if (chunka < 0)
 				chunka = 0;
 			angle = chunka;
 		}
-	}
-	else
-	{
-		if (angle + adjust < 0)
-		{
+	} else {
+		if (angle + adjust < 0) {
 
 			chunka = adjust + angle;
 			chunka = 360.0f - (float)fabs((float)chunka);
@@ -843,26 +758,23 @@ float fixangle(float angle, float adjust)
 				chunka = 360;
 
 			angle = chunka;
-		}
-		else
+		} else
 			angle = angle + adjust;
 	}
 
 	return angle;
 }
 
-int initDSTimer()
-{
+int initDSTimer() {
 
 	LONGLONG perf_cnt;
 	LONGLONG count;
 	int a = 0;
 
-	if (QueryPerformanceFrequency((LARGE_INTEGER*)&perf_cnt))
-	{
+	if (QueryPerformanceFrequency((LARGE_INTEGER *)&perf_cnt)) {
 		// set scaling factor
 		time_factor = (double)1.0 / (double)perf_cnt;
-		QueryPerformanceCounter((LARGE_INTEGER*)&count);
+		QueryPerformanceCounter((LARGE_INTEGER *)&count);
 		gametimerlast = count;
 		gametimerlast2 = count;
 	}
@@ -870,16 +782,13 @@ int initDSTimer()
 	return 1;
 }
 
-void ComputeMissles(float fElapsedTime)
-{
+void ComputeMissles(float fElapsedTime) {
 	fDot2 = 0.0f;
 	weapondrop = 0;
 
 	fDot2 = 0.0f;
-	for (int misslecount = 0; misslecount < MAX_MISSLE; misslecount++)
-	{
-		if (your_missle[misslecount].active == 2)
-		{
+	for (int misslecount = 0; misslecount < MAX_MISSLE; misslecount++) {
+		if (your_missle[misslecount].active == 2) {
 
 			if (your_missle[misslecount].blood) {
 				your_missle[misslecount].y = your_missle[misslecount].y + (40.0f * fElapsedTime);
@@ -923,11 +832,8 @@ void ComputeMissles(float fElapsedTime)
 
 			fDot = convangle;
 
-			if (work2.z < work1.z)
-			{
-			}
-			else
-			{
+			if (work2.z < work1.z) {
+			} else {
 				fDot = 180.0f + (180.0f - fDot);
 			}
 
@@ -959,7 +865,7 @@ void ComputeMissles(float fElapsedTime)
 
 			fDot2last = fDot2;
 
-			//Show blood splatter
+			// Show blood splatter
 			int bloodmodel = 100;
 
 			if (your_missle[misslecount].critical) {
@@ -967,26 +873,21 @@ void ComputeMissles(float fElapsedTime)
 			}
 
 			PlayerToD3DVertList(bloodmodel,
-				0,
-				fixangle(fDot, 180),
-				tex,
-				USE_PLAYERS_SKIN, wx, wy, wz);
+			                    0,
+			                    fixangle(fDot, 180),
+			                    tex,
+			                    USE_PLAYERS_SKIN, wx, wy, wz);
 
 			fDot2 = 0.0f;
 
-			if (maingameloop2)
-			{
+			if (maingameloop2) {
 
 				cresult = CycleBitMap(your_missle[misslecount].skin_tex_id);
-				if (cresult != -1)
-				{
+				if (cresult != -1) {
 
-					if (cresult < tex)
-					{
+					if (cresult < tex) {
 						your_missle[misslecount].active = 0;
-					}
-					else
-					{
+					} else {
 						tex = cresult;
 						your_missle[misslecount].skin_tex_id = tex;
 					}
@@ -1000,17 +901,15 @@ void display_message(float x, float y, char text[2048], int r, int g, int b, flo
 	return;
 }
 
-
 void SmoothNormalsNoHash(int start_cnt);
 
-void DrawIndexedItems(int fakel, int vert_index)
-{
+void DrawIndexedItems(int fakel, int vert_index) {
 	D3DPRIMITIVETYPE command;
 	int face_index = 0;
 	XMFLOAT3 vw1, vw2, vw3;
 	float workx, worky, workz;
 
-	if (dp_command_index_mode[fakel] == 0) //USE_INDEXED_DP
+	if (dp_command_index_mode[fakel] == 0) // USE_INDEXED_DP
 	{
 		int dwIndexCount = ObjectsToDraw[fakel].facesperpoly * 3;
 		int dwVertexCount = ObjectsToDraw[fakel].vertsperpoly;
@@ -1024,20 +923,17 @@ void DrawIndexedItems(int fakel, int vert_index)
 		ObjectsToDraw[fakel].srcstart = cnt;
 		ObjectsToDraw[fakel].vertsperpoly = dwIndexCount;
 
-		for (int t = 0; t < (int)dwIndexCount; t++)
-		{
+		for (int t = 0; t < (int)dwIndexCount; t++) {
 			int f_index = src_f[face_index + t];
 			memset(&temp_v[t], 0, sizeof(D3DVERTEX2));
 			memcpy(&temp_v[t], &src_v[vert_index + f_index],
-				sizeof(D3DVERTEX2));
+			       sizeof(D3DVERTEX2));
 		}
 
 		int counttri = 0;
 
-		for (int t = 0; t < (int)dwIndexCount; t++)
-		{
-			if (counttri == 0)
-			{
+		for (int t = 0; t < (int)dwIndexCount; t++) {
+			if (counttri == 0) {
 
 				vw1.x = temp_v[t].x;
 				vw1.y = temp_v[t].y;
@@ -1058,7 +954,7 @@ void DrawIndexedItems(int fakel, int vert_index)
 				XMVECTOR vDiff = XMLoadFloat3(&vw1) - XMLoadFloat3(&vw2);
 				XMVECTOR vDiff2 = XMLoadFloat3(&vw3) - XMLoadFloat3(&vw2);
 
-				XMVECTOR  vCross, final;
+				XMVECTOR vCross, final;
 				vCross = XMVector3Cross(vDiff, vDiff2);
 				final = XMVector3Normalize(vCross);
 				XMFLOAT3 final2;
@@ -1076,19 +972,16 @@ void DrawIndexedItems(int fakel, int vert_index)
 			counttri++;
 			if (counttri > 2) {
 				counttri = 0;
-
 			}
 
 			temp_v[t].nx = workx;
 			temp_v[t].ny = worky;
 			temp_v[t].nz = workz;
-
 		}
 
 		int start_cnt = cnt;
 
-		for (int j = 0; j < dwIndexCount; j++)
-		{
+		for (int j = 0; j < dwIndexCount; j++) {
 			src_v[cnt].x = temp_v[j].x;
 			src_v[cnt].y = temp_v[j].y;
 			src_v[cnt].z = temp_v[j].z;
@@ -1103,20 +996,15 @@ void DrawIndexedItems(int fakel, int vert_index)
 			src_v[cnt].nmz = temp_v[j].nmz;
 
 			cnt++;
-
-			
 		}
 		SmoothNormalsNoHash(start_cnt);
 	}
 }
 
-wchar_t* charToWChar(const char* text)
-{
+wchar_t *charToWChar(const char *text) {
 	const size_t size = strlen(text) + 1;
-	wchar_t* wText = new wchar_t[size];
+	wchar_t *wText = new wchar_t[size];
 	size_t outSize;
 	mbstowcs_s(&outSize, wText, size, text, size);
 	return wText;
 }
-
-

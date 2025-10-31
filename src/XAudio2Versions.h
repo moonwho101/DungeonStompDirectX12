@@ -30,8 +30,7 @@
 #define USING_XAUDIO2_7_DIRECTX
 #endif
 
-
-int  DSound_Replicate_Sound(int id);
+int DSound_Replicate_Sound(int id);
 int DSound_Delete_Sound(int id);
 int FindSoundSlot();
 extern int musicon;
@@ -48,17 +47,17 @@ void StopWav(int id);
 #include <xaudio2fx.h>
 #include <x3daudio.h>
 #include <xapofx.h>
-#pragma comment(lib,"xaudio2.lib")
+#pragma comment(lib, "xaudio2.lib")
 #else
 #include <C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\comdecl.h>
 #include <C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\xaudio2.h>
 #include <C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\xaudio2fx.h>
 #include <C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\xapofx.h>
 #pragma warning(push)
-#pragma warning( disable : 4005 )
+#pragma warning(disable : 4005)
 #include <C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include\x3daudio.h>
 #pragma warning(pop)
-#pragma comment(lib,"x3daudio.lib")
-#pragma comment(lib,"xapofx.lib")
+#pragma comment(lib, "x3daudio.lib")
+#pragma comment(lib, "xapofx.lib")
 #endif // USING_XAUDIO2_7_DIRECTX
 #endif // USING_XAUDIO2_REDIST

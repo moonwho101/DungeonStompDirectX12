@@ -12,7 +12,7 @@
 #define MAX_NUM_3DS_FACES 10000
 #define MAX_NAME_LENGTH 256
 #define MAX_NUM_3DS_TEXTURES 200
-//#define  MAX_NUM_3DS_FRAMES		50
+// #define  MAX_NUM_3DS_FRAMES		50
 #define MAX_NUM_3DS_FRAMES 1
 #define MAX_NUM_3DS_OBJECTS 10000
 
@@ -20,26 +20,26 @@
 #define M3DS_VERSION 0x0002
 #define MESH_VERSION 0x3D3E
 
-#define EDIT3DS 0x3D3D					// level 1
-#define NAMED_OBJECT 0x4000				// level 2
-#define TRIANGLE_MESH 0x4100			// level 3
-#define TRIANGLE_VERTEXLIST 0x4110		// level 4
-#define TRIANGLE_VERTEXOPTIONS 0x4111	// level 4
-#define TRIANGLE_MAPPINGCOORS 0x4140	// level 4
+#define EDIT3DS 0x3D3D                  // level 1
+#define NAMED_OBJECT 0x4000             // level 2
+#define TRIANGLE_MESH 0x4100            // level 3
+#define TRIANGLE_VERTEXLIST 0x4110      // level 4
+#define TRIANGLE_VERTEXOPTIONS 0x4111   // level 4
+#define TRIANGLE_MAPPINGCOORS 0x4140    // level 4
 #define TRIANGLE_MAPPINGSTANDARD 0x4170 // level 4
-#define TRIANGLE_FACELIST 0x4120		// level 4
-#define TRIANGLE_SMOOTH 0x4150			// level 5
-#define TRIANGLE_MATERIAL 0x4130		// level 5
-#define TRI_LOCAL 0x4160				// level 4
-#define TRI_VISIBLE 0x4165				// level 4
+#define TRIANGLE_FACELIST 0x4120        // level 4
+#define TRIANGLE_SMOOTH 0x4150          // level 5
+#define TRIANGLE_MATERIAL 0x4130        // level 5
+#define TRI_LOCAL 0x4160                // level 4
+#define TRI_VISIBLE 0x4165              // level 4
 
 #define INT_PERCENTAGE 0x0030
 #define MASTER_SCALE 0x0100
 
 #define EDIT_MATERIAL 0xAFFF // level 2
-#define MAT_NAME01 0xA000	 // level 3
+#define MAT_NAME01 0xA000    // level 3
 
-#define TEXTURE_MAP 0xA200	// level 4?
+#define TEXTURE_MAP 0xA200  // level 4?
 #define MAPPING_NAME 0xA300 // level 5?
 
 #define MATERIAL_AMBIENT 0xA010
@@ -164,31 +164,30 @@ typedef struct
 
 } OBJECT3DS;
 
-BOOL Import3DS(char* filename, int pmodel_id, float scale);
+BOOL Import3DS(char *filename, int pmodel_id, float scale);
 
-BOOL ProcessVertexData(FILE* fp);
-BOOL ProcessFaceData(FILE* fp);
-void ProcessTriLocalData(FILE* fp);
-void ProcessTriSmoothData(FILE* fp);
-void ProcessMappingData(FILE* fp);
-void ProcessMaterialData(FILE* fp, int pmodel_id);
-void AddMaterialName(FILE* fp);
-void AddMapName(FILE* fp, int pmodel_id);
+BOOL ProcessVertexData(FILE *fp);
+BOOL ProcessFaceData(FILE *fp);
+void ProcessTriLocalData(FILE *fp);
+void ProcessTriSmoothData(FILE *fp);
+void ProcessMappingData(FILE *fp);
+void ProcessMaterialData(FILE *fp, int pmodel_id);
+void AddMaterialName(FILE *fp);
+void AddMapName(FILE *fp, int pmodel_id);
 
-void ProcessPositionTrack(FILE* fp);
-void ProcessRotationTrack(FILE* fp);
-void ProcessPivots(FILE* fp);
-void ProcessScaleTrack(FILE* fp);
+void ProcessPositionTrack(FILE *fp);
+void ProcessRotationTrack(FILE *fp);
+void ProcessPivots(FILE *fp);
+void ProcessScaleTrack(FILE *fp);
 
-void ProcessNodeHeader(FILE* fp);
-void ProcessNodeId(FILE* fp);
+void ProcessNodeHeader(FILE *fp);
+void ProcessNodeId(FILE *fp);
 
-void ProcessMasterScale(FILE* fp);
-void Process3DSVersion(FILE* fp);
+void ProcessMasterScale(FILE *fp);
+void Process3DSVersion(FILE *fp);
 
-void PrintLogFile(FILE* logfile, char* commmand);
+void PrintLogFile(FILE *logfile, char *commmand);
 void Write_pmdata_debugfile(int pmodel_id);
 void ReleaseTempMemory();
-
 
 #endif //__IMPORT3DS_H

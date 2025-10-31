@@ -6,8 +6,7 @@
 
 extern int foundcollisiontrue;
 
-bool getLowestRoot(float a, float b, float c, float maxR, float* root)
-{
+bool getLowestRoot(float a, float b, float c, float maxR, float *root) {
 	// Check if a solution exists
 	float determinant = b * b - 4.0f * a * c;
 
@@ -22,24 +21,21 @@ bool getLowestRoot(float a, float b, float c, float maxR, float* root)
 	float r2 = (-b + sqrtD) / (2 * a);
 
 	// Sort so x1 <= x2
-	if (r1 > r2)
-	{
+	if (r1 > r2) {
 		float temp = r2;
 		r2 = r1;
 		r1 = temp;
 	}
 
 	// Get lowest root:
-	if (r1 > 0 && r1 < maxR)
-	{
+	if (r1 > 0 && r1 < maxR) {
 		*root = r1;
 		return true;
 	}
 
 	// It is possible that we want x2 - this can happen
 	// if x1 < 0
-	if (r2 > 0 && r2 < maxR)
-	{
+	if (r2 > 0 && r2 < maxR) {
 		*root = r2;
 		return true;
 	}
@@ -51,8 +47,7 @@ bool getLowestRoot(float a, float b, float c, float maxR, float* root)
 typedef unsigned int uint32;
 #define in(a) ((uint32 &)a)
 
-bool checkPointInTriangle(VECTOR point, VECTOR pa, VECTOR pb, VECTOR pc)
-{
+bool checkPointInTriangle(VECTOR point, VECTOR pa, VECTOR pb, VECTOR pc) {
 	VECTOR e10 = pb - pa;
 	VECTOR e20 = pc - pa;
 
@@ -72,16 +67,14 @@ bool checkPointInTriangle(VECTOR point, VECTOR pa, VECTOR pb, VECTOR pc)
 }
 
 // Assumes: p1,p2 and p3 are given in ellisoid space:
-void checkTriangle(CollisionPacket* colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
-{
+void checkTriangle(CollisionPacket *colPackage, VECTOR p1, VECTOR p2, VECTOR p3) {
 	// Make the plane containing this triangle.
 	PLANE trianglePlane(p1, p2, p3);
 
 	// Is triangle front-facing to the velocity vector?
 	// We only check front-facing triangles
 	// (your choice of course)
-	if (trianglePlane.isFrontFacingTo(colPackage->normalizedVelocity))
-	{
+	if (trianglePlane.isFrontFacingTo(colPackage->normalizedVelocity)) {
 		// Get interval of plane intersection:
 		double t0, t1;
 		bool embeddedInPlane = false;
@@ -94,40 +87,32 @@ void checkTriangle(CollisionPacket* colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
 		float normalDotVelocity = trianglePlane.normal.dot(colPackage->velocity);
 
 		// if sphere is travelling parrallel to the plane:
-		if (normalDotVelocity == 0.0f)
-		{
-			if (fabs(signedDistToTrianglePlane) >= 1.0f)
-			{
+		if (normalDotVelocity == 0.0f) {
+			if (fabs(signedDistToTrianglePlane) >= 1.0f) {
 				// Sphere is not embedded in plane.
 				// No collision possible:
 				return;
-			}
-			else
-			{
+			} else {
 				// sphere is embedded in plane.
 				// It intersects in the whole range [0..1]
 				embeddedInPlane = true;
 				t0 = 0.0;
 				t1 = 1.0;
 			}
-		}
-		else
-		{
+		} else {
 			// N dot D is not 0. Calculate intersection interval:
 			t0 = (-1.0 - signedDistToTrianglePlane) / normalDotVelocity;
 			t1 = (1.0 - signedDistToTrianglePlane) / normalDotVelocity;
 
 			// Swap so t0 < t1
-			if (t0 > t1)
-			{
+			if (t0 > t1) {
 				double temp = t1;
 				t1 = t0;
 				t0 = temp;
 			}
 
 			// Check that at least one result is within range:
-			if (t0 > 1.0f || t1 < 0.0f)
-			{
+			if (t0 > 1.0f || t1 < 0.0f) {
 				// Both t values are outside values [0,1]
 				// No collision possible:
 				return;
@@ -157,11 +142,9 @@ void checkTriangle(CollisionPacket* colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
 		// as this is when the sphere rests on the front side
 		// of the triangle plane. Note, this can only happen if
 		// the sphere is not embedded in the triangle plane.
-		if (!embeddedInPlane)
-		{
+		if (!embeddedInPlane) {
 			VECTOR planeIntersectionPoint = (colPackage->basePoint - trianglePlane.normal) + colPackage->velocity * t0;
-			if (checkPointInTriangle(planeIntersectionPoint, p1, p2, p3))
-			{
+			if (checkPointInTriangle(planeIntersectionPoint, p1, p2, p3)) {
 				foundCollison = true;
 
 				t = t0;
@@ -175,8 +158,7 @@ void checkTriangle(CollisionPacket* colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
 		// will always happen before a vertex or edge collision!
 		// This is why we can skip the swept test if the above
 		// gives a collision!
-		if (foundCollison == false)
-		{
+		if (foundCollison == false) {
 			// some commonly used terms:
 			VECTOR velocity = colPackage->velocity;
 			VECTOR base = colPackage->basePoint;
@@ -194,8 +176,7 @@ void checkTriangle(CollisionPacket* colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
 			// P1
 			b = 2.0 * (velocity.dot(base - p1));
 			c = (p1 - base).squaredLength() - 1.0;
-			if (getLowestRoot(a, b, c, t, &newT))
-			{
+			if (getLowestRoot(a, b, c, t, &newT)) {
 				t = newT;
 				foundCollison = true;
 
@@ -205,8 +186,7 @@ void checkTriangle(CollisionPacket* colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
 			// P2
 			b = 2.0 * (velocity.dot(base - p2));
 			c = (p2 - base).squaredLength() - 1.0;
-			if (getLowestRoot(a, b, c, t, &newT))
-			{
+			if (getLowestRoot(a, b, c, t, &newT)) {
 				t = newT;
 				foundCollison = true;
 
@@ -216,8 +196,7 @@ void checkTriangle(CollisionPacket* colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
 			// P3
 			b = 2.0 * (velocity.dot(base - p3));
 			c = (p3 - base).squaredLength() - 1.0;
-			if (getLowestRoot(a, b, c, t, &newT))
-			{
+			if (getLowestRoot(a, b, c, t, &newT)) {
 				t = newT;
 				foundCollison = true;
 
@@ -238,13 +217,11 @@ void checkTriangle(CollisionPacket* colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
 			c = edgeSquaredLength * (1 - baseToVertex.squaredLength()) + edgeDotBaseToVertex * edgeDotBaseToVertex;
 
 			// Does the swept sphere collide against infinite edge?
-			if (getLowestRoot(a, b, c, t, &newT))
-			{
+			if (getLowestRoot(a, b, c, t, &newT)) {
 				// Check if intersection is within line segment:
 				float f = (edgeDotVelocity * newT - edgeDotBaseToVertex) / edgeSquaredLength;
 
-				if (f >= 0.0 && f <= 1.0)
-				{
+				if (f >= 0.0 && f <= 1.0) {
 					// intersection took place within segment.
 					t = newT;
 
@@ -262,12 +239,10 @@ void checkTriangle(CollisionPacket* colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
 			a = edgeSquaredLength * -velocitySquaredLength + edgeDotVelocity * edgeDotVelocity;
 			b = edgeSquaredLength * (2 * velocity.dot(baseToVertex)) - 2.0 * edgeDotVelocity * edgeDotBaseToVertex;
 			c = edgeSquaredLength * (1 - baseToVertex.squaredLength()) + edgeDotBaseToVertex * edgeDotBaseToVertex;
-			if (getLowestRoot(a, b, c, t, &newT))
-			{
+			if (getLowestRoot(a, b, c, t, &newT)) {
 				float f = (edgeDotVelocity * newT - edgeDotBaseToVertex) / edgeSquaredLength;
 
-				if (f >= 0.0 && f <= 1.0)
-				{
+				if (f >= 0.0 && f <= 1.0) {
 					t = newT;
 					foundCollison = true;
 
@@ -284,12 +259,10 @@ void checkTriangle(CollisionPacket* colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
 			a = edgeSquaredLength * -velocitySquaredLength + edgeDotVelocity * edgeDotVelocity;
 			b = edgeSquaredLength * (2 * velocity.dot(baseToVertex)) - 2.0 * edgeDotVelocity * edgeDotBaseToVertex;
 			c = edgeSquaredLength * (1 - baseToVertex.squaredLength()) + edgeDotBaseToVertex * edgeDotBaseToVertex;
-			if (getLowestRoot(a, b, c, t, &newT))
-			{
+			if (getLowestRoot(a, b, c, t, &newT)) {
 				float f = (edgeDotVelocity * newT - edgeDotBaseToVertex) / edgeSquaredLength;
 
-				if (f >= 0.0 && f <= 1.0)
-				{
+				if (f >= 0.0 && f <= 1.0) {
 					t = newT;
 					foundCollison = true;
 
@@ -299,14 +272,12 @@ void checkTriangle(CollisionPacket* colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
 		}
 
 		// Set result:
-		if (foundCollison == true)
-		{
+		if (foundCollison == true) {
 			// distance to collision: 't' is time of collision
 			float distToCollision = t * colPackage->velocity.length();
 			foundcollisiontrue = 1;
 			// Does this triangle qualify for the closest hit?
-			if (distToCollision < colPackage->nearestDistance)
-			{
+			if (distToCollision < colPackage->nearestDistance) {
 
 				// Collision information nessesary for sliding
 				colPackage->nearestDistance = distToCollision;
