@@ -203,6 +203,7 @@
     <ClInclude Include="Missle.hpp" />
     <ClInclude Include="ProcessModel.hpp" />
     <ClInclude Include="Dungeon.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="Ssao.h" />
     <ClInclude Include="WAVFileReader.h" />
@@ -301,6 +302,12 @@
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DungeonStomp.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
