@@ -546,66 +546,106 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture
 int tracknormal[MAX_NUM_QUADS];
 
 void SmoothNormals(int start_cnt) {
-	// Smooth the vertex normals out so the models look less blocky.
+	// Fast smoothing of vertex normals and tangents by grouping identical positions
+	// Implementation details:
+	// - Quantize positions and use an int key for hashing (faster than float hashing)
+	// - First pass: accumulate normal/tangent sums per position key
+	// - Normalize once per group
+	// - Second pass: apply results only to vertices that share a position (count > 1)
 
-	// Use a hash map to group vertices by position for O(n) performance.
-	// This avoids the O(n^2) nested loop.
-	struct Vec3Key {
-		float x, y, z;
-		bool operator==(const Vec3Key &other) const {
-			// Use a small epsilon to account for floating point inaccuracies.
-			constexpr float eps = 1e-5f;
-			return fabs(x - other.x) < eps && fabs(y - other.y) < eps && fabs(z - other.z) < eps;
+	const int total = cnt - start_cnt;
+	if (total <= 0) return;
+
+	struct KeyI {
+		int xi, yi, zi;
+	};
+	struct KeyHash {
+		std::size_t operator()(const KeyI &k) const noexcept {
+			// FNV-1a mix for 3x32-bit ints
+			uint64_t h = 1469598103934665603ull;
+			auto mix = [&](uint32_t v) {
+				h ^= v;
+				h *= 1099511628211ull;
+			};
+			mix(static_cast<uint32_t>(k.xi));
+			mix(static_cast<uint32_t>(k.yi));
+			mix(static_cast<uint32_t>(k.zi));
+			return static_cast<size_t>(h);
 		}
 	};
-	struct Vec3KeyHash {
-		std::size_t operator()(const Vec3Key &k) const {
-			// Simple hash combining
-			// Use bit_cast for better hashing if available, else stick to int cast
-			std::size_t hx = std::hash<int>()(static_cast<int>(k.x * 10000));
-			std::size_t hy = std::hash<int>()(static_cast<int>(k.y * 10000));
-			std::size_t hz = std::hash<int>()(static_cast<int>(k.z * 10000));
-			return hx ^ (hy << 1) ^ (hz << 2);
+	struct KeyEq {
+		bool operator()(const KeyI &a, const KeyI &b) const noexcept {
+			return a.xi == b.xi && a.yi == b.yi && a.zi == b.zi;
 		}
 	};
+	struct SumData {
+		XMFLOAT3 nsum; // normal sum
+		XMFLOAT3 tsum; // tangent sum
+		int count;
+	};
 
-	// Map from vertex position to indices
-	// Preallocate to avoid rehashing
-	std::unordered_map<Vec3Key, std::vector<int>, Vec3KeyHash> vertMap;
-	vertMap.reserve(static_cast<size_t>(cnt - start_cnt));
+	// Reserve with a bit of slack to reduce rehashing
+	std::unordered_map<KeyI, SumData, KeyHash, KeyEq> sums;
+	// The number of unique keys is <= total; reserve ~1.3x to reduce collisions
+	if (total > 0)
+		sums.reserve(static_cast<size_t>(total * 13ull / 10ull));
 
-	// Group indices by position
+	const float scale = 10000.0f; // quantization scale (matches previous epsilon intent)
+
+	auto makeKey = [scale](float x, float y, float z) -> KeyI {
+		// round to nearest integer after scaling to ensure stable grouping
+		int xi = static_cast<int>(floorf(x * scale + 0.5f));
+		int yi = static_cast<int>(floorf(y * scale + 0.5f));
+		int zi = static_cast<int>(floorf(z * scale + 0.5f));
+		return { xi, yi, zi };
+	};
+
+	auto normalizeSafe = [](const XMFLOAT3 &v) -> XMFLOAT3 {
+		float lsq = v.x * v.x + v.y * v.y + v.z * v.z;
+		if (lsq > 1e-20f) {
+			float inv = 1.0f / sqrtf(lsq);
+			return XMFLOAT3(v.x * inv, v.y * inv, v.z * inv);
+		}
+		return XMFLOAT3(0.0f, 0.0f, 0.0f);
+	};
+
+	// Pass 1: accumulate sums per quantized position
 	for (int i = start_cnt; i < cnt; ++i) {
-		Vec3Key key{ src_v[i].x, src_v[i].y, src_v[i].z };
-		vertMap[key].push_back(i);
+		KeyI key = makeKey(src_v[i].x, src_v[i].y, src_v[i].z);
+
+		auto it = sums.find(key);
+		if (it == sums.end()) {
+			SumData init;
+			init.nsum = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			init.tsum = XMFLOAT3(0.0f, 0.0f, 0.0f);
+			init.count = 0;
+			it = sums.emplace(key, init).first;
+		}
+
+		SumData &s = it->second;
+		s.nsum.x += src_v[i].nx; s.nsum.y += src_v[i].ny; s.nsum.z += src_v[i].nz;
+		s.tsum.x += src_v[i].nmx; s.tsum.y += src_v[i].nmy; s.tsum.z += src_v[i].nmz;
+		++s.count;
 	}
 
-	// Use local variables to avoid repeated lookups
-	for (auto &pair : vertMap) {
-		const std::vector<int> &indices = pair.second;
-		if (indices.size() > 1) {
-			XMVECTOR sum = XMVectorZero();
-			XMVECTOR sumtan = XMVectorZero();
-			for (int idx : indices) {
-				// Use pointer arithmetic to avoid repeated array lookups
-				const D3DVERTEX2 *v = &src_v[idx];
-				XMFLOAT3 n{ v->nx, v->ny, v->nz };
-				XMFLOAT3 t{ v->nmx, v->nmy, v->nmz };
-				sum = XMVectorAdd(sum, XMLoadFloat3(&n));
-				sumtan = XMVectorAdd(sumtan, XMLoadFloat3(&t));
-			}
-			XMFLOAT3 final2, finaltan;
-			XMStoreFloat3(&final2, XMVector3Normalize(sum));
-			XMStoreFloat3(&finaltan, XMVector3Normalize(sumtan));
-			for (int idx : indices) {
-				D3DVERTEX2 *v = &src_v[idx];
-				v->nx = final2.x;
-				v->ny = final2.y;
-				v->nz = final2.z;
-				v->nmx = finaltan.x;
-				v->nmy = finaltan.y;
-				v->nmz = finaltan.z;
-			}
+	// Normalize once per group (only when more than one vertex shares the position)
+	for (auto &p : sums) {
+		SumData &s = p.second;
+		if (s.count > 1) {
+			s.nsum = normalizeSafe(s.nsum);
+			s.tsum = normalizeSafe(s.tsum);
+		}
+	}
+
+	// Pass 2: write back smoothed values only for shared vertices
+	for (int i = start_cnt; i < cnt; ++i) {
+		KeyI key = makeKey(src_v[i].x, src_v[i].y, src_v[i].z);
+		auto it = sums.find(key);
+		if (it != sums.end() && it->second.count > 1) {
+			const XMFLOAT3 &n = it->second.nsum;
+			const XMFLOAT3 &t = it->second.tsum;
+			src_v[i].nx = n.x; src_v[i].ny = n.y; src_v[i].nz = n.z;
+			src_v[i].nmx = t.x; src_v[i].nmy = t.y; src_v[i].nmz = t.z;
 		}
 	}
 }
