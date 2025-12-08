@@ -26,7 +26,7 @@ Happy Dungeon Stomping - Breeyark!
 
 ## Vulkan
 
-Dungeon Stomp for Vulkan, a work in progress, is avaiable  [Dungeon Stomp Vulkan](https://github.com/moonwho101/DungeonStompVulkan).
+Dungeon Stomp for Vulkan, a work in progress, is available  [Dungeon Stomp Vulkan](https://github.com/moonwho101/DungeonStompVulkan).
 
 ## Controls
 
