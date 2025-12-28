@@ -914,7 +914,7 @@ void WakeUpMonsters() {
 						if (monsteron) {
 							monstertype[monstercount] = 1;
 							monsterobject[monstercount] = player_list2[montry].model_id;
-							monsterangle[monstercount] = (int)player_list2[montry].rot_angle;
+							monsterangle[monstercount] = player_list2[montry].rot_angle;
 							monstercull[monstercount] = oblist[q].monsterid;
 							monstercount++;
 						}
@@ -1269,7 +1269,7 @@ void MakeBoundingBox() {
 	                wy = player_list[i].y;
 	                wz = player_list[i].z;
 
-	                PlayerNonIndexedBox(0, 0, (int)player_list[i].rot_angle);
+	                PlayerNonIndexedBox(0, 0, player_list[i].rot_angle);
 	                monsterheight[cullloop] = objectheight;
 	                monsterx[cullloop] = objectx;
 	                monsterz[cullloop] = objectz;
@@ -1289,7 +1289,7 @@ void MakeBoundingBox() {
 					float wy = player_list2[i].y;
 					float wz = player_list2[i].z;
 
-					PlayerIndexedBox(monsterobject[cullloop], 0, (int)player_list2[i].rot_angle, wx, wy, wz);
+					PlayerIndexedBox(monsterobject[cullloop], 0, player_list2[i].rot_angle, wx, wy, wz);
 
 					// monsterheight[cullloop] = objectheight;
 					// monsterx[cullloop] = objectx;
