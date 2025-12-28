@@ -21,7 +21,7 @@ int monstermoveon = 1;
 int showmonstermenu = 1;
 int monstercull[1000];
 int monstertype[1000];
-int monsterangle[1000];
+float monsterangle[1000];
 int monsterobject[1000];
 int trueplayernum = 0;
 int numberofsquares = 14;
@@ -1597,7 +1597,7 @@ void PlayerNonIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, flo
 	return;
 }
 
-void PlayerIndexedBox(int pmodel_id, int curr_frame, int angle, float wx, float wy, float wz) {
+void PlayerIndexedBox(int pmodel_id, int curr_frame, float angle, float wx, float wy, float wz) {
 	int i, j;
 	int num_verts_per_poly;
 	int num_faces_per_poly;
