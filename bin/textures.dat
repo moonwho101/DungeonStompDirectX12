@@ -964,7 +964,7 @@ AddTexture  ..\textures\screen1\pb8.dds
 Alias  320   pb8           OPAQUE  WHOLE  default
 
 AddTexture  ..\textures\screen1\pb0.dds
-Alias  321   pb0           OPAQUE  WHOLE  default
+Alias  321   pb0           AlphaTransparent  WHOLE  default
 
 AddTexture  ..\textures\screen1\po1.dds
 Alias  322   po1           OPAQUE  WHOLE  default
