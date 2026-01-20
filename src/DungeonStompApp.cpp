@@ -1195,6 +1195,8 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 		NULL, NULL
 	};
 
+
+
 	mShaders["standardVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["opaquePS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
 	mShaders["opaqueSsaoPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", sasoDefines, "PS", "ps_5_1");
@@ -1391,11 +1393,11 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 		rectangleBlendStateDesc.IndependentBlendEnable = FALSE;
 		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
 
-		//if (i == MaxRectangle - 1) {
+		if (i == 4) {
 		//	// shadowmap/ssoa texture - make it not transparent
 			rectangleBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
-		//	rectanglepsoDesc.PS = rectanglePixelMapShaderBytecode;
-		//}
+		    //rectanglepsoDesc.PS = rectanglePixelMapShaderBytecode;
+		}
 
 		// if (i == MaxRectangle - 2 || i == MaxRectangle - 3) {
 		//	//make the dice not transparent
