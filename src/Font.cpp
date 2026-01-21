@@ -425,6 +425,8 @@ void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMF
 
 void DungeonStompApp::DisplayHud() {
 
+	static float hudLogoDisplayElapsed = 0.0f;
+
 	numCharacters = 0;
 
 	// RenderText(arialFont, std::wstring(L"Dungeon Stomp Direct12 by Mark Longo"), XMFLOAT2(0.01f, 0.0f), XMFLOAT2(0.30f, 0.30f));
@@ -466,10 +468,13 @@ void DungeonStompApp::DisplayHud() {
 		RenderRectangle(arialFont, 3, diceTexture, XMFLOAT2(0.75f, 0.55f), XMFLOAT2(7.00f, 7.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 	}
 
-
-	diceTexture = FindTextureAlias("pb0");
-	RenderRectangle(arialFont, 4, diceTexture, XMFLOAT2(0.36f, 0.05f), XMFLOAT2(10.00f, 10.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
-
+	// only show logo
+	if (hudLogoDisplayElapsed < 4.0f) {
+		// accumulate elapsed time using the app timer
+		hudLogoDisplayElapsed += mTimer.DeltaTime();
+		diceTexture = FindTextureAlias("pb0");
+		RenderRectangle(arialFont, 4, diceTexture, XMFLOAT2(0.36f, 0.05f), XMFLOAT2(10.00f, 10.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	}
 
 	// diceTexture = FindTextureAlias(dice[1].name);
 	// RenderRectangle(arialFont, 3, diceTexture, XMFLOAT2(0.625f, 0.9f), XMFLOAT2(1.00f, 1.00f), XMFLOAT2(0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
