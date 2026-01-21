@@ -1195,6 +1195,8 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 		NULL, NULL
 	};
 
+
+
 	mShaders["standardVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
 	mShaders["opaquePS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
 	mShaders["opaqueSsaoPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", sasoDefines, "PS", "ps_5_1");
@@ -1391,10 +1393,10 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 		rectangleBlendStateDesc.IndependentBlendEnable = FALSE;
 		rectangleBlendStateDesc.RenderTarget[0].BlendEnable = TRUE;
 
-		if (i == MaxRectangle - 1) {
-			// shadowmap/ssoa texture - make it not transparent
+		if (i == 4) {
+		//	// shadowmap/ssoa texture - make it not transparent
 			rectangleBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
-			rectanglepsoDesc.PS = rectanglePixelMapShaderBytecode;
+		    //rectanglepsoDesc.PS = rectanglePixelMapShaderBytecode;
 		}
 
 		// if (i == MaxRectangle - 2 || i == MaxRectangle - 3) {
@@ -1402,15 +1404,20 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 		//	rectangleBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
 		// }
 
+		//if (i == 4) {
+		//	// make the logo not transparent
+		//	rectangleBlendStateDesc.RenderTarget[0].BlendEnable = FALSE;
+		//}
+
 		rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 		rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
 		rectangleBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 
-		if (i == 0) {
+		//if (i == 0) {
 			rectangleBlendStateDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_COLOR;
 			rectangleBlendStateDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_COLOR;
 			rectangleBlendStateDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-		}
+		//}
 
 		rectangleBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
 		rectangleBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ONE;
