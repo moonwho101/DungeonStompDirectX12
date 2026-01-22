@@ -469,7 +469,7 @@ void DungeonStompApp::DisplayHud() {
 	}
 
 	// only show logo
-	if (hudLogoDisplayElapsed < 4.0f) {
+	if (hudLogoDisplayElapsed < 4.0f || !player_list[trueplayernum].bIsPlayerAlive) {
 		// accumulate elapsed time using the app timer
 		hudLogoDisplayElapsed += mTimer.DeltaTime();
 		diceTexture = FindTextureAlias("pb0");
