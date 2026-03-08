@@ -70,6 +70,7 @@ bool enablePlayerHUDKey = false;
 
 bool enableVRSKey = false;
 bool enableDXRShadowsKey = false;
+bool enableFullscreenKey = false;
 
 extern int playerObjectStart;
 extern int playerGunObjectStart;
@@ -203,11 +204,8 @@ bool DungeonStompApp::Initialize() {
 
 #if defined(DEBUG) || defined(_DEBUG)
 #else
-	// Maximize window and go fullscreen in release mode.
-	{
-		ShowWindow(mhMainWnd, SW_MAXIMIZE);
-		mSwapChain->SetFullscreenState(1, nullptr);
-	}
+	// Go borderless fullscreen in release mode.
+	ToggleBorderlessFullscreen();
 #endif
 
 	return true;
@@ -376,8 +374,11 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	if (enableVsync) {
 		ThrowIfFailed(mSwapChain->Present(1, 0)); // set vsync on
 	} else {
-		// DX12 Ultimate: Use DXGI_PRESENT_ALLOW_TEARING for lowest latency when VSync is off.
-		ThrowIfFailed(mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING)); // set vsync off with tearing
+		// Use DXGI_PRESENT_ALLOW_TEARING for lowest latency when VSync is off
+		// and hardware supports tearing. Borderless fullscreen is always windowed
+		// to DXGI, so tearing is valid in both windowed and fullscreen modes.
+		UINT presentFlags = mTearingSupported ? DXGI_PRESENT_ALLOW_TEARING : 0;
+		ThrowIfFailed(mSwapChain->Present(0, presentFlags));
 	}
 
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
@@ -604,6 +605,16 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer &gt) {
 		enableDXRShadowsKey = true;
 	} else {
 		enableDXRShadowsKey = false;
+	}
+
+	// Borderless fullscreen toggle (F11)
+	if (GetAsyncKeyState(VK_F11) && !enableFullscreenKey) {
+		ToggleBorderlessFullscreen();
+	}
+	if (GetAsyncKeyState(VK_F11)) {
+		enableFullscreenKey = true;
+	} else {
+		enableFullscreenKey = false;
 	}
 }
 

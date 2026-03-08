@@ -76,6 +76,7 @@ class D3DApp {
 	void CreateSwapChain();
 	void CheckDX12UltimateSupport();
 
+	void ToggleBorderlessFullscreen();
 	void FlushCommandQueue();
 
 	ID3D12Resource *CurrentBackBuffer() const;
@@ -97,7 +98,9 @@ class D3DApp {
 	bool mMinimized = false;       // is the application minimized?
 	bool mMaximized = false;       // is the application maximized?
 	bool mResizing = false;        // are the resize bars being dragged?
-	bool mFullscreenState = false; // fullscreen enabled
+	bool mFullscreenState = false; // borderless fullscreen enabled
+	WINDOWPLACEMENT mWindowedPlacement = {}; // saved window placement for restoring from fullscreen
+	bool mTearingSupported = false; // hardware supports DXGI_PRESENT_ALLOW_TEARING
 
 	// Set true to use 4X MSAA (�4.1.8).  The default is false.
 	bool m4xMsaaState = false; // 4X MSAA enabled

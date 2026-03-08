@@ -144,12 +144,9 @@ void D3DApp::OnResize() {
 	    SwapChainBufferCount,
 	    mClientWidth, mClientHeight,
 	    mBackBufferFormat,
-	    DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING));
+	    mTearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0));
 
-	BOOL fullscreenState;
-	ThrowIfFailed(mSwapChain->GetFullscreenState(&fullscreenState, nullptr));
-
-	if (fullscreenState) {
+	if (mFullscreenState) {
 		ShowCursor(FALSE);
 	}
 
@@ -330,8 +327,15 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		}
 
 		return 0;
-	}
 
+	// Handle ALT+ENTER for borderless fullscreen toggle.
+	case WM_SYSKEYDOWN:
+		if (wParam == VK_RETURN && (lParam & (1 << 29))) { // ALT key is held
+			ToggleBorderlessFullscreen();
+			return 0;
+		}
+		break;
+	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
@@ -461,6 +465,18 @@ bool D3DApp::InitDirect3D() {
 	// Detect DX12 Ultimate features.
 	CheckDX12UltimateSupport();
 
+	// Check hardware tearing support (DXGI 1.5+).
+	{
+		BOOL allowTearing = FALSE;
+		ComPtr<IDXGIFactory5> factory5;
+		if (SUCCEEDED(mdxgiFactory.As(&factory5))) {
+			if (SUCCEEDED(factory5->CheckFeatureSupport(
+			        DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing)))) {
+				mTearingSupported = (allowTearing == TRUE);
+			}
+		}
+	}
+
 #ifdef _DEBUG
 	LogAdapters();
 #endif
@@ -511,26 +527,61 @@ void D3DApp::CreateSwapChain() {
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = SwapChainBufferCount;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+	sd.Flags = mTearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
-	DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc = {};
-	fsDesc.RefreshRate.Numerator = 60;
-	fsDesc.RefreshRate.Denominator = 1;
-	fsDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	fsDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	fsDesc.Windowed = TRUE;
-
-	// Use modern CreateSwapChainForHwnd (DXGI 1.2+) and QI to IDXGISwapChain4.
+	// Use modern CreateSwapChainForHwnd (DXGI 1.2+) — no fullscreen desc
+	// since we use borderless fullscreen instead of exclusive fullscreen.
 	ComPtr<IDXGISwapChain1> swapChain1;
 	ThrowIfFailed(mdxgiFactory->CreateSwapChainForHwnd(
 	    mCommandQueue.Get(),
 	    mhMainWnd,
 	    &sd,
-	    &fsDesc,
+	    nullptr,  // no DXGI_SWAP_CHAIN_FULLSCREEN_DESC — borderless fullscreen model
 	    nullptr,
 	    swapChain1.GetAddressOf()));
 
 	ThrowIfFailed(swapChain1.As(&mSwapChain));
+
+	// Disable DXGI's built-in ALT+ENTER exclusive fullscreen toggle.
+	// We handle fullscreen ourselves via borderless window.
+	ThrowIfFailed(mdxgiFactory->MakeWindowAssociation(mhMainWnd, DXGI_MWA_NO_ALT_ENTER));
+}
+
+void D3DApp::ToggleBorderlessFullscreen() {
+	if (!mFullscreenState) {
+		// Save current window placement so we can restore later.
+		mWindowedPlacement.length = sizeof(WINDOWPLACEMENT);
+		GetWindowPlacement(mhMainWnd, &mWindowedPlacement);
+
+		// Remove window decorations and maximize to cover the full screen.
+		SetWindowLongPtr(mhMainWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+
+		HMONITOR hMon = MonitorFromWindow(mhMainWnd, MONITOR_DEFAULTTONEAREST);
+		MONITORINFO mi = {};
+		mi.cbSize = sizeof(mi);
+		GetMonitorInfo(hMon, &mi);
+
+		SetWindowPos(mhMainWnd, HWND_TOP,
+		             mi.rcMonitor.left, mi.rcMonitor.top,
+		             mi.rcMonitor.right - mi.rcMonitor.left,
+		             mi.rcMonitor.bottom - mi.rcMonitor.top,
+		             SWP_FRAMECHANGED | SWP_NOACTIVATE);
+		ShowWindow(mhMainWnd, SW_MAXIMIZE);
+		ShowCursor(FALSE);
+
+		mFullscreenState = true;
+		OutputDebugString(L"[Fullscreen] Entered borderless fullscreen.\n");
+	} else {
+		// Restore windowed mode with the original style and position.
+		SetWindowLongPtr(mhMainWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+		SetWindowPlacement(mhMainWnd, &mWindowedPlacement);
+		SetWindowPos(mhMainWnd, nullptr, 0, 0, 0, 0,
+		             SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		ShowCursor(TRUE);
+
+		mFullscreenState = false;
+		OutputDebugString(L"[Fullscreen] Returned to windowed mode.\n");
+	}
 }
 
 void D3DApp::CheckDX12UltimateSupport() {
