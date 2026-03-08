@@ -102,6 +102,12 @@
     <ClCompile Include="CameraBob.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DXRHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VRSHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameResource.h">
@@ -192,6 +198,12 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="CameraBob.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DXRHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VRSHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">

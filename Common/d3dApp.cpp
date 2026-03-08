@@ -557,6 +557,7 @@ void D3DApp::CheckDX12UltimateSupport() {
 		mUltimateFeatures.VRSTier = options6.VariableShadingRateTier;
 		mUltimateFeatures.VariableRateShadingSupported =
 		    (options6.VariableShadingRateTier != D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED);
+		mUltimateFeatures.VRSShadingRateImageTileSize = options6.ShadingRateImageTileSize;
 	}
 
 	// Check Mesh Shader and Sampler Feedback support.

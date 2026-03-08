@@ -68,6 +68,9 @@ bool enableShadowmapFeatureKey = false;
 bool enablePlayerHUD = true;
 bool enablePlayerHUDKey = false;
 
+bool enableVRSKey = false;
+bool enableDXRShadowsKey = false;
+
 extern int playerObjectStart;
 extern int playerGunObjectStart;
 extern int playerObjectEnd;
@@ -166,6 +169,10 @@ bool DungeonStompApp::Initialize() {
 	BuildFrameResources();
 	BuildPSOs();
 	mSsao->SetPSOs(mPSOs["ssao"].Get(), mPSOs["ssaoBlur"].Get());
+
+	// Initialize DX12 Ultimate features.
+	InitializeVRS();
+	InitializeDXR();
 
 	InitDS();
 
@@ -334,8 +341,25 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	auto passCB = mCurrFrameResource->PassCB->Resource();
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
+	// DX12 Ultimate: Bind the TLAS SRV for DXR inline ray queries if available.
+	if (mDXR.IsBuilt() && mEnableDXRShadows) {
+		CD3DX12_GPU_DESCRIPTOR_HANDLE tlasSrv(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		tlasSrv.Offset(mDXRTlasSrvIndex, mCbvSrvDescriptorSize);
+		mCommandList->SetGraphicsRootDescriptorTable(8, tlasSrv);
+	}
+
+	// DX12 Ultimate: Set VRS to full rate for main opaque geometry.
+	if (mEnableVRS && mVRS.IsSupported()) {
+		mVRS.SetFullRate(mCommandList.Get());
+	}
+
 	// Render the main scene
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
+
+	// DX12 Ultimate: Reset VRS to default after rendering.
+	if (mEnableVRS && mVRS.IsSupported()) {
+		mVRS.SetFullRate(mCommandList.Get());
+	}
 
 	// Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -352,7 +376,8 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	if (enableVsync) {
 		ThrowIfFailed(mSwapChain->Present(1, 0)); // set vsync on
 	} else {
-		ThrowIfFailed(mSwapChain->Present(0, 0)); // set vsync off
+		// DX12 Ultimate: Use DXGI_PRESENT_ALLOW_TEARING for lowest latency when VSync is off.
+		ThrowIfFailed(mSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING)); // set vsync off with tearing
 	}
 
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
@@ -537,6 +562,48 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer &gt) {
 		enablePlayerHUDKey = true;
 	} else {
 		enablePlayerHUDKey = false;
+	}
+
+	// DX12 Ultimate: VRS toggle ('G')
+	if (GetAsyncKeyState('T') && !enableVRSKey) {
+		if (mVRS.IsSupported()) {
+			mEnableVRS = !mEnableVRS;
+			if (mEnableVRS) {
+				strcpy_s(gActionMessage, "Variable Rate Shading Enabled");
+			} else {
+				strcpy_s(gActionMessage, "Variable Rate Shading Disabled");
+			}
+			UpdateScrollList(0, 255, 255);
+		} else {
+			strcpy_s(gActionMessage, "VRS not supported on this hardware");
+			UpdateScrollList(255, 100, 100);
+		}
+	}
+	if (GetAsyncKeyState('T')) {
+		enableVRSKey = true;
+	} else {
+		enableVRSKey = false;
+	}
+
+	// DX12 Ultimate: DXR shadow toggle ('R')
+	if (GetAsyncKeyState('R') && !enableDXRShadowsKey) {
+		if (mDXR.IsSupported()) {
+			mEnableDXRShadows = !mEnableDXRShadows;
+			if (mEnableDXRShadows) {
+				strcpy_s(gActionMessage, "DXR Ray-Traced Shadows Enabled");
+			} else {
+				strcpy_s(gActionMessage, "DXR Ray-Traced Shadows Disabled");
+			}
+			UpdateScrollList(0, 255, 255);
+		} else {
+			strcpy_s(gActionMessage, "DXR not supported on this hardware");
+			UpdateScrollList(255, 100, 100);
+		}
+	}
+	if (GetAsyncKeyState('R')) {
+		enableDXRShadowsKey = true;
+	} else {
+		enableDXRShadowsKey = false;
 	}
 }
 
@@ -900,7 +967,7 @@ void DungeonStompApp::UpdateDungeon(const GameTimer &gt) {
 
 void DungeonStompApp::BuildRootSignature() {
 
-	const int rootItems = 8;
+	const int rootItems = 9;
 
 	CD3DX12_DESCRIPTOR_RANGE texTable0;
 	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
@@ -917,6 +984,10 @@ void DungeonStompApp::BuildRootSignature() {
 	CD3DX12_DESCRIPTOR_RANGE texTable4;
 	texTable4.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5, 0);
 
+	// DX12 Ultimate: TLAS for inline ray queries (DXR shadow rays).
+	CD3DX12_DESCRIPTOR_RANGE texTable5;
+	texTable5.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 6, 0);
+
 	// Root parameter can be a table, root descriptor or root constants.
 	CD3DX12_ROOT_PARAMETER slotRootParameter[rootItems];
 
@@ -929,6 +1000,7 @@ void DungeonStompApp::BuildRootSignature() {
 	slotRootParameter[5].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL); // Texture2D    gShadowMap  : register(t2);
 	slotRootParameter[6].InitAsDescriptorTable(1, &texTable3, D3D12_SHADER_VISIBILITY_PIXEL); // TextureCube  gCubeMap    : register(t4);
 	slotRootParameter[7].InitAsDescriptorTable(1, &texTable4, D3D12_SHADER_VISIBILITY_PIXEL); // Texture2D	 gSsaoMap    : register(t5);
+	slotRootParameter[8].InitAsDescriptorTable(1, &texTable5, D3D12_SHADER_VISIBILITY_PIXEL); // RaytracingAccelerationStructure gScene : register(t6);
 
 	auto staticSamplers = GetStaticSamplers();
 
@@ -1166,6 +1238,56 @@ std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> DungeonStompApp::GetStaticSampl
 		anisotropicWrap, anisotropicClamp,
 		shadow
 	};
+}
+
+void DungeonStompApp::InitializeVRS() {
+	const auto& features = GetUltimateFeatures();
+	if (features.VariableRateShadingSupported) {
+		mVRS.Initialize(md3dDevice.Get(), features.VRSTier, features.VRSShadingRateImageTileSize);
+		mEnableVRS = true;
+		OutputDebugString(L"[DX12 Ultimate] VRS enabled.\n");
+	} else {
+		mEnableVRS = false;
+		OutputDebugString(L"[DX12 Ultimate] VRS not available on this hardware.\n");
+	}
+}
+
+void DungeonStompApp::InitializeDXR() {
+	const auto& features = GetUltimateFeatures();
+	if (features.RaytracingSupported && md3dDevice5) {
+		mDXR.Initialize(md3dDevice5.Get(), features.RaytracingTier);
+
+		// Build acceleration structures from the static land geometry (sphere mesh).
+		// The dungeon geometry is dynamic, so we use the static geometry for the BLAS.
+		if (mDXR.IsSupported() && mCommandList4) {
+			auto& landGeo = mGeometries["landGeo"];
+			if (landGeo && landGeo->VertexBufferGPU && landGeo->IndexBufferGPU) {
+				UINT vertexCount = landGeo->VertexBufferByteSize / landGeo->VertexByteStride;
+				UINT indexCount = landGeo->IndexBufferByteSize / sizeof(std::uint16_t);
+
+				mDXR.BuildAccelerationStructures(
+					mCommandList4.Get(),
+					landGeo->VertexBufferGPU.Get(),
+					vertexCount,
+					landGeo->VertexByteStride,
+					landGeo->IndexBufferGPU.Get(),
+					indexCount,
+					landGeo->IndexFormat);
+
+				// Create the TLAS SRV in the descriptor heap.
+				CD3DX12_CPU_DESCRIPTOR_HANDLE tlasCpuSrv(
+					mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+				tlasCpuSrv.Offset(mDXRTlasSrvIndex, mCbvSrvDescriptorSize);
+				mDXR.CreateTLASSrv(md3dDevice.Get(), tlasCpuSrv);
+			}
+		}
+
+		mEnableDXRShadows = false;
+		OutputDebugString(L"[DX12 Ultimate] DXR initialized - press 'R' to enable ray-traced shadows.\n");
+	} else {
+		mEnableDXRShadows = false;
+		OutputDebugString(L"[DX12 Ultimate] DXR not available on this hardware.\n");
+	}
 }
 
 void DungeonStompApp::BuildShadersAndInputLayout() {
@@ -1882,6 +2004,37 @@ void DungeonStompApp::BuildPSOs() {
 		mShaders["ssaoBlurPS"]->GetBufferSize()
 	};
 	ThrowIfFailed(md3dDevice->CreateGraphicsPipelineState(&ssaoBlurPsoDesc, IID_PPV_ARGS(&mPSOs["ssaoBlur"])));
+
+	//
+	// DX12 Ultimate: PSO for DXR inline shadow shader (SM 6.5 precompiled CSO).
+	// Only built if DXR is supported and CSO files exist.
+	//
+	if (mDXR.IsSupported()) {
+		auto dxrVS = d3dUtil::LoadBinary(L"..\\Shaders\\DXRShadowDefault_vs.cso");
+		auto dxrPS = d3dUtil::LoadBinary(L"..\\Shaders\\DXRShadowDefault_ps.cso");
+
+		if (dxrVS && dxrPS) {
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC dxrPsoDesc = opaquePsoDesc;
+			dxrPsoDesc.VS = {
+				reinterpret_cast<BYTE*>(dxrVS->GetBufferPointer()),
+				dxrVS->GetBufferSize()
+			};
+			dxrPsoDesc.PS = {
+				reinterpret_cast<BYTE*>(dxrPS->GetBufferPointer()),
+				dxrPS->GetBufferSize()
+			};
+			HRESULT hr = md3dDevice->CreateGraphicsPipelineState(&dxrPsoDesc, IID_PPV_ARGS(&mPSOs["dxrShadow"]));
+			if (SUCCEEDED(hr)) {
+				mShaders["dxrShadowVS"] = dxrVS;
+				mShaders["dxrShadowPS"] = dxrPS;
+				OutputDebugString(L"[DX12 Ultimate] DXR inline shadow PSO created.\n");
+			} else {
+				OutputDebugString(L"[DX12 Ultimate] DXR shadow PSO creation failed (SM 6.5 CSO may need recompilation).\n");
+			}
+		} else {
+			OutputDebugString(L"[DX12 Ultimate] DXR shadow CSO files not found - run Shaders\\compile.bat with DXC.\n");
+		}
+	}
 }
 
 void DungeonStompApp::BuildFrameResources() {
@@ -2002,7 +2155,11 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const 
 	}
 
 	if (enablePSO) {
-		if (enableSSao) {
+		// DX12 Ultimate: Use DXR inline shadow PSO when enabled and available.
+		bool useDXRShadow = mEnableDXRShadows && mDXR.IsBuilt() && mPSOs.count("dxrShadow");
+		if (useDXRShadow) {
+			mCommandList->SetPipelineState(mPSOs["dxrShadow"].Get());
+		} else if (enableSSao) {
 			mCommandList->SetPipelineState(mPSOs["normalMapSsao"].Get());
 		} else {
 			mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
@@ -2012,7 +2169,10 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const 
 	DrawDungeon(cmdList, ritems, false, false, true);
 
 	if (enablePSO) {
-		if (enableSSao) {
+		bool useDXRShadow = mEnableDXRShadows && mDXR.IsBuilt() && mPSOs.count("dxrShadow");
+		if (useDXRShadow) {
+			mCommandList->SetPipelineState(mPSOs["dxrShadow"].Get());
+		} else if (enableSSao) {
 			mCommandList->SetPipelineState(mPSOs["opaqueSsao"].Get());
 		} else {
 			mCommandList->SetPipelineState(mPSOs["opaque"].Get());
@@ -2024,6 +2184,10 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const 
 	if (enablePSO) {
 		mCommandList->SetPipelineState(mPSOs["transparent"].Get());
 	}
+	// DX12 Ultimate: Use reduced VRS rate for transparent effects.
+	if (mEnableVRS && mVRS.IsSupported() && enablePSO) {
+		mVRS.SetReducedRate(mCommandList.Get());
+	}
 	// Draw alpha transparent items
 	DrawDungeon(cmdList, ritems, true);
 
@@ -2034,6 +2198,10 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const 
 	DrawDungeon(cmdList, ritems, true, true);
 
 	if (enablePSO) {
+		// DX12 Ultimate: Reset VRS to full rate for UI/HUD.
+		if (mEnableVRS && mVRS.IsSupported()) {
+			mVRS.SetFullRate(mCommandList.Get());
+		}
 
 		tex.Offset(377, mCbvSrvDescriptorSize);
 		cmdList->SetGraphicsRootDescriptorTable(3, tex);
@@ -2283,10 +2451,13 @@ void DungeonStompApp::BuildDescriptorHeaps() {
 	// Create the SRV heap.
 	//
 	D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-	srvHeapDesc.NumDescriptors = MAX_NUM_TEXTURES;
+	srvHeapDesc.NumDescriptors = MAX_NUM_TEXTURES + 1; // +1 for DXR TLAS SRV
 	srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(md3dDevice->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&mSrvDescriptorHeap)));
+
+	// Reserve the last SRV slot for DXR TLAS.
+	mDXRTlasSrvIndex = MAX_NUM_TEXTURES;
 
 	//
 	// Fill out the heap with actual descriptors.

@@ -24,6 +24,7 @@ struct DX12UltimateFeatures {
 	D3D12_RAYTRACING_TIER RaytracingTier = D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
 	bool VariableRateShadingSupported = false;
 	D3D12_VARIABLE_SHADING_RATE_TIER VRSTier = D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED;
+	UINT VRSShadingRateImageTileSize = 0;
 	bool MeshShaderSupported = false;
 	D3D12_MESH_SHADER_TIER MeshShaderTier = D3D12_MESH_SHADER_TIER_NOT_SUPPORTED;
 	bool SamplerFeedbackSupported = false;

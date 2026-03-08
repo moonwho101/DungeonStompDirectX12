@@ -1,6 +1,8 @@
 #include "Font.hpp"
 #include "ShadowMap.h"
 #include "Ssao.h"
+#include "VRSHelper.h"
+#include "DXRHelper.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -111,6 +113,8 @@ class DungeonStompApp : public D3DApp {
 	void DrawNormalsAndDepth(const GameTimer &gt);
 	void UpdateShadowTransform(const GameTimer &gt, int light);
 	void CreateRtvAndDsvDescriptorHeaps();
+	void InitializeVRS();
+	void InitializeDXR();
 
 	std::array<const CD3DX12_STATIC_SAMPLER_DESC, 7> GetStaticSamplers();
 
@@ -187,6 +191,13 @@ class DungeonStompApp : public D3DApp {
 
 	std::unique_ptr<ShadowMap> mShadowMap;
 	std::unique_ptr<Ssao> mSsao;
+
+	// DX12 Ultimate feature helpers
+	VRSHelper mVRS;
+	DXRHelper mDXR;
+	bool mEnableVRS = true;       // Toggle with 'G' key
+	bool mEnableDXRShadows = false;  // Toggle with 'R' key (when DXR available)
+	UINT mDXRTlasSrvIndex = 0;    // SRV heap index for TLAS
 
 	DirectX::BoundingSphere mSceneBounds;
 

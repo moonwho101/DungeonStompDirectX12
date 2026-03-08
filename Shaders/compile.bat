@@ -41,6 +41,20 @@ if "%USE_DXC%"=="1" (
 )
 goto :eof
 
+rem DXR shaders require SM 6.5 and must use DXC.
+:CompileDXRShader
+rem %1 = source file, %2 = base name. Only compiles with DXC.
+if "%USE_DXC%"=="1" (
+	"%DXC%" -nologo -E VS -T vs_6_5 -Fo "%~dp0%~2_vs.cso" "%~dp0%~1"
+	if errorlevel 1 echo FAILED: %~1 (VS)
+	"%DXC%" -nologo -E PS -T ps_6_5 -D FOG=1 -D ALPHA_TEST=1 -Fo "%~dp0%~2_ps.cso" "%~dp0%~1"
+	if errorlevel 1 echo FAILED: %~1 (PS)
+	echo Compiled DXR shader: %~2
+) else (
+	echo SKIPPED: %~1 (requires DXC for SM 6.5 RayQuery support^)
+)
+goto :eof
+
 :main
 rem Compile the project's shaders. Adjust entry names if you change shader functions.
 call :CompileShader NormalMap.hlsl NormalMap
@@ -49,6 +63,9 @@ call :CompileShader Shadows.hlsl Shadows
 call :CompileShader DrawNormals.hlsl DrawNormals
 call :CompileShader Ssao.hlsl Ssao
 call :CompileShader SsaoBlur.hlsl SsaoBlur
+
+rem DX12 Ultimate: compile DXR inline ray tracing shadow shader (SM 6.5 only).
+call :CompileDXRShader DXRShadowDefault.hlsl DXRShadowDefault
 
 echo Done.
 endlocal

@@ -154,6 +154,8 @@
     <ClCompile Include="..\Common\GeometryGenerator.cpp" />
     <ClCompile Include="..\Common\MathHelper.cpp" />
     <ClCompile Include="CameraBob.cpp" />
+    <ClCompile Include="DXRHelper.cpp" />
+    <ClCompile Include="VRSHelper.cpp" />
     <ClCompile Include="col_response.cpp" />
     <ClCompile Include="col_step.cpp" />
     <ClCompile Include="col_types.cpp" />
@@ -186,6 +188,8 @@
     <ClInclude Include="..\Common\MathHelper.h" />
     <ClInclude Include="..\Common\UploadBuffer.h" />
     <ClInclude Include="CameraBob.hpp" />
+    <ClInclude Include="DXRHelper.h" />
+    <ClInclude Include="VRSHelper.h" />
     <ClInclude Include="col_global.h" />
     <ClInclude Include="col_local.h" />
     <ClInclude Include="DDSTextureLoader.h" />
