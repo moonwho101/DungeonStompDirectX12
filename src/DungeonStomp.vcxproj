@@ -172,6 +172,7 @@
     <ClCompile Include="ProcessModel.cpp" />
     <ClCompile Include="Dungeon.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
+    <ClCompile Include="VRSHelper.cpp" />
     <ClCompile Include="Ssao.cpp" />
     <ClCompile Include="WAVFileReader.cpp" />
     <ClCompile Include="World.cpp" />
@@ -205,6 +206,7 @@
     <ClInclude Include="Dungeon.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ShadowMap.h" />
+    <ClInclude Include="VRSHelper.h" />
     <ClInclude Include="Ssao.h" />
     <ClInclude Include="WAVFileReader.h" />
     <ClInclude Include="world.hpp" />

@@ -1,6 +1,7 @@
 #include "Font.hpp"
 #include "ShadowMap.h"
 #include "Ssao.h"
+#include "VRSHelper.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -187,6 +188,7 @@ class DungeonStompApp : public D3DApp {
 
 	std::unique_ptr<ShadowMap> mShadowMap;
 	std::unique_ptr<Ssao> mSsao;
+	VRSHelper mVRSHelper;
 
 	DirectX::BoundingSphere mSceneBounds;
 

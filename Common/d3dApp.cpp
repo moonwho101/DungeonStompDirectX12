@@ -144,12 +144,9 @@ void D3DApp::OnResize() {
 	    SwapChainBufferCount,
 	    mClientWidth, mClientHeight,
 	    mBackBufferFormat,
-	    DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+	    mTearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0));
 
-	BOOL fullscreenState;
-	ThrowIfFailed(mSwapChain->GetFullscreenState(&fullscreenState, nullptr));
-
-	if (fullscreenState) {
+	if (mBorderlessFullscreen) {
 		ShowCursor(FALSE);
 	}
 
@@ -327,9 +324,19 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		} else if ((int)wParam == VK_F2) {
 			// more work is needed
 			// Set4xMsaaState(!m4xMsaaState);
+		} else if ((int)wParam == VK_F11) {
+			ToggleBorderlessFullscreen();
 		}
 
 		return 0;
+
+	// Handle ALT+ENTER for borderless fullscreen toggle
+	case WM_SYSKEYDOWN:
+		if (wParam == VK_RETURN && (lParam & (1 << 29))) {
+			ToggleBorderlessFullscreen();
+			return 0;
+		}
+		break;
 	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -380,33 +387,49 @@ bool D3DApp::InitMainWindow() {
 }
 
 bool D3DApp::InitDirect3D() {
+	UINT dxgiFactoryFlags = 0;
+
 #if defined(DEBUG) || defined(_DEBUG)
 	// Enable the D3D12 debug layer.
 	{
 		ComPtr<ID3D12Debug> debugController;
 		ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)));
 		debugController->EnableDebugLayer();
+		dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 	}
 #endif
 
-	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&mdxgiFactory)));
+	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&mdxgiFactory)));
 
-	// Try to create hardware device.
-	HRESULT hardwareResult = D3D12CreateDevice(
-	    nullptr, // default adapter
-	    D3D_FEATURE_LEVEL_11_0,
-	    IID_PPV_ARGS(&md3dDevice));
+	// Try feature levels from highest (12_2 for DX12 Ultimate) down to 11_0.
+	const D3D_FEATURE_LEVEL featureLevels[] = {
+		D3D_FEATURE_LEVEL_12_2,
+		D3D_FEATURE_LEVEL_12_1,
+		D3D_FEATURE_LEVEL_12_0,
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_0
+	};
+
+	ComPtr<ID3D12Device> baseDevice;
+	HRESULT hardwareResult = E_FAIL;
+	for (auto fl : featureLevels) {
+		hardwareResult = D3D12CreateDevice(nullptr, fl, IID_PPV_ARGS(&baseDevice));
+		if (SUCCEEDED(hardwareResult)) {
+			mFeatureLevel = fl;
+			break;
+		}
+	}
 
 	// Fallback to WARP device.
 	if (FAILED(hardwareResult)) {
 		ComPtr<IDXGIAdapter> pWarpAdapter;
 		ThrowIfFailed(mdxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)));
-
-		ThrowIfFailed(D3D12CreateDevice(
-		    pWarpAdapter.Get(),
-		    D3D_FEATURE_LEVEL_11_0,
-		    IID_PPV_ARGS(&md3dDevice)));
+		ThrowIfFailed(D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&baseDevice)));
+		mFeatureLevel = D3D_FEATURE_LEVEL_11_0;
 	}
+
+	// Query ID3D12Device5 (required for DXR Tier 1.1, VRS)
+	ThrowIfFailed(baseDevice.As(&md3dDevice));
 
 	ThrowIfFailed(md3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE,
 	                                      IID_PPV_ARGS(&mFence)));
@@ -416,9 +439,6 @@ bool D3DApp::InitDirect3D() {
 	mCbvSrvUavDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	// Check 4X MSAA quality support for our back buffer format.
-	// All Direct3D 11 capable devices support 4X MSAA for all render
-	// target formats, so we only need to check quality support.
-
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
 	msQualityLevels.Format = mBackBufferFormat;
 	msQualityLevels.SampleCount = 4;
@@ -432,6 +452,12 @@ bool D3DApp::InitDirect3D() {
 	m4xMsaaQuality = msQualityLevels.NumQualityLevels;
 	assert(m4xMsaaQuality > 0 && "Unexpected MSAA quality level.");
 
+	// Check DX12 Ultimate features (VRS, DXR, Mesh Shaders, etc.)
+	CheckDX12UltimateFeatures();
+
+	// Check tearing support
+	mTearingSupported = CheckTearingSupport();
+
 #ifdef _DEBUG
 	LogAdapters();
 #endif
@@ -441,6 +467,110 @@ bool D3DApp::InitDirect3D() {
 	CreateRtvAndDsvDescriptorHeaps();
 
 	return true;
+}
+
+void D3DApp::CheckDX12UltimateFeatures() {
+	// DXR & VRS (Options5)
+	D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5 = {};
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)))) {
+		mDX12UltimateFeatures.RaytracingTier = options5.RaytracingTier;
+		mDX12UltimateFeatures.RaytracingSupported = (options5.RaytracingTier >= D3D12_RAYTRACING_TIER_1_0);
+	}
+
+	// VRS (Options6)
+	D3D12_FEATURE_DATA_D3D12_OPTIONS6 options6 = {};
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS6, &options6, sizeof(options6)))) {
+		mDX12UltimateFeatures.VRSTier = options6.VariableShadingRateTier;
+		mDX12UltimateFeatures.VariableRateShadingSupported = (options6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_1);
+	}
+
+	// Mesh Shaders & Sampler Feedback (Options7)
+	D3D12_FEATURE_DATA_D3D12_OPTIONS7 options7 = {};
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS7, &options7, sizeof(options7)))) {
+		mDX12UltimateFeatures.MeshShaderTier = options7.MeshShaderTier;
+		mDX12UltimateFeatures.MeshShaderSupported = (options7.MeshShaderTier >= D3D12_MESH_SHADER_TIER_1);
+		mDX12UltimateFeatures.SamplerFeedbackTier = options7.SamplerFeedbackTier;
+		mDX12UltimateFeatures.SamplerFeedbackSupported = (options7.SamplerFeedbackTier >= D3D12_SAMPLER_FEEDBACK_TIER_0_9);
+	}
+
+	// Enhanced Barriers (Options12)
+	D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12 = {};
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12)))) {
+		mDX12UltimateFeatures.EnhancedBarriersSupported = options12.EnhancedBarriersSupported;
+		mDX12UltimateFeatures.RelaxedFormatCastingSupported = options12.RelaxedFormatCastingSupported;
+	}
+
+	// Root Signature version
+	D3D12_FEATURE_DATA_ROOT_SIGNATURE rootSigFeature = {};
+	rootSigFeature.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &rootSigFeature, sizeof(rootSigFeature)))) {
+		mDX12UltimateFeatures.HighestRootSignatureVersion = rootSigFeature.HighestVersion;
+	} else {
+		mDX12UltimateFeatures.HighestRootSignatureVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+	}
+
+	// Log detected features
+	OutputDebugStringA("=== DX12 Ultimate Feature Detection ===\n");
+
+	wstring flStr;
+	switch (mFeatureLevel) {
+	case D3D_FEATURE_LEVEL_12_2: flStr = L"12_2"; break;
+	case D3D_FEATURE_LEVEL_12_1: flStr = L"12_1"; break;
+	case D3D_FEATURE_LEVEL_12_0: flStr = L"12_0"; break;
+	case D3D_FEATURE_LEVEL_11_1: flStr = L"11_1"; break;
+	default: flStr = L"11_0"; break;
+	}
+	OutputDebugString((L"Feature Level: " + flStr + L"\n").c_str());
+
+	OutputDebugStringA(mDX12UltimateFeatures.RaytracingSupported ? "DXR: Supported\n" : "DXR: Not supported\n");
+	OutputDebugStringA(mDX12UltimateFeatures.VariableRateShadingSupported ? "VRS: Supported\n" : "VRS: Not supported\n");
+	OutputDebugStringA(mDX12UltimateFeatures.MeshShaderSupported ? "Mesh Shaders: Supported\n" : "Mesh Shaders: Not supported\n");
+	OutputDebugStringA(mDX12UltimateFeatures.SamplerFeedbackSupported ? "Sampler Feedback: Supported\n" : "Sampler Feedback: Not supported\n");
+	OutputDebugStringA(mDX12UltimateFeatures.EnhancedBarriersSupported ? "Enhanced Barriers: Supported\n" : "Enhanced Barriers: Not supported\n");
+	OutputDebugStringA(mTearingSupported ? "Tearing: Supported\n" : "Tearing: Not supported\n");
+	OutputDebugStringA("========================================\n");
+}
+
+bool D3DApp::CheckTearingSupport() {
+	ComPtr<IDXGIFactory5> factory5;
+	if (SUCCEEDED(mdxgiFactory.As(&factory5))) {
+		BOOL allowTearing = FALSE;
+		if (SUCCEEDED(factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing)))) {
+			return allowTearing == TRUE;
+		}
+	}
+	return false;
+}
+
+void D3DApp::ToggleBorderlessFullscreen() {
+	if (!mBorderlessFullscreen) {
+		// Save current window placement
+		GetWindowPlacement(mhMainWnd, &mWindowPlacement);
+
+		// Get the monitor info for the monitor the window is on
+		HMONITOR hMon = MonitorFromWindow(mhMainWnd, MONITOR_DEFAULTTOPRIMARY);
+		MONITORINFO mi = { sizeof(mi) };
+		GetMonitorInfo(hMon, &mi);
+
+		// Switch to borderless fullscreen
+		SetWindowLongPtr(mhMainWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+		SetWindowPos(mhMainWnd, HWND_TOP,
+		             mi.rcMonitor.left, mi.rcMonitor.top,
+		             mi.rcMonitor.right - mi.rcMonitor.left,
+		             mi.rcMonitor.bottom - mi.rcMonitor.top,
+		             SWP_FRAMECHANGED | SWP_NOACTIVATE);
+		ShowWindow(mhMainWnd, SW_MAXIMIZE);
+		ShowCursor(FALSE);
+		mBorderlessFullscreen = true;
+	} else {
+		// Restore window style
+		SetWindowLongPtr(mhMainWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+		SetWindowPlacement(mhMainWnd, &mWindowPlacement);
+		SetWindowPos(mhMainWnd, nullptr, 0, 0, 0, 0,
+		             SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+		ShowCursor(TRUE);
+		mBorderlessFullscreen = false;
+	}
 }
 
 void D3DApp::CreateCommandObjects() {
@@ -453,12 +583,15 @@ void D3DApp::CreateCommandObjects() {
 	    D3D12_COMMAND_LIST_TYPE_DIRECT,
 	    IID_PPV_ARGS(mDirectCmdListAlloc.GetAddressOf())));
 
+	// Create command list as ID3D12GraphicsCommandList5 for DX12 Ultimate (VRS, DXR).
+	ComPtr<ID3D12GraphicsCommandList> baseCmdList;
 	ThrowIfFailed(md3dDevice->CreateCommandList(
 	    0,
 	    D3D12_COMMAND_LIST_TYPE_DIRECT,
-	    mDirectCmdListAlloc.Get(), // Associated command allocator
-	    nullptr,                   // Initial PipelineStateObject
-	    IID_PPV_ARGS(mCommandList.GetAddressOf())));
+	    mDirectCmdListAlloc.Get(),
+	    nullptr,
+	    IID_PPV_ARGS(baseCmdList.GetAddressOf())));
+	ThrowIfFailed(baseCmdList.As(&mCommandList));
 
 	// Start off in a closed state.  This is because the first time we refer
 	// to the command list we will Reset it, and it needs to be closed before
@@ -470,28 +603,34 @@ void D3DApp::CreateSwapChain() {
 	// Release the previous swapchain we will be recreating.
 	mSwapChain.Reset();
 
-	DXGI_SWAP_CHAIN_DESC sd;
-	sd.BufferDesc.Width = mClientWidth;
-	sd.BufferDesc.Height = mClientHeight;
-	sd.BufferDesc.RefreshRate.Numerator = 60;
-	sd.BufferDesc.RefreshRate.Denominator = 1;
-	sd.BufferDesc.Format = mBackBufferFormat;
-	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	sd.SampleDesc.Count = m4xMsaaState ? 4 : 1;
-	sd.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+	// Use modern CreateSwapChainForHwnd (DXGI 1.2+)
+	DXGI_SWAP_CHAIN_DESC1 sd = {};
+	sd.Width = mClientWidth;
+	sd.Height = mClientHeight;
+	sd.Format = mBackBufferFormat;
+	sd.Stereo = FALSE;
+	sd.SampleDesc.Count = 1; // flip model requires count=1
+	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = SwapChainBufferCount;
-	sd.OutputWindow = mhMainWnd;
-	sd.Windowed = true;
+	sd.Scaling = DXGI_SCALING_STRETCH;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+	sd.Flags = mTearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
 
-	// Note: Swap chain uses queue to perform flush.
-	ThrowIfFailed(mdxgiFactory->CreateSwapChain(
+	ComPtr<IDXGISwapChain1> swapChain1;
+	ThrowIfFailed(mdxgiFactory->CreateSwapChainForHwnd(
 	    mCommandQueue.Get(),
+	    mhMainWnd,
 	    &sd,
-	    mSwapChain.GetAddressOf()));
+	    nullptr, // no fullscreen desc (borderless approach)
+	    nullptr,
+	    swapChain1.GetAddressOf()));
+
+	// Disable DXGI's built-in ALT+ENTER handling; we use borderless fullscreen instead.
+	ThrowIfFailed(mdxgiFactory->MakeWindowAssociation(mhMainWnd, DXGI_MWA_NO_ALT_ENTER));
+
+	ThrowIfFailed(swapChain1.As(&mSwapChain));
 }
 
 void D3DApp::FlushCommandQueue() {

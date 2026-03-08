@@ -16,6 +16,7 @@
 #include "DungeonStomp.hpp"
 #include "Ssao.h"
 #include "CameraBob.hpp"
+#include "VRSHelper.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -64,6 +65,9 @@ bool enableNormalmapKey = false;
 
 bool enableShadowmapFeature = true;
 bool enableShadowmapFeatureKey = false;
+
+bool enableVRS = false;
+bool enableVRSKey = false;
 
 bool enablePlayerHUD = true;
 bool enablePlayerHUDKey = false;
@@ -153,6 +157,9 @@ bool DungeonStompApp::Initialize() {
 	    md3dDevice.Get(),
 	    mCommandList.Get(),
 	    mClientWidth, mClientHeight);
+
+	// Initialize Variable Rate Shading (DX12 Ultimate)
+	mVRSHelper.Initialize(md3dDevice.Get());
 
 	LoadTextures();
 	BuildRootSignature();
@@ -334,8 +341,18 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	auto passCB = mCurrFrameResource->PassCB->Resource();
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
+	// VRS: Use full shading rate for main opaque geometry.
+	if (enableVRS && mVRSHelper.IsSupported()) {
+		mVRSHelper.SetFullRate(mCommandList.Get());
+	}
+
 	// Render the main scene
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
+
+	// VRS: Use reduced shading rate for transparent/torch draws (less perceptible quality loss).
+	if (enableVRS && mVRSHelper.IsSupported()) {
+		mVRSHelper.SetReducedRate(mCommandList.Get());
+	}
 
 	// Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -348,11 +365,13 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	ID3D12CommandList *cmdsLists[] = { mCommandList.Get() };
 	mCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-	// Swap the back and front buffers (vsync enable)
+	// Swap the back and front buffers
 	if (enableVsync) {
-		ThrowIfFailed(mSwapChain->Present(1, 0)); // set vsync on
+		ThrowIfFailed(mSwapChain->Present(1, 0)); // vsync on
 	} else {
-		ThrowIfFailed(mSwapChain->Present(0, 0)); // set vsync off
+		// Use DXGI_PRESENT_ALLOW_TEARING when tearing is supported and not in borderless fullscreen.
+		UINT presentFlags = (mTearingSupported && !mBorderlessFullscreen) ? DXGI_PRESENT_ALLOW_TEARING : 0;
+		ThrowIfFailed(mSwapChain->Present(0, presentFlags)); // vsync off
 	}
 
 	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
@@ -522,6 +541,24 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer &gt) {
 		enableShadowmapFeatureKey = true;
 	} else {
 		enableShadowmapFeatureKey = false;
+	}
+
+	if (GetAsyncKeyState('G') && !enableVRSKey) {
+		enableVRS = !enableVRS;
+		if (enableVRS && mVRSHelper.IsSupported()) {
+			strcpy_s(gActionMessage, "Variable Rate Shading Enabled");
+		} else if (!mVRSHelper.IsSupported()) {
+			enableVRS = false;
+			strcpy_s(gActionMessage, "VRS Not Supported on this GPU");
+		} else {
+			strcpy_s(gActionMessage, "Variable Rate Shading Disabled");
+		}
+		UpdateScrollList(0, 255, 255);
+	}
+	if (GetAsyncKeyState('G')) {
+		enableVRSKey = true;
+	} else {
+		enableVRSKey = false;
 	}
 
 	if (GetAsyncKeyState('H') && !enablePlayerHUDKey) {
@@ -902,46 +939,108 @@ void DungeonStompApp::BuildRootSignature() {
 
 	const int rootItems = 8;
 
-	CD3DX12_DESCRIPTOR_RANGE texTable0;
-	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0);
+	// Use RS 1.1 descriptor ranges with flags for driver optimization.
+	D3D12_DESCRIPTOR_RANGE1 texTable0 = {};
+	texTable0.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	texTable0.NumDescriptors = 1;
+	texTable0.BaseShaderRegister = 0;
+	texTable0.RegisterSpace = 0;
+	texTable0.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
+	texTable0.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	CD3DX12_DESCRIPTOR_RANGE texTable1;
-	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0);
+	D3D12_DESCRIPTOR_RANGE1 texTable1 = {};
+	texTable1.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	texTable1.NumDescriptors = 1;
+	texTable1.BaseShaderRegister = 1;
+	texTable1.RegisterSpace = 0;
+	texTable1.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
+	texTable1.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	CD3DX12_DESCRIPTOR_RANGE texTable2;
-	texTable2.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0);
+	D3D12_DESCRIPTOR_RANGE1 texTable2 = {};
+	texTable2.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	texTable2.NumDescriptors = 1;
+	texTable2.BaseShaderRegister = 2;
+	texTable2.RegisterSpace = 0;
+	texTable2.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
+	texTable2.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	CD3DX12_DESCRIPTOR_RANGE texTable3;
-	texTable3.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 3, 0);
+	D3D12_DESCRIPTOR_RANGE1 texTable3 = {};
+	texTable3.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	texTable3.NumDescriptors = 2;
+	texTable3.BaseShaderRegister = 3;
+	texTable3.RegisterSpace = 0;
+	texTable3.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
+	texTable3.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	CD3DX12_DESCRIPTOR_RANGE texTable4;
-	texTable4.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5, 0);
+	D3D12_DESCRIPTOR_RANGE1 texTable4 = {};
+	texTable4.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	texTable4.NumDescriptors = 1;
+	texTable4.BaseShaderRegister = 5;
+	texTable4.RegisterSpace = 0;
+	texTable4.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
+	texTable4.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	// Root parameter can be a table, root descriptor or root constants.
-	CD3DX12_ROOT_PARAMETER slotRootParameter[rootItems];
+	// Root parameters using RS 1.1 with DATA_VOLATILE for CBVs.
+	D3D12_ROOT_PARAMETER1 slotRootParameter[rootItems] = {};
 
-	// Create root CBV.
-	slotRootParameter[0].InitAsConstantBufferView(0);                                         // cbuffer cbPerObject : register(b0)
-	slotRootParameter[1].InitAsConstantBufferView(1);                                         // cbuffer cbMaterial : register(b1)
-	slotRootParameter[2].InitAsConstantBufferView(2);                                         // cbuffer cbPass : register(b2) X 2 locations
-	slotRootParameter[3].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL); // Texture2D    gDiffuseMap : register(t0);
-	slotRootParameter[4].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL); // Texture2D    gNormalMap  : register(t1);
-	slotRootParameter[5].InitAsDescriptorTable(1, &texTable2, D3D12_SHADER_VISIBILITY_PIXEL); // Texture2D    gShadowMap  : register(t2);
-	slotRootParameter[6].InitAsDescriptorTable(1, &texTable3, D3D12_SHADER_VISIBILITY_PIXEL); // TextureCube  gCubeMap    : register(t4);
-	slotRootParameter[7].InitAsDescriptorTable(1, &texTable4, D3D12_SHADER_VISIBILITY_PIXEL); // Texture2D	 gSsaoMap    : register(t5);
+	slotRootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	slotRootParameter[0].Descriptor.ShaderRegister = 0;
+	slotRootParameter[0].Descriptor.RegisterSpace = 0;
+	slotRootParameter[0].Descriptor.Flags = D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE;
+	slotRootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	slotRootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	slotRootParameter[1].Descriptor.ShaderRegister = 1;
+	slotRootParameter[1].Descriptor.RegisterSpace = 0;
+	slotRootParameter[1].Descriptor.Flags = D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE;
+	slotRootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	slotRootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	slotRootParameter[2].Descriptor.ShaderRegister = 2;
+	slotRootParameter[2].Descriptor.RegisterSpace = 0;
+	slotRootParameter[2].Descriptor.Flags = D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE;
+	slotRootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	slotRootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	slotRootParameter[3].DescriptorTable.NumDescriptorRanges = 1;
+	slotRootParameter[3].DescriptorTable.pDescriptorRanges = &texTable0;
+	slotRootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	slotRootParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	slotRootParameter[4].DescriptorTable.NumDescriptorRanges = 1;
+	slotRootParameter[4].DescriptorTable.pDescriptorRanges = &texTable1;
+	slotRootParameter[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	slotRootParameter[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	slotRootParameter[5].DescriptorTable.NumDescriptorRanges = 1;
+	slotRootParameter[5].DescriptorTable.pDescriptorRanges = &texTable2;
+	slotRootParameter[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	slotRootParameter[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	slotRootParameter[6].DescriptorTable.NumDescriptorRanges = 1;
+	slotRootParameter[6].DescriptorTable.pDescriptorRanges = &texTable3;
+	slotRootParameter[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	slotRootParameter[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	slotRootParameter[7].DescriptorTable.NumDescriptorRanges = 1;
+	slotRootParameter[7].DescriptorTable.pDescriptorRanges = &texTable4;
+	slotRootParameter[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	auto staticSamplers = GetStaticSamplers();
 
-	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(rootItems, slotRootParameter,
-	                                        (UINT)staticSamplers.size(), staticSamplers.data(),
-	                                        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	// Build versioned root signature desc (RS 1.1)
+	D3D12_VERSIONED_ROOT_SIGNATURE_DESC versionedRootSigDesc = {};
+	versionedRootSigDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
+	versionedRootSigDesc.Desc_1_1.NumParameters = rootItems;
+	versionedRootSigDesc.Desc_1_1.pParameters = slotRootParameter;
+	versionedRootSigDesc.Desc_1_1.NumStaticSamplers = (UINT)staticSamplers.size();
+	versionedRootSigDesc.Desc_1_1.pStaticSamplers = staticSamplers.data();
+	versionedRootSigDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
 	ComPtr<ID3DBlob> serializedRootSig = nullptr;
 	ComPtr<ID3DBlob> errorBlob = nullptr;
-	HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-	                                         serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+	HRESULT hr = D3D12SerializeVersionedRootSignature(&versionedRootSigDesc,
+	                                                  serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
 
 	if (errorBlob != nullptr) {
 		::OutputDebugStringA((char *)errorBlob->GetBufferPointer());
@@ -956,20 +1055,50 @@ void DungeonStompApp::BuildRootSignature() {
 }
 
 void DungeonStompApp::BuildSsaoRootSignature() {
-	CD3DX12_DESCRIPTOR_RANGE texTable0;
-	texTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0, 0);
+	D3D12_DESCRIPTOR_RANGE1 texTable0 = {};
+	texTable0.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	texTable0.NumDescriptors = 2;
+	texTable0.BaseShaderRegister = 0;
+	texTable0.RegisterSpace = 0;
+	texTable0.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
+	texTable0.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	CD3DX12_DESCRIPTOR_RANGE texTable1;
-	texTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0);
+	D3D12_DESCRIPTOR_RANGE1 texTable1 = {};
+	texTable1.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	texTable1.NumDescriptors = 1;
+	texTable1.BaseShaderRegister = 2;
+	texTable1.RegisterSpace = 0;
+	texTable1.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
+	texTable1.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	// Root parameter can be a table, root descriptor or root constants.
-	CD3DX12_ROOT_PARAMETER slotRootParameter[4];
+	// Root parameters using RS 1.1
+	D3D12_ROOT_PARAMETER1 slotRootParameter[4] = {};
 
-	// Perfomance TIP: Order from most frequent to least frequent.
-	slotRootParameter[0].InitAsConstantBufferView(0);
-	slotRootParameter[1].InitAsConstants(1, 1);
-	slotRootParameter[2].InitAsDescriptorTable(1, &texTable0, D3D12_SHADER_VISIBILITY_PIXEL);
-	slotRootParameter[3].InitAsDescriptorTable(1, &texTable1, D3D12_SHADER_VISIBILITY_PIXEL);
+	// CBV at b0
+	slotRootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	slotRootParameter[0].Descriptor.ShaderRegister = 0;
+	slotRootParameter[0].Descriptor.RegisterSpace = 0;
+	slotRootParameter[0].Descriptor.Flags = D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE;
+	slotRootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	// 32-bit constants at b1
+	slotRootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	slotRootParameter[1].Constants.ShaderRegister = 1;
+	slotRootParameter[1].Constants.RegisterSpace = 0;
+	slotRootParameter[1].Constants.Num32BitValues = 1;
+	slotRootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+	// SRV table (2 textures)
+	slotRootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	slotRootParameter[2].DescriptorTable.NumDescriptorRanges = 1;
+	slotRootParameter[2].DescriptorTable.pDescriptorRanges = &texTable0;
+	slotRootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	// SRV table (1 texture)
+	slotRootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	slotRootParameter[3].DescriptorTable.NumDescriptorRanges = 1;
+	slotRootParameter[3].DescriptorTable.pDescriptorRanges = &texTable1;
+	slotRootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	const CD3DX12_STATIC_SAMPLER_DESC pointClamp(
 	    0,                                 // shaderRegister
@@ -1007,16 +1136,20 @@ void DungeonStompApp::BuildSsaoRootSignature() {
 		pointClamp, linearClamp, depthMapSam, linearWrap
 	};
 
-	// A root signature is an array of root parameters.
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(4, slotRootParameter,
-	                                        (UINT)staticSamplers.size(), staticSamplers.data(),
-	                                        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	// A root signature is an array of root parameters (RS 1.1).
+	D3D12_VERSIONED_ROOT_SIGNATURE_DESC versionedRootSigDesc = {};
+	versionedRootSigDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
+	versionedRootSigDesc.Desc_1_1.NumParameters = 4;
+	versionedRootSigDesc.Desc_1_1.pParameters = slotRootParameter;
+	versionedRootSigDesc.Desc_1_1.NumStaticSamplers = (UINT)staticSamplers.size();
+	versionedRootSigDesc.Desc_1_1.pStaticSamplers = staticSamplers.data();
+	versionedRootSigDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-	// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
+	// create a root signature with RS 1.1
 	ComPtr<ID3DBlob> serializedRootSig = nullptr;
 	ComPtr<ID3DBlob> errorBlob = nullptr;
-	HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-	                                         serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+	HRESULT hr = D3D12SerializeVersionedRootSignature(&versionedRootSigDesc,
+	                                                  serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
 
 	if (errorBlob != nullptr) {
 		::OutputDebugStringA((char *)errorBlob->GetBufferPointer());
