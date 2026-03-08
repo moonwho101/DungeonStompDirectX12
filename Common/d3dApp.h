@@ -16,6 +16,21 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "dxguid.lib")
+
+// DX12 Ultimate feature capabilities detected at runtime.
+struct DX12UltimateFeatures {
+	bool RaytracingSupported = false;
+	D3D12_RAYTRACING_TIER RaytracingTier = D3D12_RAYTRACING_TIER_NOT_SUPPORTED;
+	bool VariableRateShadingSupported = false;
+	D3D12_VARIABLE_SHADING_RATE_TIER VRSTier = D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED;
+	bool MeshShaderSupported = false;
+	D3D12_MESH_SHADER_TIER MeshShaderTier = D3D12_MESH_SHADER_TIER_NOT_SUPPORTED;
+	bool SamplerFeedbackSupported = false;
+	D3D12_SAMPLER_FEEDBACK_TIER SamplerFeedbackTier = D3D12_SAMPLER_FEEDBACK_TIER_NOT_SUPPORTED;
+	D3D_FEATURE_LEVEL MaxFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+	D3D_SHADER_MODEL HighestShaderModel = D3D_SHADER_MODEL_5_1;
+};
 
 class D3DApp {
   protected:
@@ -58,6 +73,7 @@ class D3DApp {
 	bool InitDirect3D();
 	void CreateCommandObjects();
 	void CreateSwapChain();
+	void CheckDX12UltimateSupport();
 
 	void FlushCommandQueue();
 
@@ -82,16 +98,17 @@ class D3DApp {
 	bool mResizing = false;        // are the resize bars being dragged?
 	bool mFullscreenState = false; // fullscreen enabled
 
-	// Set true to use 4X MSAA (§4.1.8).  The default is false.
+	// Set true to use 4X MSAA (ï¿½4.1.8).  The default is false.
 	bool m4xMsaaState = false; // 4X MSAA enabled
 	UINT m4xMsaaQuality = 0;   // quality level of 4X MSAA
 
-	// Used to keep track of the “delta-time” and game time (§4.4).
+	// Used to keep track of the ï¿½delta-timeï¿½ and game time (ï¿½4.4).
 	GameTimer mTimer;
 
-	Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
-	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
+	Microsoft::WRL::ComPtr<IDXGIFactory6> mdxgiFactory;
+	Microsoft::WRL::ComPtr<IDXGISwapChain4> mSwapChain;
 	Microsoft::WRL::ComPtr<ID3D12Device> md3dDevice;
+	Microsoft::WRL::ComPtr<ID3D12Device5> md3dDevice5;  // DX12 Ultimate device interface (may be null)
 
 	Microsoft::WRL::ComPtr<ID3D12Fence> mFence;
 	UINT64 mCurrentFence = 0;
@@ -99,6 +116,9 @@ class D3DApp {
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> mCommandQueue;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mDirectCmdListAlloc;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4> mCommandList4;  // DX12 Ultimate command list (may be null)
+
+	DX12UltimateFeatures mUltimateFeatures;
 
 	static const int SwapChainBufferCount = 2;
 	int mCurrBackBuffer = 0;
@@ -122,4 +142,8 @@ class D3DApp {
 	DXGI_FORMAT mDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	int mClientWidth = 800;
 	int mClientHeight = 600;
+
+public:
+	const DX12UltimateFeatures& GetUltimateFeatures() const { return mUltimateFeatures; }
+	bool IsDX12UltimateSupported() const;
 };

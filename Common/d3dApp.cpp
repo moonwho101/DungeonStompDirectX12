@@ -144,7 +144,7 @@ void D3DApp::OnResize() {
 	    SwapChainBufferCount,
 	    mClientWidth, mClientHeight,
 	    mBackBufferFormat,
-	    DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+	    DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING));
 
 	BOOL fullscreenState;
 	ThrowIfFailed(mSwapChain->GetFullscreenState(&fullscreenState, nullptr));
@@ -386,16 +386,41 @@ bool D3DApp::InitDirect3D() {
 		ComPtr<ID3D12Debug> debugController;
 		ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)));
 		debugController->EnableDebugLayer();
+
+		// Optionally enable GPU-based validation (very slow, uncomment when needed):
+		// ComPtr<ID3D12Debug1> debugController1;
+		// if (SUCCEEDED(debugController.As(&debugController1))) {
+		//     debugController1->SetEnableGPUBasedValidation(TRUE);
+		// }
 	}
 #endif
 
-	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&mdxgiFactory)));
+	UINT dxgiFactoryFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)
+	dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+#endif
+	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&mdxgiFactory)));
 
-	// Try to create hardware device.
-	HRESULT hardwareResult = D3D12CreateDevice(
-	    nullptr, // default adapter
-	    D3D_FEATURE_LEVEL_11_0,
-	    IID_PPV_ARGS(&md3dDevice));
+	// Try to create hardware device at the highest supported feature level.
+	D3D_FEATURE_LEVEL featureLevels[] = {
+		D3D_FEATURE_LEVEL_12_2,  // DX12 Ultimate
+		D3D_FEATURE_LEVEL_12_1,
+		D3D_FEATURE_LEVEL_12_0,
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_0
+	};
+
+	HRESULT hardwareResult = E_FAIL;
+	for (auto level : featureLevels) {
+		hardwareResult = D3D12CreateDevice(
+		    nullptr, // default adapter
+		    level,
+		    IID_PPV_ARGS(&md3dDevice));
+		if (SUCCEEDED(hardwareResult)) {
+			mUltimateFeatures.MaxFeatureLevel = level;
+			break;
+		}
+	}
 
 	// Fallback to WARP device.
 	if (FAILED(hardwareResult)) {
@@ -406,7 +431,11 @@ bool D3DApp::InitDirect3D() {
 		    pWarpAdapter.Get(),
 		    D3D_FEATURE_LEVEL_11_0,
 		    IID_PPV_ARGS(&md3dDevice)));
+		mUltimateFeatures.MaxFeatureLevel = D3D_FEATURE_LEVEL_11_0;
 	}
+
+	// Query for DX12 Ultimate device interface (ID3D12Device5).
+	md3dDevice.As(&md3dDevice5);
 
 	ThrowIfFailed(md3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE,
 	                                      IID_PPV_ARGS(&mFence)));
@@ -416,9 +445,6 @@ bool D3DApp::InitDirect3D() {
 	mCbvSrvUavDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	// Check 4X MSAA quality support for our back buffer format.
-	// All Direct3D 11 capable devices support 4X MSAA for all render
-	// target formats, so we only need to check quality support.
-
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
 	msQualityLevels.Format = mBackBufferFormat;
 	msQualityLevels.SampleCount = 4;
@@ -431,6 +457,9 @@ bool D3DApp::InitDirect3D() {
 
 	m4xMsaaQuality = msQualityLevels.NumQualityLevels;
 	assert(m4xMsaaQuality > 0 && "Unexpected MSAA quality level.");
+
+	// Detect DX12 Ultimate features.
+	CheckDX12UltimateSupport();
 
 #ifdef _DEBUG
 	LogAdapters();
@@ -460,6 +489,9 @@ void D3DApp::CreateCommandObjects() {
 	    nullptr,                   // Initial PipelineStateObject
 	    IID_PPV_ARGS(mCommandList.GetAddressOf())));
 
+	// Query for DX12 Ultimate command list interface (ID3D12GraphicsCommandList4).
+	mCommandList.As(&mCommandList4);
+
 	// Start off in a closed state.  This is because the first time we refer
 	// to the command list we will Reset it, and it needs to be closed before
 	// calling Reset.
@@ -470,28 +502,129 @@ void D3DApp::CreateSwapChain() {
 	// Release the previous swapchain we will be recreating.
 	mSwapChain.Reset();
 
-	DXGI_SWAP_CHAIN_DESC sd;
-	sd.BufferDesc.Width = mClientWidth;
-	sd.BufferDesc.Height = mClientHeight;
-	sd.BufferDesc.RefreshRate.Numerator = 60;
-	sd.BufferDesc.RefreshRate.Denominator = 1;
-	sd.BufferDesc.Format = mBackBufferFormat;
-	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	DXGI_SWAP_CHAIN_DESC1 sd = {};
+	sd.Width = mClientWidth;
+	sd.Height = mClientHeight;
+	sd.Format = mBackBufferFormat;
 	sd.SampleDesc.Count = m4xMsaaState ? 4 : 1;
 	sd.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = SwapChainBufferCount;
-	sd.OutputWindow = mhMainWnd;
-	sd.Windowed = true;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
-	// Note: Swap chain uses queue to perform flush.
-	ThrowIfFailed(mdxgiFactory->CreateSwapChain(
+	DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc = {};
+	fsDesc.RefreshRate.Numerator = 60;
+	fsDesc.RefreshRate.Denominator = 1;
+	fsDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	fsDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	fsDesc.Windowed = TRUE;
+
+	// Use modern CreateSwapChainForHwnd (DXGI 1.2+) and QI to IDXGISwapChain4.
+	ComPtr<IDXGISwapChain1> swapChain1;
+	ThrowIfFailed(mdxgiFactory->CreateSwapChainForHwnd(
 	    mCommandQueue.Get(),
+	    mhMainWnd,
 	    &sd,
-	    mSwapChain.GetAddressOf()));
+	    &fsDesc,
+	    nullptr,
+	    swapChain1.GetAddressOf()));
+
+	ThrowIfFailed(swapChain1.As(&mSwapChain));
+}
+
+void D3DApp::CheckDX12UltimateSupport() {
+	// Check highest supported shader model.
+	D3D12_FEATURE_DATA_SHADER_MODEL shaderModel = {};
+	shaderModel.HighestShaderModel = D3D_SHADER_MODEL_6_7;
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(
+	        D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel)))) {
+		mUltimateFeatures.HighestShaderModel = shaderModel.HighestShaderModel;
+	}
+
+	// Check raytracing support (DXR).
+	D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5 = {};
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(
+	        D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)))) {
+		mUltimateFeatures.RaytracingTier = options5.RaytracingTier;
+		mUltimateFeatures.RaytracingSupported = (options5.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED);
+	}
+
+	// Check Variable Rate Shading (VRS) support.
+	D3D12_FEATURE_DATA_D3D12_OPTIONS6 options6 = {};
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(
+	        D3D12_FEATURE_D3D12_OPTIONS6, &options6, sizeof(options6)))) {
+		mUltimateFeatures.VRSTier = options6.VariableShadingRateTier;
+		mUltimateFeatures.VariableRateShadingSupported =
+		    (options6.VariableShadingRateTier != D3D12_VARIABLE_SHADING_RATE_TIER_NOT_SUPPORTED);
+	}
+
+	// Check Mesh Shader and Sampler Feedback support.
+	D3D12_FEATURE_DATA_D3D12_OPTIONS7 options7 = {};
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(
+	        D3D12_FEATURE_D3D12_OPTIONS7, &options7, sizeof(options7)))) {
+		mUltimateFeatures.MeshShaderTier = options7.MeshShaderTier;
+		mUltimateFeatures.MeshShaderSupported = (options7.MeshShaderTier != D3D12_MESH_SHADER_TIER_NOT_SUPPORTED);
+
+		mUltimateFeatures.SamplerFeedbackTier = options7.SamplerFeedbackTier;
+		mUltimateFeatures.SamplerFeedbackSupported =
+		    (options7.SamplerFeedbackTier != D3D12_SAMPLER_FEEDBACK_TIER_NOT_SUPPORTED);
+	}
+
+	// Log DX12 Ultimate feature support.
+	wstring featureReport = L"\n=== DX12 Ultimate Feature Detection ===\n";
+	featureReport += L"  Max Feature Level: ";
+	switch (mUltimateFeatures.MaxFeatureLevel) {
+	case D3D_FEATURE_LEVEL_12_2: featureReport += L"12_2 (DX12 Ultimate)\n"; break;
+	case D3D_FEATURE_LEVEL_12_1: featureReport += L"12_1\n"; break;
+	case D3D_FEATURE_LEVEL_12_0: featureReport += L"12_0\n"; break;
+	case D3D_FEATURE_LEVEL_11_1: featureReport += L"11_1\n"; break;
+	default: featureReport += L"11_0\n"; break;
+	}
+
+	featureReport += L"  Highest Shader Model: ";
+	switch (mUltimateFeatures.HighestShaderModel) {
+	case D3D_SHADER_MODEL_6_7: featureReport += L"6.7\n"; break;
+	case D3D_SHADER_MODEL_6_6: featureReport += L"6.6\n"; break;
+	case D3D_SHADER_MODEL_6_5: featureReport += L"6.5\n"; break;
+	case D3D_SHADER_MODEL_6_4: featureReport += L"6.4\n"; break;
+	case D3D_SHADER_MODEL_6_3: featureReport += L"6.3\n"; break;
+	case D3D_SHADER_MODEL_6_2: featureReport += L"6.2\n"; break;
+	case D3D_SHADER_MODEL_6_1: featureReport += L"6.1\n"; break;
+	case D3D_SHADER_MODEL_6_0: featureReport += L"6.0\n"; break;
+	default: featureReport += L"5.1 or lower\n"; break;
+	}
+
+	featureReport += L"  DirectX Raytracing (DXR): ";
+	featureReport += mUltimateFeatures.RaytracingSupported ? L"Supported (Tier " +
+	    to_wstring(static_cast<int>(mUltimateFeatures.RaytracingTier)) + L")\n" : L"Not Supported\n";
+
+	featureReport += L"  Variable Rate Shading (VRS): ";
+	featureReport += mUltimateFeatures.VariableRateShadingSupported ? L"Supported (Tier " +
+	    to_wstring(static_cast<int>(mUltimateFeatures.VRSTier)) + L")\n" : L"Not Supported\n";
+
+	featureReport += L"  Mesh Shaders: ";
+	featureReport += mUltimateFeatures.MeshShaderSupported ? L"Supported\n" : L"Not Supported\n";
+
+	featureReport += L"  Sampler Feedback: ";
+	featureReport += mUltimateFeatures.SamplerFeedbackSupported ? L"Supported\n" : L"Not Supported\n";
+
+	featureReport += L"  ID3D12Device5 (Ultimate API): ";
+	featureReport += (md3dDevice5 != nullptr) ? L"Available\n" : L"Not Available\n";
+
+	featureReport += L"  ID3D12GraphicsCommandList4 (Ultimate API): ";
+	featureReport += (mCommandList4 != nullptr) ? L"Available\n" : L"Not Available\n";
+
+	featureReport += L"========================================\n";
+	OutputDebugString(featureReport.c_str());
+}
+
+bool D3DApp::IsDX12UltimateSupported() const {
+	return mUltimateFeatures.MaxFeatureLevel >= D3D_FEATURE_LEVEL_12_2 &&
+	       mUltimateFeatures.RaytracingSupported &&
+	       mUltimateFeatures.VariableRateShadingSupported &&
+	       mUltimateFeatures.MeshShaderSupported &&
+	       mUltimateFeatures.SamplerFeedbackSupported;
 }
 
 void D3DApp::FlushCommandQueue() {
