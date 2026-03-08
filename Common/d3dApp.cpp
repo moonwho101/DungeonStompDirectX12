@@ -36,6 +36,11 @@ D3DApp::~D3DApp() {
 	if (md3dDevice != nullptr)
 		FlushCommandQueue();
 
+	if (mFrameLatencyWaitableObject) {
+		CloseHandle(mFrameLatencyWaitableObject);
+		mFrameLatencyWaitableObject = nullptr;
+	}
+
 	ShutDownSound();
 }
 
@@ -78,6 +83,12 @@ int D3DApp::Run() {
 		}
 		// Otherwise, do animation/game stuff.
 		else {
+			// Wait on the swap chain's frame latency waitable object before starting CPU work.
+			// This ensures we don't queue too many frames ahead.
+			if (mFrameLatencyWaitableObject) {
+				WaitForSingleObjectEx(mFrameLatencyWaitableObject, 0, TRUE);
+			}
+
 			mTimer.Tick();
 
 			if (!mAppPaused) {
@@ -139,12 +150,15 @@ void D3DApp::OnResize() {
 		mSwapChainBuffer[i].Reset();
 	mDepthStencilBuffer.Reset();
 
-	// Resize the swap chain.
+	// Resize the swap chain (flags must match those used at creation).
+	UINT swapChainFlags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+	if (mTearingSupported)
+		swapChainFlags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 	ThrowIfFailed(mSwapChain->ResizeBuffers(
 	    SwapChainBufferCount,
 	    mClientWidth, mClientHeight,
 	    mBackBufferFormat,
-	    mTearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0));
+	    swapChainFlags));
 
 	if (mBorderlessFullscreen) {
 		ShowCursor(FALSE);
@@ -601,7 +615,16 @@ void D3DApp::CreateCommandObjects() {
 
 void D3DApp::CreateSwapChain() {
 	// Release the previous swapchain we will be recreating.
+	if (mFrameLatencyWaitableObject) {
+		CloseHandle(mFrameLatencyWaitableObject);
+		mFrameLatencyWaitableObject = nullptr;
+	}
 	mSwapChain.Reset();
+
+	// Build swap chain flags: tearing + frame latency waitable object for low-latency presentation.
+	UINT swapChainFlags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+	if (mTearingSupported)
+		swapChainFlags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
 	// Use modern CreateSwapChainForHwnd (DXGI 1.2+)
 	DXGI_SWAP_CHAIN_DESC1 sd = {};
@@ -616,7 +639,7 @@ void D3DApp::CreateSwapChain() {
 	sd.Scaling = DXGI_SCALING_STRETCH;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-	sd.Flags = mTearingSupported ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+	sd.Flags = swapChainFlags;
 
 	ComPtr<IDXGISwapChain1> swapChain1;
 	ThrowIfFailed(mdxgiFactory->CreateSwapChainForHwnd(
@@ -631,6 +654,11 @@ void D3DApp::CreateSwapChain() {
 	ThrowIfFailed(mdxgiFactory->MakeWindowAssociation(mhMainWnd, DXGI_MWA_NO_ALT_ENTER));
 
 	ThrowIfFailed(swapChain1.As(&mSwapChain));
+
+	// Set maximum frame latency to allow multiple frames in flight for throughput.
+	// The waitable object signals when a back buffer is available.
+	mSwapChain->SetMaximumFrameLatency(3);
+	mFrameLatencyWaitableObject = mSwapChain->GetFrameLatencyWaitableObject();
 }
 
 void D3DApp::FlushCommandQueue() {

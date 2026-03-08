@@ -149,4 +149,7 @@ class D3DApp {
 	WINDOWPLACEMENT mWindowPlacement = {};
 	DX12UltimateFeatures mDX12UltimateFeatures;
 	D3D_FEATURE_LEVEL mFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+
+	// Frame latency waitable object for low-latency presentation.
+	HANDLE mFrameLatencyWaitableObject = nullptr;
 };

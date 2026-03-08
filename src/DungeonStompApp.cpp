@@ -203,11 +203,8 @@ bool DungeonStompApp::Initialize() {
 
 #if defined(DEBUG) || defined(_DEBUG)
 #else
-	// Maximize window and go fullscreen in release mode.
-	{
-		ShowWindow(mhMainWnd, SW_MAXIMIZE);
-		mSwapChain->SetFullscreenState(1, nullptr);
-	}
+	// Go borderless fullscreen in release mode (modern approach, no exclusive fullscreen).
+	ToggleBorderlessFullscreen();
 #endif
 
 	return true;
@@ -369,8 +366,8 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	if (enableVsync) {
 		ThrowIfFailed(mSwapChain->Present(1, 0)); // vsync on
 	} else {
-		// Use DXGI_PRESENT_ALLOW_TEARING when tearing is supported and not in borderless fullscreen.
-		UINT presentFlags = (mTearingSupported && !mBorderlessFullscreen) ? DXGI_PRESENT_ALLOW_TEARING : 0;
+		// Tearing is allowed in any windowed mode (including borderless) — only exclusive fullscreen forbids it.
+		UINT presentFlags = mTearingSupported ? DXGI_PRESENT_ALLOW_TEARING : 0;
 		ThrowIfFailed(mSwapChain->Present(0, presentFlags)); // vsync off
 	}
 
@@ -543,7 +540,7 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer &gt) {
 		enableShadowmapFeatureKey = false;
 	}
 
-	if (GetAsyncKeyState('G') && !enableVRSKey) {
+	if (GetAsyncKeyState('T') && !enableVRSKey) {
 		enableVRS = !enableVRS;
 		if (enableVRS && mVRSHelper.IsSupported()) {
 			strcpy_s(gActionMessage, "Variable Rate Shading Enabled");
@@ -555,7 +552,7 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer &gt) {
 		}
 		UpdateScrollList(0, 255, 255);
 	}
-	if (GetAsyncKeyState('G')) {
+	if (GetAsyncKeyState('T')) {
 		enableVRSKey = true;
 	} else {
 		enableVRSKey = false;
@@ -1362,12 +1359,17 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 	ID3DBlob *errorBuff; // a buffer holding the error data if any
 	// compile vertex shader
 	ID3DBlob *textVertexShader; // d3d blob for holding vertex shader bytecode
+	UINT uiShaderCompileFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)
+	uiShaderCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
 	HRESULT hr = D3DCompileFromFile(L"..\\Shaders\\TextVertexShader.hlsl",
 	                                nullptr,
 	                                nullptr,
 	                                "main",
 	                                "vs_5_0",
-	                                D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+	                                uiShaderCompileFlags,
 	                                0,
 	                                &textVertexShader,
 	                                &errorBuff);
@@ -1385,7 +1387,7 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 	                        nullptr,
 	                        "main",
 	                        "ps_5_0",
-	                        D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+	                        uiShaderCompileFlags,
 	                        0,
 	                        &textPixelShader,
 	                        &errorBuff);
@@ -1403,7 +1405,7 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 	                        nullptr,
 	                        "main",
 	                        "vs_5_0",
-	                        D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+	                        uiShaderCompileFlags,
 	                        0,
 	                        &rectangleVertexShader,
 	                        &errorBuff);
@@ -1421,7 +1423,7 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 	                        nullptr,
 	                        "main",
 	                        "ps_5_0",
-	                        D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+	                        uiShaderCompileFlags,
 	                        0,
 	                        &rectanglePixelShader,
 	                        &errorBuff);
@@ -1438,7 +1440,7 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 	                        nullptr,
 	                        "main",
 	                        "ps_5_0",
-	                        D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+	                        uiShaderCompileFlags,
 	                        0,
 	                        &rectanglePixelMapShader,
 	                        &errorBuff);
