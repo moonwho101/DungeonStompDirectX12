@@ -171,7 +171,7 @@ void Ssao::OnResize(UINT newWidth, UINT newHeight) {
 }
 
 void Ssao::ComputeSsao(
-    ID3D12GraphicsCommandList *cmdList,
+    ID3D12GraphicsCommandList4 *cmdList,
     FrameResource *currFrame,
     int blurCount) {
 	cmdList->RSSetViewports(1, &mViewport);
@@ -183,11 +183,18 @@ void Ssao::ComputeSsao(
 	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mAmbientMap0.Get(),
 	                                                                  D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	float clearValue[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	cmdList->ClearRenderTargetView(mhAmbientMap0CpuRtv, clearValue, 0, nullptr);
+	// Render pass for SSAO compute.
+	D3D12_RENDER_PASS_RENDER_TARGET_DESC ssaoRtDesc = {};
+	ssaoRtDesc.cpuDescriptor = mhAmbientMap0CpuRtv;
+	ssaoRtDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+	ssaoRtDesc.BeginningAccess.Clear.ClearValue.Format = Ssao::AmbientMapFormat;
+	ssaoRtDesc.BeginningAccess.Clear.ClearValue.Color[0] = 1.0f;
+	ssaoRtDesc.BeginningAccess.Clear.ClearValue.Color[1] = 1.0f;
+	ssaoRtDesc.BeginningAccess.Clear.ClearValue.Color[2] = 1.0f;
+	ssaoRtDesc.BeginningAccess.Clear.ClearValue.Color[3] = 1.0f;
+	ssaoRtDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 
-	// Specify the buffers we are going to render to.
-	cmdList->OMSetRenderTargets(1, &mhAmbientMap0CpuRtv, true, nullptr);
+	cmdList->BeginRenderPass(1, &ssaoRtDesc, nullptr, D3D12_RENDER_PASS_FLAG_NONE);
 
 	// Bind the constant buffer for this pass.
 	auto ssaoCBAddress = currFrame->SsaoCB->Resource()->GetGPUVirtualAddress();
@@ -208,6 +215,8 @@ void Ssao::ComputeSsao(
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	cmdList->DrawInstanced(6, 1, 0, 0);
 
+	cmdList->EndRenderPass();
+
 	// Change back to GENERIC_READ so we can read the texture in a shader.
 	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mAmbientMap0.Get(),
 	                                                                  D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
@@ -215,7 +224,7 @@ void Ssao::ComputeSsao(
 	BlurAmbientMap(cmdList, currFrame, blurCount);
 }
 
-void Ssao::BlurAmbientMap(ID3D12GraphicsCommandList *cmdList, FrameResource *currFrame, int blurCount) {
+void Ssao::BlurAmbientMap(ID3D12GraphicsCommandList4 *cmdList, FrameResource *currFrame, int blurCount) {
 	cmdList->SetPipelineState(mBlurPso);
 
 	auto ssaoCBAddress = currFrame->SsaoCB->Resource()->GetGPUVirtualAddress();
@@ -227,7 +236,7 @@ void Ssao::BlurAmbientMap(ID3D12GraphicsCommandList *cmdList, FrameResource *cur
 	}
 }
 
-void Ssao::BlurAmbientMap(ID3D12GraphicsCommandList *cmdList, bool horzBlur) {
+void Ssao::BlurAmbientMap(ID3D12GraphicsCommandList4 *cmdList, bool horzBlur) {
 	ID3D12Resource *output = nullptr;
 	CD3DX12_GPU_DESCRIPTOR_HANDLE inputSrv;
 	CD3DX12_CPU_DESCRIPTOR_HANDLE outputRtv;
@@ -249,10 +258,18 @@ void Ssao::BlurAmbientMap(ID3D12GraphicsCommandList *cmdList, bool horzBlur) {
 	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(output,
 	                                                                  D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	float clearValue[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	cmdList->ClearRenderTargetView(outputRtv, clearValue, 0, nullptr);
+	// Render pass for blur.
+	D3D12_RENDER_PASS_RENDER_TARGET_DESC blurRtDesc = {};
+	blurRtDesc.cpuDescriptor = outputRtv;
+	blurRtDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+	blurRtDesc.BeginningAccess.Clear.ClearValue.Format = Ssao::AmbientMapFormat;
+	blurRtDesc.BeginningAccess.Clear.ClearValue.Color[0] = 1.0f;
+	blurRtDesc.BeginningAccess.Clear.ClearValue.Color[1] = 1.0f;
+	blurRtDesc.BeginningAccess.Clear.ClearValue.Color[2] = 1.0f;
+	blurRtDesc.BeginningAccess.Clear.ClearValue.Color[3] = 1.0f;
+	blurRtDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 
-	cmdList->OMSetRenderTargets(1, &outputRtv, true, nullptr);
+	cmdList->BeginRenderPass(1, &blurRtDesc, nullptr, D3D12_RENDER_PASS_FLAG_NONE);
 
 	// Normal/depth map still bound.
 
@@ -267,6 +284,8 @@ void Ssao::BlurAmbientMap(ID3D12GraphicsCommandList *cmdList, bool horzBlur) {
 	cmdList->IASetIndexBuffer(nullptr);
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	cmdList->DrawInstanced(6, 1, 0, 0);
+
+	cmdList->EndRenderPass();
 
 	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(output,
 	                                                                  D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));

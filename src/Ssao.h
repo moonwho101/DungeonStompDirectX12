@@ -61,7 +61,7 @@ class Ssao {
 	/// are disabled, as we do not need the depth buffer computing the Ambient map.
 	///</summary>
 	void ComputeSsao(
-	    ID3D12GraphicsCommandList *cmdList,
+	    ID3D12GraphicsCommandList4 *cmdList,
 	    FrameResource *currFrame,
 	    int blurCount);
 
@@ -71,8 +71,8 @@ class Ssao {
 	/// few random samples per pixel.  We use an edge preserving blur so that
 	/// we do not blur across discontinuities--we want edges to remain edges.
 	///</summary>
-	void BlurAmbientMap(ID3D12GraphicsCommandList *cmdList, FrameResource *currFrame, int blurCount);
-	void BlurAmbientMap(ID3D12GraphicsCommandList *cmdList, bool horzBlur);
+	void BlurAmbientMap(ID3D12GraphicsCommandList4 *cmdList, FrameResource *currFrame, int blurCount);
+	void BlurAmbientMap(ID3D12GraphicsCommandList4 *cmdList, bool horzBlur);
 
 	void BuildResources();
 	void BuildRandomVectorTexture(ID3D12GraphicsCommandList *cmdList);

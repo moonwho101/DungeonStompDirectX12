@@ -322,18 +322,26 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 	                                                                       D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	// if (!enableSSao) {
-	//  SSAO - WE ALREADY WROTE THE DEPTH INFO TO THE DEPTH BUFFER IN DrawNormalsAndDepth,
-	//  SO DO NOT CLEAR DEPTH.
+	// Begin main render pass with clear.
+	D3D12_RENDER_PASS_RENDER_TARGET_DESC mainRtDesc = {};
+	mainRtDesc.cpuDescriptor = CurrentBackBufferView();
+	mainRtDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+	mainRtDesc.BeginningAccess.Clear.ClearValue.Format = mBackBufferFormat;
+	memcpy(mainRtDesc.BeginningAccess.Clear.ClearValue.Color, &mMainPassCB.FogColor, 4 * sizeof(float));
+	mainRtDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 
-	// Clear the back buffer and depth buffer.
-	mCommandList->ClearRenderTargetView(CurrentBackBufferView(), (float *)&mMainPassCB.FogColor, 0, nullptr); // Colors::LightSteelBlue
-	//}
+	D3D12_RENDER_PASS_DEPTH_STENCIL_DESC mainDsDesc = {};
+	mainDsDesc.cpuDescriptor = DepthStencilView();
+	mainDsDesc.DepthBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+	mainDsDesc.DepthBeginningAccess.Clear.ClearValue.Format = mDepthStencilFormat;
+	mainDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = 1.0f;
+	mainDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Stencil = 0;
+	mainDsDesc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+	mainDsDesc.StencilBeginningAccess.Clear.ClearValue = mainDsDesc.DepthBeginningAccess.Clear.ClearValue;
+	mainDsDesc.DepthEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+	mainDsDesc.StencilEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 
-	mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
-	// Specify the buffers we are going to render to.
-	mCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
+	mCommandList->BeginRenderPass(1, &mainRtDesc, &mainDsDesc, D3D12_RENDER_PASS_FLAG_NONE);
 
 	auto passCB = mCurrFrameResource->PassCB->Resource();
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
@@ -350,6 +358,8 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	if (enableVRS && mVRSHelper.IsSupported()) {
 		mVRSHelper.SetReducedRate(mCommandList.Get());
 	}
+
+	mCommandList->EndRenderPass();
 
 	// Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -1032,7 +1042,10 @@ void DungeonStompApp::BuildRootSignature() {
 	versionedRootSigDesc.Desc_1_1.pParameters = slotRootParameter;
 	versionedRootSigDesc.Desc_1_1.NumStaticSamplers = (UINT)staticSamplers.size();
 	versionedRootSigDesc.Desc_1_1.pStaticSamplers = staticSamplers.data();
-	versionedRootSigDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	versionedRootSigDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
+	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
+	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
 	ComPtr<ID3DBlob> serializedRootSig = nullptr;
 	ComPtr<ID3DBlob> errorBlob = nullptr;
@@ -1140,7 +1153,10 @@ void DungeonStompApp::BuildSsaoRootSignature() {
 	versionedRootSigDesc.Desc_1_1.pParameters = slotRootParameter;
 	versionedRootSigDesc.Desc_1_1.NumStaticSamplers = (UINT)staticSamplers.size();
 	versionedRootSigDesc.Desc_1_1.pStaticSamplers = staticSamplers.data();
-	versionedRootSigDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	versionedRootSigDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
+	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
+	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
 	// create a root signature with RS 1.1
 	ComPtr<ID3DBlob> serializedRootSig = nullptr;
@@ -1170,14 +1186,19 @@ void DungeonStompApp::DrawSceneToShadowMap(const GameTimer &gt) {
 
 	UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
 
-	// Clear the back buffer and depth buffer.
-	mCommandList->ClearDepthStencilView(mShadowMap->Dsv(),
-	                                    D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	// Depth-only render pass for shadow map.
+	D3D12_RENDER_PASS_DEPTH_STENCIL_DESC shadowDsDesc = {};
+	shadowDsDesc.cpuDescriptor = mShadowMap->Dsv();
+	shadowDsDesc.DepthBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+	shadowDsDesc.DepthBeginningAccess.Clear.ClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	shadowDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = 1.0f;
+	shadowDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Stencil = 0;
+	shadowDsDesc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+	shadowDsDesc.StencilBeginningAccess.Clear.ClearValue = shadowDsDesc.DepthBeginningAccess.Clear.ClearValue;
+	shadowDsDesc.DepthEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+	shadowDsDesc.StencilEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
 
-	// Set null render target because we are only going to draw to
-	// depth buffer.  Setting a null render target will disable color writes.
-	// Note the active PSO also must specify a render target count of 0.
-	mCommandList->OMSetRenderTargets(0, nullptr, false, &mShadowMap->Dsv());
+	mCommandList->BeginRenderPass(0, nullptr, &shadowDsDesc, D3D12_RENDER_PASS_FLAG_NONE);
 
 	// Bind the pass constant buffer for the shadow map pass.
 	auto passCB = mCurrFrameResource->PassCB->Resource();
@@ -1191,6 +1212,8 @@ void DungeonStompApp::DrawSceneToShadowMap(const GameTimer &gt) {
 		DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
 		drawingShadowMap = false;
 	}
+
+	mCommandList->EndRenderPass();
 
 	// Change back to GENERIC_READ so we can read the texture in a shader.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(mShadowMap->Resource(),
@@ -1208,13 +1231,29 @@ void DungeonStompApp::DrawNormalsAndDepth(const GameTimer &gt) {
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(normalMap,
 	                                                                       D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	// Clear the screen normal map and depth buffer.
-	float clearValue[] = { 0.0f, 0.0f, 1.0f, 0.0f };
-	mCommandList->ClearRenderTargetView(normalMapRtv, clearValue, 0, nullptr);
-	mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	// Render pass for normals/depth.
+	D3D12_RENDER_PASS_RENDER_TARGET_DESC normalRtDesc = {};
+	normalRtDesc.cpuDescriptor = normalMapRtv;
+	normalRtDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+	normalRtDesc.BeginningAccess.Clear.ClearValue.Format = Ssao::NormalMapFormat;
+	normalRtDesc.BeginningAccess.Clear.ClearValue.Color[0] = 0.0f;
+	normalRtDesc.BeginningAccess.Clear.ClearValue.Color[1] = 0.0f;
+	normalRtDesc.BeginningAccess.Clear.ClearValue.Color[2] = 1.0f;
+	normalRtDesc.BeginningAccess.Clear.ClearValue.Color[3] = 0.0f;
+	normalRtDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 
-	// Specify the buffers we are going to render to.
-	mCommandList->OMSetRenderTargets(1, &normalMapRtv, true, &DepthStencilView());
+	D3D12_RENDER_PASS_DEPTH_STENCIL_DESC normalDsDesc = {};
+	normalDsDesc.cpuDescriptor = DepthStencilView();
+	normalDsDesc.DepthBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+	normalDsDesc.DepthBeginningAccess.Clear.ClearValue.Format = mDepthStencilFormat;
+	normalDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = 1.0f;
+	normalDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Stencil = 0;
+	normalDsDesc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+	normalDsDesc.StencilBeginningAccess.Clear.ClearValue = normalDsDesc.DepthBeginningAccess.Clear.ClearValue;
+	normalDsDesc.DepthEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+	normalDsDesc.StencilEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+
+	mCommandList->BeginRenderPass(1, &normalRtDesc, &normalDsDesc, D3D12_RENDER_PASS_FLAG_NONE);
 
 	// Bind the constant buffer for this pass.
 	auto passCB = mCurrFrameResource->PassCB->Resource();
@@ -1223,6 +1262,8 @@ void DungeonStompApp::DrawNormalsAndDepth(const GameTimer &gt) {
 	mCommandList->SetPipelineState(mPSOs["drawNormals"].Get());
 
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
+
+	mCommandList->EndRenderPass();
 
 	// Change back to GENERIC_READ so we can read the texture in a shader.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(normalMap,
