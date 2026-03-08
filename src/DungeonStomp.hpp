@@ -195,7 +195,7 @@ class DungeonStompApp : public D3DApp {
 	// DX12 Ultimate feature helpers
 	VRSHelper mVRS;
 	DXRHelper mDXR;
-	bool mEnableVRS = true;       // Toggle with 'G' key
+	bool mEnableVRS = true;       // Toggle with 'T' key
 	bool mEnableDXRShadows = false;  // Toggle with 'R' key (when DXR available)
 	UINT mDXRTlasSrvIndex = 0;    // SRV heap index for TLAS
 

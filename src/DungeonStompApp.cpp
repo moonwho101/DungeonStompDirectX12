@@ -564,7 +564,7 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer &gt) {
 		enablePlayerHUDKey = false;
 	}
 
-	// DX12 Ultimate: VRS toggle ('G')
+	// DX12 Ultimate: VRS toggle ('T')
 	if (GetAsyncKeyState('T') && !enableVRSKey) {
 		if (mVRS.IsSupported()) {
 			mEnableVRS = !mEnableVRS;
