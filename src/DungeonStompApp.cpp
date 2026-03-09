@@ -1034,23 +1034,69 @@ void DungeonStompApp::BuildRootSignature() {
 	slotRootParameter[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	auto staticSamplers = GetStaticSamplers();
-
-	// Build versioned root signature desc (RS 1.1)
-	D3D12_VERSIONED_ROOT_SIGNATURE_DESC versionedRootSigDesc = {};
-	versionedRootSigDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
-	versionedRootSigDesc.Desc_1_1.NumParameters = rootItems;
-	versionedRootSigDesc.Desc_1_1.pParameters = slotRootParameter;
-	versionedRootSigDesc.Desc_1_1.NumStaticSamplers = (UINT)staticSamplers.size();
-	versionedRootSigDesc.Desc_1_1.pStaticSamplers = staticSamplers.data();
-	versionedRootSigDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+	const D3D12_ROOT_SIGNATURE_FLAGS rootSigFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
 	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
 	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
 	ComPtr<ID3DBlob> serializedRootSig = nullptr;
 	ComPtr<ID3DBlob> errorBlob = nullptr;
-	HRESULT hr = D3D12SerializeVersionedRootSignature(&versionedRootSigDesc,
-	                                                  serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+	HRESULT hr = E_FAIL;
+
+	if (mDX12UltimateFeatures.HighestRootSignatureVersion >= D3D_ROOT_SIGNATURE_VERSION_1_1) {
+		// Build versioned root signature desc (RS 1.1)
+		D3D12_VERSIONED_ROOT_SIGNATURE_DESC versionedRootSigDesc = {};
+		versionedRootSigDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
+		versionedRootSigDesc.Desc_1_1.NumParameters = rootItems;
+		versionedRootSigDesc.Desc_1_1.pParameters = slotRootParameter;
+		versionedRootSigDesc.Desc_1_1.NumStaticSamplers = (UINT)staticSamplers.size();
+		versionedRootSigDesc.Desc_1_1.pStaticSamplers = staticSamplers.data();
+		versionedRootSigDesc.Desc_1_1.Flags = rootSigFlags;
+
+		hr = D3D12SerializeVersionedRootSignature(&versionedRootSigDesc,
+		                                          serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+	} else {
+		// Fallback for older drivers/runtime: RS 1.0 equivalent layout.
+		CD3DX12_DESCRIPTOR_RANGE texTable0_10;
+		texTable0_10.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+
+		CD3DX12_DESCRIPTOR_RANGE texTable1_10;
+		texTable1_10.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
+
+		CD3DX12_DESCRIPTOR_RANGE texTable2_10;
+		texTable2_10.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2);
+
+		CD3DX12_DESCRIPTOR_RANGE texTable3_10;
+		texTable3_10.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 3);
+
+		CD3DX12_DESCRIPTOR_RANGE texTable4_10;
+		texTable4_10.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5);
+
+		CD3DX12_ROOT_PARAMETER slotRootParameter10[rootItems];
+		slotRootParameter10[0].InitAsConstantBufferView(0);
+		slotRootParameter10[1].InitAsConstantBufferView(1);
+		slotRootParameter10[2].InitAsConstantBufferView(2);
+		slotRootParameter10[3].InitAsDescriptorTable(1, &texTable0_10, D3D12_SHADER_VISIBILITY_PIXEL);
+		slotRootParameter10[4].InitAsDescriptorTable(1, &texTable1_10, D3D12_SHADER_VISIBILITY_PIXEL);
+		slotRootParameter10[5].InitAsDescriptorTable(1, &texTable2_10, D3D12_SHADER_VISIBILITY_PIXEL);
+		slotRootParameter10[6].InitAsDescriptorTable(1, &texTable3_10, D3D12_SHADER_VISIBILITY_PIXEL);
+		slotRootParameter10[7].InitAsDescriptorTable(1, &texTable4_10, D3D12_SHADER_VISIBILITY_PIXEL);
+
+		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(
+		    rootItems,
+		    slotRootParameter10,
+		    (UINT)staticSamplers.size(),
+		    staticSamplers.data(),
+		    rootSigFlags);
+
+		hr = D3D12SerializeRootSignature(
+		    &rootSigDesc,
+		    D3D_ROOT_SIGNATURE_VERSION_1,
+		    serializedRootSig.GetAddressOf(),
+		    errorBlob.GetAddressOf());
+
+		OutputDebugStringA("Main root signature: using RS 1.0 fallback.\n");
+	}
 
 	if (errorBlob != nullptr) {
 		::OutputDebugStringA((char *)errorBlob->GetBufferPointer());
@@ -1145,24 +1191,55 @@ void DungeonStompApp::BuildSsaoRootSignature() {
 	std::array<CD3DX12_STATIC_SAMPLER_DESC, 4> staticSamplers = {
 		pointClamp, linearClamp, depthMapSam, linearWrap
 	};
-
-	// A root signature is an array of root parameters (RS 1.1).
-	D3D12_VERSIONED_ROOT_SIGNATURE_DESC versionedRootSigDesc = {};
-	versionedRootSigDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
-	versionedRootSigDesc.Desc_1_1.NumParameters = 4;
-	versionedRootSigDesc.Desc_1_1.pParameters = slotRootParameter;
-	versionedRootSigDesc.Desc_1_1.NumStaticSamplers = (UINT)staticSamplers.size();
-	versionedRootSigDesc.Desc_1_1.pStaticSamplers = staticSamplers.data();
-	versionedRootSigDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+	const D3D12_ROOT_SIGNATURE_FLAGS rootSigFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
 	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
 	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
 	    | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
-	// create a root signature with RS 1.1
 	ComPtr<ID3DBlob> serializedRootSig = nullptr;
 	ComPtr<ID3DBlob> errorBlob = nullptr;
-	HRESULT hr = D3D12SerializeVersionedRootSignature(&versionedRootSigDesc,
-	                                                  serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+	HRESULT hr = E_FAIL;
+
+	if (mDX12UltimateFeatures.HighestRootSignatureVersion >= D3D_ROOT_SIGNATURE_VERSION_1_1) {
+		// A root signature is an array of root parameters (RS 1.1).
+		D3D12_VERSIONED_ROOT_SIGNATURE_DESC versionedRootSigDesc = {};
+		versionedRootSigDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
+		versionedRootSigDesc.Desc_1_1.NumParameters = 4;
+		versionedRootSigDesc.Desc_1_1.pParameters = slotRootParameter;
+		versionedRootSigDesc.Desc_1_1.NumStaticSamplers = (UINT)staticSamplers.size();
+		versionedRootSigDesc.Desc_1_1.pStaticSamplers = staticSamplers.data();
+		versionedRootSigDesc.Desc_1_1.Flags = rootSigFlags;
+
+		hr = D3D12SerializeVersionedRootSignature(&versionedRootSigDesc,
+		                                          serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+	} else {
+		CD3DX12_DESCRIPTOR_RANGE texTable0_10;
+		texTable0_10.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 0);
+
+		CD3DX12_DESCRIPTOR_RANGE texTable1_10;
+		texTable1_10.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2);
+
+		CD3DX12_ROOT_PARAMETER slotRootParameter10[4];
+		slotRootParameter10[0].InitAsConstantBufferView(0);
+		slotRootParameter10[1].InitAsConstants(1, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
+		slotRootParameter10[2].InitAsDescriptorTable(1, &texTable0_10, D3D12_SHADER_VISIBILITY_PIXEL);
+		slotRootParameter10[3].InitAsDescriptorTable(1, &texTable1_10, D3D12_SHADER_VISIBILITY_PIXEL);
+
+		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(
+		    4,
+		    slotRootParameter10,
+		    (UINT)staticSamplers.size(),
+		    staticSamplers.data(),
+		    rootSigFlags);
+
+		hr = D3D12SerializeRootSignature(
+		    &rootSigDesc,
+		    D3D_ROOT_SIGNATURE_VERSION_1,
+		    serializedRootSig.GetAddressOf(),
+		    errorBlob.GetAddressOf());
+
+		OutputDebugStringA("SSAO root signature: using RS 1.0 fallback.\n");
+	}
 
 	if (errorBlob != nullptr) {
 		::OutputDebugStringA((char *)errorBlob->GetBufferPointer());

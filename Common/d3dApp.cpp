@@ -9,6 +9,176 @@ using Microsoft::WRL::ComPtr;
 using namespace std;
 using namespace DirectX;
 
+namespace {
+
+constexpr D3D_FEATURE_LEVEL kFeatureLevels[] = {
+	D3D_FEATURE_LEVEL_12_2,
+	D3D_FEATURE_LEVEL_12_1,
+	D3D_FEATURE_LEVEL_12_0,
+	D3D_FEATURE_LEVEL_11_1,
+	D3D_FEATURE_LEVEL_11_0
+};
+
+bool IsSoftwareAdapter(IDXGIAdapter1 *adapter) {
+	DXGI_ADAPTER_DESC1 desc = {};
+	if (FAILED(adapter->GetDesc1(&desc))) {
+		return true;
+	}
+	return (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) != 0;
+}
+
+bool TryCreateDeviceForAdapter(IDXGIAdapter1 *adapter, ComPtr<ID3D12Device> &outDevice,
+	                           D3D_FEATURE_LEVEL &outFeatureLevel) {
+	for (auto fl : kFeatureLevels) {
+		ComPtr<ID3D12Device> candidate;
+		if (SUCCEEDED(D3D12CreateDevice(adapter, fl, IID_PPV_ARGS(&candidate)))) {
+			outDevice = candidate;
+			outFeatureLevel = fl;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool SelectBestHardwareAdapter(IDXGIFactory6 *factory,
+	                           ComPtr<IDXGIAdapter1> &outAdapter,
+	                           ComPtr<ID3D12Device> &outDevice,
+	                           D3D_FEATURE_LEVEL &outFeatureLevel,
+	                           std::wstring &outAdapterName) {
+	ComPtr<IDXGIAdapter1> bestAdapter;
+	ComPtr<ID3D12Device> bestDevice;
+	D3D_FEATURE_LEVEL bestFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+	SIZE_T bestDedicatedMemory = 0;
+	bool found = false;
+
+	for (UINT i = 0;; ++i) {
+		ComPtr<IDXGIAdapter1> adapter;
+		if (FAILED(factory->EnumAdapterByGpuPreference(
+		    i,
+		    DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+		    IID_PPV_ARGS(&adapter)))) {
+			break;
+		}
+
+		if (IsSoftwareAdapter(adapter.Get())) {
+			continue;
+		}
+
+		ComPtr<ID3D12Device> device;
+		D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+		if (!TryCreateDeviceForAdapter(adapter.Get(), device, featureLevel)) {
+			continue;
+		}
+
+		DXGI_ADAPTER_DESC1 desc = {};
+		adapter->GetDesc1(&desc);
+
+		const bool isBetter = !found
+		    || (featureLevel > bestFeatureLevel)
+		    || (featureLevel == bestFeatureLevel && desc.DedicatedVideoMemory > bestDedicatedMemory);
+
+		if (isBetter) {
+			found = true;
+			bestAdapter = adapter;
+			bestDevice = device;
+			bestFeatureLevel = featureLevel;
+			bestDedicatedMemory = desc.DedicatedVideoMemory;
+			outAdapterName = desc.Description;
+		}
+	}
+
+	if (!found) {
+		for (UINT i = 0;; ++i) {
+			ComPtr<IDXGIAdapter1> adapter;
+			if (FAILED(factory->EnumAdapters1(i, &adapter))) {
+				break;
+			}
+
+			if (IsSoftwareAdapter(adapter.Get())) {
+				continue;
+			}
+
+			ComPtr<ID3D12Device> device;
+			D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+			if (!TryCreateDeviceForAdapter(adapter.Get(), device, featureLevel)) {
+				continue;
+			}
+
+			DXGI_ADAPTER_DESC1 desc = {};
+			adapter->GetDesc1(&desc);
+
+			const bool isBetter = !found
+			    || (featureLevel > bestFeatureLevel)
+			    || (featureLevel == bestFeatureLevel && desc.DedicatedVideoMemory > bestDedicatedMemory);
+
+			if (isBetter) {
+				found = true;
+				bestAdapter = adapter;
+				bestDevice = device;
+				bestFeatureLevel = featureLevel;
+				bestDedicatedMemory = desc.DedicatedVideoMemory;
+				outAdapterName = desc.Description;
+			}
+		}
+	}
+
+	if (!found) {
+		return false;
+	}
+
+	outAdapter = bestAdapter;
+	outDevice = bestDevice;
+	outFeatureLevel = bestFeatureLevel;
+	return true;
+}
+
+const wchar_t *FeatureLevelToString(D3D_FEATURE_LEVEL fl) {
+	switch (fl) {
+	case D3D_FEATURE_LEVEL_12_2:
+		return L"12_2";
+	case D3D_FEATURE_LEVEL_12_1:
+		return L"12_1";
+	case D3D_FEATURE_LEVEL_12_0:
+		return L"12_0";
+	case D3D_FEATURE_LEVEL_11_1:
+		return L"11_1";
+	default:
+		return L"11_0";
+	}
+}
+
+const char *ShaderModelToString(D3D_SHADER_MODEL model) {
+	switch (model) {
+	#if defined(D3D_SHADER_MODEL_6_8)
+	case D3D_SHADER_MODEL_6_8:
+		return "6.8";
+	#endif
+	#if defined(D3D_SHADER_MODEL_6_7)
+	case D3D_SHADER_MODEL_6_7:
+		return "6.7";
+	#endif
+	case D3D_SHADER_MODEL_6_6:
+		return "6.6";
+	case D3D_SHADER_MODEL_6_5:
+		return "6.5";
+	case D3D_SHADER_MODEL_6_4:
+		return "6.4";
+	case D3D_SHADER_MODEL_6_3:
+		return "6.3";
+	case D3D_SHADER_MODEL_6_2:
+		return "6.2";
+	case D3D_SHADER_MODEL_6_1:
+		return "6.1";
+	case D3D_SHADER_MODEL_6_0:
+		return "6.0";
+	default:
+		return "5.1";
+	}
+}
+
+} // namespace
+
 void ShutDownSound();
 extern float gFps;
 extern float gMspf;
@@ -415,23 +585,15 @@ bool D3DApp::InitDirect3D() {
 
 	ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&mdxgiFactory)));
 
-	// Try feature levels from highest (12_2 for DX12 Ultimate) down to 11_0.
-	const D3D_FEATURE_LEVEL featureLevels[] = {
-		D3D_FEATURE_LEVEL_12_2,
-		D3D_FEATURE_LEVEL_12_1,
-		D3D_FEATURE_LEVEL_12_0,
-		D3D_FEATURE_LEVEL_11_1,
-		D3D_FEATURE_LEVEL_11_0
-	};
-
 	ComPtr<ID3D12Device> baseDevice;
+	ComPtr<IDXGIAdapter1> bestAdapter;
+	std::wstring bestAdapterName;
 	HRESULT hardwareResult = E_FAIL;
-	for (auto fl : featureLevels) {
-		hardwareResult = D3D12CreateDevice(nullptr, fl, IID_PPV_ARGS(&baseDevice));
-		if (SUCCEEDED(hardwareResult)) {
-			mFeatureLevel = fl;
-			break;
-		}
+
+	if (SelectBestHardwareAdapter(mdxgiFactory.Get(), bestAdapter, baseDevice, mFeatureLevel, bestAdapterName)) {
+		hardwareResult = S_OK;
+		OutputDebugString((L"Using adapter: " + bestAdapterName + L" (FL "
+		                   + FeatureLevelToString(mFeatureLevel) + L")\n").c_str());
 	}
 
 	// Fallback to WARP device.
@@ -440,6 +602,7 @@ bool D3DApp::InitDirect3D() {
 		ThrowIfFailed(mdxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)));
 		ThrowIfFailed(D3D12CreateDevice(pWarpAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&baseDevice)));
 		mFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+		OutputDebugStringA("Using WARP adapter fallback (no hardware DX12 device found).\n");
 	}
 
 	// Query ID3D12Device5 (required for DXR Tier 1.1, VRS)
@@ -466,11 +629,11 @@ bool D3DApp::InitDirect3D() {
 	m4xMsaaQuality = msQualityLevels.NumQualityLevels;
 	assert(m4xMsaaQuality > 0 && "Unexpected MSAA quality level.");
 
-	// Check DX12 Ultimate features (VRS, DXR, Mesh Shaders, etc.)
-	CheckDX12UltimateFeatures();
-
 	// Check tearing support
 	mTearingSupported = CheckTearingSupport();
+
+	// Check DX12 Ultimate features (VRS, DXR, Mesh Shaders, etc.)
+	CheckDX12UltimateFeatures();
 
 #ifdef _DEBUG
 	LogAdapters();
@@ -514,6 +677,33 @@ void D3DApp::CheckDX12UltimateFeatures() {
 		mDX12UltimateFeatures.RelaxedFormatCastingSupported = options12.RelaxedFormatCastingSupported;
 	}
 
+#ifdef D3D12_FEATURE_D3D12_OPTIONS14
+	D3D12_FEATURE_DATA_D3D12_OPTIONS14 options14 = {};
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS14, &options14, sizeof(options14)))) {
+		mDX12UltimateFeatures.AdvancedTextureOpsSupported = options14.AdvancedTextureOpsSupported;
+	}
+#endif
+
+#ifdef D3D12_FEATURE_D3D12_OPTIONS16
+	D3D12_FEATURE_DATA_D3D12_OPTIONS16 options16 = {};
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &options16, sizeof(options16)))) {
+		mDX12UltimateFeatures.GPUUploadHeapSupported = options16.GPUUploadHeapSupported;
+	}
+#endif
+
+	D3D12_FEATURE_DATA_SHADER_MODEL shaderModel = {};
+#if defined(D3D_SHADER_MODEL_6_8)
+	shaderModel.HighestShaderModel = D3D_SHADER_MODEL_6_8;
+#elif defined(D3D_SHADER_MODEL_6_7)
+	shaderModel.HighestShaderModel = D3D_SHADER_MODEL_6_7;
+#else
+	shaderModel.HighestShaderModel = D3D_SHADER_MODEL_6_6;
+#endif
+	if (SUCCEEDED(md3dDevice->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel)))) {
+		mDX12UltimateFeatures.HighestShaderModel = shaderModel.HighestShaderModel;
+	}
+	mDX12UltimateFeatures.ShaderModel6_6Supported = (mDX12UltimateFeatures.HighestShaderModel >= D3D_SHADER_MODEL_6_6);
+
 	// Root Signature version
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE rootSigFeature = {};
 	rootSigFeature.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
@@ -526,21 +716,24 @@ void D3DApp::CheckDX12UltimateFeatures() {
 	// Log detected features
 	OutputDebugStringA("=== DX12 Ultimate Feature Detection ===\n");
 
-	wstring flStr;
-	switch (mFeatureLevel) {
-	case D3D_FEATURE_LEVEL_12_2: flStr = L"12_2"; break;
-	case D3D_FEATURE_LEVEL_12_1: flStr = L"12_1"; break;
-	case D3D_FEATURE_LEVEL_12_0: flStr = L"12_0"; break;
-	case D3D_FEATURE_LEVEL_11_1: flStr = L"11_1"; break;
-	default: flStr = L"11_0"; break;
-	}
-	OutputDebugString((L"Feature Level: " + flStr + L"\n").c_str());
+	OutputDebugString((L"Feature Level: " + std::wstring(FeatureLevelToString(mFeatureLevel)) + L"\n").c_str());
 
 	OutputDebugStringA(mDX12UltimateFeatures.RaytracingSupported ? "DXR: Supported\n" : "DXR: Not supported\n");
 	OutputDebugStringA(mDX12UltimateFeatures.VariableRateShadingSupported ? "VRS: Supported\n" : "VRS: Not supported\n");
 	OutputDebugStringA(mDX12UltimateFeatures.MeshShaderSupported ? "Mesh Shaders: Supported\n" : "Mesh Shaders: Not supported\n");
 	OutputDebugStringA(mDX12UltimateFeatures.SamplerFeedbackSupported ? "Sampler Feedback: Supported\n" : "Sampler Feedback: Not supported\n");
 	OutputDebugStringA(mDX12UltimateFeatures.EnhancedBarriersSupported ? "Enhanced Barriers: Supported\n" : "Enhanced Barriers: Not supported\n");
+	OutputDebugStringA(mDX12UltimateFeatures.AdvancedTextureOpsSupported ? "Advanced Texture Ops: Supported\n" : "Advanced Texture Ops: Not supported\n");
+	OutputDebugStringA(mDX12UltimateFeatures.GPUUploadHeapSupported ? "GPU Upload Heap: Supported\n" : "GPU Upload Heap: Not supported\n");
+	OutputDebugStringA((std::string("Shader Model: ") + ShaderModelToString(mDX12UltimateFeatures.HighestShaderModel) + "\n").c_str());
+
+	const bool dx12UltimateReady = (mFeatureLevel >= D3D_FEATURE_LEVEL_12_2)
+	    && mDX12UltimateFeatures.RaytracingSupported
+	    && mDX12UltimateFeatures.VariableRateShadingSupported
+	    && mDX12UltimateFeatures.MeshShaderSupported
+	    && mDX12UltimateFeatures.SamplerFeedbackSupported;
+	OutputDebugStringA(dx12UltimateReady ? "DX12 Ultimate Baseline: Ready\n" : "DX12 Ultimate Baseline: Partial\n");
+
 	OutputDebugStringA(mTearingSupported ? "Tearing: Supported\n" : "Tearing: Not supported\n");
 	OutputDebugStringA("========================================\n");
 }

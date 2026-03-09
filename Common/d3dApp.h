@@ -32,6 +32,8 @@ struct DX12UltimateFeatures {
 	bool RelaxedFormatCastingSupported = false;
 	bool AdvancedTextureOpsSupported = false;
 	bool GPUUploadHeapSupported = false;
+	D3D_SHADER_MODEL HighestShaderModel = D3D_SHADER_MODEL_5_1;
+	bool ShaderModel6_6Supported = false;
 	D3D_ROOT_SIGNATURE_VERSION HighestRootSignatureVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 };
 
