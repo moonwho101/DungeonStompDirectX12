@@ -346,17 +346,12 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	auto passCB = mCurrFrameResource->PassCB->Resource();
 	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
-	// VRS: Use full shading rate for main opaque geometry.
-	if (enableVRS && mVRSHelper.IsSupported()) {
-		mVRSHelper.SetFullRate(mCommandList.Get());
-	}
-
-	// Render the main scene
+	// Render the main scene (VRS is applied inside DrawRenderItems per draw type)
 	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
 
-	// VRS: Use reduced shading rate for transparent/torch draws (less perceptible quality loss).
+	// Reset VRS to full rate after rendering
 	if (enableVRS && mVRSHelper.IsSupported()) {
-		mVRSHelper.SetReducedRate(mCommandList.Get());
+		mVRSHelper.SetFullRate(mCommandList.Get());
 	}
 
 	mCommandList->EndRenderPass();
@@ -2217,6 +2212,10 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const 
 			mCommandList->SetPipelineState(mPSOs["normalMap"].Get());
 		}
 	}
+	// VRS: Full rate for normal-mapped geometry (high-frequency detail benefits most)
+	if (enableVRS && mVRSHelper.IsSupported()) {
+		mVRSHelper.SetFullRate(mCommandList.Get());
+	}
 	// Draw dungeon, monsters and items with normal maps
 	DrawDungeon(cmdList, ritems, false, false, true);
 
@@ -2227,17 +2226,29 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const 
 			mCommandList->SetPipelineState(mPSOs["opaque"].Get());
 		}
 	}
+	// VRS: Reduced rate for non-normal-mapped geometry (less detail to preserve)
+	if (enableVRS && mVRSHelper.IsSupported()) {
+		mVRSHelper.SetReducedRate(mCommandList.Get());
+	}
 	// Draw dungeon, monsters and items without normal maps
 	DrawDungeon(cmdList, ritems, false, false, false);
 
 	if (enablePSO) {
 		mCommandList->SetPipelineState(mPSOs["transparent"].Get());
 	}
+	// VRS: Reduced rate for transparent items
+	if (enableVRS && mVRSHelper.IsSupported()) {
+		mVRSHelper.SetReducedRate(mCommandList.Get());
+	}
 	// Draw alpha transparent items
 	DrawDungeon(cmdList, ritems, true);
 
 	if (enablePSO) {
 		mCommandList->SetPipelineState(mPSOs["torchTested"].Get());
+	}
+	// VRS: Reduced rate for torches/effects (visual noise masks quality differences)
+	if (enableVRS && mVRSHelper.IsSupported()) {
+		mVRSHelper.SetReducedRate(mCommandList.Get());
 	}
 	// Draw the torches and effects
 	DrawDungeon(cmdList, ritems, true, true);
@@ -2261,6 +2272,10 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const 
 		// Draw the skybox
 		if (!gravityon || outside) {
 			mCommandList->SetPipelineState(mPSOs["sky"].Get());
+			// VRS: Reduced rate for skybox (low-detail, distant geometry)
+			if (enableVRS && mVRSHelper.IsSupported()) {
+				mVRSHelper.SetReducedRate(mCommandList.Get());
+			}
 			DrawRenderItemsFL(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque]);
 		}
 
