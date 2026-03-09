@@ -37,17 +37,58 @@ RWTexture2D<float4> gOutput : register(u0);
 // Acceleration structure
 RaytracingAccelerationStructure gScene : register(t0);
 
+// Vertex buffer (44 bytes per vertex: Pos(12) + Normal(12) + TexC(8) + TangentU(12))
+struct Vertex
+{
+    float3 Pos;
+    float3 Normal;
+    float2 TexC;
+    float3 TangentU;
+};
+
+ByteAddressBuffer gVertices : register(t1);
+
+// Helper to load vertex from byte address buffer
+Vertex LoadVertex(uint vertexIndex)
+{
+    // 44 bytes per vertex = 11 DWORDs
+    uint address = vertexIndex * 44;
+    
+    Vertex v;
+    // Load position (3 floats)
+    v.Pos.x = asfloat(gVertices.Load(address));
+    v.Pos.y = asfloat(gVertices.Load(address + 4));
+    v.Pos.z = asfloat(gVertices.Load(address + 8));
+    
+    // Load normal (3 floats)
+    v.Normal.x = asfloat(gVertices.Load(address + 12));
+    v.Normal.y = asfloat(gVertices.Load(address + 16));
+    v.Normal.z = asfloat(gVertices.Load(address + 20));
+    
+    // Load texcoord (2 floats)
+    v.TexC.x = asfloat(gVertices.Load(address + 24));
+    v.TexC.y = asfloat(gVertices.Load(address + 28));
+    
+    // Load tangent (3 floats)
+    v.TangentU.x = asfloat(gVertices.Load(address + 32));
+    v.TangentU.y = asfloat(gVertices.Load(address + 36));
+    v.TangentU.z = asfloat(gVertices.Load(address + 40));
+    
+    return v;
+}
+
 // Ray payload
 struct RayPayload
 {
     float4 color;
 };
 
-// Vertex attributes
+// Vertex attributes (interpolated)
 struct VertexAttributes
 {
     float3 position;
     float3 normal;
+    float2 texCoord;
 };
 
 //=============================================================================
@@ -268,35 +309,42 @@ void Miss(inout RayPayload payload)
 [shader("closesthit")]
 void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
 {
-    // Get hit position
+    // Get primitive index - for triangle list, each triangle has 3 vertices
+    uint primIdx = PrimitiveIndex();
+    uint vertexIndex = primIdx * 3; // Triangle list: 3 vertices per primitive
+    
+    // Load the 3 vertices of this triangle
+    Vertex v0 = LoadVertex(vertexIndex);
+    Vertex v1 = LoadVertex(vertexIndex + 1);
+    Vertex v2 = LoadVertex(vertexIndex + 2);
+    
+    // Barycentric coordinates
+    float3 bary = float3(1.0f - attribs.barycentrics.x - attribs.barycentrics.y,
+                         attribs.barycentrics.x,
+                         attribs.barycentrics.y);
+    
+    // Interpolate position
+    float3 localPos = v0.Pos * bary.x + v1.Pos * bary.y + v2.Pos * bary.z;
+    
+    // Interpolate normal and normalize
+    float3 N = normalize(v0.Normal * bary.x + v1.Normal * bary.y + v2.Normal * bary.z);
+    
+    // Interpolate texture coordinates
+    float2 texCoord = v0.TexC * bary.x + v1.TexC * bary.y + v2.TexC * bary.z;
+    
+    // Get hit position from ray
     float3 hitPos = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
     float3 rayDir = WorldRayDirection();
     
-    // Without access to vertex data, compute a procedural normal
-    // Use the primitive index to create variation
-    uint primIdx = PrimitiveIndex();
-    
-    // Create a pseudo-random normal based on primitive index
-    // This gives each triangle a consistent but varied normal
-    float hash1 = frac(sin((float)primIdx * 12.9898f) * 43758.5453f);
-    float hash2 = frac(sin((float)primIdx * 78.233f) * 43758.5453f);
-    
-    // Create a normal that faces generally toward the camera
-    float3 N;
-    N.x = (hash1 - 0.5f) * 0.4f;
-    N.z = (hash2 - 0.5f) * 0.4f;
-    N.y = 0.8f + hash1 * 0.2f;
-    N = normalize(N);
-    
-    // Ensure normal faces the camera (flip if pointing away)
+    // Ensure normal faces the camera (flip if pointing away from ray)
     if (dot(N, -rayDir) < 0.0f)
         N = -N;
     
     // View direction
     float3 V = normalize(gCameraPos - hitPos);
     
-    // Default albedo color (dungeon stone color with variation)
-    float variation = frac(sin((float)primIdx * 12.9898f) * 43758.5453f);
+    // Use texture coordinates for variation in albedo
+    float variation = frac(sin(dot(texCoord, float2(12.9898f, 78.233f))) * 43758.5453f);
     float3 albedo = lerp(float3(0.4f, 0.38f, 0.35f), float3(0.55f, 0.52f, 0.48f), variation);
     
     // Material properties

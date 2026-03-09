@@ -138,16 +138,18 @@ void DXRHelper::CreateRootSignatures(ID3D12Device5* device) {
 	// Slot 0: Output UAV (u0)
 	// Slot 1: Acceleration Structure SRV (t0)
 	// Slot 2: Scene CBV (b0)
+	// Slot 3: Vertex Buffer SRV (t1)
 	CD3DX12_DESCRIPTOR_RANGE1 uavRange;
 	uavRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);
 
 	CD3DX12_DESCRIPTOR_RANGE1 srvRange;
 	srvRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
 
-	CD3DX12_ROOT_PARAMETER1 rootParams[3];
+	CD3DX12_ROOT_PARAMETER1 rootParams[4];
 	rootParams[0].InitAsDescriptorTable(1, &uavRange);                              // Output UAV
 	rootParams[1].InitAsShaderResourceView(0);                                      // TLAS (inline SRV)
 	rootParams[2].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE); // Scene CB
+	rootParams[3].InitAsShaderResourceView(1);                                      // Vertex buffer (t1)
 
 	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSigDesc;
 	rootSigDesc.Init_1_1(_countof(rootParams), rootParams, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_NONE);
@@ -523,6 +525,9 @@ void DXRHelper::DispatchRays(ID3D12GraphicsCommandList5* cmdList, UINT width, UI
 	cmdList->SetComputeRootDescriptorTable(0, mDXRDescriptorHeap->GetGPUDescriptorHandleForHeapStart()); // UAV
 	cmdList->SetComputeRootShaderResourceView(1, mTLAS.Result->GetGPUVirtualAddress()); // TLAS
 	cmdList->SetComputeRootConstantBufferView(2, mSceneConstantBuffer->GetGPUVirtualAddress()); // Scene CB
+	if (mCurrentVertexBuffer) {
+		cmdList->SetComputeRootShaderResourceView(3, mCurrentVertexBuffer->GetGPUVirtualAddress()); // Vertex buffer
+	}
 
 	// Dispatch rays
 	D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};
