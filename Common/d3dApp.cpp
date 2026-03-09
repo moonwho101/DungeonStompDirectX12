@@ -5,6 +5,12 @@
 #include "d3dApp.h"
 #include <WindowsX.h>
 
+// ---- DirectX 12 Agility SDK opt-in ----
+// These exports tell the D3D12 loader to use the Agility SDK runtime (D3D12Core.dll)
+// from the D3D12\ subdirectory next to the executable.
+extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 614; }
+extern "C" { __declspec(dllexport) extern const char* D3D12SDKPath = ".\\D3D12\\"; }
+
 using Microsoft::WRL::ComPtr;
 using namespace std;
 using namespace DirectX;
