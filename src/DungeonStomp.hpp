@@ -2,6 +2,7 @@
 #include "ShadowMap.h"
 #include "Ssao.h"
 #include "VRSHelper.h"
+#include "DXRHelper.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -189,6 +190,8 @@ class DungeonStompApp : public D3DApp {
 	std::unique_ptr<ShadowMap> mShadowMap;
 	std::unique_ptr<Ssao> mSsao;
 	VRSHelper mVRSHelper;
+	std::unique_ptr<DXRHelper> mDXRHelper;
+	bool mDXRInitialized = false;
 
 	DirectX::BoundingSphere mSceneBounds;
 

@@ -17,6 +17,7 @@
 #include "Ssao.h"
 #include "CameraBob.hpp"
 #include "VRSHelper.h"
+#include "DXRHelper.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
@@ -63,7 +64,7 @@ bool enableVsyncKey = false;
 bool enableNormalmap = true;
 bool enableNormalmapKey = false;
 
-bool enableShadowmapFeature = true;
+bool enableShadowmapFeature = false;
 bool enableShadowmapFeatureKey = false;
 
 bool enableVRS = false;
@@ -71,6 +72,9 @@ bool enableVRSKey = false;
 
 bool enablePlayerHUD = true;
 bool enablePlayerHUDKey = false;
+
+bool enableDXR = false;
+bool enableDXRKey = false;
 
 extern int playerObjectStart;
 extern int playerGunObjectStart;
@@ -160,6 +164,21 @@ bool DungeonStompApp::Initialize() {
 
 	// Initialize Variable Rate Shading (DX12 Ultimate)
 	mVRSHelper.Initialize(md3dDevice.Get());
+
+	// Initialize DirectX Raytracing (DXR)
+	mDXRHelper = std::make_unique<DXRHelper>();
+	if (mDX12UltimateFeatures.RaytracingSupported) {
+		mDXRInitialized = mDXRHelper->Initialize(
+		    md3dDevice.Get(),
+		    mCommandList.Get(),
+		    mClientWidth, mClientHeight,
+		    mBackBufferFormat);
+		if (mDXRInitialized) {
+			OutputDebugStringA("DXR: DirectX Raytracing initialized successfully.\n");
+		}
+	} else {
+		OutputDebugStringA("DXR: Raytracing not supported on this device.\n");
+	}
 
 	LoadTextures();
 	BuildRootSignature();
@@ -322,39 +341,48 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 	                                                                       D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	// Begin main render pass with clear.
-	D3D12_RENDER_PASS_RENDER_TARGET_DESC mainRtDesc = {};
-	mainRtDesc.cpuDescriptor = CurrentBackBufferView();
-	mainRtDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
-	mainRtDesc.BeginningAccess.Clear.ClearValue.Format = mBackBufferFormat;
-	memcpy(mainRtDesc.BeginningAccess.Clear.ClearValue.Color, &mMainPassCB.FogColor, 4 * sizeof(float));
-	mainRtDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+	// DXR rendering path
+	if (enableDXR && mDXRInitialized) {
+		// Dispatch rays for raytracing
+		mDXRHelper->DispatchRays(mCommandList.Get(), mClientWidth, mClientHeight);
 
-	D3D12_RENDER_PASS_DEPTH_STENCIL_DESC mainDsDesc = {};
-	mainDsDesc.cpuDescriptor = DepthStencilView();
-	mainDsDesc.DepthBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
-	mainDsDesc.DepthBeginningAccess.Clear.ClearValue.Format = mDepthStencilFormat;
-	mainDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = 1.0f;
-	mainDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Stencil = 0;
-	mainDsDesc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
-	mainDsDesc.StencilBeginningAccess.Clear.ClearValue = mainDsDesc.DepthBeginningAccess.Clear.ClearValue;
-	mainDsDesc.DepthEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-	mainDsDesc.StencilEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+		// Copy raytracing output to back buffer
+		mDXRHelper->CopyOutputToBackBuffer(mCommandList.Get(), CurrentBackBuffer());
+	} else {
+		// Begin main render pass with clear (standard rasterization path).
+		D3D12_RENDER_PASS_RENDER_TARGET_DESC mainRtDesc = {};
+		mainRtDesc.cpuDescriptor = CurrentBackBufferView();
+		mainRtDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+		mainRtDesc.BeginningAccess.Clear.ClearValue.Format = mBackBufferFormat;
+		memcpy(mainRtDesc.BeginningAccess.Clear.ClearValue.Color, &mMainPassCB.FogColor, 4 * sizeof(float));
+		mainRtDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 
-	mCommandList->BeginRenderPass(1, &mainRtDesc, &mainDsDesc, D3D12_RENDER_PASS_FLAG_NONE);
+		D3D12_RENDER_PASS_DEPTH_STENCIL_DESC mainDsDesc = {};
+		mainDsDesc.cpuDescriptor = DepthStencilView();
+		mainDsDesc.DepthBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+		mainDsDesc.DepthBeginningAccess.Clear.ClearValue.Format = mDepthStencilFormat;
+		mainDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = 1.0f;
+		mainDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Stencil = 0;
+		mainDsDesc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+		mainDsDesc.StencilBeginningAccess.Clear.ClearValue = mainDsDesc.DepthBeginningAccess.Clear.ClearValue;
+		mainDsDesc.DepthEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+		mainDsDesc.StencilEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
 
-	auto passCB = mCurrFrameResource->PassCB->Resource();
-	mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+		mCommandList->BeginRenderPass(1, &mainRtDesc, &mainDsDesc, D3D12_RENDER_PASS_FLAG_NONE);
 
-	// Render the main scene (VRS is applied inside DrawRenderItems per draw type)
-	DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
+		auto passCB = mCurrFrameResource->PassCB->Resource();
+		mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
-	// Reset VRS to full rate after rendering
-	if (enableVRS && mVRSHelper.IsSupported()) {
-		mVRSHelper.SetFullRate(mCommandList.Get());
+		// Render the main scene (VRS is applied inside DrawRenderItems per draw type)
+		DrawRenderItems(mCommandList.Get(), mRitemLayer[(int)RenderLayer::Opaque], gt);
+
+		// Reset VRS to full rate after rendering
+		if (enableVRS && mVRSHelper.IsSupported()) {
+			mVRSHelper.SetFullRate(mCommandList.Get());
+		}
+
+		mCommandList->EndRenderPass();
 	}
-
-	mCommandList->EndRenderPass();
 
 	// Indicate a state transition on the resource usage.
 	mCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -576,6 +604,25 @@ void DungeonStompApp::OnKeyboardInput(const GameTimer &gt) {
 		enablePlayerHUDKey = true;
 	} else {
 		enablePlayerHUDKey = false;
+	}
+
+	// DXR toggle ('R' key)
+	if (GetAsyncKeyState('R') && !enableDXRKey) {
+		enableDXR = !enableDXR;
+		if (enableDXR && mDXRInitialized) {
+			strcpy_s(gActionMessage, "DirectX Raytracing Enabled");
+		} else if (!mDXRInitialized) {
+			enableDXR = false;
+			strcpy_s(gActionMessage, "DXR Not Supported on this GPU");
+		} else {
+			strcpy_s(gActionMessage, "DirectX Raytracing Disabled");
+		}
+		UpdateScrollList(0, 255, 255);
+	}
+	if (GetAsyncKeyState('R')) {
+		enableDXRKey = true;
+	} else {
+		enableDXRKey = false;
 	}
 }
 
@@ -935,6 +982,41 @@ void DungeonStompApp::UpdateDungeon(const GameTimer &gt) {
 
 	// Set the dynamic VB of the dungeon renderitem to the current frame VB.
 	mDungeonRitem->Geo->VertexBufferGPU = currDungeonVB->Resource();
+
+	// Update DXR acceleration structures when DXR is enabled
+	if (enableDXR && mDXRInitialized && cnt > 0) {
+		// Build/update BLAS with current vertex buffer
+		static bool blasBuilt = false;
+		mDXRHelper->BuildBLAS(
+		    md3dDevice.Get(),
+		    mCommandList.Get(),
+		    currDungeonVB->Resource(),
+		    cnt,
+		    sizeof(Vertex),
+		    blasBuilt); // Update if already built
+
+		// Build/update TLAS
+		mDXRHelper->BuildTLAS(md3dDevice.Get(), mCommandList.Get(), blasBuilt);
+		blasBuilt = true;
+
+		// Update scene constants for DXR
+		XMMATRIX view = XMLoadFloat4x4(&mView);
+		XMMATRIX proj = XMLoadFloat4x4(&mProj);
+		XMMATRIX viewProj = view * proj;
+		XMMATRIX invViewProj = XMMatrixInverse(nullptr, viewProj);
+		XMFLOAT4X4 invViewProjF;
+		XMStoreFloat4x4(&invViewProjF, invViewProj);
+
+		mDXRHelper->UpdateSceneConstants(
+		    invViewProjF,
+		    mEyePos,
+		    mMainPassCB.AmbientLight,
+		    LightContainer,
+		    MaxLights,
+		    gt.TotalTime(),
+		    0.5f,  // Default roughness
+		    0.0f); // Default metallic
+	}
 }
 
 void DungeonStompApp::BuildRootSignature() {
