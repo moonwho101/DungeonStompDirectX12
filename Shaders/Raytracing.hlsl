@@ -208,31 +208,36 @@ void RayGen()
     uint2 launchIndex = DispatchRaysIndex().xy;
     uint2 launchDim = DispatchRaysDimensions().xy;
     
-    // Calculate normalized device coordinates
+    // Calculate normalized device coordinates (0 to 1, then -1 to 1)
     float2 pixelCenter = float2(launchIndex) + float2(0.5f, 0.5f);
-    float2 ndc = pixelCenter / float2(launchDim);
-    ndc = ndc * 2.0f - 1.0f;
-    ndc.y = -ndc.y; // Flip Y for DirectX
+    float2 uv = pixelCenter / float2(launchDim);
     
-    // Generate ray from camera
-    float4 worldPos = mul(float4(ndc, 0.0f, 1.0f), gInvViewProj);
-    worldPos.xyz /= worldPos.w;
+    // Convert to clip space (-1 to 1)
+    float2 clipXY = uv * 2.0f - 1.0f;
+    clipXY.y = -clipXY.y; // Flip Y for DirectX coordinate system
     
-    float3 rayOrigin = gCameraPos;
-    float3 rayDirection = normalize(worldPos.xyz - gCameraPos);
+    // Unproject near and far points to get ray
+    float4 nearPoint = mul(float4(clipXY, 0.0f, 1.0f), gInvViewProj);
+    float4 farPoint = mul(float4(clipXY, 1.0f, 1.0f), gInvViewProj);
+    
+    nearPoint.xyz /= nearPoint.w;
+    farPoint.xyz /= farPoint.w;
+    
+    float3 rayOrigin = nearPoint.xyz;
+    float3 rayDirection = normalize(farPoint.xyz - nearPoint.xyz);
     
     // Trace ray
     RayDesc ray;
     ray.Origin = rayOrigin;
     ray.Direction = rayDirection;
-    ray.TMin = 0.001f;
-    ray.TMax = 10000.0f;
+    ray.TMin = 0.01f;
+    ray.TMax = 100000.0f;
     
     RayPayload payload = { float4(0.0f, 0.0f, 0.0f, 1.0f) };
     
     TraceRay(
         gScene,
-        RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+        RAY_FLAG_NONE,  // Don't cull - dungeon geometry might have back faces visible
         0xFF,
         0,  // Hit group index
         1,  // Multiplier for geometry index
@@ -251,15 +256,9 @@ void RayGen()
 [shader("miss")]
 void Miss(inout RayPayload payload)
 {
-    // Sky/background color - gradient based on ray direction
-    float3 rayDir = WorldRayDirection();
-    float t = 0.5f * (rayDir.y + 1.0f);
-    
-    // Sky gradient from dark blue to light blue
-    float3 bottomColor = float3(0.02f, 0.02f, 0.05f);
-    float3 topColor = float3(0.1f, 0.15f, 0.3f);
-    
-    payload.color = float4(lerp(bottomColor, topColor, t), 1.0f);
+    // Sky/background color - dark dungeon atmosphere
+    float3 skyColor = float3(0.02f, 0.02f, 0.03f);
+    payload.color = float4(skyColor, 1.0f);
 }
 
 //=============================================================================
@@ -271,83 +270,88 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
 {
     // Get hit position
     float3 hitPos = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
+    float3 rayDir = WorldRayDirection();
     
-    // Compute geometric normal from barycentric coordinates
-    // Since we don't have access to vertex normals directly in this simple setup,
-    // we compute a face normal using cross product of edges
-    float3 barycentrics = float3(
-        1.0f - attribs.barycentrics.x - attribs.barycentrics.y,
-        attribs.barycentrics.x,
-        attribs.barycentrics.y
-    );
+    // Without access to vertex data, compute a procedural normal
+    // Use the primitive index to create variation
+    uint primIdx = PrimitiveIndex();
     
-    // For now, use the ray direction to compute a simple face normal
-    // In a more complete implementation, you'd read vertex normals from a buffer
-    float3 N = normalize(-WorldRayDirection());
+    // Create a pseudo-random normal based on primitive index
+    // This gives each triangle a consistent but varied normal
+    float hash1 = frac(sin((float)primIdx * 12.9898f) * 43758.5453f);
+    float hash2 = frac(sin((float)primIdx * 78.233f) * 43758.5453f);
     
-    // Flip normal if we hit the back face
-    if (dot(N, WorldRayDirection()) > 0)
+    // Create a normal that faces generally toward the camera
+    float3 N;
+    N.x = (hash1 - 0.5f) * 0.4f;
+    N.z = (hash2 - 0.5f) * 0.4f;
+    N.y = 0.8f + hash1 * 0.2f;
+    N = normalize(N);
+    
+    // Ensure normal faces the camera (flip if pointing away)
+    if (dot(N, -rayDir) < 0.0f)
         N = -N;
     
     // View direction
     float3 V = normalize(gCameraPos - hitPos);
     
-    // Default albedo color (gray stone/dungeon color)
-    float3 albedo = float3(0.5f, 0.5f, 0.5f);
+    // Default albedo color (dungeon stone color with variation)
+    float variation = frac(sin((float)primIdx * 12.9898f) * 43758.5453f);
+    float3 albedo = lerp(float3(0.4f, 0.38f, 0.35f), float3(0.55f, 0.52f, 0.48f), variation);
     
     // Material properties
     float roughness = gRoughness;
     float metallic = gMetallic;
     
-    // Compute lighting using PBR
+    // Compute lighting using simplified PBR
     float3 color = float3(0.0f, 0.0f, 0.0f);
     
     // Add ambient
-    color += gAmbientLight.rgb * albedo * (1.0f - metallic);
+    float3 ambient = gAmbientLight.rgb * albedo * 0.3f;
+    color += ambient;
     
-    // Process lights
-    // Lights are organized: [0, NUM_DIR_LIGHTS) = directional
-    //                      [NUM_DIR_LIGHTS, NUM_DIR_LIGHTS+NUM_POINT_LIGHTS) = point
-    //                      [rest] = spot
+    // Simple directional light (main light)
+    if (gNumLights > 0)
+    {
+        Light L = gLights[0];
+        float3 lightDir = -normalize(L.Direction);
+        float NdotL = max(dot(N, lightDir), 0.0f);
+        color += albedo * L.Strength * NdotL * 0.7f;
+        
+        // Simple specular
+        float3 H = normalize(V + lightDir);
+        float NdotH = max(dot(N, H), 0.0f);
+        float spec = pow(NdotH, 32.0f * (1.0f - roughness + 0.1f));
+        color += L.Strength * spec * 0.3f;
+    }
+    
+    // Add point lights (torches) with attenuation
     const uint NUM_DIR_LIGHTS = 1;
-    const uint NUM_POINT_LIGHTS = 16;
-    
-    for (uint i = 0; i < gNumLights && i < MaxLights; ++i)
+    for (uint i = NUM_DIR_LIGHTS; i < min(gNumLights, NUM_DIR_LIGHTS + 8u); ++i)
     {
         Light L = gLights[i];
+        float3 lightVec = L.Position - hitPos;
+        float d = length(lightVec);
         
-        if (i < NUM_DIR_LIGHTS)
+        if (d < L.FalloffEnd && d > 0.001f)
         {
-            // Directional light
-            color += ComputeDirectionalLight(L, albedo, N, V, roughness, metallic);
-        }
-        else if (i < NUM_DIR_LIGHTS + NUM_POINT_LIGHTS)
-        {
-            // Point light (torches with flicker)
-            color += ComputePointLight(L, hitPos, albedo, N, V, roughness, metallic, (float)i);
-        }
-        else
-        {
-            // Spot light
-            color += ComputeSpotLight(L, hitPos, albedo, N, V, roughness, metallic);
+            float3 lightDir = lightVec / d;
+            float atten = saturate((L.FalloffEnd - d) / (L.FalloffEnd - L.FalloffStart));
+            atten *= atten; // Quadratic falloff for softer look
+            
+            // Torch flicker
+            float flicker = TorchFlicker(1.0f, gTotalTime, 8.0f, 0.2f, (float)i);
+            
+            float NdotL = max(dot(N, lightDir), 0.0f);
+            color += albedo * L.Strength * NdotL * atten * flicker;
         }
     }
     
-    // Rim lighting for extra pop
-    {
-        float3 F0 = lerp(float3(0.04f, 0.04f, 0.04f), albedo, metallic);
-        float NdotV = max(dot(N, V), 0.0f);
-        float rimIntensity = 0.09f;
-        float rimExponent = lerp(1.0f, 8.0f, 1.0f - roughness);
-        float rimTerm = pow(saturate(1.0f - NdotV), rimExponent);
-        float rimEnergy = saturate(rimTerm * rimIntensity);
-        float3 rimF = FresnelSchlick(NdotV, F0);
-        float3 rimSpecular = rimF * rimEnergy;
-        color += rimSpecular;
-    }
+    // Add minimum visibility to confirm hits
+    color = max(color, float3(0.15f, 0.1f, 0.08f));
     
-    // Tonemap and gamma correction
-    color = color / (color + float3(1.0f, 1.0f, 1.0f)); // Reinhard tonemap
+    // Clamp and apply simple tone mapping
+    color = saturate(color);
     color = pow(color, 1.0f / 2.2f); // Gamma correction
     
     payload.color = float4(color, 1.0f);

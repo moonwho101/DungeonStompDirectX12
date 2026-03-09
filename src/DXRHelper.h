@@ -67,6 +67,9 @@ public:
 	void CopyOutputToBackBuffer(ID3D12GraphicsCommandList* cmdList,
 	                            ID3D12Resource* backBuffer);
 
+	// Handle window resize - recreate output texture
+	void OnResize(ID3D12Device* device, UINT width, UINT height);
+
 	// Check if DXR is ready
 	bool IsReady() const { return mIsInitialized; }
 
@@ -128,6 +131,9 @@ private:
 	ID3D12Resource* mCurrentVertexBuffer = nullptr;
 	UINT mCurrentVertexCount = 0;
 	UINT mCurrentVertexStride = 0;
+
+	// Back buffer format for resize
+	DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	// Shader identifiers
 	static const wchar_t* kRayGenShader;

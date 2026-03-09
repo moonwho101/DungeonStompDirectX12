@@ -40,6 +40,11 @@ call :CompileShader DrawNormals.hlsl DrawNormals
 call :CompileShader Ssao.hlsl Ssao
 call :CompileShader SsaoBlur.hlsl SsaoBlur
 
+rem Compile raytracing shader library (lib_6_3, no entry point)
+echo Compiling Raytracing.hlsl with DXC ^(lib_6_3^)...
+"!DXC!" -T lib_6_3 -Fo "%~dp0Raytracing.cso" "%~dp0Raytracing.hlsl" -nologo
+if errorlevel 1 echo FAILED: Raytracing.hlsl ^(lib_6_3^)
+
 echo Done.
 endlocal
 

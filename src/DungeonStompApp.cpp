@@ -250,6 +250,11 @@ void DungeonStompApp::OnResize() {
 		// Resources changed, so need to rebuild descriptors.
 		mSsao->RebuildDescriptors(mDepthStencilBuffer.Get());
 	}
+
+	// Resize DXR output texture
+	if (mDXRHelper != nullptr && mDXRInitialized) {
+		mDXRHelper->OnResize(md3dDevice.Get(), mClientWidth, mClientHeight);
+	}
 }
 
 void DungeonStompApp::Update(const GameTimer &gt) {
@@ -342,7 +347,20 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	                                                                       D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
 	// DXR rendering path
-	if (enableDXR && mDXRInitialized) {
+	if (enableDXR && mDXRInitialized && cnt > 0) {
+		// Build/update acceleration structures (must be done after command list reset)
+		auto currDungeonVB = mCurrFrameResource->DungeonVB.get();
+		static bool blasBuilt = false;
+		mDXRHelper->BuildBLAS(
+		    md3dDevice.Get(),
+		    mCommandList.Get(),
+		    currDungeonVB->Resource(),
+		    cnt,
+		    sizeof(Vertex),
+		    blasBuilt);
+		mDXRHelper->BuildTLAS(md3dDevice.Get(), mCommandList.Get(), blasBuilt);
+		blasBuilt = true;
+
 		// Dispatch rays for raytracing
 		mDXRHelper->DispatchRays(mCommandList.Get(), mClientWidth, mClientHeight);
 
@@ -983,29 +1001,15 @@ void DungeonStompApp::UpdateDungeon(const GameTimer &gt) {
 	// Set the dynamic VB of the dungeon renderitem to the current frame VB.
 	mDungeonRitem->Geo->VertexBufferGPU = currDungeonVB->Resource();
 
-	// Update DXR acceleration structures when DXR is enabled
+	// Update DXR scene constants (AS building happens in Draw after command list reset)
 	if (enableDXR && mDXRInitialized && cnt > 0) {
-		// Build/update BLAS with current vertex buffer
-		static bool blasBuilt = false;
-		mDXRHelper->BuildBLAS(
-		    md3dDevice.Get(),
-		    mCommandList.Get(),
-		    currDungeonVB->Resource(),
-		    cnt,
-		    sizeof(Vertex),
-		    blasBuilt); // Update if already built
-
-		// Build/update TLAS
-		mDXRHelper->BuildTLAS(md3dDevice.Get(), mCommandList.Get(), blasBuilt);
-		blasBuilt = true;
-
 		// Update scene constants for DXR
 		XMMATRIX view = XMLoadFloat4x4(&mView);
 		XMMATRIX proj = XMLoadFloat4x4(&mProj);
 		XMMATRIX viewProj = view * proj;
 		XMMATRIX invViewProj = XMMatrixInverse(nullptr, viewProj);
 		XMFLOAT4X4 invViewProjF;
-		XMStoreFloat4x4(&invViewProjF, invViewProj);
+		XMStoreFloat4x4(&invViewProjF, XMMatrixTranspose(invViewProj));
 
 		mDXRHelper->UpdateSceneConstants(
 		    invViewProjF,

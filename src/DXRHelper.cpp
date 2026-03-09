@@ -58,6 +58,7 @@ bool DXRHelper::Initialize(ID3D12Device5* device, ID3D12GraphicsCommandList5* cm
 	CreateRaytracingPipelineState(device);
 	BuildShaderTables(device);
 
+	mBackBufferFormat = backBufferFormat;
 	mIsInitialized = true;
 	OutputDebugStringA("DXR: Initialization complete!\n");
 	return true;
@@ -187,23 +188,22 @@ ComPtr<ID3DBlob> DXRHelper::CompileRaytracingShader(const std::wstring& filename
 	ThrowIfFailed(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler)));
 	ThrowIfFailed(library->CreateBlobFromFile(filename.c_str(), nullptr, &sourceBlob));
 
-	// Compile as library (lib_6_3)
-	LPCWSTR args[] = {
-	    L"-T", L"lib_6_3",
-	    L"-Fo", L"",
+	// Compile as library (lib_6_3) - shader model 6.3 is minimum for DXR
+	std::vector<LPCWSTR> args;
 #ifdef _DEBUG
-	    L"-Zi",
-	    L"-Od",
+	args.push_back(L"-Zi");  // Debug info
+	args.push_back(L"-Od");  // Disable optimization
+#else
+	args.push_back(L"-O3");  // Optimize
 #endif
-	};
 
 	ThrowIfFailed(compiler->Compile(
 	    sourceBlob.Get(),
 	    filename.c_str(),
-	    L"",
-	    L"lib_6_3",
-	    args,
-	    _countof(args),
+	    L"",            // Entry point (empty for library)
+	    L"lib_6_3",     // Target profile
+	    args.data(),
+	    (UINT)args.size(),
 	    nullptr,
 	    0,
 	    nullptr,
@@ -559,4 +559,22 @@ void DXRHelper::CopyOutputToBackBuffer(ID3D12GraphicsCommandList* cmdList, ID3D1
 	barriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(
 	    backBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
 	cmdList->ResourceBarrier(2, barriers);
+}
+
+void DXRHelper::OnResize(ID3D12Device* device, UINT width, UINT height) {
+	if (!mIsInitialized || (width == mWidth && height == mHeight))
+		return;
+
+	mWidth = width;
+	mHeight = height;
+
+	// Release old output resource
+	mRaytracingOutput.Reset();
+
+	// Recreate output resource with new dimensions
+	CreateRaytracingOutputResource(device, width, height, mBackBufferFormat);
+
+	char buf[256];
+	sprintf_s(buf, "DXR: Resized output to %u x %u\n", width, height);
+	OutputDebugStringA(buf);
 }
