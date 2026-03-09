@@ -832,7 +832,7 @@ void WakeUpMonsters() {
 						if (monsteron) {
 							monstertype[monstercount] = 0;
 							monsterobject[monstercount] = (int)monster_list[montry].model_id;
-							monsterangle[monstercount] = (int)monster_list[montry].rot_angle;
+							monsterangle[monstercount] = monster_list[montry].rot_angle;
 							monstercull[monstercount] = oblist[q].monsterid;
 							monstercount++;
 							monster_list[montry].volume = 100 - (int)((100 * qdist) / ((numberofsquares * monsterdist) / 2));
@@ -876,7 +876,7 @@ void WakeUpMonsters() {
 						if (monsteron) {
 							monstertype[monstercount] = 2;
 							monsterobject[monstercount] = item_list[montry].model_id;
-							monsterangle[monstercount] = (int)item_list[montry].rot_angle;
+							monsterangle[monstercount] = item_list[montry].rot_angle;
 							monstercull[monstercount] = oblist[q].monsterid;
 							monstercount++;
 						}
