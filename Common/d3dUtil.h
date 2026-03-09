@@ -11,6 +11,7 @@
 #include <dxgi1_6.h>
 #include <d3d12.h>
 #include <D3Dcompiler.h>
+#include <dxcapi.h>
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
@@ -122,6 +123,13 @@ public:
         Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer);
 
 	static Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(
+		const std::wstring& filename,
+		const D3D_SHADER_MACRO* defines,
+		const std::string& entrypoint,
+		const std::string& target);
+
+	// DXC compiler for Shader Model 6.0+
+	static Microsoft::WRL::ComPtr<ID3DBlob> CompileShaderDXC(
 		const std::wstring& filename,
 		const D3D_SHADER_MACRO* defines,
 		const std::string& entrypoint,

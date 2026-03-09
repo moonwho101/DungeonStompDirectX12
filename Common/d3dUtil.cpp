@@ -1,6 +1,7 @@
 #include "d3dUtil.h"
 #include <comdef.h>
 #include <fstream>
+#include <atlbase.h> // For CComPtr
 
 using Microsoft::WRL::ComPtr;
 
@@ -110,4 +111,92 @@ std::wstring DxException::ToString() const {
 	std::wstring msg = err.ErrorMessage();
 
 	return FunctionName + L" failed in " + Filename + L"; line " + std::to_wstring(LineNumber) + L"; error: " + msg;
+}
+
+ComPtr<ID3DBlob> d3dUtil::CompileShaderDXC(
+    const std::wstring &filename,
+    const D3D_SHADER_MACRO *defines,
+    const std::string &entrypoint,
+    const std::string &target) {
+	
+	// Create DXC compiler instance
+	CComPtr<IDxcUtils> pUtils;
+	CComPtr<IDxcCompiler3> pCompiler;
+	ThrowIfFailed(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&pUtils)));
+	ThrowIfFailed(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&pCompiler)));
+
+	// Create default include handler
+	CComPtr<IDxcIncludeHandler> pIncludeHandler;
+	ThrowIfFailed(pUtils->CreateDefaultIncludeHandler(&pIncludeHandler));
+
+	// Load the source file
+	CComPtr<IDxcBlobEncoding> pSource;
+	ThrowIfFailed(pUtils->LoadFile(filename.c_str(), nullptr, &pSource));
+
+	DxcBuffer sourceBuffer;
+	sourceBuffer.Ptr = pSource->GetBufferPointer();
+	sourceBuffer.Size = pSource->GetBufferSize();
+	sourceBuffer.Encoding = DXC_CP_ACP;
+
+	// Convert entrypoint and target to wide strings
+	std::wstring wEntrypoint(entrypoint.begin(), entrypoint.end());
+	std::wstring wTarget(target.begin(), target.end());
+
+	// Build arguments
+	std::vector<LPCWSTR> arguments;
+	arguments.push_back(filename.c_str());
+	arguments.push_back(L"-E");
+	arguments.push_back(wEntrypoint.c_str());
+	arguments.push_back(L"-T");
+	arguments.push_back(wTarget.c_str());
+
+#if defined(DEBUG) || defined(_DEBUG)
+	arguments.push_back(L"-Zi");  // Debug info
+	arguments.push_back(L"-Od");  // Disable optimizations
+#endif
+
+	// Add defines
+	std::vector<std::wstring> defineStrings;
+	if (defines) {
+		for (const D3D_SHADER_MACRO* p = defines; p->Name != nullptr; ++p) {
+			std::wstring defineName(p->Name, p->Name + strlen(p->Name));
+			std::wstring defineValue(p->Definition, p->Definition + strlen(p->Definition));
+			defineStrings.push_back(L"-D");
+			defineStrings.push_back(defineName + L"=" + defineValue);
+		}
+		for (const auto& def : defineStrings) {
+			arguments.push_back(def.c_str());
+		}
+	}
+
+	// Compile
+	CComPtr<IDxcResult> pResults;
+	ThrowIfFailed(pCompiler->Compile(
+		&sourceBuffer,
+		arguments.data(),
+		(UINT32)arguments.size(),
+		pIncludeHandler,
+		IID_PPV_ARGS(&pResults)));
+
+	// Check for errors
+	CComPtr<IDxcBlobUtf8> pErrors;
+	pResults->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&pErrors), nullptr);
+	if (pErrors && pErrors->GetStringLength() > 0) {
+		OutputDebugStringA((char*)pErrors->GetStringPointer());
+	}
+
+	HRESULT hrStatus;
+	ThrowIfFailed(pResults->GetStatus(&hrStatus));
+	ThrowIfFailed(hrStatus);
+
+	// Get compiled shader
+	CComPtr<IDxcBlob> pShader;
+	ThrowIfFailed(pResults->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&pShader), nullptr));
+
+	// Copy to ID3DBlob for compatibility
+	ComPtr<ID3DBlob> byteCode;
+	ThrowIfFailed(D3DCreateBlob(pShader->GetBufferSize(), byteCode.GetAddressOf()));
+	memcpy(byteCode->GetBufferPointer(), pShader->GetBufferPointer(), pShader->GetBufferSize());
+
+	return byteCode;
 }

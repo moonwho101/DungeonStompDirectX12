@@ -1445,52 +1445,38 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 
 
 
-	mShaders["standardVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_1");
-	mShaders["opaquePS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", defines, "PS", "ps_5_1");
-	mShaders["opaqueSsaoPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", sasoDefines, "PS", "ps_5_1");
+	mShaders["standardVS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Default.hlsl", nullptr, "VS", "vs_6_0");
+	mShaders["opaquePS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Default.hlsl", defines, "PS", "ps_6_0");
+	mShaders["opaqueSsaoPS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Default.hlsl", sasoDefines, "PS", "ps_6_0");
 
-	mShaders["alphaTestedPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_5_1");
-	mShaders["torchPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Default.hlsl", torchTestDefines, "PS", "ps_5_1");
+	mShaders["alphaTestedPS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Default.hlsl", alphaTestDefines, "PS", "ps_6_0");
+	mShaders["torchPS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Default.hlsl", torchTestDefines, "PS", "ps_6_0");
 
-	mShaders["normalMapVS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", nullptr, "VS", "vs_5_1");
-	mShaders["normalMapPS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", defines, "PS", "ps_5_1");
+	mShaders["normalMapVS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\NormalMap.hlsl", nullptr, "VS", "vs_6_0");
+	mShaders["normalMapPS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\NormalMap.hlsl", defines, "PS", "ps_6_0");
 
-	mShaders["normalMapSsaoPS"] = d3dUtil::CompileShader(L"..\\Shaders\\NormalMap.hlsl", sasoDefines, "PS", "ps_5_1");
+	mShaders["normalMapSsaoPS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\NormalMap.hlsl", sasoDefines, "PS", "ps_6_0");
 
-	mShaders["shadowVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", nullptr, "VS", "vs_5_1");
-	mShaders["shadowOpaquePS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", nullptr, "PS", "ps_5_1");
-	mShaders["shadowAlphaTestedPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Shadows.hlsl", alphaTestDefines, "PS", "ps_5_1");
+	mShaders["shadowVS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Shadows.hlsl", nullptr, "VS", "vs_6_0");
+	mShaders["shadowOpaquePS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Shadows.hlsl", nullptr, "PS", "ps_6_0");
+	mShaders["shadowAlphaTestedPS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Shadows.hlsl", alphaTestDefines, "PS", "ps_6_0");
 
-	mShaders["skyVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Sky.hlsl", nullptr, "VS", "vs_5_1");
-	mShaders["skyPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Sky.hlsl", nullptr, "PS", "ps_5_1");
+	mShaders["skyVS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Sky.hlsl", nullptr, "VS", "vs_6_0");
+	mShaders["skyPS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Sky.hlsl", nullptr, "PS", "ps_6_0");
 
-	mShaders["drawNormalsVS"] = d3dUtil::CompileShader(L"..\\Shaders\\DrawNormals.hlsl", nullptr, "VS", "vs_5_1");
-	mShaders["drawNormalsPS"] = d3dUtil::CompileShader(L"..\\Shaders\\DrawNormals.hlsl", nullptr, "PS", "ps_5_1");
+	mShaders["drawNormalsVS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\DrawNormals.hlsl", nullptr, "VS", "vs_6_0");
+	mShaders["drawNormalsPS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\DrawNormals.hlsl", nullptr, "PS", "ps_6_0");
 
-	mShaders["ssaoVS"] = d3dUtil::CompileShader(L"..\\Shaders\\Ssao.hlsl", nullptr, "VS", "vs_5_1");
-	mShaders["ssaoPS"] = d3dUtil::CompileShader(L"..\\Shaders\\Ssao.hlsl", nullptr, "PS", "ps_5_1");
+	mShaders["ssaoVS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Ssao.hlsl", nullptr, "VS", "vs_6_0");
+	mShaders["ssaoPS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\Ssao.hlsl", nullptr, "PS", "ps_6_0");
 
-	mShaders["ssaoBlurVS"] = d3dUtil::CompileShader(L"..\\Shaders\\SsaoBlur.hlsl", nullptr, "VS", "vs_5_1");
-	mShaders["ssaoBlurPS"] = d3dUtil::CompileShader(L"..\\Shaders\\SsaoBlur.hlsl", nullptr, "PS", "ps_5_1");
+	mShaders["ssaoBlurVS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\SsaoBlur.hlsl", nullptr, "VS", "vs_6_0");
+	mShaders["ssaoBlurPS"] = d3dUtil::CompileShaderDXC(L"..\\Shaders\\SsaoBlur.hlsl", nullptr, "PS", "ps_6_0");
 
 	// Text PSO
-	ID3DBlob *errorBuff; // a buffer holding the error data if any
-	// compile vertex shader
-	ID3DBlob *textVertexShader; // d3d blob for holding vertex shader bytecode
-	UINT uiShaderCompileFlags = 0;
-#if defined(DEBUG) || defined(_DEBUG)
-	uiShaderCompileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-	HRESULT hr = D3DCompileFromFile(L"..\\Shaders\\TextVertexShader.hlsl",
-	                                nullptr,
-	                                nullptr,
-	                                "main",
-	                                "vs_5_0",
-	                                uiShaderCompileFlags,
-	                                0,
-	                                &textVertexShader,
-	                                &errorBuff);
+	// compile vertex shader using DXC (SM 6.0)
+	Microsoft::WRL::ComPtr<ID3DBlob> textVertexShader = d3dUtil::CompileShaderDXC(
+		L"..\\Shaders\\TextVertexShader.hlsl", nullptr, "main", "vs_6_0");
 
 	// fill out a shader bytecode structure, which is basically just a pointer
 	// to the shader bytecode and the size of the shader bytecode
@@ -1499,16 +1485,8 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 	textVertexShaderBytecode.pShaderBytecode = textVertexShader->GetBufferPointer();
 
 	// compile pixel shader
-	ID3DBlob *textPixelShader;
-	hr = D3DCompileFromFile(L"..\\Shaders\\TextPixelShader.hlsl",
-	                        nullptr,
-	                        nullptr,
-	                        "main",
-	                        "ps_5_0",
-	                        uiShaderCompileFlags,
-	                        0,
-	                        &textPixelShader,
-	                        &errorBuff);
+	Microsoft::WRL::ComPtr<ID3DBlob> textPixelShader = d3dUtil::CompileShaderDXC(
+		L"..\\Shaders\\TextPixelShader.hlsl", nullptr, "main", "ps_6_0");
 
 	// fill out shader bytecode structure for pixel shader
 	D3D12_SHADER_BYTECODE textPixelShaderBytecode = {};
@@ -1517,16 +1495,8 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 
 	// Rectangle PSO
 	// compile vertex shader
-	ID3DBlob *rectangleVertexShader; // d3d blob for holding vertex shader bytecode
-	hr = D3DCompileFromFile(L"..\\Shaders\\RectangleVertexShader.hlsl",
-	                        nullptr,
-	                        nullptr,
-	                        "main",
-	                        "vs_5_0",
-	                        uiShaderCompileFlags,
-	                        0,
-	                        &rectangleVertexShader,
-	                        &errorBuff);
+	Microsoft::WRL::ComPtr<ID3DBlob> rectangleVertexShader = d3dUtil::CompileShaderDXC(
+		L"..\\Shaders\\RectangleVertexShader.hlsl", nullptr, "main", "vs_6_0");
 
 	// fill out a shader bytecode structure, which is basically just a pointer
 	// to the shader bytecode and the size of the shader bytecode
@@ -1535,16 +1505,8 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 	rectangleVertexShaderBytecode.pShaderBytecode = rectangleVertexShader->GetBufferPointer();
 
 	// compile pixel shader
-	ID3DBlob *rectanglePixelShader;
-	hr = D3DCompileFromFile(L"..\\Shaders\\RectanglePixelShader.hlsl",
-	                        nullptr,
-	                        nullptr,
-	                        "main",
-	                        "ps_5_0",
-	                        uiShaderCompileFlags,
-	                        0,
-	                        &rectanglePixelShader,
-	                        &errorBuff);
+	Microsoft::WRL::ComPtr<ID3DBlob> rectanglePixelShader = d3dUtil::CompileShaderDXC(
+		L"..\\Shaders\\RectanglePixelShader.hlsl", nullptr, "main", "ps_6_0");
 
 	// fill out shader bytecode structure for pixel shader
 	D3D12_SHADER_BYTECODE rectanglePixelShaderBytecode = {};
@@ -1552,21 +1514,15 @@ void DungeonStompApp::BuildShadersAndInputLayout() {
 	rectanglePixelShaderBytecode.pShaderBytecode = rectanglePixelShader->GetBufferPointer();
 
 	// compile pixel shader
-	ID3DBlob *rectanglePixelMapShader;
-	hr = D3DCompileFromFile(L"..\\Shaders\\rectanglePixelMapShader.hlsl",
-	                        nullptr,
-	                        nullptr,
-	                        "main",
-	                        "ps_5_0",
-	                        uiShaderCompileFlags,
-	                        0,
-	                        &rectanglePixelMapShader,
-	                        &errorBuff);
+	Microsoft::WRL::ComPtr<ID3DBlob> rectanglePixelMapShader = d3dUtil::CompileShaderDXC(
+		L"..\\Shaders\\RectanglePixelMapShader.hlsl", nullptr, "main", "ps_6_0");
 
 	// fill out shader bytecode structure for pixel shader
 	D3D12_SHADER_BYTECODE rectanglePixelMapShaderBytecode = {};
 	rectanglePixelMapShaderBytecode.BytecodeLength = rectanglePixelMapShader->GetBufferSize();
 	rectanglePixelMapShaderBytecode.pShaderBytecode = rectanglePixelMapShader->GetBufferPointer();
+
+	HRESULT hr = S_OK; // For PSO creation calls
 
 	mInputLayout = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
