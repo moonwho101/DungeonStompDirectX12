@@ -302,7 +302,7 @@ void DungeonStompApp::Update(const GameTimer &gt) {
 	UpdateMainPassCB(gt);
 	UpdateSsaoCB(gt);
 	UpdateShadowPassCB(gt);
-	DisplayPlayerCaption();
+	//DisplayPlayerCaption();
 	UpdateDungeon(gt);
 }
 
@@ -1012,11 +1012,16 @@ void DungeonStompApp::UpdateDungeon(const GameTimer &gt) {
 		// Build per-primitive texture indices from ObjectsToDraw
 		// Each triangle (3 vertices) gets assigned its object's texture
 		UINT totalTriangles = cnt / 3;
-		std::vector<UINT> primitiveTextureIndices(totalTriangles, 0);
+		std::vector<UINT> primitiveTextureIndices(totalTriangles, 999); // Initialize with invalid value to detect gaps
+		
+		static bool debugOnce = true;
+		int trianglesSet = 0;
 		
 		for (int currentObject = 0; currentObject < number_of_polys_per_frame; currentObject++) {
 			int srcStart = ObjectsToDraw[currentObject].srcstart;
-			int vertsPerPoly = ObjectsToDraw[currentObject].vertsperpoly;
+			// Use verts_per_poly[] instead of ObjectsToDraw.vertsperpoly because
+			// the latter is not updated after triangle strip/fan conversion
+			int vertsPerPoly = verts_per_poly[currentObject];
 			int vertIndex = ObjectsToDraw[currentObject].vert_index;
 			
 			// Get texture number through texture_list_buffer and TexMap
@@ -1024,13 +1029,41 @@ void DungeonStompApp::UpdateDungeon(const GameTimer &gt) {
 			int textureNumber = TexMap[textureAliasNumber].texture;
 			
 			// Calculate triangle range for this object
+			// vertsperpoly is the vertex count (3 per triangle for triangle list)
 			int startTriangle = srcStart / 3;
 			int numTriangles = vertsPerPoly / 3;
+			
+			// Debug: print first few objects
+			if (debugOnce && currentObject < 10) {
+				char buf[256];
+				sprintf_s(buf, "DXR Tex: Obj %d: srcStart=%d, vertsPerPoly=%d, startTri=%d, numTri=%d, tex=%d\n",
+				          currentObject, srcStart, vertsPerPoly, startTriangle, numTriangles, textureNumber);
+				OutputDebugStringA(buf);
+			}
 			
 			// Assign texture to all triangles in this object
 			for (int t = 0; t < numTriangles && (startTriangle + t) < (int)totalTriangles; t++) {
 				primitiveTextureIndices[startTriangle + t] = (UINT)textureNumber;
+				trianglesSet++;
 			}
+		}
+		
+		// Count unset triangles (still have value 999)
+		if (debugOnce) {
+			int unsetCount = 0;
+			for (UINT i = 0; i < totalTriangles; i++) {
+				if (primitiveTextureIndices[i] == 999) unsetCount++;
+			}
+			char buf[256];
+			sprintf_s(buf, "DXR Tex: totalTriangles=%d, trianglesSet=%d, unsetCount=%d, polysPerFrame=%d\n",
+			          totalTriangles, trianglesSet, unsetCount, number_of_polys_per_frame);
+			OutputDebugStringA(buf);
+			debugOnce = false;
+		}
+		
+		// Replace 999 with 0 for unset triangles
+		for (UINT i = 0; i < totalTriangles; i++) {
+			if (primitiveTextureIndices[i] == 999) primitiveTextureIndices[i] = 0;
 		}
 		
 		// Upload primitive texture indices to DXR

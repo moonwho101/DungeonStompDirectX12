@@ -355,10 +355,18 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     // Get texture index for this primitive and sample texture
     uint texIndex = gPrimitiveTextureIndices.Load(primIdx * 4);
     float3 albedo;
+    
+    // DEBUG: Visualize texture index pattern
+    // Green = texIndex > 0 (has valid texture), Red = texIndex == 0
+    // Enable this to debug the alternating pattern:
+    //payload.color = float4((texIndex == 0) ? 1.0 : 0.0, (texIndex > 0) ? 1.0 : 0.0, frac((float)primIdx / 10.0), 1.0);
+    //return;
+    
     if (texIndex < 550)
     {
         // Sample the texture at mip level 0 (no derivatives in raytracing shaders)
-        albedo = gTextures[texIndex].SampleLevel(gSampler, texCoord, 0).rgb;
+        // NonUniformResourceIndex is required for divergent dynamic indexing into texture arrays
+        albedo = gTextures[NonUniformResourceIndex(texIndex)].SampleLevel(gSampler, texCoord, 0).rgb;
     }
     else
     {
