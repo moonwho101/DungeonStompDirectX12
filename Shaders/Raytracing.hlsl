@@ -48,6 +48,15 @@ struct Vertex
 
 ByteAddressBuffer gVertices : register(t1);
 
+// Texture array (copied to DXR heap)
+Texture2D gTextures[] : register(t2);
+
+// Per-primitive texture index buffer
+ByteAddressBuffer gPrimitiveTextureIndices : register(t0, space1);
+
+// Sampler for texture sampling
+SamplerState gSampler : register(s0);
+
 // Helper to load vertex from byte address buffer
 Vertex LoadVertex(uint vertexIndex)
 {
@@ -343,9 +352,20 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     // View direction
     float3 V = normalize(gCameraPos - hitPos);
     
-    // Use texture coordinates for variation in albedo
-    float variation = frac(sin(dot(texCoord, float2(12.9898f, 78.233f))) * 43758.5453f);
-    float3 albedo = lerp(float3(0.4f, 0.38f, 0.35f), float3(0.55f, 0.52f, 0.48f), variation);
+    // Get texture index for this primitive and sample texture
+    uint texIndex = gPrimitiveTextureIndices.Load(primIdx * 4);
+    float3 albedo;
+    if (texIndex < 550)
+    {
+        // Sample the texture at mip level 0 (no derivatives in raytracing shaders)
+        albedo = gTextures[texIndex].SampleLevel(gSampler, texCoord, 0).rgb;
+    }
+    else
+    {
+        // Fallback for missing texture
+        float variation = frac(sin(dot(texCoord, float2(12.9898f, 78.233f))) * 43758.5453f);
+        albedo = lerp(float3(0.4f, 0.38f, 0.35f), float3(0.55f, 0.52f, 0.48f), variation);
+    }
     
     // Material properties
     float roughness = gRoughness;

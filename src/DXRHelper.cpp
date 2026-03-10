@@ -6,6 +6,7 @@
 #include "DXRHelper.h"
 #include <d3dcompiler.h>
 #include <dxcapi.h>
+#include <vector>
 
 using namespace DirectX;
 
@@ -66,12 +67,15 @@ bool DXRHelper::Initialize(ID3D12Device5* device, ID3D12GraphicsCommandList5* cm
 
 void DXRHelper::CreateDescriptorHeap(ID3D12Device5* device) {
 	// Create descriptor heap for DXR resources
-	// Slots: 0 = Output UAV, 1 = TLAS SRV, 2 = Scene CBV
+	// Layout: 0 = Output UAV, 1-550 = Texture SRVs (copied from main heap)
+	// Total: 1 + MAX_NUM_TEXTURES (550) descriptors
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 3;
+	heapDesc.NumDescriptors = 1 + 550; // UAV + textures
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	ThrowIfFailed(device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&mDXRDescriptorHeap)));
+	
+	mTextureStartOffset = 1; // Textures start after UAV
 }
 
 void DXRHelper::CreateConstantBuffer(ID3D12Device* device) {
@@ -135,24 +139,45 @@ void DXRHelper::CreateRaytracingOutputResource(ID3D12Device* device, UINT width,
 
 void DXRHelper::CreateRootSignatures(ID3D12Device5* device) {
 	// Global root signature
-	// Slot 0: Output UAV (u0)
-	// Slot 1: Acceleration Structure SRV (t0)
-	// Slot 2: Scene CBV (b0)
-	// Slot 3: Vertex Buffer SRV (t1)
+	// Slot 0: Output UAV (u0) - descriptor table
+	// Slot 1: Acceleration Structure SRV (t0) - inline
+	// Slot 2: Scene CBV (b0) - inline
+	// Slot 3: Vertex Buffer SRV (t1) - inline
+	// Slot 4: Texture Array SRV (t2-t551) - descriptor table
+	// Slot 5: Primitive Texture Indices (t0, space1) - inline
 	CD3DX12_DESCRIPTOR_RANGE1 uavRange;
-	uavRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);
+	uavRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0); // u0
 
-	CD3DX12_DESCRIPTOR_RANGE1 srvRange;
-	srvRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+	// Texture array range - 550 textures starting at t2
+	CD3DX12_DESCRIPTOR_RANGE1 textureRange;
+	textureRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 550, 2); // t2-t551
 
-	CD3DX12_ROOT_PARAMETER1 rootParams[4];
+	CD3DX12_ROOT_PARAMETER1 rootParams[6];
 	rootParams[0].InitAsDescriptorTable(1, &uavRange);                              // Output UAV
-	rootParams[1].InitAsShaderResourceView(0);                                      // TLAS (inline SRV)
-	rootParams[2].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE); // Scene CB
+	rootParams[1].InitAsShaderResourceView(0);                                      // TLAS (t0)
+	rootParams[2].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE); // Scene CB (b0)
 	rootParams[3].InitAsShaderResourceView(1);                                      // Vertex buffer (t1)
+	rootParams[4].InitAsDescriptorTable(1, &textureRange);                          // Texture array (t2+)
+	rootParams[5].InitAsShaderResourceView(0, 1);                                   // Primitive indices (t0, space1)
+
+	// Static sampler for texture sampling
+	D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Filter = D3D12_FILTER_ANISOTROPIC;
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.MipLODBias = 0;
+	samplerDesc.MaxAnisotropy = 8;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+	samplerDesc.MinLOD = 0.0f;
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+	samplerDesc.ShaderRegister = 0;
+	samplerDesc.RegisterSpace = 0;
+	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSigDesc;
-	rootSigDesc.Init_1_1(_countof(rootParams), rootParams, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_NONE);
+	rootSigDesc.Init_1_1(_countof(rootParams), rootParams, 1, &samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_NONE);
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> error;
@@ -528,6 +553,18 @@ void DXRHelper::DispatchRays(ID3D12GraphicsCommandList5* cmdList, UINT width, UI
 	if (mCurrentVertexBuffer) {
 		cmdList->SetComputeRootShaderResourceView(3, mCurrentVertexBuffer->GetGPUVirtualAddress()); // Vertex buffer
 	}
+	
+	// Set texture array descriptor table (slot 4) - starts at offset 1 in DXR heap
+	if (mTextureCount > 0) {
+		CD3DX12_GPU_DESCRIPTOR_HANDLE texHandle(mDXRDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		texHandle.Offset(mTextureStartOffset, mCbvSrvUavDescriptorSize);
+		cmdList->SetComputeRootDescriptorTable(4, texHandle);
+	}
+	
+	// Set primitive texture indices buffer (slot 5)
+	if (mPrimitiveTextureBuffer) {
+		cmdList->SetComputeRootShaderResourceView(5, mPrimitiveTextureBuffer->GetGPUVirtualAddress());
+	}
 
 	// Dispatch rays
 	D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};
@@ -582,4 +619,72 @@ void DXRHelper::OnResize(ID3D12Device* device, UINT width, UINT height) {
 	char buf[256];
 	sprintf_s(buf, "DXR: Resized output to %u x %u\n", width, height);
 	OutputDebugStringA(buf);
+}
+
+void DXRHelper::CopyTextureDescriptors(ID3D12Device* device, ID3D12DescriptorHeap* srcHeap, UINT textureCount) {
+	if (!srcHeap || textureCount == 0)
+		return;
+
+	mTextureCount = textureCount;
+
+	// Get descriptor handles
+	CD3DX12_CPU_DESCRIPTOR_HANDLE destHandle(mDXRDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+	destHandle.Offset(mTextureStartOffset, mCbvSrvUavDescriptorSize); // Skip UAV slot
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE srcHandle(srcHeap->GetCPUDescriptorHandleForHeapStart());
+
+	// Copy all texture descriptors from source heap to DXR heap
+	device->CopyDescriptorsSimple(
+	    textureCount,
+	    destHandle,
+	    srcHandle,
+	    D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	char buf[256];
+	sprintf_s(buf, "DXR: Copied %u texture descriptors to DXR heap\n", textureCount);
+	OutputDebugStringA(buf);
+	
+	// Initialize primitive texture indices buffer with default values (texture 0)
+	// This ensures the shader has valid data until proper per-primitive mapping is set up
+	UINT defaultPrimitiveCount = 200000; // Max expected primitives
+	std::vector<UINT> defaultIndices(defaultPrimitiveCount, 0); // All primitives use texture 0
+	UpdatePrimitiveTextureIndices(device, defaultIndices.data(), defaultPrimitiveCount);
+}
+
+void DXRHelper::UpdatePrimitiveTextureIndices(ID3D12Device* device, const UINT* textureIndices, UINT primitiveCount) {
+	// Create or resize the primitive texture index buffer if needed
+	if (!mPrimitiveTextureBuffer || primitiveCount > mMaxPrimitives) {
+		// Release old buffer
+		if (mPrimitiveTextureMappedData) {
+			mPrimitiveTextureBuffer->Unmap(0, nullptr);
+			mPrimitiveTextureMappedData = nullptr;
+		}
+		mPrimitiveTextureBuffer.Reset();
+
+		// Create new buffer with some headroom
+		mMaxPrimitives = max(primitiveCount, mMaxPrimitives * 2);
+		if (mMaxPrimitives == 0) mMaxPrimitives = 65536;
+
+		UINT bufferSize = mMaxPrimitives * sizeof(UINT);
+
+		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
+		CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+
+		ThrowIfFailed(device->CreateCommittedResource(
+		    &heapProps,
+		    D3D12_HEAP_FLAG_NONE,
+		    &bufferDesc,
+		    D3D12_RESOURCE_STATE_GENERIC_READ,
+		    nullptr,
+		    IID_PPV_ARGS(&mPrimitiveTextureBuffer)));
+
+		// Map the buffer
+		CD3DX12_RANGE readRange(0, 0);
+		ThrowIfFailed(mPrimitiveTextureBuffer->Map(0, &readRange, reinterpret_cast<void**>(&mPrimitiveTextureMappedData)));
+	}
+
+	// Copy texture indices
+	if (mPrimitiveTextureMappedData && textureIndices) {
+		memcpy(mPrimitiveTextureMappedData, textureIndices, primitiveCount * sizeof(UINT));
+	}
 }

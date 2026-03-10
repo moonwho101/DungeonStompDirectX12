@@ -70,6 +70,12 @@ public:
 	// Handle window resize - recreate output texture
 	void OnResize(ID3D12Device* device, UINT width, UINT height);
 
+	// Copy texture descriptors from main app's SRV heap to DXR heap
+	void CopyTextureDescriptors(ID3D12Device* device, ID3D12DescriptorHeap* srcHeap, UINT textureCount);
+
+	// Update per-primitive texture indices
+	void UpdatePrimitiveTextureIndices(ID3D12Device* device, const UINT* textureIndices, UINT primitiveCount);
+
 	// Check if DXR is ready
 	bool IsReady() const { return mIsInitialized; }
 
@@ -134,6 +140,15 @@ private:
 
 	// Back buffer format for resize
 	DXGI_FORMAT mBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	// Texture support
+	UINT mTextureStartOffset = 1; // Offset in DXR heap where textures start (after UAV)
+	UINT mTextureCount = 0;
+
+	// Per-primitive texture index buffer
+	ComPtr<ID3D12Resource> mPrimitiveTextureBuffer;
+	UINT8* mPrimitiveTextureMappedData = nullptr;
+	UINT mMaxPrimitives = 0;
 
 	// Shader identifiers
 	static const wchar_t* kRayGenShader;

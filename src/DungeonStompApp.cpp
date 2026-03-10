@@ -184,6 +184,12 @@ bool DungeonStompApp::Initialize() {
 	BuildRootSignature();
 	BuildSsaoRootSignature();
 	BuildDescriptorHeaps();
+	
+	// Copy texture descriptors to DXR heap for raytracing
+	if (mDXRInitialized && mDXRHelper) {
+		mDXRHelper->CopyTextureDescriptors(md3dDevice.Get(), mSrvDescriptorHeap.Get(), MAX_NUM_TEXTURES);
+	}
+	
 	BuildShadersAndInputLayout();
 	BuildLandGeometry();
 	BuildDungeonGeometryBuffers();
@@ -1003,6 +1009,33 @@ void DungeonStompApp::UpdateDungeon(const GameTimer &gt) {
 
 	// Update DXR scene constants (AS building happens in Draw after command list reset)
 	if (enableDXR && mDXRInitialized && cnt > 0) {
+		// Build per-primitive texture indices from ObjectsToDraw
+		// Each triangle (3 vertices) gets assigned its object's texture
+		UINT totalTriangles = cnt / 3;
+		std::vector<UINT> primitiveTextureIndices(totalTriangles, 0);
+		
+		for (int currentObject = 0; currentObject < number_of_polys_per_frame; currentObject++) {
+			int srcStart = ObjectsToDraw[currentObject].srcstart;
+			int vertsPerPoly = ObjectsToDraw[currentObject].vertsperpoly;
+			int vertIndex = ObjectsToDraw[currentObject].vert_index;
+			
+			// Get texture number through texture_list_buffer and TexMap
+			int textureAliasNumber = texture_list_buffer[vertIndex];
+			int textureNumber = TexMap[textureAliasNumber].texture;
+			
+			// Calculate triangle range for this object
+			int startTriangle = srcStart / 3;
+			int numTriangles = vertsPerPoly / 3;
+			
+			// Assign texture to all triangles in this object
+			for (int t = 0; t < numTriangles && (startTriangle + t) < (int)totalTriangles; t++) {
+				primitiveTextureIndices[startTriangle + t] = (UINT)textureNumber;
+			}
+		}
+		
+		// Upload primitive texture indices to DXR
+		mDXRHelper->UpdatePrimitiveTextureIndices(md3dDevice.Get(), primitiveTextureIndices.data(), totalTriangles);
+		
 		// Update scene constants for DXR
 		XMMATRIX view = XMLoadFloat4x4(&mView);
 		XMMATRIX proj = XMLoadFloat4x4(&mProj);
