@@ -382,8 +382,8 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     // Compute lighting using simplified PBR
     float3 color = float3(0.0f, 0.0f, 0.0f);
     
-    // Add ambient
-    float3 ambient = gAmbientLight.rgb * albedo * 0.3f;
+    // Add ambient (full strength)
+    float3 ambient = gAmbientLight.rgb * albedo;
     color += ambient;
     
     // Simple directional light (main light)
@@ -392,13 +392,13 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         Light L = gLights[0];
         float3 lightDir = -normalize(L.Direction);
         float NdotL = max(dot(N, lightDir), 0.0f);
-        color += albedo * L.Strength * NdotL * 0.7f;
+        color += albedo * L.Strength * NdotL;
         
         // Simple specular
         float3 H = normalize(V + lightDir);
         float NdotH = max(dot(N, H), 0.0f);
         float spec = pow(NdotH, 32.0f * (1.0f - roughness + 0.1f));
-        color += L.Strength * spec * 0.3f;
+        color += L.Strength * spec * 0.5f;
     }
     
     // Add point lights (torches) with attenuation
@@ -413,7 +413,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         {
             float3 lightDir = lightVec / d;
             float atten = saturate((L.FalloffEnd - d) / (L.FalloffEnd - L.FalloffStart));
-            atten *= atten; // Quadratic falloff for softer look
+            // Linear falloff instead of quadratic for brighter torches
             
             // Torch flicker
             float flicker = TorchFlicker(1.0f, gTotalTime, 8.0f, 0.2f, (float)i);
@@ -424,10 +424,10 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     }
     
     // Add minimum visibility to confirm hits
-    color = max(color, float3(0.15f, 0.1f, 0.08f));
+    color = max(color, float3(0.08f, 0.06f, 0.05f));
     
-    // Clamp and apply simple tone mapping
-    color = saturate(color);
+    // Reinhard tone mapping (preserves HDR better than saturate)
+    color = color / (color + 1.0f);
     color = pow(color, 1.0f / 2.2f); // Gamma correction
     
     payload.color = float4(color, 1.0f);
