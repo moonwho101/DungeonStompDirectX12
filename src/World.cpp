@@ -480,13 +480,13 @@ void UpdateWorld(float fElapsedTime) {
 	endc = cnt;
 
 	FreeSlave();
-	ApplyMissleDamage(1);
-	ComputeMissles(fElapsedTime);
+	//ApplyMissleDamage(1);
+	//ComputeMissles(fElapsedTime);
 	WakeUpMonsters();
 	MoveMonsters(fElapsedTime);
 	DrawMonsters();
-	DrawModel();
-	DrawItems(fElapsedTime);
+	//DrawModel();
+	//DrawItems(fElapsedTime);
 
 	// PlayerToD3DVertList(player_list[trueplayernum].model_id,
 	//	player_list[trueplayernum].current_frame, angy,

@@ -357,15 +357,23 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 		// Build/update acceleration structures (must be done after command list reset)
 		auto currDungeonVB = mCurrFrameResource->DungeonVB.get();
 		static bool blasBuilt = false;
+		static int lastBlasCnt = 0;
+
+		// Force a full rebuild when the vertex count changes (geometry
+		// topology changed).  DXR AS updates require identical counts.
+		bool forceRebuild = (blasBuilt && cnt != lastBlasCnt);
+		bool isUpdate = blasBuilt && !forceRebuild;
+
 		mDXRHelper->BuildBLAS(
 		    md3dDevice.Get(),
 		    mCommandList.Get(),
 		    currDungeonVB->Resource(),
 		    cnt,
 		    sizeof(Vertex),
-		    blasBuilt);
-		mDXRHelper->BuildTLAS(md3dDevice.Get(), mCommandList.Get(), blasBuilt);
+		    isUpdate);
+		mDXRHelper->BuildTLAS(md3dDevice.Get(), mCommandList.Get(), isUpdate);
 		blasBuilt = true;
+		lastBlasCnt = cnt;
 
 		// Dispatch rays for raytracing
 		mDXRHelper->DispatchRays(mCommandList.Get(), mClientWidth, mClientHeight);

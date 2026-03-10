@@ -4,6 +4,7 @@
 //***************************************************************************************
 
 #include "DXRHelper.h"
+#include "GlobalSettings.hpp"
 #include <d3dcompiler.h>
 #include <dxcapi.h>
 #include <vector>
@@ -374,6 +375,12 @@ void DXRHelper::BuildShaderTables(ID3D12Device5* device) {
 void DXRHelper::BuildBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList5* cmdList,
                           ID3D12Resource* vertexBuffer, UINT vertexCount, UINT vertexStride,
                           bool isUpdate) {
+	// Force a full rebuild if the vertex count changed — DXR updates require
+	// identical geometry topology.
+	if (isUpdate && vertexCount != mCurrentVertexCount) {
+		isUpdate = false;
+	}
+
 	// Store for rebuild
 	mCurrentVertexBuffer = vertexBuffer;
 	mCurrentVertexCount = vertexCount;
@@ -401,24 +408,31 @@ void DXRHelper::BuildBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList5* cmd
 	inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD |
 	               D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
 
-	// Get prebuild info
-	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
-	device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuildInfo);
+	// Allocate scratch/result buffers once, sized for the worst-case geometry
+	// (MAX_NUM_QUADS vertices).  This avoids ever reallocating while the GPU
+	// may still reference the old buffers from in-flight frames.
+	if (!mBLAS.Scratch) {
+		// Query prebuild info for the maximum possible geometry size so the
+		// buffers are guaranteed large enough for any future vertex count.
+		D3D12_RAYTRACING_GEOMETRY_DESC maxGeomDesc = geometryDesc;
+		maxGeomDesc.Triangles.VertexCount = MAX_NUM_QUADS;
 
-	// Create scratch and result buffers (only if not updating or first build)
-	if (!isUpdate || !mBLAS.Scratch) {
+		D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS maxInputs = inputs;
+		maxInputs.pGeometryDescs = &maxGeomDesc;
+
+		D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO maxPrebuild = {};
+		device->GetRaytracingAccelerationStructurePrebuildInfo(&maxInputs, &maxPrebuild);
+
 		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
 
-		// Scratch buffer
 		CD3DX12_RESOURCE_DESC scratchDesc = CD3DX12_RESOURCE_DESC::Buffer(
-		    prebuildInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		    maxPrebuild.ScratchDataSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 		ThrowIfFailed(device->CreateCommittedResource(
 		    &heapProps, D3D12_HEAP_FLAG_NONE, &scratchDesc,
 		    D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&mBLAS.Scratch)));
 
-		// Result buffer
 		CD3DX12_RESOURCE_DESC resultDesc = CD3DX12_RESOURCE_DESC::Buffer(
-		    prebuildInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+		    maxPrebuild.ResultDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 		ThrowIfFailed(device->CreateCommittedResource(
 		    &heapProps, D3D12_HEAP_FLAG_NONE, &resultDesc,
 		    D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, nullptr, IID_PPV_ARGS(&mBLAS.Result)));
@@ -454,8 +468,8 @@ void DXRHelper::BuildTLAS(ID3D12Device5* device, ID3D12GraphicsCommandList5* cmd
 	instanceDesc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 	instanceDesc.AccelerationStructure = mBLAS.Result->GetGPUVirtualAddress();
 
-	// Create/update instance buffer
-	if (!isUpdate || !mTLAS.InstanceDesc) {
+	// Allocate instance buffer once — size is fixed (1 instance).
+	if (!mTLAS.InstanceDesc) {
 		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
 		CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(D3D12_RAYTRACING_INSTANCE_DESC));
 		ThrowIfFailed(device->CreateCommittedResource(
@@ -482,8 +496,9 @@ void DXRHelper::BuildTLAS(ID3D12Device5* device, ID3D12GraphicsCommandList5* cmd
 	D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
 	device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuildInfo);
 
-	// Create scratch and result buffers
-	if (!isUpdate || !mTLAS.Scratch) {
+	// Allocate scratch/result buffers once.  TLAS with 1 instance has a
+	// fixed size, so no reallocation is ever needed.
+	if (!mTLAS.Scratch) {
 		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
 
 		CD3DX12_RESOURCE_DESC scratchDesc = CD3DX12_RESOURCE_DESC::Buffer(
