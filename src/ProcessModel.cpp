@@ -35,7 +35,7 @@ int *verts_per_poly;
 int number_of_polys_per_frame;
 int *faces_per_poly;
 int *src_f;
-D3DVERTEX2 temp_v[120000]; // debug
+D3DVERTEX2 temp_v[MAX_NUM_QUADS];
 int tempvcounter = 0;
 D3DVERTEX2 *src_v;
 int drawthistri = 1;

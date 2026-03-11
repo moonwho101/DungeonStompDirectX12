@@ -3,7 +3,6 @@
 #include "world.hpp"
 #include "GlobalSettings.hpp"
 #include <string.h>
-#include <algorithm>
 #include "DirectInput.hpp"
 #include "GameLogic.hpp"
 #include "Missle.hpp"
@@ -539,27 +538,18 @@ void UpdateWorld(float fElapsedTime) {
 
 	// Compact src_v to remove gaps left by indexed item expansion
 	{
-		// Build a list of indices sorted by srcstart so we move lowest-address data first
-		int *order = new int[number_of_polys_per_frame];
-		for (int i = 0; i < number_of_polys_per_frame; i++)
-			order[i] = i;
-		std::sort(order, order + number_of_polys_per_frame, [](int a, int b) {
-			return ObjectsToDraw[a].srcstart < ObjectsToDraw[b].srcstart;
-		});
-
 		int compact_cnt = 0;
 		for (int i = 0; i < number_of_polys_per_frame; i++) {
-			int idx = order[i];
-			int src_start = ObjectsToDraw[idx].srcstart;
-			int num_verts = verts_per_poly[idx];
-			if (num_verts > 0 && src_start != compact_cnt) {
-				memmove(&src_v[compact_cnt], &src_v[src_start], num_verts * sizeof(D3DVERTEX2));
-				ObjectsToDraw[idx].srcstart = compact_cnt;
+			int src_start = ObjectsToDraw[i].srcstart;
+			int num_verts = verts_per_poly[i];
+			if (num_verts > 0) {
+				memcpy(&temp_v[compact_cnt], &src_v[src_start], num_verts * sizeof(D3DVERTEX2));
+				ObjectsToDraw[i].srcstart = compact_cnt;
 			}
 			compact_cnt += num_verts;
 		}
+		memcpy(src_v, temp_v, compact_cnt * sizeof(D3DVERTEX2));
 		cnt = compact_cnt;
-		delete[] order;
 	}
 
 	// DrawBoundingBox();
