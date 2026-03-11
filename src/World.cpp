@@ -480,8 +480,8 @@ void UpdateWorld(float fElapsedTime) {
 	endc = cnt;
 
 	FreeSlave();
-	//ApplyMissleDamage(1);
-	//ComputeMissles(fElapsedTime);
+	ApplyMissleDamage(1);
+	ComputeMissles(fElapsedTime);
 	WakeUpMonsters();
 	MoveMonsters(fElapsedTime);
 	DrawMonsters();
@@ -504,10 +504,10 @@ void UpdateWorld(float fElapsedTime) {
 
 	FirePlayerMissle(wx, wy, wz, angy, trueplayernum, 0, em, look_up_ang, fElapsedTime);
 
-	//DrawMissle(fElapsedTime);
+	DrawMissle(fElapsedTime);
 
 	playerGunObjectStart = number_of_polys_per_frame;
-	//DrawPlayerGun(0);
+	DrawPlayerGun(0);
 
 	//// Draw player model
 	//int nextFrame = GetNextFramePlayer();
