@@ -26,9 +26,11 @@ DXRHelper::DXRHelper() {
 }
 
 DXRHelper::~DXRHelper() {
-	if (mSceneCBMappedData && mSceneConstantBuffer) {
-		mSceneConstantBuffer->Unmap(0, nullptr);
-		mSceneCBMappedData = nullptr;
+	for (UINT i = 0; i < kNumFrameResources; ++i) {
+		if (mSceneCBMappedData[i] && mSceneConstantBuffer[i]) {
+			mSceneConstantBuffer[i]->Unmap(0, nullptr);
+			mSceneCBMappedData[i] = nullptr;
+		}
 	}
 }
 
@@ -85,20 +87,22 @@ void DXRHelper::CreateConstantBuffer(ID3D12Device* device) {
 	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
 	CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(cbSize);
 
-	ThrowIfFailed(device->CreateCommittedResource(
-	    &heapProps,
-	    D3D12_HEAP_FLAG_NONE,
-	    &bufferDesc,
-	    D3D12_RESOURCE_STATE_GENERIC_READ,
-	    nullptr,
-	    IID_PPV_ARGS(&mSceneConstantBuffer)));
+	for (UINT i = 0; i < kNumFrameResources; ++i) {
+		ThrowIfFailed(device->CreateCommittedResource(
+		    &heapProps,
+		    D3D12_HEAP_FLAG_NONE,
+		    &bufferDesc,
+		    D3D12_RESOURCE_STATE_GENERIC_READ,
+		    nullptr,
+		    IID_PPV_ARGS(&mSceneConstantBuffer[i])));
 
-	// Map persistently
-	ThrowIfFailed(mSceneConstantBuffer->Map(0, nullptr, reinterpret_cast<void**>(&mSceneCBMappedData)));
+		ThrowIfFailed(mSceneConstantBuffer[i]->Map(0, nullptr, reinterpret_cast<void**>(&mSceneCBMappedData[i])));
+	}
 
-	// Create CBV in descriptor heap (slot 2)
+	// Create CBV in descriptor heap (slot 2) — points to frame 0 initially;
+	// DispatchRays binds the correct frame's buffer via root CBV each frame.
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = mSceneConstantBuffer->GetGPUVirtualAddress();
+	cbvDesc.BufferLocation = mSceneConstantBuffer[0]->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes = cbSize;
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE cbvHandle(mDXRDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
@@ -549,7 +553,7 @@ void DXRHelper::UpdateSceneConstants(const DirectX::XMFLOAT4X4& invViewProj,
 		mSceneConstants.Lights[i] = lights[i];
 	}
 
-	memcpy(mSceneCBMappedData, &mSceneConstants, sizeof(DXRSceneConstants));
+	memcpy(mSceneCBMappedData[mCurrentFrameIndex], &mSceneConstants, sizeof(DXRSceneConstants));
 }
 
 void DXRHelper::DispatchRays(ID3D12GraphicsCommandList5* cmdList, UINT width, UINT height) {
@@ -564,7 +568,7 @@ void DXRHelper::DispatchRays(ID3D12GraphicsCommandList5* cmdList, UINT width, UI
 	// Set root arguments
 	cmdList->SetComputeRootDescriptorTable(0, mDXRDescriptorHeap->GetGPUDescriptorHandleForHeapStart()); // UAV
 	cmdList->SetComputeRootShaderResourceView(1, mTLAS.Result->GetGPUVirtualAddress()); // TLAS
-	cmdList->SetComputeRootConstantBufferView(2, mSceneConstantBuffer->GetGPUVirtualAddress()); // Scene CB
+	cmdList->SetComputeRootConstantBufferView(2, mSceneConstantBuffer[mCurrentFrameIndex]->GetGPUVirtualAddress()); // Scene CB
 	if (mCurrentVertexBuffer) {
 		cmdList->SetComputeRootShaderResourceView(3, mCurrentVertexBuffer->GetGPUVirtualAddress()); // Vertex buffer
 	}
@@ -577,8 +581,8 @@ void DXRHelper::DispatchRays(ID3D12GraphicsCommandList5* cmdList, UINT width, UI
 	}
 	
 	// Set primitive texture indices buffer (slot 5)
-	if (mPrimitiveTextureBuffer) {
-		cmdList->SetComputeRootShaderResourceView(5, mPrimitiveTextureBuffer->GetGPUVirtualAddress());
+	if (mPrimitiveTextureBuffer[mCurrentFrameIndex]) {
+		cmdList->SetComputeRootShaderResourceView(5, mPrimitiveTextureBuffer[mCurrentFrameIndex]->GetGPUVirtualAddress());
 	}
 
 	// Dispatch rays
@@ -659,28 +663,35 @@ void DXRHelper::CopyTextureDescriptors(ID3D12Device* device, ID3D12DescriptorHea
 	sprintf_s(buf, "DXR: Copied %u texture descriptors to DXR heap\n", textureCount);
 	OutputDebugStringA(buf);
 	
-	// Initialize primitive texture indices buffer with default values (texture 0)
+	// Initialize primitive texture indices buffers for all frames with default values (texture 0)
 	// This ensures the shader has valid data until proper per-primitive mapping is set up
 	UINT defaultPrimitiveCount = 200000; // Max expected primitives
 	std::vector<UINT> defaultIndices(defaultPrimitiveCount, 0); // All primitives use texture 0
-	UpdatePrimitiveTextureIndices(device, defaultIndices.data(), defaultPrimitiveCount);
+	UINT savedFrame = mCurrentFrameIndex;
+	for (UINT i = 0; i < kNumFrameResources; ++i) {
+		mCurrentFrameIndex = i;
+		UpdatePrimitiveTextureIndices(device, defaultIndices.data(), defaultPrimitiveCount);
+	}
+	mCurrentFrameIndex = savedFrame;
 }
 
 void DXRHelper::UpdatePrimitiveTextureIndices(ID3D12Device* device, const UINT* textureIndices, UINT primitiveCount) {
-	// Create or resize the primitive texture index buffer if needed
-	if (!mPrimitiveTextureBuffer || primitiveCount > mMaxPrimitives) {
+	UINT fi = mCurrentFrameIndex;
+
+	// Create or resize the primitive texture index buffer for this frame if needed
+	if (!mPrimitiveTextureBuffer[fi] || primitiveCount > mMaxPrimitives[fi]) {
 		// Release old buffer
-		if (mPrimitiveTextureMappedData) {
-			mPrimitiveTextureBuffer->Unmap(0, nullptr);
-			mPrimitiveTextureMappedData = nullptr;
+		if (mPrimitiveTextureMappedData[fi]) {
+			mPrimitiveTextureBuffer[fi]->Unmap(0, nullptr);
+			mPrimitiveTextureMappedData[fi] = nullptr;
 		}
-		mPrimitiveTextureBuffer.Reset();
+		mPrimitiveTextureBuffer[fi].Reset();
 
 		// Create new buffer with some headroom
-		mMaxPrimitives = max(primitiveCount, mMaxPrimitives * 2);
-		if (mMaxPrimitives == 0) mMaxPrimitives = 65536;
+		mMaxPrimitives[fi] = max(primitiveCount, mMaxPrimitives[fi] * 2);
+		if (mMaxPrimitives[fi] == 0) mMaxPrimitives[fi] = 65536;
 
-		UINT bufferSize = mMaxPrimitives * sizeof(UINT);
+		UINT bufferSize = mMaxPrimitives[fi] * sizeof(UINT);
 
 		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
 		CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
@@ -691,15 +702,15 @@ void DXRHelper::UpdatePrimitiveTextureIndices(ID3D12Device* device, const UINT* 
 		    &bufferDesc,
 		    D3D12_RESOURCE_STATE_GENERIC_READ,
 		    nullptr,
-		    IID_PPV_ARGS(&mPrimitiveTextureBuffer)));
+		    IID_PPV_ARGS(&mPrimitiveTextureBuffer[fi])));
 
 		// Map the buffer
 		CD3DX12_RANGE readRange(0, 0);
-		ThrowIfFailed(mPrimitiveTextureBuffer->Map(0, &readRange, reinterpret_cast<void**>(&mPrimitiveTextureMappedData)));
+		ThrowIfFailed(mPrimitiveTextureBuffer[fi]->Map(0, &readRange, reinterpret_cast<void**>(&mPrimitiveTextureMappedData[fi])));
 	}
 
 	// Copy texture indices
-	if (mPrimitiveTextureMappedData && textureIndices) {
-		memcpy(mPrimitiveTextureMappedData, textureIndices, primitiveCount * sizeof(UINT));
+	if (mPrimitiveTextureMappedData[fi] && textureIndices) {
+		memcpy(mPrimitiveTextureMappedData[fi], textureIndices, primitiveCount * sizeof(UINT));
 	}
 }

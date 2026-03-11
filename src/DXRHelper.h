@@ -76,6 +76,9 @@ public:
 	// Update per-primitive texture indices
 	void UpdatePrimitiveTextureIndices(ID3D12Device* device, const UINT* textureIndices, UINT primitiveCount);
 
+	// Set current frame resource index (call once per frame before any DXR updates)
+	void SetFrameIndex(UINT frameIndex) { mCurrentFrameIndex = frameIndex % kNumFrameResources; }
+
 	// Check if DXR is ready
 	bool IsReady() const { return mIsInitialized; }
 
@@ -96,9 +99,12 @@ private:
 	ComPtr<ID3DBlob> CompileRaytracingShader(const std::wstring& filename, const wchar_t* entryPoint);
 
 private:
+	static const UINT kNumFrameResources = 3;
+
 	bool mIsInitialized = false;
 	UINT mWidth = 0;
 	UINT mHeight = 0;
+	UINT mCurrentFrameIndex = 0;
 
 	// Acceleration structures
 	AccelerationStructureBuffers mBLAS;
@@ -128,10 +134,10 @@ private:
 	ComPtr<ID3D12DescriptorHeap> mDXRDescriptorHeap;
 	UINT mCbvSrvUavDescriptorSize = 0;
 
-	// Scene constant buffer
-	ComPtr<ID3D12Resource> mSceneConstantBuffer;
+	// Scene constant buffer (per-frame to avoid CPU/GPU race)
+	ComPtr<ID3D12Resource> mSceneConstantBuffer[kNumFrameResources];
 	DXRSceneConstants mSceneConstants;
-	UINT8* mSceneCBMappedData = nullptr;
+	UINT8* mSceneCBMappedData[kNumFrameResources] = {};
 
 	// Store vertex buffer reference for BLAS rebuild
 	ID3D12Resource* mCurrentVertexBuffer = nullptr;
@@ -145,10 +151,10 @@ private:
 	UINT mTextureStartOffset = 1; // Offset in DXR heap where textures start (after UAV)
 	UINT mTextureCount = 0;
 
-	// Per-primitive texture index buffer
-	ComPtr<ID3D12Resource> mPrimitiveTextureBuffer;
-	UINT8* mPrimitiveTextureMappedData = nullptr;
-	UINT mMaxPrimitives = 0;
+	// Per-primitive texture index buffer (per-frame to avoid CPU/GPU race)
+	ComPtr<ID3D12Resource> mPrimitiveTextureBuffer[kNumFrameResources];
+	UINT8* mPrimitiveTextureMappedData[kNumFrameResources] = {};
+	UINT mMaxPrimitives[kNumFrameResources] = {};
 
 	// Shader identifiers
 	static const wchar_t* kRayGenShader;

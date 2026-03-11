@@ -1017,6 +1017,9 @@ void DungeonStompApp::UpdateDungeon(const GameTimer &gt) {
 
 	// Update DXR scene constants (AS building happens in Draw after command list reset)
 	if (enableDXR && mDXRInitialized && cnt > 0) {
+		// Select per-frame DXR buffers matching the current frame resource
+		mDXRHelper->SetFrameIndex(mCurrFrameResourceIndex);
+
 		// Build per-primitive texture indices from ObjectsToDraw
 		// Each triangle (3 vertices) gets assigned its object's texture
 		UINT totalTriangles = cnt / 3;
