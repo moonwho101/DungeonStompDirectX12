@@ -76,6 +76,9 @@ public:
 	// Update per-primitive texture indices
 	void UpdatePrimitiveTextureIndices(ID3D12Device* device, const UINT* textureIndices, UINT primitiveCount);
 
+	// Update per-primitive normal map texture indices
+	void UpdatePrimitiveNormalMapIndices(ID3D12Device* device, const INT* normalMapIndices, UINT primitiveCount);
+
 	// Set current frame resource index (call once per frame before any DXR updates)
 	void SetFrameIndex(UINT frameIndex) { mCurrentFrameIndex = frameIndex % kNumFrameResources; }
 
@@ -155,6 +158,11 @@ private:
 	ComPtr<ID3D12Resource> mPrimitiveTextureBuffer[kNumFrameResources];
 	UINT8* mPrimitiveTextureMappedData[kNumFrameResources] = {};
 	UINT mMaxPrimitives[kNumFrameResources] = {};
+
+	// Per-primitive normal map index buffer (per-frame to avoid CPU/GPU race)
+	ComPtr<ID3D12Resource> mPrimitiveNormalMapBuffer[kNumFrameResources];
+	UINT8* mPrimitiveNormalMapMappedData[kNumFrameResources] = {};
+	UINT mMaxNormalMapPrimitives[kNumFrameResources] = {};
 
 	// Shader identifiers
 	static const wchar_t* kRayGenShader;

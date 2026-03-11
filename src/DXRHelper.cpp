@@ -150,6 +150,7 @@ void DXRHelper::CreateRootSignatures(ID3D12Device5* device) {
 	// Slot 3: Vertex Buffer SRV (t1) - inline
 	// Slot 4: Texture Array SRV (t2-t551) - descriptor table
 	// Slot 5: Primitive Texture Indices (t0, space1) - inline
+	// Slot 6: Primitive Normal Map Indices (t1, space1) - inline
 	CD3DX12_DESCRIPTOR_RANGE1 uavRange;
 	uavRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0); // u0
 
@@ -157,13 +158,14 @@ void DXRHelper::CreateRootSignatures(ID3D12Device5* device) {
 	CD3DX12_DESCRIPTOR_RANGE1 textureRange;
 	textureRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 550, 2); // t2-t551
 
-	CD3DX12_ROOT_PARAMETER1 rootParams[6];
+	CD3DX12_ROOT_PARAMETER1 rootParams[7];
 	rootParams[0].InitAsDescriptorTable(1, &uavRange);                              // Output UAV
 	rootParams[1].InitAsShaderResourceView(0);                                      // TLAS (t0)
 	rootParams[2].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE); // Scene CB (b0)
 	rootParams[3].InitAsShaderResourceView(1);                                      // Vertex buffer (t1)
 	rootParams[4].InitAsDescriptorTable(1, &textureRange);                          // Texture array (t2+)
 	rootParams[5].InitAsShaderResourceView(0, 1);                                   // Primitive indices (t0, space1)
+	rootParams[6].InitAsShaderResourceView(1, 1);                                   // Normal map indices (t1, space1)
 
 	// Static sampler for texture sampling
 	D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
@@ -585,6 +587,11 @@ void DXRHelper::DispatchRays(ID3D12GraphicsCommandList5* cmdList, UINT width, UI
 		cmdList->SetComputeRootShaderResourceView(5, mPrimitiveTextureBuffer[mCurrentFrameIndex]->GetGPUVirtualAddress());
 	}
 
+	// Set primitive normal map indices buffer (slot 6)
+	if (mPrimitiveNormalMapBuffer[mCurrentFrameIndex]) {
+		cmdList->SetComputeRootShaderResourceView(6, mPrimitiveNormalMapBuffer[mCurrentFrameIndex]->GetGPUVirtualAddress());
+	}
+
 	// Dispatch rays
 	D3D12_DISPATCH_RAYS_DESC dispatchDesc = {};
 	dispatchDesc.RayGenerationShaderRecord.StartAddress = mRayGenShaderTable->GetGPUVirtualAddress();
@@ -672,6 +679,13 @@ void DXRHelper::CopyTextureDescriptors(ID3D12Device* device, ID3D12DescriptorHea
 		mCurrentFrameIndex = i;
 		UpdatePrimitiveTextureIndices(device, defaultIndices.data(), defaultPrimitiveCount);
 	}
+
+	// Initialize primitive normal map indices buffers for all frames with -1 (no normal map)
+	std::vector<INT> defaultNormalMapIndices(defaultPrimitiveCount, -1);
+	for (UINT i = 0; i < kNumFrameResources; ++i) {
+		mCurrentFrameIndex = i;
+		UpdatePrimitiveNormalMapIndices(device, defaultNormalMapIndices.data(), defaultPrimitiveCount);
+	}
 	mCurrentFrameIndex = savedFrame;
 }
 
@@ -712,5 +726,45 @@ void DXRHelper::UpdatePrimitiveTextureIndices(ID3D12Device* device, const UINT* 
 	// Copy texture indices
 	if (mPrimitiveTextureMappedData[fi] && textureIndices) {
 		memcpy(mPrimitiveTextureMappedData[fi], textureIndices, primitiveCount * sizeof(UINT));
+	}
+}
+
+void DXRHelper::UpdatePrimitiveNormalMapIndices(ID3D12Device* device, const INT* normalMapIndices, UINT primitiveCount) {
+	UINT fi = mCurrentFrameIndex;
+
+	// Create or resize the normal map index buffer for this frame if needed
+	if (!mPrimitiveNormalMapBuffer[fi] || primitiveCount > mMaxNormalMapPrimitives[fi]) {
+		// Release old buffer
+		if (mPrimitiveNormalMapMappedData[fi]) {
+			mPrimitiveNormalMapBuffer[fi]->Unmap(0, nullptr);
+			mPrimitiveNormalMapMappedData[fi] = nullptr;
+		}
+		mPrimitiveNormalMapBuffer[fi].Reset();
+
+		// Create new buffer with some headroom
+		mMaxNormalMapPrimitives[fi] = max(primitiveCount, mMaxNormalMapPrimitives[fi] * 2);
+		if (mMaxNormalMapPrimitives[fi] == 0) mMaxNormalMapPrimitives[fi] = 65536;
+
+		UINT bufferSize = mMaxNormalMapPrimitives[fi] * sizeof(INT);
+
+		CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
+		CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+
+		ThrowIfFailed(device->CreateCommittedResource(
+		    &heapProps,
+		    D3D12_HEAP_FLAG_NONE,
+		    &bufferDesc,
+		    D3D12_RESOURCE_STATE_GENERIC_READ,
+		    nullptr,
+		    IID_PPV_ARGS(&mPrimitiveNormalMapBuffer[fi])));
+
+		// Map the buffer
+		CD3DX12_RANGE readRange(0, 0);
+		ThrowIfFailed(mPrimitiveNormalMapBuffer[fi]->Map(0, &readRange, reinterpret_cast<void**>(&mPrimitiveNormalMapMappedData[fi])));
+	}
+
+	// Copy normal map indices
+	if (mPrimitiveNormalMapMappedData[fi] && normalMapIndices) {
+		memcpy(mPrimitiveNormalMapMappedData[fi], normalMapIndices, primitiveCount * sizeof(INT));
 	}
 }

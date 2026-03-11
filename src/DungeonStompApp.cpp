@@ -1024,6 +1024,7 @@ void DungeonStompApp::UpdateDungeon(const GameTimer &gt) {
 		// Each triangle (3 vertices) gets assigned its object's texture
 		UINT totalTriangles = cnt / 3;
 		std::vector<UINT> primitiveTextureIndices(totalTriangles, 999); // Initialize with invalid value to detect gaps
+		std::vector<INT> primitiveNormalMapIndices(totalTriangles, -1); // -1 = no normal map
 		
 		static bool debugOnce = true;
 		int trianglesSet = 0;
@@ -1038,6 +1039,8 @@ void DungeonStompApp::UpdateDungeon(const GameTimer &gt) {
 			// Get texture number through texture_list_buffer and TexMap
 			int textureAliasNumber = texture_list_buffer[vertIndex];
 			int textureNumber = TexMap[textureAliasNumber].texture;
+			int normalMapAliasId = TexMap[textureAliasNumber].normalmaptextureid;
+			int normalMapTexture = (normalMapAliasId >= 0) ? TexMap[normalMapAliasId].texture : -1;
 			
 			// Calculate triangle range for this object
 			// vertsperpoly is the vertex count (3 per triangle for triangle list)
@@ -1055,6 +1058,7 @@ void DungeonStompApp::UpdateDungeon(const GameTimer &gt) {
 			// Assign texture to all triangles in this object
 			for (int t = 0; t < numTriangles && (startTriangle + t) < (int)totalTriangles; t++) {
 				primitiveTextureIndices[startTriangle + t] = (UINT)textureNumber;
+				primitiveNormalMapIndices[startTriangle + t] = (INT)normalMapTexture;
 				trianglesSet++;
 			}
 		}
@@ -1079,6 +1083,9 @@ void DungeonStompApp::UpdateDungeon(const GameTimer &gt) {
 		
 		// Upload primitive texture indices to DXR
 		mDXRHelper->UpdatePrimitiveTextureIndices(md3dDevice.Get(), primitiveTextureIndices.data(), totalTriangles);
+		
+		// Upload primitive normal map indices to DXR
+		mDXRHelper->UpdatePrimitiveNormalMapIndices(md3dDevice.Get(), primitiveNormalMapIndices.data(), totalTriangles);
 		
 		// Update scene constants for DXR
 		XMMATRIX view = XMLoadFloat4x4(&mView);

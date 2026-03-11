@@ -65,6 +65,9 @@ Texture2D gTextures[] : register(t2);
 // Per-primitive texture index buffer
 ByteAddressBuffer gPrimitiveTextureIndices : register(t0, space1);
 
+// Per-primitive normal map texture index buffer (-1 = no normal map)
+ByteAddressBuffer gPrimitiveNormalMapIndices : register(t1, space1);
+
 // Sampler for texture sampling
 SamplerState gSampler : register(s0);
 
@@ -113,6 +116,24 @@ bool IsTransparentTexture(uint texIdx)
     if (texIdx >= 370 && texIdx <= 378) return true;  // 371-1..379-1
     if (texIdx == 378)                  return true;
     return false;
+}
+
+//=============================================================================
+// Normal Map Helper
+//=============================================================================
+
+float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
+{
+    // Unpack from [0,1] to [-1,1]
+    float3 normalT = 2.0f * normalMapSample - 1.0f;
+    
+    // Build orthonormal TBN basis
+    float3 N = unitNormalW;
+    float3 T = normalize(tangentW - dot(tangentW, N) * N);
+    float3 B = cross(N, T);
+    float3x3 TBN = float3x3(T, B, N);
+    
+    return mul(normalT, TBN);
 }
 
 //=============================================================================
@@ -392,6 +413,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     float3 localPos = v0.Pos * bary.x + v1.Pos * bary.y + v2.Pos * bary.z;
     float3 N = normalize(v0.Normal * bary.x + v1.Normal * bary.y + v2.Normal * bary.z);
     float2 texCoord = v0.TexC * bary.x + v1.TexC * bary.y + v2.TexC * bary.z;
+    float3 T = normalize(v0.TangentU * bary.x + v1.TangentU * bary.y + v2.TangentU * bary.z);
     
     // Hit position and ray direction
     float3 hitPos = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
@@ -406,6 +428,14 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     
     // Sample texture
     uint texIndex = gPrimitiveTextureIndices.Load(primIdx * 4);
+    
+    // Normal mapping: sample and apply if this primitive has a normal map
+    int normalMapIndex = asint(gPrimitiveNormalMapIndices.Load(primIdx * 4));
+    if (normalMapIndex >= 0 && normalMapIndex < 550)
+    {
+        float3 normalMapSample = gTextures[NonUniformResourceIndex((uint)normalMapIndex)].SampleLevel(gSampler, texCoord, 0).rgb;
+        N = normalize(NormalSampleToWorldSpace(normalMapSample, N, T));
+    }
     float4 texSample = float4(0.5f, 0.5f, 0.5f, 1.0f);
     
     if (texIndex < 550)
