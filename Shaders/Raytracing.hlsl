@@ -495,7 +495,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     }
     
     // ---- Point lights (torches + missiles) with shadows ----
-    for (uint i = 0; i < min(gNumLights, (uint)MaxLights); ++i)
+    for (uint i = 1; i < min(gNumLights, (uint)MaxLights); ++i)
     {
         Light L = gLights[i];
         float3 lightVec = L.Position - hitPos;
