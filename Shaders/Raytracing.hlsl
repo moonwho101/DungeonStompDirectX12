@@ -444,7 +444,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     }
     
     // Alpha-test transparency: skip through transparent textures
-    if (IsTransparentTexture(texIndex) && texSample.a < 0.5f && payload.depth < 4)
+        if (IsTransparentTexture(texIndex) && texSample.a < 0.3f && payload.depth < 4)
     {
         // Fire a continuation ray through this surface
         RayDesc contRay;
