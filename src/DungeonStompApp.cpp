@@ -318,7 +318,6 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 	ThrowIfFailed(mCommandList->Reset(cmdListAlloc.Get(), mPSOs["opaque"].Get()));
 
 	ProcessLights11();
-	ScanMod(gt.DeltaTime());
 
 	ID3D12DescriptorHeap *descriptorHeaps[] = { mSrvDescriptorHeap.Get() };
 	mCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
@@ -2448,7 +2447,7 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const 
 			SetDungeonText();
 		}
 
-		//ScanMod(gt.DeltaTime());
+		ScanMod(gt.DeltaTime());
 	}
 
 	return;
