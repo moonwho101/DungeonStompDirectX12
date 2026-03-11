@@ -443,6 +443,13 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         albedo = lerp(float3(0.4f, 0.38f, 0.35f), float3(0.55f, 0.52f, 0.48f), variation);
     }
     
+    // Transparent textures (torches/flames) are emissive: return raw texture color, no shading
+    if (IsTransparentTexture(texIndex))
+    {
+        payload.color = float4(albedo, texSample.a);
+        return;
+    }
+    
     // ---- Material properties ----
     float roughness = gRoughness;
     float metallic = gMetallic;
