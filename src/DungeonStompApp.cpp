@@ -899,17 +899,17 @@ void DungeonStompApp::UpdateMainPassCB(const GameTimer &gt) {
 	// mMainPassCB.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
 
 	for (int i = 0; i < MaxLights; i++) {
-		mMainPassCB.Lights[i + 1].Direction = LightContainer[i].Direction;
-		mMainPassCB.Lights[i + 1].Strength = LightContainer[i].Strength;
-		mMainPassCB.Lights[i + 1].Position = LightContainer[i].Position;
-		mMainPassCB.Lights[i + 1].FalloffEnd = LightContainer[i].FalloffEnd;
-		mMainPassCB.Lights[i + 1].FalloffStart = LightContainer[i].FalloffStart;
-		mMainPassCB.Lights[i + 1].SpotPower = LightContainer[i].SpotPower;
+		mMainPassCB.Lights[i].Direction = LightContainer[i].Direction;
+		mMainPassCB.Lights[i].Strength = LightContainer[i].Strength;
+		mMainPassCB.Lights[i].Position = LightContainer[i].Position;
+		mMainPassCB.Lights[i].FalloffEnd = LightContainer[i].FalloffEnd;
+		mMainPassCB.Lights[i].FalloffStart = LightContainer[i].FalloffStart;
+		mMainPassCB.Lights[i].SpotPower = LightContainer[i].SpotPower;
 	}
 
-	mMainPassCB.Lights[0].Strength = { 0.15f, 0.15f, 0.15f };
+	//mMainPassCB.Lights[0].Strength = { 0.15f, 0.15f, 0.15f };
 	// mMainPassCB.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
-	mMainPassCB.Lights[0].Direction = mRotatedLightDirections[0];
+	//mMainPassCB.Lights[0].Direction = mRotatedLightDirections[0];
 	// mMainPassCB.Lights[0].Strength = { 0.4f, 0.4f, 0.4f };
 	// mMainPassCB.Lights[0].Strength = { 0.9f, 0.8f, 0.7f };
 	// mMainPassCB.Lights[1].Direction = mRotatedLightDirections[1];
@@ -3120,6 +3120,12 @@ void DungeonStompApp::ProcessLights11() {
 		LightContainer[i].SpotPower = 90.0f;
 	}
 
+
+	//first light is directional
+	LightContainer[0].Strength = { 0.15f, 0.15f, 0.15f };
+	LightContainer[0].Direction = mRotatedLightDirections[0];
+
+
 	int dcount = 0;
 	// Find lights
 	for (int q = 0; q < oblist_length; q++) {
@@ -3158,9 +3164,10 @@ void DungeonStompApp::ProcessLights11() {
 
 		int angle = (int)oblist[q].rot_angle;
 		int ob_type = oblist[q].type;
-		// LightContainer[i+1].Strength = { 1.5f, 1.5f, 1.5f };
-		LightContainer[i].Strength = { 9.0f, 9.0f, 9.0f };
-		LightContainer[i].Position = DirectX::XMFLOAT3{ oblist[q].x, oblist[q].y + 50.0f, oblist[q].z };
+		
+		//+1 because 0 is reserved for directional light
+		LightContainer[i+1].Strength = { 9.0f, 9.0f, 9.0f };
+		LightContainer[i+1].Position = DirectX::XMFLOAT3{ oblist[q].x, oblist[q].y + 50.0f, oblist[q].z };
 	}
 
 	int count = 0;
@@ -3171,19 +3178,19 @@ void DungeonStompApp::ProcessLights11() {
 
 				float r = MathHelper::RandF(10.0f, 100.0f);
 
-				LightContainer[11 + count].Position = DirectX::XMFLOAT3{ your_missle[misslecount].x, your_missle[misslecount].y, your_missle[misslecount].z };
-				LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 0.0f, 0.0f, 1.0f };
-				LightContainer[11 + count].FalloffStart = 100.0f;
-				LightContainer[11 + count].Direction = { 0.0f, -1.0f, 0.0f };
-				LightContainer[11 + count].FalloffEnd = 200.0f;
-				LightContainer[11 + count].SpotPower = 10.0f;
+				LightContainer[12 + count].Position = DirectX::XMFLOAT3{ your_missle[misslecount].x, your_missle[misslecount].y, your_missle[misslecount].z };
+				LightContainer[12 + count].Strength = DirectX::XMFLOAT3{ 0.0f, 0.0f, 1.0f };
+				LightContainer[12 + count].FalloffStart = 100.0f;
+				LightContainer[12 + count].Direction = { 0.0f, -1.0f, 0.0f };
+				LightContainer[12 + count].FalloffEnd = 200.0f;
+				LightContainer[12 + count].SpotPower = 10.0f;
 
 				if (your_missle[misslecount].model_id == 103) {
-					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 0.0f, 3.0f, 2.843f };
+					LightContainer[12 + count].Strength = DirectX::XMFLOAT3{ 0.0f, 3.0f, 2.843f };
 				} else if (your_missle[misslecount].model_id == 104) {
-					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 3.0f, 0.396f, 0.5f };
+					LightContainer[12 + count].Strength = DirectX::XMFLOAT3{ 3.0f, 0.396f, 0.5f };
 				} else if (your_missle[misslecount].model_id == 105) {
-					LightContainer[11 + count].Strength = DirectX::XMFLOAT3{ 1.91f, 3.1f, 1.0f };
+					LightContainer[12 + count].Strength = DirectX::XMFLOAT3{ 1.91f, 3.1f, 1.0f };
 				}
 				count++;
 			}
@@ -3200,7 +3207,7 @@ void DungeonStompApp::ProcessLights11() {
 
 	if (flamesword) {
 
-		int spot = 15;
+		int spot = 16;
 
 		LightContainer[spot].Position = DirectX::XMFLOAT3{ m_vEyePt.x, m_vEyePt.y, m_vEyePt.z };
 		LightContainer[spot].Strength = DirectX::XMFLOAT3{ 0.0f, 0.0f, 1.0f };
@@ -3260,11 +3267,11 @@ void DungeonStompApp::ProcessLights11() {
 		int angle = (int)oblist[q].rot_angle;
 		int ob_type = oblist[q].type;
 		float adjust = 0.0f;
-		LightContainer[i + 16].Position = DirectX::XMFLOAT3{ oblist[q].x, oblist[q].y + 0.0f, oblist[q].z };
-		LightContainer[i + 16].Strength = DirectX::XMFLOAT3{ (float)oblist[q].light_source->rcolour + adjust, (float)oblist[q].light_source->gcolour + adjust, (float)oblist[q].light_source->bcolour + adjust };
-		LightContainer[i + 16].FalloffStart = 600.0f;
-		LightContainer[i + 16].Direction = { oblist[q].light_source->direction_x, oblist[q].light_source->direction_y, oblist[q].light_source->direction_z };
-		LightContainer[i + 16].FalloffEnd = 650.0f;
-		LightContainer[i + 16].SpotPower = 1.9f;
+		LightContainer[i + 17].Position = DirectX::XMFLOAT3{ oblist[q].x, oblist[q].y + 0.0f, oblist[q].z };
+		LightContainer[i + 17].Strength = DirectX::XMFLOAT3{ (float)oblist[q].light_source->rcolour + adjust, (float)oblist[q].light_source->gcolour + adjust, (float)oblist[q].light_source->bcolour + adjust };
+		LightContainer[i + 17].FalloffStart = 600.0f;
+		LightContainer[i + 17].Direction = { oblist[q].light_source->direction_x, oblist[q].light_source->direction_y, oblist[q].light_source->direction_z };
+		LightContainer[i + 17].FalloffEnd = 650.0f;
+		LightContainer[i + 17].SpotPower = 1.9f;
 	}
 }

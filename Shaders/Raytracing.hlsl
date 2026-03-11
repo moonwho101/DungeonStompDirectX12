@@ -110,6 +110,7 @@ bool IsTransparentTexture(uint texIdx)
     if (texIdx >= 94  && texIdx <= 101) return true;  // flames / effects
     if (texIdx >= 278 && texIdx <= 295) return true;  // 279-1..296-1
     if (texIdx >= 205 && texIdx <= 209) return true;  // 206-1..210-1
+    if (texIdx >= 370 && texIdx <= 378) return true;  // 371-1..379-1
     if (texIdx == 378)                  return true;
     return false;
 }
@@ -487,7 +488,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     }
     
     // ---- Point lights (torches + missiles) with shadows ----
-    for (uint i = 1; i < min(gNumLights, (uint)MaxLights); ++i)
+    for (uint i = 0; i < min(gNumLights, (uint)MaxLights); ++i)
     {
         Light L = gLights[i];
         float3 lightVec = L.Position - hitPos;
