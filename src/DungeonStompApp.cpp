@@ -380,6 +380,44 @@ void DungeonStompApp::Draw(const GameTimer &gt) {
 
 		// Copy raytracing output to back buffer
 		mDXRHelper->CopyOutputToBackBuffer(mCommandList.Get(), CurrentBackBuffer());
+
+		// Begin main render pass. Preserve the raytracing output we copied to the back buffer
+		// instead of clearing it so HUD can be drawn on top of the DXR result.
+		D3D12_RENDER_PASS_RENDER_TARGET_DESC mainRtDesc = {};
+		mainRtDesc.cpuDescriptor = CurrentBackBufferView();
+		mainRtDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+		mainRtDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+
+		D3D12_RENDER_PASS_DEPTH_STENCIL_DESC mainDsDesc = {};
+		mainDsDesc.cpuDescriptor = DepthStencilView();
+		mainDsDesc.DepthBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+		mainDsDesc.DepthBeginningAccess.Clear.ClearValue.Format = mDepthStencilFormat;
+		mainDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Depth = 1.0f;
+		mainDsDesc.DepthBeginningAccess.Clear.ClearValue.DepthStencil.Stencil = 0;
+		mainDsDesc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+		mainDsDesc.StencilBeginningAccess.Clear.ClearValue = mainDsDesc.DepthBeginningAccess.Clear.ClearValue;
+		mainDsDesc.DepthEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+		mainDsDesc.StencilEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+
+		mCommandList->BeginRenderPass(1, &mainRtDesc, &mainDsDesc, D3D12_RENDER_PASS_FLAG_NONE);
+
+		auto passCB = mCurrFrameResource->PassCB->Resource();
+		mCommandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
+
+		if (enablePlayerHUD) {
+			DisplayHud();
+			SetDungeonText();
+		}
+
+		ScanMod(gt.DeltaTime());
+
+		// Reset VRS to full rate after rendering
+		if (enableVRS && mVRSHelper.IsSupported()) {
+			mVRSHelper.SetFullRate(mCommandList.Get());
+		}
+
+		mCommandList->EndRenderPass();
+		
 	} else {
 		// Begin main render pass with clear (standard rasterization path).
 		D3D12_RENDER_PASS_RENDER_TARGET_DESC mainRtDesc = {};
