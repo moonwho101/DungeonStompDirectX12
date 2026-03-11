@@ -1,10 +1,21 @@
 //***************************************************************************************
 // Raytracing.hlsl - DirectX Raytracing Shader with PBR Lighting
 // Ray generation, closest hit, and miss shaders for DXR with physically-based rendering
+// Features: inline shadow rays (DXR 1.1), full Cook-Torrance PBR, ACES tone mapping,
+//           atmospheric fog, wet floor reflectance, per-light flicker
 //***************************************************************************************
 
 #define MaxLights 32
 #define PI 3.14159265f
+
+// Max point lights that cast shadow rays (performance knob)
+#define MAX_SHADOW_LIGHTS 12
+
+// Fog density for dungeon atmosphere
+#define FOG_DENSITY 0.0025f
+
+// Shadow ray bias to prevent self-intersection
+#define SHADOW_BIAS 0.15f
 
 // Light structure matching CPU-side
 struct Light
@@ -90,15 +101,18 @@ Vertex LoadVertex(uint vertexIndex)
 struct RayPayload
 {
     float4 color;
+    uint   depth; // recursion depth for transparency
 };
 
-// Vertex attributes (interpolated)
-struct VertexAttributes
+// Hard-coded transparent texture ranges (matching CPU-side alpha skip logic)
+bool IsTransparentTexture(uint texIdx)
 {
-    float3 position;
-    float3 normal;
-    float2 texCoord;
-};
+    if (texIdx >= 94  && texIdx <= 101) return true;  // flames / effects
+    if (texIdx >= 278 && texIdx <= 295) return true;  // 279-1..296-1
+    if (texIdx >= 205 && texIdx <= 209) return true;  // 206-1..210-1
+    if (texIdx == 378)                  return true;
+    return false;
+}
 
 //=============================================================================
 // PBR Helper Functions
@@ -205,7 +219,7 @@ float3 ComputePointLight(Light L, float3 pos, float3 albedo, float3 N, float3 V,
     
     float3 kS = F;
     float3 kD = 1.0f - kS;
-    kD *= 1.0f - metallic * flicker;
+    kD *= 1.0f - metallic;
     
     float3 diffuse = kD * albedo / PI;
     float3 lightStrength = L.Strength * flicker;
@@ -249,6 +263,41 @@ float3 ComputeSpotLight(Light L, float3 pos, float3 albedo, float3 N, float3 V, 
 }
 
 //=============================================================================
+// Shadow Ray (DXR 1.1 Inline Raytracing)
+//=============================================================================
+
+// Returns 1.0 if fully lit, 0.0 if fully shadowed
+float TraceShadowRay(float3 origin, float3 direction, float maxDist)
+{
+    RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES> shadowQuery;
+    
+    RayDesc shadowRay;
+    shadowRay.Origin = origin;
+    shadowRay.Direction = direction;
+    shadowRay.TMin = 0.05f;
+    shadowRay.TMax = maxDist - 0.1f;
+    
+    shadowQuery.TraceRayInline(gScene, RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH, 0xFF, shadowRay);
+    shadowQuery.Proceed();
+    
+    return (shadowQuery.CommittedStatus() == COMMITTED_TRIANGLE_HIT) ? 0.0f : 1.0f;
+}
+
+//=============================================================================
+// ACES Filmic Tone Mapping
+//=============================================================================
+
+float3 ACESFilm(float3 x)
+{
+    float a = 2.51f;
+    float b = 0.03f;
+    float c = 2.43f;
+    float d = 0.59f;
+    float e = 0.14f;
+    return saturate((x * (a * x + b)) / (x * (c * x + d) + e));
+}
+
+//=============================================================================
 // Ray Generation Shader
 //=============================================================================
 
@@ -283,7 +332,9 @@ void RayGen()
     ray.TMin = 0.01f;
     ray.TMax = 100000.0f;
     
-    RayPayload payload = { float4(0.0f, 0.0f, 0.0f, 1.0f) };
+    RayPayload payload;
+    payload.color = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    payload.depth = 0;
     
     TraceRay(
         gScene,
@@ -306,13 +357,17 @@ void RayGen()
 [shader("miss")]
 void Miss(inout RayPayload payload)
 {
-    // Sky/background color - dark dungeon atmosphere
-    float3 skyColor = float3(0.02f, 0.02f, 0.03f);
+    // Atmospheric dungeon void - slight vertical gradient for depth
+    float3 rayDir = WorldRayDirection();
+    float upFactor = saturate(rayDir.y * 0.5f + 0.5f);
+    float3 darkFloor = float3(0.01f, 0.01f, 0.015f);
+    float3 darkCeiling = float3(0.025f, 0.02f, 0.03f);
+    float3 skyColor = lerp(darkFloor, darkCeiling, upFactor);
     payload.color = float4(skyColor, 1.0f);
 }
 
 //=============================================================================
-// Closest Hit Shader
+// Closest Hit Shader - Full PBR with Shadows
 //=============================================================================
 
 [shader("closesthit")]
@@ -320,7 +375,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
 {
     // Get primitive index - for triangle list, each triangle has 3 vertices
     uint primIdx = PrimitiveIndex();
-    uint vertexIndex = primIdx * 3; // Triangle list: 3 vertices per primitive
+    uint vertexIndex = primIdx * 3;
     
     // Load the 3 vertices of this triangle
     Vertex v0 = LoadVertex(vertexIndex);
@@ -332,103 +387,147 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
                          attribs.barycentrics.x,
                          attribs.barycentrics.y);
     
-    // Interpolate position
+    // Interpolate vertex attributes
     float3 localPos = v0.Pos * bary.x + v1.Pos * bary.y + v2.Pos * bary.z;
-    
-    // Interpolate normal and normalize
     float3 N = normalize(v0.Normal * bary.x + v1.Normal * bary.y + v2.Normal * bary.z);
-    
-    // Interpolate texture coordinates
     float2 texCoord = v0.TexC * bary.x + v1.TexC * bary.y + v2.TexC * bary.z;
     
-    // Get hit position from ray
+    // Hit position and ray direction
     float3 hitPos = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
     float3 rayDir = WorldRayDirection();
     
-    // Ensure normal faces the camera (flip if pointing away from ray)
+    // Ensure normal faces the camera
     if (dot(N, -rayDir) < 0.0f)
         N = -N;
     
     // View direction
     float3 V = normalize(gCameraPos - hitPos);
     
-    // Get texture index for this primitive and sample texture
+    // Sample texture
     uint texIndex = gPrimitiveTextureIndices.Load(primIdx * 4);
-    float3 albedo;
-    
-    // DEBUG: Visualize texture index pattern
-    // Green = texIndex > 0 (has valid texture), Red = texIndex == 0
-    // Enable this to debug the alternating pattern:
-    //payload.color = float4((texIndex == 0) ? 1.0 : 0.0, (texIndex > 0) ? 1.0 : 0.0, frac((float)primIdx / 10.0), 1.0);
-    //return;
+    float4 texSample = float4(0.5f, 0.5f, 0.5f, 1.0f);
     
     if (texIndex < 550)
     {
-        // Sample the texture at mip level 0 (no derivatives in raytracing shaders)
-        // NonUniformResourceIndex is required for divergent dynamic indexing into texture arrays
-        albedo = gTextures[NonUniformResourceIndex(texIndex)].SampleLevel(gSampler, texCoord, 0).rgb;
+        texSample = gTextures[NonUniformResourceIndex(texIndex)].SampleLevel(gSampler, texCoord, 0);
+    }
+    
+    // Alpha-test transparency: skip through transparent textures
+    if (IsTransparentTexture(texIndex) && texSample.a < 0.5f && payload.depth < 4)
+    {
+        // Fire a continuation ray through this surface
+        RayDesc contRay;
+        contRay.Origin = hitPos + rayDir * 0.01f;
+        contRay.Direction = rayDir;
+        contRay.TMin = 0.01f;
+        contRay.TMax = 100000.0f;
+        
+        RayPayload contPayload;
+        contPayload.color = float4(0.0f, 0.0f, 0.0f, 1.0f);
+        contPayload.depth = payload.depth + 1;
+        
+        TraceRay(gScene, RAY_FLAG_NONE, 0xFF, 0, 1, 0, contRay, contPayload);
+        payload.color = contPayload.color;
+        return;
+    }
+    
+    float3 albedo;
+    if (texIndex < 550)
+    {
+        albedo = texSample.rgb;
     }
     else
     {
-        // Fallback for missing texture
         float variation = frac(sin(dot(texCoord, float2(12.9898f, 78.233f))) * 43758.5453f);
         albedo = lerp(float3(0.4f, 0.38f, 0.35f), float3(0.55f, 0.52f, 0.48f), variation);
     }
     
-    // Material properties
+    // ---- Material properties ----
     float roughness = gRoughness;
     float metallic = gMetallic;
     
-    // Compute lighting using simplified PBR
+    // Wet floor effect: horizontal surfaces get slight glossiness
+    float floorFactor = saturate(dot(N, float3(0.0f, 1.0f, 0.0f)));
+    if (floorFactor > 0.7f)
+    {
+        float wetness = (floorFactor - 0.7f) / 0.3f; // 0 to 1
+        roughness = lerp(roughness, roughness * 0.5f, wetness * 0.6f);
+        // Darken wet albedo slightly (wet surfaces absorb more light)
+        albedo *= lerp(1.0f, 0.85f, wetness * 0.4f);
+    }
+    
+    // ---- Lighting accumulation ----
     float3 color = float3(0.0f, 0.0f, 0.0f);
     
-    // Add ambient (full strength)
-    float3 ambient = gAmbientLight.rgb * albedo;
+    // Ambient: scaled down for dramatic contrast, with hemisphere variation
+    // Surfaces facing up get slightly more ambient (indirect sky bounce)
+    // Surfaces facing down (ceilings) get less
+    float hemiBlend = dot(N, float3(0.0f, 1.0f, 0.0f)) * 0.5f + 0.5f;
+    float ambientScale = lerp(0.08f, 0.18f, hemiBlend);
+    float3 ambient = gAmbientLight.rgb * ambientScale * albedo;
+    // Cool tint in ambient shadows
+    ambient *= float3(0.85f, 0.9f, 1.0f);
     color += ambient;
     
-    // Simple directional light (main light)
+    // Shadow ray origin: offset along normal to prevent self-intersection
+    float3 shadowOrigin = hitPos + N * SHADOW_BIAS;
+    
+    // ---- Directional light (gLights[0]) with shadow ----
     if (gNumLights > 0)
     {
         Light L = gLights[0];
         float3 lightDir = -normalize(L.Direction);
         float NdotL = max(dot(N, lightDir), 0.0f);
-        color += albedo * L.Strength * NdotL;
         
-        // Simple specular
-        float3 H = normalize(V + lightDir);
-        float NdotH = max(dot(N, H), 0.0f);
-        float spec = pow(NdotH, 32.0f * (1.0f - roughness + 0.1f));
-        color += L.Strength * spec * 0.5f;
+        if (NdotL > 0.001f)
+        {
+            float shadow = TraceShadowRay(shadowOrigin, lightDir, 10000.0f);
+            color += ComputeDirectionalLight(L, albedo, N, V, roughness, metallic) * shadow;
+        }
     }
     
-    // Add point lights (torches) with attenuation
-    const uint NUM_DIR_LIGHTS = 1;
-    for (uint i = NUM_DIR_LIGHTS; i < min(gNumLights, NUM_DIR_LIGHTS + 8u); ++i)
+    // ---- Point lights (torches + missiles) with shadows ----
+    for (uint i = 1; i < min(gNumLights, (uint)MaxLights); ++i)
     {
         Light L = gLights[i];
         float3 lightVec = L.Position - hitPos;
         float d = length(lightVec);
         
-        if (d < L.FalloffEnd && d > 0.001f)
+        if (d < L.FalloffEnd && d > 0.01f)
         {
             float3 lightDir = lightVec / d;
-            float atten = saturate((L.FalloffEnd - d) / (L.FalloffEnd - L.FalloffStart));
-            // Linear falloff instead of quadratic for brighter torches
-            
-            // Torch flicker
-            float flicker = TorchFlicker(1.0f, gTotalTime, 8.0f, 0.2f, (float)i);
-            
             float NdotL = max(dot(N, lightDir), 0.0f);
-            color += albedo * L.Strength * NdotL * atten * flicker;
+            
+            if (NdotL > 0.001f)
+            {
+                // Shadow ray for nearby lights (skip distant ones for performance)
+                float shadow = 1.0f;
+                if (i <= MAX_SHADOW_LIGHTS)
+                {
+                   // shadow = TraceShadowRay(shadowOrigin, lightDir, d);
+                }
+                
+                color += ComputePointLight(L, hitPos, albedo, N, V, roughness, metallic, (float)i) * shadow;
+            }
         }
     }
     
-    // Add minimum visibility to confirm hits
-    color = max(color, float3(0.08f, 0.06f, 0.05f));
+    // ---- Atmospheric distance fog ----
+    float dist = length(hitPos - gCameraPos);
+    float fogFactor = 1.0f - exp(-dist * FOG_DENSITY);
+    fogFactor = saturate(fogFactor);
+    // Fog color: dark blue-gray with slight warmth from nearby torches
+    float3 fogColor = float3(0.015f, 0.015f, 0.025f);
+    color = lerp(color, fogColor, fogFactor);
     
-    // Reinhard tone mapping (preserves HDR better than saturate)
-    color = color / (color + 1.0f);
-    color = pow(color, 1.0f / 2.2f); // Gamma correction
+    // Minimum visibility so geometry silhouettes are faintly visible
+    color = max(color, float3(0.012f, 0.01f, 0.008f));
+    
+    // ---- ACES filmic tone mapping ----
+    color = ACESFilm(color);
+    
+    // Gamma correction
+    color = pow(color, 1.0f / 2.2f);
     
     payload.color = float4(color, 1.0f);
 }

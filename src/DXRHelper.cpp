@@ -220,7 +220,7 @@ ComPtr<ID3DBlob> DXRHelper::CompileRaytracingShader(const std::wstring& filename
 	ThrowIfFailed(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&compiler)));
 	ThrowIfFailed(library->CreateBlobFromFile(filename.c_str(), nullptr, &sourceBlob));
 
-	// Compile as library (lib_6_3) - shader model 6.3 is minimum for DXR
+	// Compile as library (lib_6_5) - shader model 6.5 for DXR 1.1 inline raytracing
 	std::vector<LPCWSTR> args;
 #ifdef _DEBUG
 	args.push_back(L"-Zi");  // Debug info
@@ -233,7 +233,7 @@ ComPtr<ID3DBlob> DXRHelper::CompileRaytracingShader(const std::wstring& filename
 	    sourceBlob.Get(),
 	    filename.c_str(),
 	    L"",            // Entry point (empty for library)
-	    L"lib_6_3",     // Target profile
+	    L"lib_6_5",     // Target profile
 	    args.data(),
 	    (UINT)args.size(),
 	    nullptr,
@@ -288,7 +288,7 @@ void DXRHelper::CreateRaytracingPipelineState(ID3D12Device5* device) {
 
 	// Shader config
 	auto shaderConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
-	UINT payloadSize = sizeof(XMFLOAT4); // Color payload
+	UINT payloadSize = sizeof(XMFLOAT4) + sizeof(UINT); // float4 color + uint depth
 	UINT attributeSize = sizeof(XMFLOAT2); // Barycentrics
 	shaderConfig->Config(payloadSize, attributeSize);
 
@@ -306,7 +306,7 @@ void DXRHelper::CreateRaytracingPipelineState(ID3D12Device5* device) {
 
 	// Pipeline config
 	auto pipelineConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-	UINT maxRecursionDepth = 1; // Primary rays only
+	UINT maxRecursionDepth = 5; // Primary rays + up to 4 transparency continuation rays
 	pipelineConfig->Config(maxRecursionDepth);
 
 	// Create state object
