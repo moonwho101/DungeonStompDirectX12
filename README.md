@@ -26,11 +26,11 @@ Happy Dungeon Stomping - Breeyark!
 
 ## Dungeon Stomp DirectX12 Ultimate DXR
 
-* Dungeon Stomp for DirectX12 Ultimate DXR is available  [Dungeon Stomp DirectX12 Ultimate DXR](https://github.com/moonwho101/DungeonStompDX12UltimateDXR).
+* Dungeon Stomp for DirectX12 Ultimate DXR is available  [Dungeon Stomp DirectX12 Ultimate DXR](https://github.com/moonwho101/DungeonStompDX12UltimateDXR)
 
 ## Vulkan
 
-* Dungeon Stomp for Vulkan, a work in progress, is available  [Dungeon Stomp Vulkan](https://github.com/moonwho101/DungeonStompVulkan).
+* Dungeon Stomp for Vulkan, a work in progress, is available  [Dungeon Stomp Vulkan](https://github.com/moonwho101/DungeonStompVulkan)
 * Dungeon Stomp for DirectX7 is here [Dungeon Stomp DirectX7](https://github.com/moonwho101/DungeonStomp)
 
 ## Controls
