@@ -546,164 +546,185 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture
 int tracknormal[MAX_NUM_QUADS];
 
 void SmoothNormals(int start_cnt) {
-	// Fast smoothing of vertex normals and tangents by grouping identical positions
-	// Implementation details:
-	// - Quantize positions and use an int key for hashing (faster than float hashing)
-	// - First pass: accumulate normal/tangent sums per position key
-	// - Normalize once per group
-	// - Second pass: apply results only to vertices that share a position (count > 1)
+	// Smoothing with epsilon and dot threshold, using hash for efficiency
+	const float epsilon = 0.0001f;
+	const float smooth_threshold = 0.2f; // ~78 deg, adjust as needed
 
 	const int total = cnt - start_cnt;
-	if (total <= 0) return;
+	if (total <= 0)
+		return;
 
-	struct KeyI {
-		int xi, yi, zi;
+	struct KeyF {
+		float x, y, z;
 	};
-	struct KeyHash {
-		std::size_t operator()(const KeyI &k) const noexcept {
-			// FNV-1a mix for 3x32-bit ints
+	struct KeyHashF {
+		std::size_t operator()(const KeyF &k) const noexcept {
+			// FNV-1a for floats (bitwise)
 			uint64_t h = 1469598103934665603ull;
-			auto mix = [&](uint32_t v) {
-				h ^= v;
+			auto mix = [&](float v) {
+				uint32_t bits;
+				memcpy(&bits, &v, sizeof(float));
+				h ^= bits;
 				h *= 1099511628211ull;
 			};
-			mix(static_cast<uint32_t>(k.xi));
-			mix(static_cast<uint32_t>(k.yi));
-			mix(static_cast<uint32_t>(k.zi));
+			mix(k.x);
+			mix(k.y);
+			mix(k.z);
 			return static_cast<size_t>(h);
 		}
 	};
-	struct KeyEq {
-		bool operator()(const KeyI &a, const KeyI &b) const noexcept {
-			return a.xi == b.xi && a.yi == b.yi && a.zi == b.zi;
+	struct KeyEqF {
+		bool operator()(const KeyF &a, const KeyF &b) const noexcept {
+			return fabsf(a.x - b.x) < epsilon && fabsf(a.y - b.y) < epsilon && fabsf(a.z - b.z) < epsilon;
 		}
 	};
-	struct SumData {
-		XMFLOAT3 nsum; // normal sum
-		XMFLOAT3 tsum; // tangent sum
-		int count;
-	};
 
-	// Reserve with a bit of slack to reduce rehashing
-	std::unordered_map<KeyI, SumData, KeyHash, KeyEq> sums;
-	// The number of unique keys is <= total; reserve ~1.3x to reduce collisions
-	if (total > 0)
-		sums.reserve(static_cast<size_t>(total * 13ull / 10ull));
-
-	const float scale = 10000.0f; // quantization scale (matches previous epsilon intent)
-
-	auto makeKey = [scale](float x, float y, float z) -> KeyI {
-		// round to nearest integer after scaling to ensure stable grouping
-		int xi = static_cast<int>(floorf(x * scale + 0.5f));
-		int yi = static_cast<int>(floorf(y * scale + 0.5f));
-		int zi = static_cast<int>(floorf(z * scale + 0.5f));
-		return { xi, yi, zi };
-	};
-
-	auto normalizeSafe = [](const XMFLOAT3 &v) -> XMFLOAT3 {
-		float lsq = v.x * v.x + v.y * v.y + v.z * v.z;
-		if (lsq > 1e-20f) {
-			float inv = 1.0f / sqrtf(lsq);
-			return XMFLOAT3(v.x * inv, v.y * inv, v.z * inv);
-		}
-		return XMFLOAT3(0.0f, 0.0f, 0.0f);
-	};
-
-	// Pass 1: accumulate sums per quantized position
+	// For each unique position, store indices
+	std::unordered_map<KeyF, std::vector<int>, KeyHashF, KeyEqF> posGroups;
 	for (int i = start_cnt; i < cnt; ++i) {
-		KeyI key = makeKey(src_v[i].x, src_v[i].y, src_v[i].z);
-
-		auto it = sums.find(key);
-		if (it == sums.end()) {
-			SumData init;
-			init.nsum = XMFLOAT3(0.0f, 0.0f, 0.0f);
-			init.tsum = XMFLOAT3(0.0f, 0.0f, 0.0f);
-			init.count = 0;
-			it = sums.emplace(key, init).first;
-		}
-
-		SumData &s = it->second;
-		s.nsum.x += src_v[i].nx; s.nsum.y += src_v[i].ny; s.nsum.z += src_v[i].nz;
-		s.tsum.x += src_v[i].nmx; s.tsum.y += src_v[i].nmy; s.tsum.z += src_v[i].nmz;
-		++s.count;
+		KeyF key{ src_v[i].x, src_v[i].y, src_v[i].z };
+		posGroups[key].push_back(i);
 	}
 
-	// Normalize once per group (only when more than one vertex shares the position)
-	for (auto &p : sums) {
-		SumData &s = p.second;
-		if (s.count > 1) {
-			s.nsum = normalizeSafe(s.nsum);
-			s.tsum = normalizeSafe(s.tsum);
-		}
-	}
+	// For each group, smooth normals/tangents if dot > threshold
+	for (auto &kv : posGroups) {
+		std::vector<int> &indices = kv.second;
+		int n = (int)indices.size();
+		if (n < 2)
+			continue;
 
-	// Pass 2: write back smoothed values only for shared vertices
-	for (int i = start_cnt; i < cnt; ++i) {
-		KeyI key = makeKey(src_v[i].x, src_v[i].y, src_v[i].z);
-		auto it = sums.find(key);
-		if (it != sums.end() && it->second.count > 1) {
-			const XMFLOAT3 &n = it->second.nsum;
-			const XMFLOAT3 &t = it->second.tsum;
-			src_v[i].nx = n.x; src_v[i].ny = n.y; src_v[i].nz = n.z;
-			src_v[i].nmx = t.x; src_v[i].nmy = t.y; src_v[i].nmz = t.z;
+		// For each vertex in group, find all others with similar normal (dot > threshold)
+		std::vector<bool> processed(n, false);
+		for (int i = 0; i < n; ++i) {
+			if (processed[i])
+				continue;
+			int baseIdx = indices[i];
+			float bx = src_v[baseIdx].nx, by = src_v[baseIdx].ny, bz = src_v[baseIdx].nz;
+			float btx = src_v[baseIdx].nmx, bty = src_v[baseIdx].nmy, btz = src_v[baseIdx].nmz;
+
+			std::vector<int> group;
+			group.push_back(baseIdx);
+			processed[i] = true;
+
+			for (int j = i + 1; j < n; ++j) {
+				if (processed[j])
+					continue;
+				int idx = indices[j];
+				float nx = src_v[idx].nx, ny = src_v[idx].ny, nz = src_v[idx].nz;
+				float dot = bx * nx + by * ny + bz * nz;
+				float len1 = sqrtf(bx * bx + by * by + bz * bz);
+				float len2 = sqrtf(nx * nx + ny * ny + nz * nz);
+				if (len1 > 1e-6f && len2 > 1e-6f)
+					dot /= (len1 * len2);
+				else
+					dot = 1.0f;
+				if (dot > smooth_threshold) {
+					group.push_back(idx);
+					processed[j] = true;
+				}
+			}
+
+			if (group.size() > 1) {
+				float sx = 0, sy = 0, sz = 0;
+				float stx = 0, sty = 0, stz = 0;
+				for (int idx : group) {
+					sx += src_v[idx].nx;
+					sy += src_v[idx].ny;
+					sz += src_v[idx].nz;
+					stx += src_v[idx].nmx;
+					sty += src_v[idx].nmy;
+					stz += src_v[idx].nmz;
+				}
+				float len = sqrtf(sx * sx + sy * sy + sz * sz);
+				float tlen = sqrtf(stx * stx + sty * sty + stz * stz);
+				if (len > 1e-6f) {
+					sx /= len;
+					sy /= len;
+					sz /= len;
+				}
+				if (tlen > 1e-6f) {
+					stx /= tlen;
+					sty /= tlen;
+					stz /= tlen;
+				}
+				for (int idx : group) {
+					src_v[idx].nx = sx;
+					src_v[idx].ny = sy;
+					src_v[idx].nz = sz;
+					src_v[idx].nmx = stx;
+					src_v[idx].nmy = sty;
+					src_v[idx].nmz = stz;
+				}
+			}
 		}
 	}
 }
 
 void SmoothNormalsNoHash(int start_cnt) {
-
 	// Smooth the vertex normals out so the models look less blocky.
+	// Improvements:
+	// - Use epsilon for position comparison to handle floating point errors from tessellation.
+	// - Use a dot product threshold to avoid smoothing across sharp edges (smooth when you can).
+	// - Better management of shared vertex groups.
 
-	XMVECTOR sum, sumtan, average;
-	XMFLOAT3 x1, xtan, final2, finaltan;
+	const float epsilon = 0.0001f;
+	const float smooth_threshold = 0.2f; // approx 60 degrees. 0.7f is 45 deg. 0.5f is more aggressive.
 
-	int scount = 0;
+	// 0.707: Smooths up to 45  (Common default for most models).
+	// 0.500: Smooths up to 60 .
+	// 0.000: Smooths up to 90  (Everything up to a perfect right angle will be smoothed).
 
 	for (int i = start_cnt; i < cnt; i++) {
 		tracknormal[i] = 0;
 	}
 
 	for (int i = start_cnt; i < cnt; i++) {
-
 		if (tracknormal[i] == 0) {
 			float x = src_v[i].x;
 			float y = src_v[i].y;
 			float z = src_v[i].z;
 
-			scount = 0;
+			XMVECTOR ni = XMVectorSet(src_v[i].nx, src_v[i].ny, src_v[i].nz, 0);
 
-			// GitHub copilot fixed this! AI is the future.
-			// old code: for (int j = start_cnt; j < cnt; j++)
-
+			int scount = 0;
+			// Pass 1: find all vertices at the same location with similar normals
 			for (int j = i; j < cnt; j++) {
-				if (tracknormal[j] == 0 && x == src_v[j].x && y == src_v[j].y && z == src_v[j].z) {
-					// found shared vertex
-					sharedv[scount] = j;
-					scount++;
+				if (tracknormal[j] == 0) {
+					// Check position with epsilon
+					if (fabsf(src_v[j].x - x) < epsilon &&
+					    fabsf(src_v[j].y - y) < epsilon &&
+					    fabsf(src_v[j].z - z) < epsilon) {
+
+						// Condition for smoothing: similar normals (smooth when you can)
+						XMVECTOR nj = XMVectorSet(src_v[j].nx, src_v[j].ny, src_v[j].nz, 0);
+						float dot = XMVectorGetX(XMVector3Dot(ni, nj));
+
+						// If normals are within the threshold, or if they are very similar (likely part of same quad)
+						if (dot > smooth_threshold) {
+							if (scount < 2000) {
+								sharedv[scount++] = j;
+							}
+						}
+					}
 				}
 			}
 
 			if (scount > 1) {
-				sum = XMVectorSet(0, 0, 0, 0);
-				sumtan = XMVectorSet(0, 0, 0, 0);
+				XMVECTOR sum = XMVectorSet(0, 0, 0, 0);
+				XMVECTOR sumtan = XMVectorSet(0, 0, 0, 0);
 
 				for (int k = 0; k < scount; k++) {
-					x1.x = src_v[sharedv[k]].nx;
-					x1.y = src_v[sharedv[k]].ny;
-					x1.z = src_v[sharedv[k]].nz;
-					sum = sum + XMLoadFloat3(&x1);
-
-					xtan.x = src_v[sharedv[k]].nmx;
-					xtan.y = src_v[sharedv[k]].nmy;
-					xtan.z = src_v[sharedv[k]].nmz;
-					sumtan = sumtan + XMLoadFloat3(&xtan);
+					sum = sum + XMVectorSet(src_v[sharedv[k]].nx, src_v[sharedv[k]].ny, src_v[sharedv[k]].nz, 0);
+					sumtan = sumtan + XMVectorSet(src_v[sharedv[k]].nmx, src_v[sharedv[k]].nmy, src_v[sharedv[k]].nmz, 0);
 				}
 
-				average = XMVector3Normalize(sum);
+				XMVECTOR average = XMVector3Normalize(sum);
+				XMFLOAT3 final2;
 				XMStoreFloat3(&final2, average);
 
-				average = XMVector3Normalize(sumtan);
-				XMStoreFloat3(&finaltan, average);
+				XMVECTOR averagetan = XMVector3Normalize(sumtan);
+				XMFLOAT3 finaltan;
+				XMStoreFloat3(&finaltan, averagetan);
 
 				for (int k = 0; k < scount; k++) {
 					src_v[sharedv[k]].nx = final2.x;
@@ -716,6 +737,10 @@ void SmoothNormalsNoHash(int start_cnt) {
 
 					tracknormal[sharedv[k]] = 1;
 				}
+			} else if (scount == 1) {
+				// Even if only one matched the normal threshold, we must mark it as tracked
+				// to avoid re-processing it as a new seed.
+				tracknormal[sharedv[0]] = 1;
 			}
 		}
 	}
