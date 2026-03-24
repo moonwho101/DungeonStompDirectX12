@@ -545,121 +545,135 @@ void PlayerToD3DVertList(int pmodel_id, int curr_frame, float angle, int texture
 
 int tracknormal[MAX_NUM_QUADS];
 
+// Static buffers for ultimate-speed smoothing (no allocations)
+#define SN_HASH_SIZE 16384
+#define SN_MAX_VERTS 250000
+static int sn_head[SN_HASH_SIZE];
+static int sn_next[SN_MAX_VERTS];
+static int sn_group[512];
+
 void SmoothNormals(int start_cnt) {
-	// Smoothing with epsilon and dot threshold, using hash for efficiency
 	const float epsilon = 0.0001f;
-	const float smooth_threshold = 0.2f; // ~78 deg, adjust as needed
+	const float inv_eps = 1.0f / epsilon;
+	const float smooth_threshold = 0.2f;
 
 	const int total = cnt - start_cnt;
-	if (total <= 0)
+	if (total <= 1 || total >= SN_MAX_VERTS)
 		return;
 
-	struct KeyF {
-		float x, y, z;
-	};
-	struct KeyHashF {
-		std::size_t operator()(const KeyF &k) const noexcept {
-			// FNV-1a for floats (bitwise)
-			uint64_t h = 1469598103934665603ull;
-			auto mix = [&](float v) {
-				uint32_t bits;
-				memcpy(&bits, &v, sizeof(float));
-				h ^= bits;
-				h *= 1099511628211ull;
-			};
-			mix(k.x);
-			mix(k.y);
-			mix(k.z);
-			return static_cast<size_t>(h);
-		}
-	};
-	struct KeyEqF {
-		bool operator()(const KeyF &a, const KeyF &b) const noexcept {
-			return fabsf(a.x - b.x) < epsilon && fabsf(a.y - b.y) < epsilon && fabsf(a.z - b.z) < epsilon;
-		}
-	};
+	// 1. Initialize hash table (O(SN_HASH_SIZE) or O(total))
+	// We only clear the buckets we might use if we want, but memset is extremely fast.
+	memset(sn_head, -1, sizeof(sn_head));
 
-	// For each unique position, store indices
-	std::unordered_map<KeyF, std::vector<int>, KeyHashF, KeyEqF> posGroups;
-	for (int i = start_cnt; i < cnt; ++i) {
-		KeyF key{ src_v[i].x, src_v[i].y, src_v[i].z };
-		posGroups[key].push_back(i);
+	// 2. Spatial Hashing (O(N))
+	for (int i = 0; i < total; ++i) {
+		const auto &v = src_v[start_cnt + i];
+		// Quantize to grid
+		int64_t qx = (int64_t)(v.x * inv_eps);
+		int64_t qy = (int64_t)(v.y * inv_eps);
+		int64_t qz = (int64_t)(v.z * inv_eps);
+
+		// Fast bitwise hash (Murmur-like)
+		uint32_t h = (uint32_t)((qx * 73856093) ^ (qy * 19349663) ^ (qz * 83492791)) & (SN_HASH_SIZE - 1);
+
+		sn_next[i] = sn_head[h];
+		sn_head[h] = i;
 	}
 
-	// For each group, smooth normals/tangents if dot > threshold
-	for (auto &kv : posGroups) {
-		std::vector<int> &indices = kv.second;
-		int n = (int)indices.size();
-		if (n < 2)
+	// 3. Process buckets (O(N))
+	static bool processed[SN_MAX_VERTS];
+	memset(processed, 0, total * sizeof(bool));
+
+	for (int i = 0; i < total; ++i) {
+		if (processed[i])
 			continue;
 
-		// For each vertex in group, find all others with similar normal (dot > threshold)
-		std::vector<bool> processed(n, false);
-		for (int i = 0; i < n; ++i) {
-			if (processed[i])
+		const auto &v_base = src_v[start_cnt + i];
+		int pg_cnt = 0;
+		sn_group[pg_cnt++] = start_cnt + i;
+		processed[i] = true;
+
+		// Re-compute hash to find bucket
+		int64_t qx = (int64_t)(v_base.x * inv_eps);
+		int64_t qy = (int64_t)(v_base.y * inv_eps);
+		int64_t qz = (int64_t)(v_base.z * inv_eps);
+		uint32_t h = (uint32_t)((qx * 73856093) ^ (qy * 19349663) ^ (qz * 83492791)) & (SN_HASH_SIZE - 1);
+
+		// Scan bucket for epsilon neighbors
+		int entry = sn_head[h];
+		while (entry != -1) {
+			if (!processed[entry]) {
+				const auto &v_test = src_v[start_cnt + entry];
+				if (fabsf(v_test.x - v_base.x) < epsilon &&
+				    fabsf(v_test.y - v_base.y) < epsilon &&
+				    fabsf(v_test.z - v_base.z) < epsilon) {
+					if (pg_cnt < 512) {
+						sn_group[pg_cnt++] = start_cnt + entry;
+						processed[entry] = true;
+					}
+				}
+			}
+			entry = sn_next[entry];
+		}
+
+		if (pg_cnt < 2)
+			continue;
+
+		// 4. Smooth within position group (SIMD)
+		bool sub_proc[512] = { false };
+		for (int j = 0; j < pg_cnt; ++j) {
+			if (sub_proc[j])
 				continue;
-			int baseIdx = indices[i];
-			float bx = src_v[baseIdx].nx, by = src_v[baseIdx].ny, bz = src_v[baseIdx].nz;
-			float btx = src_v[baseIdx].nmx, bty = src_v[baseIdx].nmy, btz = src_v[baseIdx].nmz;
 
-			std::vector<int> group;
-			group.push_back(baseIdx);
-			processed[i] = true;
+			int sg_cnt = 0;
+			int baseIdx = sn_group[j];
+			int smooth_group[512];
+			smooth_group[sg_cnt++] = baseIdx;
+			sub_proc[j] = true;
 
-			for (int j = i + 1; j < n; ++j) {
-				if (processed[j])
+			XMVECTOR ni = XMVectorSet(src_v[baseIdx].nx, src_v[baseIdx].ny, src_v[baseIdx].nz, 0.0f);
+
+			for (int k = j + 1; k < pg_cnt; ++k) {
+				if (sub_proc[k])
 					continue;
-				int idx = indices[j];
-				float nx = src_v[idx].nx, ny = src_v[idx].ny, nz = src_v[idx].nz;
-				float dot = bx * nx + by * ny + bz * nz;
-				float len1 = sqrtf(bx * bx + by * by + bz * bz);
-				float len2 = sqrtf(nx * nx + ny * ny + nz * nz);
-				if (len1 > 1e-6f && len2 > 1e-6f)
-					dot /= (len1 * len2);
-				else
-					dot = 1.0f;
-				if (dot > smooth_threshold) {
-					group.push_back(idx);
-					processed[j] = true;
+				int testIdx = sn_group[k];
+				XMVECTOR nj = XMVectorSet(src_v[testIdx].nx, src_v[testIdx].ny, src_v[testIdx].nz, 0.0f);
+
+				if (XMVectorGetX(XMVector3Dot(ni, nj)) > smooth_threshold) {
+					smooth_group[sg_cnt++] = testIdx;
+					sub_proc[k] = true;
 				}
 			}
 
-			if (group.size() > 1) {
-				float sx = 0, sy = 0, sz = 0;
-				float stx = 0, sty = 0, stz = 0;
-				for (int idx : group) {
-					sx += src_v[idx].nx;
-					sy += src_v[idx].ny;
-					sz += src_v[idx].nz;
-					stx += src_v[idx].nmx;
-					sty += src_v[idx].nmy;
-					stz += src_v[idx].nmz;
+			if (sg_cnt > 1) {
+				XMVECTOR sumN = XMVectorZero();
+				XMVECTOR sumT = XMVectorZero();
+				for (int k = 0; k < sg_cnt; ++k) {
+					const auto &v = src_v[smooth_group[k]];
+					sumN = XMVectorAdd(sumN, XMVectorSet(v.nx, v.ny, v.nz, 0.0f));
+					sumT = XMVectorAdd(sumT, XMVectorSet(v.nmx, v.nmy, v.nmz, 0.0f));
 				}
-				float len = sqrtf(sx * sx + sy * sy + sz * sz);
-				float tlen = sqrtf(stx * stx + sty * sty + stz * stz);
-				if (len > 1e-6f) {
-					sx /= len;
-					sy /= len;
-					sz /= len;
-				}
-				if (tlen > 1e-6f) {
-					stx /= tlen;
-					sty /= tlen;
-					stz /= tlen;
-				}
-				for (int idx : group) {
-					src_v[idx].nx = sx;
-					src_v[idx].ny = sy;
-					src_v[idx].nz = sz;
-					src_v[idx].nmx = stx;
-					src_v[idx].nmy = sty;
-					src_v[idx].nmz = stz;
+				sumN = XMVector3Normalize(sumN);
+				// Gram-Schmidt orthogonalization: ensure Tangent is orthogonal to Normal
+				sumT = XMVector3Normalize(XMVectorSubtract(sumT, XMVectorMultiply(sumN, XMVector3Dot(sumN, sumT))));
+
+				XMFLOAT3 fN, fT;
+				XMStoreFloat3(&fN, sumN);
+				XMStoreFloat3(&fT, sumT);
+
+				for (int k = 0; k < sg_cnt; ++k) {
+					auto &v = src_v[smooth_group[k]];
+					v.nx = fN.x;
+					v.ny = fN.y;
+					v.nz = fN.z;
+					v.nmx = fT.x;
+					v.nmy = fT.y;
+					v.nmz = fT.z;
 				}
 			}
 		}
 	}
 }
-
 void SmoothNormalsNoHash(int start_cnt) {
 	// Smooth the vertex normals out so the models look less blocky.
 	// Improvements:
@@ -670,9 +684,9 @@ void SmoothNormalsNoHash(int start_cnt) {
 	const float epsilon = 0.0001f;
 	const float smooth_threshold = 0.2f; // approx 60 degrees. 0.7f is 45 deg. 0.5f is more aggressive.
 
-	// 0.707: Smooths up to 45  (Common default for most models).
-	// 0.500: Smooths up to 60 .
-	// 0.000: Smooths up to 90  (Everything up to a perfect right angle will be smoothed).
+	// 0.707: Smooths up to 45(Common default for most models).
+	// 0.500: Smooths up to 60.
+	// 0.000: Smooths up to 90(Everything up to a perfect right angle will be smoothed).
 
 	for (int i = start_cnt; i < cnt; i++) {
 		tracknormal[i] = 0;
@@ -719,10 +733,12 @@ void SmoothNormalsNoHash(int start_cnt) {
 				}
 
 				XMVECTOR average = XMVector3Normalize(sum);
+				// Gram-Schmidt orthogonalization: ensure Tangent is orthogonal to Normal (matches SmoothNormals)
+				XMVECTOR averagetan = XMVector3Normalize(XMVectorSubtract(sumtan, XMVectorMultiply(average, XMVector3Dot(average, sumtan))));
+
 				XMFLOAT3 final2;
 				XMStoreFloat3(&final2, average);
 
-				XMVECTOR averagetan = XMVector3Normalize(sumtan);
 				XMFLOAT3 finaltan;
 				XMStoreFloat3(&finaltan, averagetan);
 
@@ -745,6 +761,7 @@ void SmoothNormalsNoHash(int start_cnt) {
 		}
 	}
 }
+
 
 void ComputerWeightedAverages(int start_cnt);
 
