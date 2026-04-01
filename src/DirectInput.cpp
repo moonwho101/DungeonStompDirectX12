@@ -11,7 +11,7 @@
 #include "Dice.hpp"
 
 // mouse sensitivity
-float mousediv = 25.0f;
+float mousediv = 12.0f;
 
 // Only one input device should be true.  Set g_bUseJoystick=true for xbox controller.
 BOOL g_bUseMouse = true;
@@ -671,27 +671,16 @@ VOID WalkMode(CONTROLS *Controls) {
 		previouslevel = 0;
 	}
 
-	if (g_bUseMouse) {
-		angy += filterx;
-		look_up_ang += filtery;
-	}
-
 	bool mousefilter = true;
 	if (g_bUseMouse) {
 		if (mousefilter) {
 			smooth_mouse(elapsegametimersave, filterx, filtery);
-			// MouseFilter(filterx, filtery);
 			angy += filterx;
 			look_up_ang += filtery;
 		} else {
 			angy += filterx;
 			look_up_ang += filtery;
 		}
-		/*	if (look_up_ang < -90.0f)
-		        look_up_ang = -89.9f;
-
-		    if (look_up_ang > 90.0f)
-		        look_up_ang = 89.9f;*/
 	}
 }
 
