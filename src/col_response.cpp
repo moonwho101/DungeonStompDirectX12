@@ -46,6 +46,8 @@ extern XMFLOAT3 eRadius;
 
 XMFLOAT3 eTest;
 
+static VECTOR firstSlideNormal; // stored on first collision to detect crease jitter
+
 void ObjectCollision();
 float FastDistance(float fx, float fy, float fz);
 void calculate_block_location();
@@ -194,7 +196,7 @@ XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity) {
 
 	VECTOR displacementVector = V * veryCloseDistance * factor;
 
-	if ((V.x * slidePlaneNormal.x + V.y * slidePlaneNormal.y + V.z * slidePlaneNormal.z) != 0.0f) {
+	if (fabs(V.x * slidePlaneNormal.x + V.y * slidePlaneNormal.y + V.z * slidePlaneNormal.z) > 1e-6f) {
 		newSourcePoint = newSourcePoint + displacementVector;
 		collisionPackage.intersectionPoint = collisionPackage.intersectionPoint + displacementVector;
 	}
@@ -211,6 +213,22 @@ XMFLOAT3 collideWithWorld(XMFLOAT3 position, XMFLOAT3 velocity) {
 	// Generate the slide vector, which will become our new
 	// velocity vector for the next iteration
 	VECTOR newVelocityVector = newDestinationPoint - collisionPackage.intersectionPoint;
+
+	// Anti-jitter: when a second collision is detected, the two slide
+	// planes can fight each other causing oscillation.  Constrain the
+	// remaining velocity to the crease (intersection line) of the two
+	// planes so the player slides cleanly along corners.
+	if (collisionRecursionDepth == 0) {
+		firstSlideNormal = slidePlaneNormal;
+	} else {
+		VECTOR crease = firstSlideNormal.cross(slidePlaneNormal);
+		float creaseLen = crease.length();
+		if (creaseLen > 1e-6f) {
+			crease = crease * (1.0f / creaseLen);
+			float proj = newVelocityVector.dot(crease);
+			newVelocityVector = crease * proj;
+		}
+	}
 
 	// Recurse:
 	// dont recurse if the new velocity is very small
