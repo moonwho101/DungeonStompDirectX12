@@ -74,20 +74,14 @@ void checkTriangle(CollisionPacket *colPackage, VECTOR p1, VECTOR p2, VECTOR p3)
 	// Is triangle front-facing to the velocity vector?
 	// We only check front-facing triangles
 	// (your choice of course)
-	// Calculate plane relationships for the facing check
-	double signedDistToTrianglePlane = trianglePlane.signedDistanceTo(colPackage->basePoint);
-	float normalDotNormVelocity = trianglePlane.normal.dot(colPackage->normalizedVelocity);
-
-	// Standard front-face check, but also test nearly-parallel triangles when
-	// the sphere is close to the plane. This prevents the player from slicing
-	// through thin triangle edges approached head-on.
-	bool isFrontFacing = (normalDotNormVelocity <= 0);
-	bool thinEdgeCase = (fabs(normalDotNormVelocity) < 0.15f && fabs(signedDistToTrianglePlane) <= 1.5);
-
-	if (isFrontFacing || thinEdgeCase) {
+	if (trianglePlane.isFrontFacingTo(colPackage->normalizedVelocity)) {
 		// Get interval of plane intersection:
 		double t0, t1;
 		bool embeddedInPlane = false;
+
+		// Calculate the signed distance from sphere
+		// position to triangle plane
+		double signedDistToTrianglePlane = trianglePlane.signedDistanceTo(colPackage->basePoint);
 
 		// cache this as we're going to use it a few times below:
 		float normalDotVelocity = trianglePlane.normal.dot(colPackage->velocity);
