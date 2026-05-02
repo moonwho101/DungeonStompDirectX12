@@ -411,6 +411,21 @@ bool D3DApp::InitDirect3D() {
 	ThrowIfFailed(md3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE,
 	                                      IID_PPV_ARGS(&mFence)));
 
+	// Query adapter description for GPU info display
+	{
+		ComPtr<IDXGIAdapter> adapter;
+		if (SUCCEEDED(mdxgiFactory->EnumAdapters(0, &adapter))) {
+			DXGI_ADAPTER_DESC desc;
+			if (SUCCEEDED(adapter->GetDesc(&desc))) {
+				// Convert wide-char GPU name to narrow string
+				char gpuBuf[128] = {};
+				WideCharToMultiByte(CP_UTF8, 0, desc.Description, -1, gpuBuf, sizeof(gpuBuf) - 1, nullptr, nullptr);
+				mGpuName = gpuBuf;
+				mGpuDedicatedVRAM = desc.DedicatedVideoMemory;
+			}
+		}
+	}
+
 	mRtvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	mDsvDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 	mCbvSrvUavDescriptorSize = md3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
