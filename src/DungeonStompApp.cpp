@@ -2084,9 +2084,12 @@ void DungeonStompApp::DrawRenderItems(ID3D12GraphicsCommandList *cmdList, const 
 		if (enablePlayerHUD) {
 			DisplayHud();
 			SetDungeonText();
+
 		}
 
 		ScanMod(gt.DeltaTime());
+		FlushRectangles();
+		FlushText();
 	}
 
 	return;

@@ -239,29 +239,7 @@ Font LoadFont(LPCWSTR filename, int windowWidth, int windowHeight) {
 }
 
 void DungeonStompApp::RenderRectangle(Font font, int index, int textureid, XMFLOAT2 pos, XMFLOAT2 scale, XMFLOAT2 padding, XMFLOAT4 color) {
-	// clear the depth buffer so we can draw over everything
-	// mCommandList->ClearDepthStencilView(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-	// mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
 	std::wstring text = L"A";
-
-	// set the rectangle pipeline state object
-	mCommandList->SetPipelineState(rectanglePSO[index]);
-
-	// this way we only need 4 vertices per quad rather than 6 if we were to use a triangle list topology
-	mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	// mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	// set the rectangle vertex buffer
-	mCommandList->IASetVertexBuffers(0, 1, &rectangleVertexBufferView[index]);
-
-	// bind the rectangle srv. We will assume the correct descriptor heap and table are currently bound and set
-	// mCommandList->SetGraphicsRootDescriptorTable(3, font.srvHandle);
-
-	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-	tex.Offset(textureid, mCbvSrvDescriptorSize);
-	mCommandList->SetGraphicsRootDescriptorTable(3, tex);
 
 	float topLeftScreenX = (pos.x * 2.0f) - 1.0f;
 	float topLeftScreenY = ((1.0f - pos.y) * 2.0f) - 1.0f;
@@ -272,61 +250,90 @@ void DungeonStompApp::RenderRectangle(Font font, int index, int textureid, XMFLO
 	float horrizontalPadding = (font.leftpadding + font.rightpadding) * padding.x;
 	float verticalPadding = (font.toppadding + font.bottompadding) * padding.y;
 
-	// cast the gpu virtual address to a textvertex, so we can directly store our vertices there
+	// Each rectangle has its own buffer — always write to slot [0]
 	TextVertex *vert = (TextVertex *)rectangleVBGPUAddress[index];
 
-	wchar_t lastChar = -1; // no last character to start with
+	wchar_t lastChar = -1;
 
-	for (int i = 0; i < text.size(); ++i) {
+	for (int i = 0; i < (int)text.size(); ++i) {
 		wchar_t c = text[i];
 
 		FontChar *fc = font.GetChar(c);
 
-		// character not in font char set
 		if (fc == nullptr)
 			continue;
 
-		// end of string
 		if (c == L'\0')
 			break;
 
-		// new line
 		if (c == L'\n') {
 			x = topLeftScreenX;
 			y -= (font.lineHeight + verticalPadding) * scale.y;
 			continue;
 		}
 
-		// don't overflow the buffer. In your app if this is true, you can implement a resize of your text vertex buffer
-		if (numCharacters >= maxNumRectangleCharacters)
-			break;
-
 		float kerning = 0.0f;
 		if (i > 0)
 			kerning = font.GetKerning(lastChar, c);
 
-		vert[numCharacters] = TextVertex(color.x,
-		                                 color.y,
-		                                 color.z,
-		                                 color.w,
-		                                 0.0f,
-		                                 0.0f,
-		                                 1.0f,
-		                                 1.0f,
-		                                 x + ((fc->xoffset + kerning) * scale.x),
-		                                 y - (fc->yoffset * scale.y),
-		                                 fc->width * scale.x,
-		                                 fc->height * scale.y);
+		vert[0] = TextVertex(color.x,
+		                     color.y,
+		                     color.z,
+		                     color.w,
+		                     0.0f,
+		                     0.0f,
+		                     1.0f,
+		                     1.0f,
+		                     x + ((fc->xoffset + kerning) * scale.x),
+		                     y - (fc->yoffset * scale.y),
+		                     fc->width * scale.x,
+		                     fc->height * scale.y);
 
-		numCharacters++;
-
-		// remove horrizontal padding and advance to next char position
 		x += (fc->xadvance - horrizontalPadding) * scale.x;
-
 		lastChar = c;
 	}
 
-	// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
+	rectangleActive[index] = true;
+	rectangleTexId[index] = textureid;
+}
+
+void DungeonStompApp::FlushRectangles() {
+	for (int i = 0; i < MaxRectangle; ++i) {
+		if (!rectangleActive[i])
+			continue;
+
+		mCommandList->SetPipelineState(rectanglePSO[i]);
+		mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+		mCommandList->IASetVertexBuffers(0, 1, &rectangleVertexBufferView[i]);
+
+		CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+		tex.Offset(rectangleTexId[i], mCbvSrvDescriptorSize);
+		mCommandList->SetGraphicsRootDescriptorTable(3, tex);
+
+		mCommandList->DrawInstanced(4, 1, 0, 0);
+
+		rectangleActive[i] = false;
+	}
+}
+
+void DungeonStompApp::FlushText() {
+	if (numCharacters == 0)
+		return;
+
+	// set the text pipeline state object
+	mCommandList->SetPipelineState(textPSO);
+
+	// this way we only need 4 vertices per quad rather than 6 if we were to use a triangle list topology
+	mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	// set the text vertex buffer
+	mCommandList->IASetVertexBuffers(0, 1, &textVertexBufferView);
+
+	// bind the text srv
+	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+	tex.Offset(103, mCbvSrvDescriptorSize);
+	mCommandList->SetGraphicsRootDescriptorTable(3, tex);
+
 	mCommandList->DrawInstanced(4, numCharacters, 0, 0);
 }
 
@@ -334,28 +341,6 @@ void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMF
 
 	if (drawingShadowMap || drawingSSAO || !enablePlayerHUD)
 		return;
-
-	// clear the depth buffer so we can draw over everything
-	// mCommandList->ClearDepthStencilView(mSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-	// mCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
-	// set the text pipeline state object
-	mCommandList->SetPipelineState(textPSO);
-
-	// this way we only need 4 vertices per quad rather than 6 if we were to use a triangle list topology
-	mCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	// mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	// set the text vertex buffer
-	mCommandList->IASetVertexBuffers(0, 1, &textVertexBufferView);
-
-	// bind the text srv. We will assume the correct descriptor heap and table are currently bound and set
-	// mCommandList->SetGraphicsRootDescriptorTable(3, font.srvHandle);
-
-	CD3DX12_GPU_DESCRIPTOR_HANDLE tex(mSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
-	tex.Offset(103, mCbvSrvDescriptorSize);
-	mCommandList->SetGraphicsRootDescriptorTable(3, tex);
 
 	float topLeftScreenX = (pos.x * 2.0f) - 1.0f;
 	float topLeftScreenY = ((1.0f - pos.y) * 2.0f) - 1.0f;
@@ -419,10 +404,8 @@ void DungeonStompApp::RenderText(Font font, std::wstring text, XMFLOAT2 pos, XMF
 
 		lastChar = c;
 	}
-
-	// we are going to have 4 vertices per character (trianglestrip to make quad), and each instance is one character
-	mCommandList->DrawInstanced(4, numCharacters, 0, 0);
 }
+
 
 void DungeonStompApp::DisplayHud() {
 
