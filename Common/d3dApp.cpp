@@ -229,6 +229,23 @@ LRESULT D3DApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		}
 		return 0;
 
+	// WM_DPICHANGED is sent when the DPI for a window changes (for example when
+	// the window is moved to a monitor with a different scaling).  Windows passes
+	// a recommended new window rectangle in lParam which should be applied via
+	// SetWindowPos so the window's outer size/position is updated correctly.
+	case WM_DPICHANGED: {
+		if (lParam != 0) {
+			RECT *prcNewWindow = reinterpret_cast<RECT *>(lParam);
+			SetWindowPos(hwnd, nullptr,
+			             prcNewWindow->left,
+			             prcNewWindow->top,
+			             prcNewWindow->right - prcNewWindow->left,
+			             prcNewWindow->bottom - prcNewWindow->top,
+			             SWP_NOZORDER | SWP_NOACTIVATE);
+		}
+		return 0;
+	}
+
 	// WM_SIZE is sent when the user resizes the window.
 	case WM_SIZE:
 		// Save the new client area dimensions.
