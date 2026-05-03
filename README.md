@@ -41,6 +41,7 @@ Happy Dungeon Stomping - Breeyark!
 * Left mouse button to attack, right mouse button to move forward
 * Maximize screen then press ALT+ENTER to enter FULLSCREEN mode
 * Press F5 to Load game, F6 to Save game
+* Press F8 for Debug screen
 
 ## Debug Controls
 
