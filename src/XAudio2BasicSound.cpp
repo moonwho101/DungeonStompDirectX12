@@ -389,7 +389,7 @@ void MakeWave(char *file, std::unique_ptr<uint8_t[]> waveFile) {
 	HRESULT hr;
 
 	DirectX::WAVData waveData;
-	hr = DirectX::LoadWAVAudioFromFileEx(charToWChar(file), waveFile, waveData);
+	hr = DirectX::LoadWAVAudioFromFileEx(charToWChar(file).c_str(), waveFile, waveData);
 	//{
 	// wprintf(L"Failed reading WAV file: %#X (%s)\n", hr, strFilePath);
 	// return;
@@ -461,7 +461,7 @@ BOOL LoadSoundFiles(char *filename) {
 			GetCurrentDirectory(100, NPath);
 
 			// DirectX::WAVData waveData;
-			hr = DirectX::LoadWAVAudioFromFileEx(charToWChar(file), sound_buffer[numsounds].waveFile, sound_buffer[numsounds].waveData);
+			hr = DirectX::LoadWAVAudioFromFileEx(charToWChar(file).c_str(), sound_buffer[numsounds].waveFile, sound_buffer[numsounds].waveData);
 			hr = pXAudio2->CreateSourceVoice(&sound_list[numsounds].pSourceVoice, sound_buffer[numsounds].waveData.wfx);
 			strcpy_s(sound_buffer[numsounds].name, name);
 			sound_list[numsounds].soundbufferid = numsounds;

@@ -4,6 +4,7 @@
 
 #include <windows.h>
 #include <windowsx.h>
+#include <string>
 #include "d3dtypes.h"
 #include "GlobalSettings.hpp"
 #include <DirectXMath.h>
@@ -535,7 +536,7 @@ int SoundID(char *name);
 int FreeSlave();
 void CheckMidiMusic();
 int MakeDice();
-wchar_t *charToWChar(const char *text);
+std::wstring charToWChar(const char *text);
 int GetNextFramePlayer();
 
 #endif // __WORLD_H__
