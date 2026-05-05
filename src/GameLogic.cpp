@@ -2901,7 +2901,7 @@ void GetItem() {
 					if (strstr(item_list[i].rname, "SCROLL") != NULL) {
 
 						if (strstr(item_list[i].rname, "SCROLL-MAGICMISSLE") != NULL) {
-							sprintf_s(gActionMessage, "You found a scroll of magic missle");
+							sprintf_s(gActionMessage, "You found a scroll of magic missile");
 						} else if (strstr(item_list[i].rname, "SCROLL-FIREBALL") != NULL) {
 							sprintf_s(gActionMessage, "You found a scroll of fireball");
 						} else if (strstr(item_list[i].rname, "SCROLL-LIGHTNING") != NULL) {
