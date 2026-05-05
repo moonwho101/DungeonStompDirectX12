@@ -456,7 +456,7 @@ void DungeonStompApp::DisplayHud() {
 	const char *gunname = your_gun[current_gun].gunname;
 	int scrollCharges = (int)your_gun[current_gun].x_offset;
 	if (strstr(gunname, "SCROLL-MAGICMISSLE") != NULL)
-		sprintf_s(junk, "MISSLE %d", scrollCharges);
+		sprintf_s(junk, "MISSILE %d", scrollCharges);
 	else if (strstr(gunname, "SCROLL-FIREBALL") != NULL)
 		sprintf_s(junk, "FIREBALL %d", scrollCharges);
 	else if (strstr(gunname, "SCROLL-LIGHTNING") != NULL)
