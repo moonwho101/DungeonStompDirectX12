@@ -201,6 +201,7 @@ BOOL CLoadWorld::LoadWorldMap(char *filename) {
 			if (object_id == -1) {
 				// PrintMessage(hwnd, "Error Bad Object ID in: LoadWorld ", p, SCN_AND_FILE);
 				// MessageBox(hwnd, "Error Bad Object ID in: LoadWorld", NULL, MB_OK);
+				fclose(fp);
 				return FALSE;
 			}
 			if (lwm_start_flag == FALSE)
@@ -584,6 +585,7 @@ BOOL CLoadWorld::LoadObjectData(char *filename) {
 
 			if ((object_id < 0) || (object_id > 399)) {
 				// MessageBox(hwnd, "Error Bad Object ID in: LoadObjectData", NULL, MB_OK);
+				fclose(fp);
 				return FALSE;
 			}
 
@@ -1194,8 +1196,10 @@ BOOL CLoadWorld::LoadImportedModelList(char *filename) {
 
 	if (strcmp(command, "FILENAME") == 0)
 		fscanf_s(fp, "%s", &p, 256); // ignore comment
-	else
+	else {
+		fclose(fp);
 		return FALSE;
+	}
 
 	while (done == 0) {
 		command_recognised = FALSE;
@@ -1256,6 +1260,7 @@ BOOL CLoadWorld::LoadImportedModelList(char *filename) {
 			{
 				// PrintMessage(hwnd, "ERROR can't load ", filename, SCN_AND_FILE);
 				// MessageBox(hwnd, filename, "Error can't load file", MB_OK);
+				fclose(fp);
 				return FALSE;
 			}
 
@@ -1415,6 +1420,7 @@ BOOL CLoadWorld::LoadImportedModelList(char *filename) {
 		} else {
 			// PrintMessage(hwnd, "command unrecognised ", command, SCN_AND_FILE);
 			// MessageBox(hwnd, command, "command unrecognised", MB_OK);
+			fclose(fp);
 			return FALSE;
 		}
 

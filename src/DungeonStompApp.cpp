@@ -2525,6 +2525,8 @@ BOOL DungeonStompApp::LoadRRTextures11(char *filename) {
 			fopen_s(&fp4, f, "rb");
 			if (fp4 == NULL) {
 				exists = false;
+			} else {
+				fclose(fp4);
 			}
 
 			auto currentTex = std::make_unique<Texture>();
